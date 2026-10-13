@@ -37,6 +37,10 @@ Set up `roycehoe/hansard`, the web app that will sit on top of the handsard-scra
 14. **Visual targets.** Light and dark themes from day one, following kelix `app/STYLE.md` "Colours": semantic tokens only, no raw palette names, no opacity tints. WCAG 2.2 AA. Inter for UI text and a serif for headings and Hansard text. The palette workers pick the serif and record why in `docs/palette.md`.
 15. **Orchestration.** A Fable 5 orchestrator runs the run. Every worker's model is set explicitly. Haiku fetches photos, extracts colours and runs measurements. Sonnet handles the scaffolds, doc ports, per-category colour notes and components. Opus synthesises the palette and does the final review, because both are taste and correctness calls. Independent work runs concurrently.
 16. **Git.** Commit straight to `master` in `roycehoe/hansard`. Conventional Commits, one logical change per commit, no attribution trailers or AI mentions anywhere. Run `git branch --show-current` before every commit. Never push.
+17. **Photo gaps (gate, 2026-10-13).** The former-chamber wood and seat samples are accepted with the caveat recorded in `docs/palette.md` and `SOURCES.md`. Royce may add his own photos later. Only images with a known licence are used.
+18. **Primary and destructive (gate).** Both stay red as drafted.
+19. **Separator token (gate).** A lighter `separator` token, in light and dark, covers decorative lines: card edges, table rules, dividers. `border` and `input` stay at 3:1 because they mark controls. The brief asks for WCAG 2.2 AA, not 3:1 on every border. `pnpm contrast` checks that `separator` exists in both themes and applies no minimum.
+20. **Leather maroon (gate).** The unused former-chamber leather maroon (#863427) is dropped from the palette's open points.
 
 ## Scenarios confirmed
 

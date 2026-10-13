@@ -72,6 +72,14 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | info-foreground | text | #ffffff | #161512 | S17 / dark background |
 | reading | surface (transcript) | #fbf7ea | #221916 | derived from S5 / derived from S16 |
 | reading-foreground | text | #252320 | #dcd7c9 | S3 / derived from S4 |
+| separator | border (decorative) | #dcd7cf | #3b3732 | derived from S7 / derived from S7 |
+| overlay | surface (scrim) | #161512 | #161512 | dark background, derived from S3 |
+| primary-hover | accent (hover) | #76080e | #f3bfb9 | derived from S1 / derived from S1 |
+| primary-active | accent (active) | #62090b | #fed2cd | S2 / derived from S1 |
+| secondary-hover | surface (hover) | #e3ddd5 | #403c37 | derived from S7 / derived from S7 |
+| secondary-active | surface (active) | #d6d0c8 | #4b4742 | derived from S7 / derived from S7 |
+| destructive-hover | state (hover) | #b00826 | #ff8481 | derived from S18 / derived from S18 |
+| destructive-active | state (active) | #97061f | #ff9b97 | derived from S18 / derived from S18 |
 | border | border | #908d82 | #726f64 | S9 / derived from S9 |
 | input | border | #868680 | #7b7b75 | S10 / derived from S10 |
 | ring | border (focus) | #8d0f14 | #e8ada6 | S1 / derived from S1 |
@@ -89,7 +97,7 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | sidebar-border | border | #868680 | #726f64 | S10 / same as border |
 | sidebar-ring | border (focus) | #8d0f14 | #e8ada6 | same as ring |
 
-`reading` and `reading-foreground` are the only tokens beyond the shadcn set and the three states. They give long transcripts a warmer, paper-like column that sets the record apart from the app around it. `destructive-foreground` is not in the current shadcn v4 defaults; it is added so the destructive button text is a token, not a hard-coded white.
+Beyond the shadcn set and the three states, the palette adds `reading` and `reading-foreground`, which give long transcripts a warmer, paper-like column that sets the record apart from the app around it; `separator`, a lighter line for card edges, table rules and dividers (gate decision 19); `overlay`, the base colour of the dialog scrim, which is the one place an opacity utility is allowed; and hover and active steps for `primary`, `secondary` and `destructive`, so no component needs an opacity tint for a state. `destructive-foreground` is not in the current shadcn v4 defaults; it is added so the destructive button text is a token, not a hard-coded white.
 
 The light theme puts the gown's black cloth on a warm near-white. Stone greys make the surfaces and lines, the gown's red satin is the one brand colour, and gold lace covers hover and warning. The lawn gives success and the sign lettering gives info. The dark theme sets cream lace on the black cloth and keeps the same colour families.
 
@@ -115,28 +123,50 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 | destructive | dark | #ef6666 | S18 #c8102e crest red | L 0.68, C 0.17 | S18 gives 3.10:1 on the dark background |
 | success | dark | #a5b961 | S14 #7a8c34 sunlit lawn | L 0.75 | S13 gives 3.17:1 on the dark background. S14 stays as dark chart-2 |
 | info | dark | #89b2dc | S12 #175082 sign lettering | L 0.75, C 0.075 | S12 gives 2.18:1 on the dark background. Chroma lowered so the blue sits with the warm surfaces |
-| border, sidebar-border | dark | #726f64 | S9 #908d82 granite plate | L 0.54 | S9 is 5.49:1 on the dark background, brighter than a line needs. Lowered to just clear 3:1 on the card |
+| border, sidebar-border | dark | #726f64 | S9 #908d82 granite plate | L 0.54 | S9 is 5.49:1 on the dark background, brighter than a control edge needs. Lowered to just clear 3:1 on the card |
 | input | dark | #7b7b75 | S10 #868680 granite | L 0.58 | One step above border so fields read as fields |
 | chart-1 | dark | #d76960 | S1 #8d0f14 | L 0.65, C 0.14 | Visible on dark surfaces and distinct from the pale primary |
 | chart-3 | dark | #5c94ca | S12 #175082 | L 0.65 | Visible on dark surfaces |
+| separator | light | #dcd7cf | S7 #bab2a7 cladding | L 0.88, C 0.012 | Decorative line, lighter than `border`; no minimum ratio |
+| separator | dark | #3b3732 | S7 #bab2a7 | L 0.34, C 0.01 | As above |
+| overlay | both | #161512 | S3 #252320 | L 0.195 | Same as the dark background; used as `bg-overlay/60` behind dialogs |
+| primary-hover | light | #76080e | S1 #8d0f14 | L 0.36, C 0.14 | One step darker for hover |
+| primary-active | dark | #fed2cd | S1 #8d0f14 | L 0.90, C 0.05 | One step lighter again for pressed |
+| primary-hover | dark | #f3bfb9 | S1 #8d0f14 | L 0.85, C 0.06 | One step lighter for hover on dark |
+| secondary-hover, secondary-active | light | #e3ddd5, #d6d0c8 | S7 #bab2a7 | L 0.90, L 0.86 | Stone surface two steps down |
+| secondary-hover, secondary-active | dark | #403c37, #4b4742 | S7 #bab2a7 | L 0.36, L 0.40 | Stone surface two steps up |
+| destructive-hover, destructive-active | light | #b00826, #97061f | S18 #c8102e | L 0.48 C 0.19, L 0.43 C 0.17 | Darker steps keep white text above 7:1 |
+| destructive-hover, destructive-active | dark | #ff8481, #ff9b97 | S18 #c8102e | L 0.75 C 0.15, L 0.80 C 0.13 | Lighter steps keep dark text above 7:1 |
 
 Sampled colours that stay in a non-text role because they fail as text: S6 gold lace (3.24:1 on the light background, kept as chart-4), S10 granite (3.51:1, kept as the input border), S15 terracotta (kept as chart-5; it passes 4.77:1 but reads orange next to the reds, so it is not used for text).
 
 ## Contrast
 
-Minimums: 4.5:1 for text, 3:1 for borders, focus rings and chart marks (WCAG 2.2 AA, 1.4.3 and 1.4.11). Output of `pnpm contrast` from `app/`, unedited:
+Minimums: 4.5:1 for text (WCAG 2.2 AA, 1.4.3); 3:1 for the borders of controls (`border`, `input`), focus rings and chart marks (1.4.11). `separator` and `overlay` have no minimum: WCAG 2.2 AA sets no ratio for decorative lines, and the overlay is a scrim. The checker only requires that both exist in both themes. Output of `pnpm contrast` from `app/`, unedited:
 
 ```
+> app@0.0.0 contrast /Users/meinhardt/ghq/github.com/roycehoe/hansard/app
+> node scripts/contrast.ts
+
+
 light
+pass  separator #dcd7cf (no minimum)
+pass  overlay #161512 (no minimum)
 pass  15.04  foreground on background  (#252320 on #fcfaf7, min 4.5)
 pass  13.69  foreground on muted  (#252320 on #f3efea, min 4.5)
 pass  12.76  foreground on secondary  (#252320 on #ede7df, min 4.5)
 pass  15.67  card-foreground on card  (#252320 on #ffffff, min 4.5)
 pass  15.67  popover-foreground on popover  (#252320 on #ffffff, min 4.5)
 pass   9.50  primary-foreground on primary  (#ffffff on #8d0f14, min 4.5)
+pass  11.59  primary-foreground on primary-hover  (#ffffff on #76080e, min 4.5)
+pass  13.43  primary-foreground on primary-active  (#ffffff on #62090b, min 4.5)
 pass  12.76  secondary-foreground on secondary  (#252320 on #ede7df, min 4.5)
+pass  11.62  secondary-foreground on secondary-hover  (#252320 on #e3ddd5, min 4.5)
+pass  10.24  secondary-foreground on secondary-active  (#252320 on #d6d0c8, min 4.5)
 pass  13.36  accent-foreground on accent  (#252320 on #f3edd7, min 4.5)
 pass   5.88  destructive-foreground on destructive  (#ffffff on #c8102e, min 4.5)
+pass   7.22  destructive-foreground on destructive-hover  (#ffffff on #b00826, min 4.5)
+pass   8.89  destructive-foreground on destructive-active  (#ffffff on #97061f, min 4.5)
 pass   5.76  success-foreground on success  (#ffffff on #596d2c, min 4.5)
 pass   6.03  warning-foreground on warning  (#ffffff on #7b5e2f, min 4.5)
 pass   8.38  info-foreground on info  (#ffffff on #175082, min 4.5)
@@ -152,6 +182,9 @@ pass   6.64  muted-foreground on reading  (#595855 on #fbf7ea, min 4.5)
 pass   9.12  primary on background  (#8d0f14 on #fcfaf7, min 4.5)
 pass   9.50  primary on card  (#8d0f14 on #ffffff, min 4.5)
 pass   8.86  primary on reading  (#8d0f14 on #fbf7ea, min 4.5)
+pass  11.13  primary-hover on background  (#76080e on #fcfaf7, min 4.5)
+pass  11.59  primary-hover on card  (#76080e on #ffffff, min 4.5)
+pass  10.82  primary-hover on reading  (#76080e on #fbf7ea, min 4.5)
 pass   5.65  destructive on background  (#c8102e on #fcfaf7, min 4.5)
 pass   5.88  destructive on card  (#c8102e on #ffffff, min 4.5)
 pass   5.52  success on background  (#596d2c on #fcfaf7, min 4.5)
@@ -180,15 +213,23 @@ pass   4.77  chart-5 on background  (#b65229 on #fcfaf7, min 3)
 pass   4.97  chart-5 on card  (#b65229 on #ffffff, min 3)
 
 dark
+pass  separator #3b3732 (no minimum)
+pass  overlay #161512 (no minimum)
 pass  14.91  foreground on background  (#ede8d9 on #161512, min 4.5)
 pass  11.50  foreground on muted  (#ede8d9 on #2e2b27, min 4.5)
 pass  10.54  foreground on secondary  (#ede8d9 on #35312c, min 4.5)
 pass  12.80  card-foreground on card  (#ede8d9 on #252320, min 4.5)
 pass  12.80  popover-foreground on popover  (#ede8d9 on #252320, min 4.5)
 pass   7.01  primary-foreground on primary  (#62090b on #e8ada6, min 4.5)
+pass   8.29  primary-foreground on primary-hover  (#62090b on #f3bfb9, min 4.5)
+pass   9.80  primary-foreground on primary-active  (#62090b on #fed2cd, min 4.5)
 pass  10.54  secondary-foreground on secondary  (#ede8d9 on #35312c, min 4.5)
+pass   8.93  secondary-foreground on secondary-hover  (#ede8d9 on #403c37, min 4.5)
+pass   7.52  secondary-foreground on secondary-active  (#ede8d9 on #4b4742, min 4.5)
 pass   9.96  accent-foreground on accent  (#ede8d9 on #3e3424, min 4.5)
 pass   5.88  destructive-foreground on destructive  (#161512 on #ef6666, min 4.5)
+pass   7.71  destructive-foreground on destructive-hover  (#161512 on #ff8481, min 4.5)
+pass   9.03  destructive-foreground on destructive-active  (#161512 on #ff9b97, min 4.5)
 pass   8.44  success-foreground on success  (#161512 on #a5b961, min 4.5)
 pass   8.15  warning-foreground on warning  (#161512 on #d8a459, min 4.5)
 pass   8.23  info-foreground on info  (#161512 on #89b2dc, min 4.5)
@@ -204,6 +245,9 @@ pass   8.22  muted-foreground on reading  (#bab2a7 on #221916, min 4.5)
 pass   9.53  primary on background  (#e8ada6 on #161512, min 4.5)
 pass   8.18  primary on card  (#e8ada6 on #252320, min 4.5)
 pass   8.99  primary on reading  (#e8ada6 on #221916, min 4.5)
+pass  11.27  primary-hover on background  (#f3bfb9 on #161512, min 4.5)
+pass   9.67  primary-hover on card  (#f3bfb9 on #252320, min 4.5)
+pass  10.64  primary-hover on reading  (#f3bfb9 on #221916, min 4.5)
 pass   5.88  destructive on background  (#ef6666 on #161512, min 4.5)
 pass   5.05  destructive on card  (#ef6666 on #252320, min 4.5)
 pass   8.44  success on background  (#a5b961 on #161512, min 4.5)
@@ -265,9 +309,10 @@ The parliament.gov.sg stylesheet was the starting palette. What happened to each
 
 The palette takes colours only. The crest red and crest gold are hex values read from the crest's published SVG; the crest itself, the Lion Head symbol, the mace image, the Parliament logo and the "A Singapore Government Agency Website" masthead never appear in the app or in the preview. The header is a plain wordmark set in Source Serif 4. Every page footer reads "Unofficial. Independent of the Parliament of Singapore." See `docs/adr/0002-no-government-identity-marks.md`.
 
-## Open points for the gate
+## Gate decisions (2026-10-13)
 
-1. Primary and destructive are both reds with nearly the same hue (OKLCH 26.5 and 22.3). They are told apart by lightness: deep satin against the brighter crest red in light mode, a pale rose fill against coral in dark mode. A read-only archive will rarely show a destructive action next to a primary one. If that is not enough, destructive could move to the roof terracotta (S15), at the cost of sitting nearer the bronze warning.
-2. `border` meets 3:1 because the brief asks for it on every border. That makes card edges and table rules fairly strong. WCAG 1.4.11 only requires 3:1 for borders that identify a control (inputs), so a lighter decorative separator token is an option if the lines feel heavy.
-3. The `@layer base` block in `index.css` still applies `outline-ring/50`, an opacity tint from the shadcn template, and shadcn components use opacity for hover states (`bg-primary/90`). Both break the no-opacity rule and need replacing during component work.
-4. The red-maroon leather of the former chamber seats (#863427, `former-chamber-leather-seat.jpg`) was sampled but not used. It sits between the gown red and the teak and would add a third red-brown without a role to fill.
+1. Primary and destructive both stay red as drafted. They are told apart by lightness; a read-only archive rarely shows the two side by side.
+2. `border` and `input` keep 3:1 because they mark controls. Decorative lines (card edges, table rules, dividers) use the lighter `separator` token, which has no minimum. The earlier draft said the brief asked for 3:1 on every border; it asks for WCAG 2.2 AA, which sets that ratio only for control boundaries.
+3. The former-chamber wood and seat samples are accepted with the caveat above. Royce may add his own photos later. Only images with a known licence are used.
+4. The unused former-chamber leather maroon (#863427) is dropped from consideration.
+5. Opacity tints from the shadcn template (`outline-ring/50`, `bg-primary/90` hovers and the like) are removed in component work. The hover and active tokens above replace them; the dialog scrim uses `bg-overlay/60`, the one case the colour rule allows.
