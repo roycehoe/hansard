@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hansard palette review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap">
+<style>
+/* Same values as app/src/index.css. Sources: docs/palette.md. */
+:root {
+  --background: #fcfaf7;
+  --foreground: #252320;
+  --card: #ffffff;
+  --card-foreground: #252320;
+  --popover: #ffffff;
+  --popover-foreground: #252320;
+  --primary: #8d0f14;
+  --primary-foreground: #ffffff;
+  --secondary: #ede7df;
+  --secondary-foreground: #252320;
+  --muted: #f3efea;
+  --muted-foreground: #595855;
+  --accent: #f3edd7;
+  --accent-foreground: #252320;
+  --destructive: #c8102e;
+  --destructive-foreground: #ffffff;
+  --success: #596d2c;
+  --success-foreground: #ffffff;
+  --warning: #7b5e2f;
+  --warning-foreground: #ffffff;
+  --info: #175082;
+  --info-foreground: #ffffff;
+  --reading: #fbf7ea;
+  --reading-foreground: #252320;
+  --border: #908d82;
+  --input: #868680;
+  --ring: #8d0f14;
+  --chart-1: #8d0f14;
+  --chart-2: #596d2c;
+  --chart-3: #175082;
+  --chart-4: #a68758;
+  --chart-5: #b65229;
+  --sidebar: #f3efea;
+  --sidebar-foreground: #252320;
+  --sidebar-primary: #8d0f14;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f3edd7;
+  --sidebar-accent-foreground: #252320;
+  --sidebar-border: #868680;
+  --sidebar-ring: #8d0f14;
+}
+.dark {
+  --background: #161512;
+  --foreground: #ede8d9;
+  --card: #252320;
+  --card-foreground: #ede8d9;
+  --popover: #252320;
+  --popover-foreground: #ede8d9;
+  --primary: #e8ada6;
+  --primary-foreground: #62090b;
+  --secondary: #35312c;
+  --secondary-foreground: #ede8d9;
+  --muted: #2e2b27;
+  --muted-foreground: #bab2a7;
+  --accent: #3e3424;
+  --accent-foreground: #ede8d9;
+  --destructive: #ef6666;
+  --destructive-foreground: #161512;
+  --success: #a5b961;
+  --success-foreground: #161512;
+  --warning: #d8a459;
+  --warning-foreground: #161512;
+  --info: #89b2dc;
+  --info-foreground: #161512;
+  --reading: #221916;
+  --reading-foreground: #dcd7c9;
+  --border: #726f64;
+  --input: #7b7b75;
+  --ring: #e8ada6;
+  --chart-1: #d76960;
+  --chart-2: #7a8c34;
+  --chart-3: #5c94ca;
+  --chart-4: #a68758;
+  --chart-5: #b65229;
+  --sidebar: #252320;
+  --sidebar-foreground: #ede8d9;
+  --sidebar-primary: #e8ada6;
+  --sidebar-primary-foreground: #62090b;
+  --sidebar-accent: #3e3424;
+  --sidebar-accent-foreground: #ede8d9;
+  --sidebar-border: #726f64;
+  --sidebar-ring: #e8ada6;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font: 400 16px/1.5 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.serif { font-family: 'Source Serif 4', ui-serif, Georgia, serif; }
+.page-head, .page-foot { padding: 24px 16px; max-width: 1400px; margin: 0 auto; }
+.wordmark { font-family: 'Source Serif 4', ui-serif, Georgia, serif; font-size: 28px; font-weight: 600; margin: 0; }
+.page-head p { margin: 4px 0 0; color: var(--muted-foreground); font-size: 14px; max-width: 70ch; }
+.panels { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 1000px) { .panels { grid-template-columns: 1fr 1fr; } }
+.panel { background: var(--background); color: var(--foreground); padding: 24px 16px 32px; min-width: 0; border-top: 1px solid var(--border); }
+.panel > h2 { font: 600 13px/1 Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-foreground); margin: 0 0 16px; }
+h3.section { font: 600 20px/1.3 'Source Serif 4', serif; margin: 32px 0 12px; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; }
+.swatch { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--card); font-size: 12px; line-height: 1.35; }
+.swatch .chip { height: 44px; border-bottom: 1px solid var(--border); }
+.swatch div:last-child { padding: 6px 8px; }
+.swatch b { display: block; font-weight: 600; overflow-wrap: anywhere; }
+.swatch code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.swatch span { color: var(--muted-foreground); }
+.ratio { display: inline-block; font: 500 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 0 6px; border-radius: 4px; background: var(--muted); color: var(--muted-foreground); border: 1px solid var(--border); white-space: nowrap; vertical-align: middle; }
+.row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 6px 0; }
+.t14 { font-size: 14px; } .t16 { font-size: 16px; }
+.h1 { font: 600 36px/1.15 'Source Serif 4', serif; margin: 0; }
+.h2 { font: 600 28px/1.2 'Source Serif 4', serif; margin: 0; }
+.h3 { font: 600 22px/1.25 'Source Serif 4', serif; margin: 0; }
+.reading { background: var(--reading); color: var(--reading-foreground); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-top: 12px; }
+.reading p { font-family: 'Source Serif 4', serif; font-size: 18px; line-height: 1.65; margin: 0 0 14px; max-width: 66ch; font-variant-numeric: tabular-nums; }
+.reading .meta { font: 14px/1.5 Inter, sans-serif; color: var(--muted-foreground); margin-bottom: 12px; }
+.reading a { color: var(--primary); text-underline-offset: 3px; }
+.reading .note { font-style: italic; }
+.card { background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.card p { margin: 4px 0 0; }
+.muted-box { background: var(--muted); color: var(--muted-foreground); border-radius: 10px; padding: 16px; margin-top: 12px; font-size: 14px; }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.btn { font: 500 14px/1 Inter, sans-serif; padding: 10px 16px; border-radius: 8px; border: 1px solid transparent; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
+.btn-destructive { background: var(--destructive); color: var(--destructive-foreground); }
+.btn-outline { background: var(--background); color: var(--foreground); border-color: var(--border); }
+.btn-ghost { background: var(--accent); color: var(--accent-foreground); }
+.notice { background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-left-width: 4px; border-radius: 8px; padding: 12px 14px; margin-top: 8px; font-size: 14px; }
+.notice b { display: block; font-weight: 600; }
+.notice.success { border-left-color: var(--success); } .notice.success b { color: var(--success); }
+.notice.warning { border-left-color: var(--warning); } .notice.warning b { color: var(--warning); }
+.notice.info { border-left-color: var(--info); } .notice.info b { color: var(--info); }
+.notice.destructive { border-left-color: var(--destructive); } .notice.destructive b { color: var(--destructive); }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.badge { font: 600 12px/1 Inter, sans-serif; padding: 5px 8px; border-radius: 999px; }
+.badge.success { background: var(--success); color: var(--success-foreground); }
+.badge.warning { background: var(--warning); color: var(--warning-foreground); }
+.badge.info { background: var(--info); color: var(--info-foreground); }
+.badge.destructive { background: var(--destructive); color: var(--destructive-foreground); }
+label { display: block; font-size: 14px; font-weight: 500; margin: 16px 0 6px; }
+.input { width: 100%; max-width: 360px; font: 16px Inter, sans-serif; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--input); background: var(--background); color: var(--foreground); }
+.input.focus { outline: 2px solid var(--ring); outline-offset: 2px; }
+.input::placeholder { color: var(--muted-foreground); }
+.table-wrap { overflow-x: auto; margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+th { background: var(--muted); color: var(--muted-foreground); font-weight: 600; }
+tbody tr:nth-child(even) { background: var(--muted); }
+tbody tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; }
+.sidebar-demo { display: grid; grid-template-columns: minmax(0, 200px) 1fr; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 12px; font-size: 14px; }
+.sidebar-demo nav { background: var(--sidebar); color: var(--sidebar-foreground); border-right: 1px solid var(--sidebar-border); padding: 8px; }
+.sidebar-demo nav div { padding: 8px; border-radius: 6px; }
+.sidebar-demo .on { background: var(--sidebar-primary); color: var(--sidebar-primary-foreground); }
+.sidebar-demo .hover { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+.sidebar-demo .main { padding: 12px; background: var(--background); }
+.chart { display: flex; align-items: flex-end; gap: 8px; height: 96px; margin-top: 12px; padding: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+.chart div { flex: 1; border-radius: 4px 4px 0 0; }
+.page-foot { font-size: 14px; color: var(--muted-foreground); border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<header class="page-head">
+  <p class="wordmark">Hansard</p>
+  <p>Palette review for the gate. Light theme on the left, dark on the right (stacked on narrow screens). Each hex and each contrast ratio below is read from the page's own CSS variables, which match <code>app/src/index.css</code>. Sources and derivations are in <code>docs/palette.md</code>.</p>
+</header>
+
+<main class="panels">
+  <section class="panel" aria-label="Light theme"><h2>Light</h2></section>
+  <section class="panel dark" aria-label="Dark theme"><h2>Dark</h2></section>
+</main>
+
+<template id="panel-body">
+  <h3 class="section">Tokens</h3>
+  <div class="swatches"></div>
+
+  <h3 class="section">Type</h3>
+  <div class="row t14">Inter 14 px: Search sittings, filter by Parliament, sort by date. <span class="ratio" data-fg="foreground" data-bg="background"></span></div>
+  <div class="row t16">Inter 16 px: 14th Parliament, Session 2, Volume 95. <span class="ratio" data-fg="foreground" data-bg="background"></span></div>
+  <div class="row t14" style="color:var(--muted-foreground)">Inter 14 px muted: Last updated 13 October 2026. <span class="ratio" data-fg="muted-foreground" data-bg="background"></span></div>
+  <div class="row"><p class="h1">Second Reading</p></div>
+  <div class="row"><p class="h2">Oral answers to questions</p></div>
+  <div class="row"><p class="h3">Sitting of Tuesday, 8 April</p><span class="ratio" data-fg="foreground" data-bg="background"></span></div>
+
+  <div class="reading">
+    <div class="meta">Sample text for review, not from the record. <span class="ratio" data-fg="muted-foreground" data-bg="reading"></span></div>
+    <p><b>Mr Speaker:</b> Order. The Member for Example has the floor. <span class="ratio" data-fg="reading-foreground" data-bg="reading"></span></p>
+    <p><b>The Member for Example:</b> Sir, I beg to move, "That the Bill be now read a Second time." The Bill makes three changes, set out in clauses 2, 14 and 31. I refer Members to the <a href="#">written answer of 4 March</a>. <span class="ratio" data-fg="primary" data-bg="reading"></span></p>
+    <p class="note">Question put, and agreed to.</p>
+    <p class="note">Bill accordingly read a Second time and committed to a Committee of the whole House.</p>
+  </div>
+
+  <h3 class="section">Surfaces</h3>
+  <div class="card">
+    <b>Card on background</b> <span class="ratio" data-fg="card-foreground" data-bg="card"></span>
+    <p style="color:var(--muted-foreground);font-size:14px">Muted text on card <span class="ratio" data-fg="muted-foreground" data-bg="card"></span></p>
+  </div>
+  <div class="muted-box">Muted text on muted <span class="ratio" data-fg="muted-foreground" data-bg="muted"></span></div>
+
+  <div class="buttons">
+    <button class="btn btn-primary" type="button">Search</button>
+    <button class="btn btn-secondary" type="button">Filters</button>
+    <button class="btn btn-outline" type="button">Outline</button>
+    <button class="btn btn-ghost" type="button">Hovered</button>
+    <button class="btn btn-destructive" type="button">Remove</button>
+  </div>
+  <div class="row t14">
+    primary <span class="ratio" data-fg="primary-foreground" data-bg="primary"></span>
+    secondary <span class="ratio" data-fg="secondary-foreground" data-bg="secondary"></span>
+    accent <span class="ratio" data-fg="accent-foreground" data-bg="accent"></span>
+    destructive <span class="ratio" data-fg="destructive-foreground" data-bg="destructive"></span>
+  </div>
+
+  <div class="notice success"><b>Saved</b> Your reading list has been updated. <span class="ratio" data-fg="success" data-bg="card"></span></div>
+  <div class="notice warning"><b>Partial record</b> Some speeches in this sitting have no linked speaker. <span class="ratio" data-fg="warning" data-bg="card"></span></div>
+  <div class="notice info"><b>About this text</b> Parsed from the published Hansard. Check the official record before citing. <span class="ratio" data-fg="info" data-bg="card"></span></div>
+  <div class="notice destructive"><b>Could not load sitting</b> The server did not respond. Try again. <span class="ratio" data-fg="destructive" data-bg="card"></span></div>
+  <div class="badges">
+    <span class="badge success">Linked</span><span class="ratio" data-fg="success-foreground" data-bg="success"></span>
+    <span class="badge warning">Partial</span><span class="ratio" data-fg="warning-foreground" data-bg="warning"></span>
+    <span class="badge info">Written answer</span><span class="ratio" data-fg="info-foreground" data-bg="info"></span>
+    <span class="badge destructive">Error</span><span class="ratio" data-fg="destructive-foreground" data-bg="destructive"></span>
+  </div>
+
+  <label>Search the record <span class="ratio" data-fg="input" data-bg="background"></span></label>
+  <input class="input" type="text" placeholder="Speaker, topic or bill">
+  <label>Focused <span class="ratio" data-fg="ring" data-bg="background"></span></label>
+  <input class="input focus" type="text" value="Second Reading">
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Title</th><th>Speeches</th></tr></thead>
+      <tbody>
+        <tr><td>8 Apr</td><td>Example Bill</td><td class="num">42</td></tr>
+        <tr><td>7 Apr</td><td>Oral answers</td><td class="num">118</td></tr>
+        <tr><td>3 Apr</td><td>Motion of thanks</td><td class="num">7</td></tr>
+        <tr><td>2 Apr</td><td>Written answers</td><td class="num">265</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="row t14">border <span class="ratio" data-fg="border" data-bg="background"></span> header text <span class="ratio" data-fg="muted-foreground" data-bg="muted"></span> row text <span class="ratio" data-fg="foreground" data-bg="muted"></span></div>
+
+  <div class="sidebar-demo">
+    <nav><div class="on">Sittings</div><div class="hover">Speakers</div><div>Bills</div></nav>
+    <div class="main">Sidebar <span class="ratio" data-fg="sidebar-foreground" data-bg="sidebar"></span> active <span class="ratio" data-fg="sidebar-primary-foreground" data-bg="sidebar-primary"></span></div>
+  </div>
+
+  <div class="chart" aria-label="Chart colours one to five">
+    <div style="background:var(--chart-1);height:90%"></div>
+    <div style="background:var(--chart-2);height:70%"></div>
+    <div style="background:var(--chart-3);height:55%"></div>
+    <div style="background:var(--chart-4);height:40%"></div>
+    <div style="background:var(--chart-5);height:25%"></div>
+  </div>
+</template>
+
+<footer class="page-foot">Unofficial. Independent of the Parliament of Singapore.</footer>
+
+<script>
+const TOKENS = [
+  ['background', 'surface'], ['foreground', 'text'],
+  ['card', 'surface'], ['card-foreground', 'text'],
+  ['popover', 'surface'], ['popover-foreground', 'text'],
+  ['primary', 'accent'], ['primary-foreground', 'text'],
+  ['secondary', 'surface'], ['secondary-foreground', 'text'],
+  ['muted', 'surface'], ['muted-foreground', 'text'],
+  ['accent', 'surface (hover)'], ['accent-foreground', 'text'],
+  ['destructive', 'state'], ['destructive-foreground', 'text'],
+  ['success', 'state'], ['success-foreground', 'text'],
+  ['warning', 'state'], ['warning-foreground', 'text'],
+  ['info', 'state'], ['info-foreground', 'text'],
+  ['reading', 'surface (transcript)'], ['reading-foreground', 'text'],
+  ['border', 'border'], ['input', 'border'], ['ring', 'border (focus)'],
+  ['chart-1', 'accent (chart)'], ['chart-2', 'accent (chart)'], ['chart-3', 'accent (chart)'],
+  ['chart-4', 'accent (chart)'], ['chart-5', 'accent (chart)'],
+  ['sidebar', 'surface'], ['sidebar-foreground', 'text'],
+  ['sidebar-primary', 'accent'], ['sidebar-primary-foreground', 'text'],
+  ['sidebar-accent', 'surface (hover)'], ['sidebar-accent-foreground', 'text'],
+  ['sidebar-border', 'border'], ['sidebar-ring', 'border (focus)'],
+]
+const channel = (hex, i) => {
+  const v = parseInt(hex.slice(i, i + 2), 16) / 255
+  return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+}
+const luminance = (hex) => 0.2126 * channel(hex, 1) + 0.7152 * channel(hex, 3) + 0.0722 * channel(hex, 5)
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+const template = document.getElementById('panel-body')
+for (const panel of document.querySelectorAll('.panel')) {
+  panel.append(template.content.cloneNode(true))
+  const style = getComputedStyle(panel)
+  const value = (name) => style.getPropertyValue('--' + name).trim()
+  const grid = panel.querySelector('.swatches')
+  for (const [name, role] of TOKENS) {
+    const item = document.createElement('div')
+    item.className = 'swatch'
+    item.innerHTML = `<div class="chip" style="background:var(--${name})"></div><div><b>${name}</b><code>${value(name)}</code><br><span>${role}</span></div>`
+    grid.append(item)
+  }
+  for (const badge of panel.querySelectorAll('.ratio')) {
+    const ratio = contrast(value(badge.dataset.fg), value(badge.dataset.bg))
+    badge.textContent = ratio.toFixed(2) + ':1'
+    badge.title = `${badge.dataset.fg} on ${badge.dataset.bg}`
+  }
+}
+</script>
+</body>
+</html>
