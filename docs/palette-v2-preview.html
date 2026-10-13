@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hansard palette v2 review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap">
+<style>
+/* v1 values are the approved tokens in app/src/index.css (docs/palette.md).
+   v2 values are proposals from docs/palette.md, "Proposed v2 changes". Nothing here is applied. */
+:root, .theme-light {
+  --background: #fcfaf7; --foreground: #252320; --card: #ffffff;
+  --primary: #8d0f14; --primary-foreground: #ffffff; --primary-hover: #76080e;
+  --secondary: #ede7df; --muted: #f3efea; --muted-foreground: #595855;
+  --accent: #f3edd7; --border: #908d82; --separator: #dcd7cf;
+  --reading: #fbf7ea; --reading-foreground: #252320;
+  --chart-1: #8d0f14; --chart-2: #596d2c; --chart-3: #175082; --chart-4: #a68758; --chart-5: #b65229;
+  --reading-v2: #fff4e8;
+  --highlight: #e8cbf9;
+  --tag: #fde2d4; --tag-border: #843d17;
+  --band: #252320; --band-fg: #fcfaf7; --band-muted: #bab2a7;
+  --chart-6: #364c40;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #161512; --foreground: #ede8d9; --card: #252320;
+    --primary: #e8ada6; --primary-foreground: #62090b; --primary-hover: #f3bfb9;
+    --secondary: #35312c; --muted: #2e2b27; --muted-foreground: #bab2a7;
+    --accent: #3e3424; --border: #726f64; --separator: #3b3732;
+    --reading: #221916; --reading-foreground: #dcd7c9;
+    --chart-1: #d76960; --chart-2: #7a8c34; --chart-3: #5c94ca; --chart-4: #a68758; --chart-5: #b65229;
+    --reading-v2: #221916;
+    --highlight: #513460;
+    --tag: #492a19; --tag-border: #b7734f;
+    --band: #47423a; --band-fg: #ede8d9; --band-muted: #bab2a7;
+    --chart-6: #71a68a;
+  }
+}
+.theme-dark {
+  --background: #161512; --foreground: #ede8d9; --card: #252320;
+  --primary: #e8ada6; --primary-foreground: #62090b; --primary-hover: #f3bfb9;
+  --secondary: #35312c; --muted: #2e2b27; --muted-foreground: #bab2a7;
+  --accent: #3e3424; --border: #726f64; --separator: #3b3732;
+  --reading: #221916; --reading-foreground: #dcd7c9;
+  --chart-1: #d76960; --chart-2: #7a8c34; --chart-3: #5c94ca; --chart-4: #a68758; --chart-5: #b65229;
+  --reading-v2: #221916;
+  --highlight: #513460;
+  --tag: #492a19; --tag-border: #b7734f;
+  --band: #47423a; --band-fg: #ede8d9; --band-muted: #bab2a7;
+  --chart-6: #71a68a;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--background); color: var(--foreground); font: 400 16px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; }
+.page-head, .page-foot { padding: 24px 16px; max-width: 1400px; margin: 0 auto; }
+.wordmark { font: 600 28px/1.2 'Source Serif 4', ui-serif, Georgia, serif; margin: 0; }
+.page-head p { margin: 4px 0 0; color: var(--muted-foreground); font-size: 14px; max-width: 72ch; }
+.page-foot { font-size: 14px; color: var(--muted-foreground); border-top: 1px solid var(--border); }
+.panels { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 1000px) { .panels { grid-template-columns: 1fr 1fr; } }
+.panel { background: var(--background); color: var(--foreground); padding: 24px 16px 32px; min-width: 0; border-top: 1px solid var(--border); }
+.panel > h2 { font: 600 13px/1 Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-foreground); margin: 0 0 16px; }
+.prop { background: var(--card); color: var(--foreground); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+.prop h3 { font: 600 20px/1.3 'Source Serif 4', serif; margin: 0; }
+.prop .role { font-size: 13px; color: var(--muted-foreground); margin: 2px 0 12px; }
+.pairs { display: grid; gap: 8px; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) 1fr 1fr; gap: 8px; align-items: stretch; font-size: 12px; line-height: 1.35; }
+.pair .name { align-self: center; font-weight: 600; overflow-wrap: anywhere; }
+.sw { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--card); }
+.sw .chip { height: 36px; border-bottom: 1px solid var(--border); }
+.sw .chip.none { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--separator) 6px 7px); }
+.sw div:last-child { padding: 4px 8px; }
+.sw b { display: block; font-weight: 600; color: var(--muted-foreground); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.sw code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.checks { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+.checks th, .checks td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--separator); font-weight: 400; vertical-align: middle; }
+.checks th { color: var(--muted-foreground); font-weight: 600; }
+.ratio { display: inline-block; font: 500 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 0 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--muted); color: var(--foreground); white-space: nowrap; }
+.ratio.fail { border-style: dashed; border-color: var(--primary); }
+.ratio.na { color: var(--muted-foreground); }
+.samples { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+@media (max-width: 560px) { .samples, .pair { grid-template-columns: 1fr; } }
+.cap { font: 600 11px/1 Inter, sans-serif; letter-spacing: .05em; text-transform: uppercase; color: var(--muted-foreground); margin-bottom: 6px; }
+.box { border: 1px solid var(--border); border-radius: 8px; padding: 12px; min-width: 0; }
+.box p { font: 400 16px/1.6 'Source Serif 4', serif; margin: 0 0 8px; font-variant-numeric: tabular-nums; }
+.box p:last-child { margin: 0; }
+.box a { color: var(--primary); text-underline-offset: 3px; }
+.box .note { font-style: italic; }
+.r1 { background: var(--reading); color: var(--reading-foreground); }
+.r2 { background: var(--reading-v2); color: var(--reading-foreground); }
+.hl-surface { background: var(--reading-v2); color: var(--reading-foreground); }
+mark { color: var(--foreground); border-radius: 2px; padding: 0 2px; }
+mark.m1 { background: var(--accent); }
+mark.m2 { background: var(--highlight); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-tag { font: 500 12px/1 Inter, sans-serif; padding: 5px 9px; border-radius: 6px; color: var(--foreground); }
+.chip-tag.t1 { background: var(--secondary); border: 1px solid var(--border); }
+.chip-tag.t2 { background: var(--tag); border: 1px solid var(--tag-border); }
+.band { border-radius: 6px; padding: 12px; }
+.band b { display: block; font: 600 18px/1.3 'Source Serif 4', serif; }
+.band span { font-size: 13px; }
+.band a { color: inherit; text-underline-offset: 3px; }
+.band.b1 { background: var(--muted); color: var(--foreground); }
+.band.b1 span { color: var(--muted-foreground); }
+.band.b2 { background: var(--band); color: var(--band-fg); }
+.band.b2 span { color: var(--band-muted); }
+.body-line { border: 1px solid var(--border); border-top: 0; border-radius: 0 0 6px 6px; padding: 8px 12px; font: 400 14px/1.5 'Source Serif 4', serif; background: var(--reading-v2); color: var(--reading-foreground); }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+.bars div { flex: 1; border-radius: 3px 3px 0 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 8px; font-size: 12px; color: var(--muted-foreground); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+</style>
+</head>
+<body>
+<header class="page-head">
+  <p class="wordmark">Hansard</p>
+  <p>Palette v2 proposals for review. The light and dark panels below stay pinned whatever your system theme. Each proposal shows the v1 value (or a v1 stand-in where v1 has no token, marked) beside the proposed value, with the contrast measured on this page. Nothing here is applied. Method, sources and the candidates that were rejected are in <code>docs/palette.md</code> and <code>docs/palette/research.md</code>.</p>
+</header>
+
+<main class="panels">
+  <section class="panel theme-light" aria-label="Light theme"><h2>Light</h2></section>
+  <section class="panel theme-dark" aria-label="Dark theme"><h2>Dark</h2></section>
+</main>
+
+<footer class="page-foot">Unofficial. Independent of the Parliament of Singapore.</footer>
+
+<script>
+const channel = (hex, i) => {
+  const v = parseInt(hex.slice(i, i + 2), 16) / 255
+  return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+}
+const luminance = (hex) => 0.2126 * channel(hex, 1) + 0.7152 * channel(hex, 3) + 0.0722 * channel(hex, 5)
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+// pairs: [label, v1 variable or null, v2 variable]
+// checks: [label, v1 fg, v1 bg, v2 fg, v2 bg, minimum]; v1 entries null when v1 has no such pair
+const PROPS = [
+  { title: '1. reading, from Gazette paper', role: 'surface (transcript). Light changes, dark is unchanged.', sample: 'reading',
+    pairs: [['reading', '--reading', '--reading-v2']],
+    checks: [
+      ['reading-foreground on reading', '--reading-foreground', '--reading', '--reading-foreground', '--reading-v2', 4.5],
+      ['muted-foreground on reading', '--muted-foreground', '--reading', '--muted-foreground', '--reading-v2', 4.5],
+      ['primary on reading', '--primary', '--reading', '--primary', '--reading-v2', 4.5],
+      ['primary-hover on reading', '--primary-hover', '--reading', '--primary-hover', '--reading-v2', 4.5],
+    ] },
+  { title: '2. highlight, from orchid lilac', role: 'accent surface for search matches. v1 stand-in: accent.', sample: 'highlight',
+    pairs: [['highlight (stand-in: accent)', '--accent', '--highlight']],
+    checks: [
+      ['foreground on highlight', '--foreground', '--accent', '--foreground', '--highlight', 4.5],
+      ['muted-foreground on highlight', '--muted-foreground', '--accent', '--muted-foreground', '--highlight', 4.5],
+      ['primary on highlight', '--primary', '--accent', '--primary', '--highlight', 4.5],
+      ['primary-hover on highlight', null, null, '--primary-hover', '--highlight', 4.5],
+      ['reading-foreground on highlight', null, null, '--reading-foreground', '--highlight', 4.5],
+    ] },
+  { title: '3. tag, from veneer and teak', role: 'accent surface and border for chips. v1 stand-ins: secondary, border.', sample: 'tag',
+    pairs: [['tag (stand-in: secondary)', '--secondary', '--tag'], ['tag-border (stand-in: border)', '--border', '--tag-border']],
+    checks: [
+      ['foreground on tag', '--foreground', '--secondary', '--foreground', '--tag', 4.5],
+      ['muted-foreground on tag', '--muted-foreground', '--secondary', '--muted-foreground', '--tag', 4.5],
+      ['tag-border on tag (UI)', null, null, '--tag-border', '--tag', 3],
+      ['tag-border on background (UI)', '--border', '--background', '--tag-border', '--background', 3],
+      ['tag-border on card (UI)', '--border', '--card', '--tag-border', '--card', 3],
+    ] },
+  { title: '4. heading-band, from ParlConnect panels', role: 'surface for report headers. v1 stand-in: muted.', sample: 'band',
+    pairs: [['heading-band (stand-in: muted)', '--muted', '--band'], ['heading-band-foreground (stand-in: muted-foreground)', '--muted-foreground', '--band-fg'], ['heading-band-muted', null, '--band-muted']],
+    checks: [
+      ['foreground on band', '--muted-foreground', '--muted', '--band-fg', '--band', 4.5],
+      ['muted text on band', null, null, '--band-muted', '--band', 4.5],
+      ['primary on band (do not use if it fails)', null, null, '--primary', '--band', 4.5],
+    ] },
+  { title: '5. chart-6, from the Gazette binding', role: 'accent (chart), sixth series only. v1 has no chart-6.', sample: 'chart',
+    pairs: [['chart-6', null, '--chart-6']],
+    checks: [
+      ['chart-6 on background', null, null, '--chart-6', '--background', 3],
+      ['chart-6 on card', null, null, '--chart-6', '--card', 3],
+    ] },
+]
+
+const SAMPLES = {
+  reading: () => `
+    <div><div class="cap">v1 reading</div><div class="box r1"><p><b>Mr Speaker:</b> Order. The Member for Example has the floor.</p><p>Sir, I refer Members to the <a href="#">written answer of 4 March</a>.</p><p class="note">Question put, and agreed to.</p></div></div>
+    <div><div class="cap">v2 reading</div><div class="box r2"><p><b>Mr Speaker:</b> Order. The Member for Example has the floor.</p><p>Sir, I refer Members to the <a href="#">written answer of 4 March</a>.</p><p class="note">Question put, and agreed to.</p></div></div>`,
+  highlight: () => `
+    <div><div class="cap">v1 stand-in (accent)</div><div class="box hl-surface"><p>The Bill makes three changes. The <mark class="m1">amendment</mark> in clause 14 was <mark class="m1">amendment</mark> debated at length.</p></div></div>
+    <div><div class="cap">v2 highlight</div><div class="box hl-surface"><p>The Bill makes three changes. The <mark class="m2">amendment</mark> in clause 14 was <mark class="m2">amendment</mark> debated at length.</p></div></div>`,
+  tag: () => `
+    <div><div class="cap">v1 stand-in (secondary)</div><div class="chips"><span class="chip-tag t1">Oral answers</span><span class="chip-tag t1">Bill</span><span class="chip-tag t1">Written answer</span></div></div>
+    <div><div class="cap">v2 tag</div><div class="chips"><span class="chip-tag t2">Oral answers</span><span class="chip-tag t2">Bill</span><span class="chip-tag t2">Written answer</span></div></div>`,
+  band: () => `
+    <div><div class="cap">v1 stand-in (muted)</div><div class="band b1"><b>Second Reading</b><span>Sitting of Tuesday, 8 April</span></div><div class="body-line">Mr Speaker: Order.</div></div>
+    <div><div class="cap">v2 heading-band</div><div class="band b2"><b>Second Reading</b><span>Sitting of Tuesday, 8 April</span></div><div class="body-line">Mr Speaker: Order.</div></div>`,
+  chart: () => {
+    const bars = (n) => `<div class="bars">${[90, 72, 58, 44, 30, 20].slice(0, n).map((h, i) => `<div style="height:${h}%;background:var(--${i < 5 ? 'chart-' + (i + 1) : 'chart-6'})"></div>`).join('')}</div>`
+    return `<div><div class="cap">v1, five series</div>${bars(5)}</div><div><div class="cap">v2, six series</div>${bars(6)}</div>`
+  },
+}
+
+const badge = (fg, bg, min, value) => {
+  if (!fg) return '<span class="ratio na">n/a</span>'
+  const r = contrast(value(fg), value(bg))
+  const ok = r >= min
+  return `<span class="ratio${ok ? '' : ' fail'}">${r.toFixed(2)}:1 ${ok ? 'pass' : 'fail'} (min ${min})</span>`
+}
+
+for (const panel of document.querySelectorAll('.panel')) {
+  const style = getComputedStyle(panel)
+  const value = (name) => style.getPropertyValue(name).trim()
+  for (const p of PROPS) {
+    const pairs = p.pairs.map(([name, a, b]) => {
+      const side = (v, label) => v
+        ? `<div class="sw"><div class="chip" style="background:var(${v})"></div><div><b>${label}</b><code>${value(v)}</code></div></div>`
+        : `<div class="sw"><div class="chip none"></div><div><b>${label}</b><code>none</code></div></div>`
+      return `<div class="pair"><div class="name">${name}</div>${side(a, 'v1')}${side(b, 'v2')}</div>`
+    }).join('')
+    const rows = p.checks.map(([label, f1, b1, f2, b2, min]) =>
+      `<tr><td>${label}</td><td>${badge(f1, b1, min, value)}</td><td>${badge(f2, b2, min, value)}</td></tr>`).join('')
+    const sec = document.createElement('section')
+    sec.className = 'prop'
+    sec.innerHTML = `<h3>${p.title}</h3><p class="role">${p.role}</p><div class="pairs">${pairs}</div>
+      <table class="checks"><thead><tr><th>Pair</th><th>v1</th><th>v2</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="samples">${SAMPLES[p.sample]()}</div>`
+    panel.append(sec)
+  }
+  if (value('--reading') === value('--reading-v2')) {
+    const note = document.createElement('p')
+    note.className = 'role'
+    note.textContent = 'In this theme the proposed reading value equals v1 (no change).'
+    panel.querySelector('.prop .role').after(note)
+  }
+}
+</script>
+</body>
+</html>
