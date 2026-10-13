@@ -30,6 +30,14 @@
   --info-foreground: #ffffff;
   --reading: #fbf7ea;
   --reading-foreground: #252320;
+  --separator: #dcd7cf;
+  --overlay: #161512;
+  --primary-hover: #76080e;
+  --primary-active: #62090b;
+  --secondary-hover: #e3ddd5;
+  --secondary-active: #d6d0c8;
+  --destructive-hover: #b00826;
+  --destructive-active: #97061f;
   --border: #908d82;
   --input: #868680;
   --ring: #8d0f14;
@@ -73,6 +81,14 @@
   --info-foreground: #161512;
   --reading: #221916;
   --reading-foreground: #dcd7c9;
+  --separator: #3b3732;
+  --overlay: #161512;
+  --primary-hover: #f3bfb9;
+  --primary-active: #fed2cd;
+  --secondary-hover: #403c37;
+  --secondary-active: #4b4742;
+  --destructive-hover: #ff8481;
+  --destructive-active: #ff9b97;
   --border: #726f64;
   --input: #7b7b75;
   --ring: #e8ada6;
@@ -122,6 +138,14 @@
   --color-info-foreground: var(--info-foreground);
   --color-reading: var(--reading);
   --color-reading-foreground: var(--reading-foreground);
+  --color-separator: var(--separator);
+  --color-overlay: var(--overlay);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-active: var(--secondary-active);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-destructive-active: var(--destructive-active);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -142,7 +166,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
     @apply bg-background text-foreground;
