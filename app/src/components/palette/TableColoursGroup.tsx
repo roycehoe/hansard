@@ -7,12 +7,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { TOKEN_GROUP_TITLES } from '@/constants/palette/constants'
 import { ColourFormat } from '@/constants/palette/enums'
+import { getColourValues } from '@/lib/colour'
+import type { PaletteGroup } from '@/types/palette/interfaces'
 import { BadgeColourTokens } from './BadgeColourTokens'
 import { ButtonCopyColourValue } from './ButtonCopyColourValue'
-import { getColourValues } from './getColourValues'
-import type { PaletteGroup } from './interfaces'
 import { NoticeColourProvenance } from './NoticeColourProvenance'
 import { SwatchColour } from './SwatchColour'
 
@@ -30,7 +29,7 @@ export function TableColoursGroup({
   return (
     <Table>
       <TableCaption className="sr-only">
-        {TOKEN_GROUP_TITLES[group.group]} colours in the {flavourTitle} flavour
+        {group.title} colours in the {flavourTitle} flavour
       </TableCaption>
       <TableHeader>
         <TableRow>
@@ -59,6 +58,7 @@ export function TableColoursGroup({
             {getColourValues(row.colour.hex).map((entry) => (
               <TableCell key={entry.format}>
                 <ButtonCopyColourValue
+                  colourName={row.colour.name}
                   format={entry.format}
                   value={entry.value}
                 />

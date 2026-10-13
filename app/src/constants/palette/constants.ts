@@ -1,35 +1,62 @@
 import { Flavour } from '@/constants/palette/enums'
-import type { TokenGroup } from '@/palette/palette'
+import type { Colour } from '@/palette/palette'
+import { COLOURS, TOKEN_GROUPS, TOKENS } from '@/palette/palette'
+import type { PaletteGroup } from '@/types/palette/interfaces'
 
 export const FLAVOUR_SECTIONS = [
   { flavour: Flavour.LIGHT, title: 'Light' },
   { flavour: Flavour.DARK, title: 'Dark' },
 ] as const
 
-export const TOKEN_GROUP_TITLES: Record<TokenGroup, string> = {
-  accents: 'Accents',
-  states: 'States',
-  surfaces: 'Surfaces',
-  text: 'Text',
-  borders: 'Borders',
-  charts: 'Charts',
-  sidebar: 'Sidebar',
+export const TOKEN_GROUP_TITLES: Record<(typeof TOKEN_GROUPS)[number], string> =
+  {
+    accents: 'Accents',
+    states: 'States',
+    surfaces: 'Surfaces',
+    text: 'Text',
+    borders: 'Borders',
+    charts: 'Charts',
+    sidebar: 'Sidebar',
+  }
+
+export const THUMBNAIL_PATH = '/palette-photos'
+
+export const SOURCE_COLOURS_TITLE = 'Source colours'
+
+const COLOURS_BY_NAME: Map<string, Colour> = new Map(
+  COLOURS.map((colour) => [colour.name, colour])
+)
+
+const TOKEN_COLOUR_NAMES: Set<string> = new Set(
+  TOKENS.flatMap((token) => [token.light, token.dark])
+)
+
+function buildPaletteGroupsForFlavour(flavour: Flavour): PaletteGroup[] {
+  const tokenGroups = TOKEN_GROUPS.map((group) => {
+    const tokensByColour = new Map<string, string[]>()
+    for (const token of TOKENS.filter((entry) => entry.group === group)) {
+      const colourName = flavour === Flavour.LIGHT ? token.light : token.dark
+      tokensByColour.set(colourName, [
+        ...(tokensByColour.get(colourName) ?? []),
+        token.name,
+      ])
+    }
+    const rows = [...tokensByColour].map(([colourName, tokens]) => ({
+      colour: COLOURS_BY_NAME.get(colourName)!,
+      tokens,
+    }))
+    return { title: TOKEN_GROUP_TITLES[group], rows }
+  })
+  const sourceColours = {
+    title: SOURCE_COLOURS_TITLE,
+    rows: COLOURS.filter((colour) => !TOKEN_COLOUR_NAMES.has(colour.name)).map(
+      (colour) => ({ colour, tokens: [] })
+    ),
+  }
+  return [...tokenGroups, sourceColours]
 }
 
-export const THUMBNAIL_SIZES: Record<
-  string,
-  { width: number; height: number }
-> = {
-  'speaker-ceremonial-gown-01.jpg': { width: 300, height: 400 },
-  'parliament-house-2023-079.jpg': { width: 400, height: 267 },
-  'parliament-house-2023-01.jpg': { width: 400, height: 225 },
-  'parliament-house-sign-close-up.jpg': { width: 400, height: 267 },
-  'parliament-place-road.jpg': { width: 400, height: 300 },
-  'parliament-house-2013-02-25.jpg': { width: 400, height: 267 },
-  'parliament-house-2010-08-03.jpg': { width: 400, height: 268 },
-  'former-chamber-strangers-gallery.jpg': { width: 400, height: 268 },
-  'pc-vanda-miss-joaquim.jpg': { width: 400, height: 267 },
-  'civic-chamber-benches.jpg': { width: 400, height: 268 },
+export const PALETTE_GROUPS_BY_FLAVOUR: Record<Flavour, PaletteGroup[]> = {
+  [Flavour.LIGHT]: buildPaletteGroupsForFlavour(Flavour.LIGHT),
+  [Flavour.DARK]: buildPaletteGroupsForFlavour(Flavour.DARK),
 }
-
-export const THUMBNAIL_PATH = '/palette'
