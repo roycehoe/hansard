@@ -3,6 +3,7 @@ export interface PhotoSource {
   file: string
   width: number
   height: number
+  thumbnailBox?: SampleBox
   title: string
   author: string
   credit: string
@@ -27,7 +28,8 @@ export const SOURCES = {
   'speaker-gown': {
     kind: 'photo',
     file: 'speaker-ceremonial-gown-01.jpg',
-    width: 300,
+    thumbnailBox: [0.3, 0, 1, 1],
+    width: 210,
     height: 400,
     title:
       'Ceremonial gown of the Speaker of the Parliament of Singapore, ParlConnect, Parliament House, Singapore - 20150306-01',
@@ -42,8 +44,9 @@ export const SOURCES = {
   'house-2023-079': {
     kind: 'photo',
     file: 'parliament-house-2023-079.jpg',
+    thumbnailBox: [0, 0.83, 0.38, 1],
     width: 400,
-    height: 267,
+    height: 119,
     title: 'Parliament House Singapore 2023 079',
     author: 'Mike Peel',
     credit: 'Photograph by Mike Peel (www.mikepeel.net)',
@@ -56,8 +59,9 @@ export const SOURCES = {
   'house-2023-01': {
     kind: 'photo',
     file: 'parliament-house-2023-01.jpg',
+    thumbnailBox: [0.45, 0.6, 1, 1],
     width: 400,
-    height: 225,
+    height: 164,
     title: 'Parliament House, Singapore, 2023 (01)',
     author: 'Bahnfrend',
     credit: 'Photo by Bahnfrend',
@@ -66,22 +70,6 @@ export const SOURCES = {
     url: 'https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore,_2023_(01).jpg',
     description:
       'Parliament House with its granite sign plate, a sunlit lawn and hedges',
-  },
-  'house-sign': {
-    kind: 'photo',
-    file: 'parliament-house-sign-close-up.jpg',
-    width: 400,
-    height: 267,
-    title: 'Singapore Parliament-House-02',
-    author: 'CEphoto, Uwe Aranas',
-    credit: 'Photo by CEphoto, Uwe Aranas',
-    licence: 'CC BY-SA 3.0',
-    licenceUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
-    url: 'https://commons.wikimedia.org/wiki/File:Singapore_Parliament-House-02.jpg',
-    description:
-      'Close-up of the Parliament House sign, honed speckled granite with blue lettering',
-    isShown: false,
-    reason: 'it carries the State Crest',
   },
   'parliament-place': {
     kind: 'photo',
@@ -99,8 +87,9 @@ export const SOURCES = {
   'house-2013': {
     kind: 'photo',
     file: 'parliament-house-2013-02-25.jpg',
+    thumbnailBox: [0, 0.62, 0.45, 1],
     width: 400,
-    height: 267,
+    height: 225,
     title: 'Parliament House, Singapore - 20130225',
     author: 'Haakon S. Krohn',
     credit: 'Photo by Haakon S. Krohn',
@@ -113,8 +102,9 @@ export const SOURCES = {
   'house-2010': {
     kind: 'photo',
     file: 'parliament-house-2010-08-03.jpg',
+    thumbnailBox: [0.4, 0.3, 0.75, 0.44],
     width: 400,
-    height: 268,
+    height: 107,
     title: 'Parliament House, Singapore - 20100803-01',
     author: 'Smuconlaw',
     credit: 'Photo by Smuconlaw',
@@ -166,6 +156,19 @@ export const SOURCES = {
     url: 'https://commons.wikimedia.org/wiki/File:Former_Parliamentary_Chamber,_The_Arts_House_at_the_Old_Parliament,_Singapore_-_20110407-09.JPG',
     description:
       'Teak benches and floor in the former chamber, under interior light',
+  },
+  'cavenagh-pylon': {
+    kind: 'photo',
+    file: 'civic-cavenagh-pylon.jpg',
+    width: 400,
+    height: 258,
+    title: '2016 Singapur, Downtown Core, Most Cavenagha (03)',
+    author: 'Marcin Konsek',
+    credit: 'Photo by Marcin Konsek',
+    licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    url: 'https://commons.wikimedia.org/wiki/File:2016_Singapur,_Downtown_Core,_Most_Cavenagha_(03).jpg',
+    description: 'Granite pylon of Cavenagh Bridge, overcast',
   },
   flag: {
     kind: 'spec',
@@ -279,21 +282,21 @@ export const COLOURS = [
     },
   },
   {
-    name: 'granite-sign',
-    hex: '#868680',
-    source: 'house-sign',
+    name: 'granite-pylon',
+    hex: '#655b51',
+    source: 'cavenagh-pylon',
     sampled: {
-      box: [0.075, 0.25, 0.13, 0.8],
-      note: 'Honed speckled granite of the sign face. 44% of the crop.',
+      box: [0.21, 0.25, 0.3, 0.75],
+      note: 'Shaded face of the pylon, overcast.',
     },
   },
   {
-    name: 'sign-blue',
-    hex: '#175082',
-    source: 'house-sign',
+    name: 'sky-blue',
+    hex: '#85a4c2',
+    source: 'house-2010',
     sampled: {
-      box: [0.34, 0.69, 0.66, 0.74],
-      note: 'Blue lettering on the sign, letters only. 17% of the crop.',
+      box: [0, 0, 0.3, 0.22],
+      note: 'Evening sky above Parliament House, upper left, no building in the crop.',
     },
   },
   {
@@ -566,20 +569,6 @@ export const COLOURS = [
     derivation: 'L 0.75',
   },
   {
-    name: 'sign-blue-65',
-    hex: '#5c94ca',
-    source: 'house-sign',
-    derivedFrom: 'sign-blue',
-    derivation: 'L 0.65',
-  },
-  {
-    name: 'sign-blue-75',
-    hex: '#89b2dc',
-    source: 'house-sign',
-    derivedFrom: 'sign-blue',
-    derivation: 'L 0.75, C 0.075',
-  },
-  {
     name: 'granite-plate-54',
     hex: '#726f64',
     source: 'house-2023-01',
@@ -587,11 +576,39 @@ export const COLOURS = [
     derivation: 'L 0.54',
   },
   {
-    name: 'granite-sign-58',
-    hex: '#7b7b75',
-    source: 'house-sign',
-    derivedFrom: 'granite-sign',
-    derivation: 'L 0.58',
+    name: 'granite-pylon-60',
+    hex: '#897e74',
+    source: 'cavenagh-pylon',
+    derivedFrom: 'granite-pylon',
+    derivation: 'L 0.60, C 0.02',
+  },
+  {
+    name: 'granite-pylon-58',
+    hex: '#83786e',
+    source: 'cavenagh-pylon',
+    derivedFrom: 'granite-pylon',
+    derivation: 'L 0.58, C 0.02',
+  },
+  {
+    name: 'sky-blue-40',
+    hex: '#0c4a7a',
+    source: 'house-2010',
+    derivedFrom: 'sky-blue',
+    derivation: 'L 0.40, C 0.10',
+  },
+  {
+    name: 'sky-blue-65',
+    hex: '#6194c4',
+    source: 'house-2010',
+    derivedFrom: 'sky-blue',
+    derivation: 'L 0.65, C 0.09',
+  },
+  {
+    name: 'sky-blue-75',
+    hex: '#8bb2d9',
+    source: 'house-2010',
+    derivedFrom: 'sky-blue',
+    derivation: 'L 0.75, C 0.07',
   },
   {
     name: 'orchid-lilac-88',
@@ -757,7 +774,7 @@ export const TOKENS: readonly Token[] = [
     light: 'flag-white',
     dark: 'gown-black-20',
   },
-  { name: 'info', group: 'states', light: 'sign-blue', dark: 'sign-blue-75' },
+  { name: 'info', group: 'states', light: 'sky-blue-40', dark: 'sky-blue-75' },
   {
     name: 'info-foreground',
     group: 'text',
@@ -853,8 +870,8 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'input',
     group: 'borders',
-    light: 'granite-sign',
-    dark: 'granite-sign-58',
+    light: 'granite-pylon-60',
+    dark: 'granite-pylon-58',
   },
   { name: 'ring', group: 'borders', light: 'gown-red', dark: 'gown-red-80' },
   { name: 'chart-1', group: 'charts', light: 'gown-red', dark: 'gown-red-65' },
@@ -862,8 +879,8 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'chart-3',
     group: 'charts',
-    light: 'sign-blue',
-    dark: 'sign-blue-65',
+    light: 'sky-blue-40',
+    dark: 'sky-blue-65',
   },
   { name: 'chart-4', group: 'charts', light: 'gold-lace', dark: 'gold-lace' },
   {
@@ -911,7 +928,7 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'sidebar-border',
     group: 'sidebar',
-    light: 'granite-sign',
+    light: 'granite-pylon-60',
     dark: 'granite-plate-54',
   },
   {

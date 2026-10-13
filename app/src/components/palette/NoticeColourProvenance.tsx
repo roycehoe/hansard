@@ -23,6 +23,7 @@ function NoticeSourcePhoto({
       {note && <p>{note}</p>}
       {sampleBox && <p>Sampled at box {sampleBox}.</p>}
       <p>{source.credit}.</p>
+      {source.thumbnailBox && <p>Thumbnail shows part of the photo.</p>}
       <p>
         <a href={source.url} className={LINK_CLASSES}>
           {source.title}

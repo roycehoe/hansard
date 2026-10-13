@@ -31,9 +31,9 @@ Crop boxes are fractions of the image: left, top, right, bottom. Shares are the 
 | S7 | #bab2a7 | Stone cladding, sunlit wall block | `parliament-house-2023-079.jpg`, box 0.095,0.43,0.16,0.5, 90%. Recheck gave #bdb5aa |
 | S8 | #bdb3a6 | Painted perimeter fence bars, sunlit | `parliament-house-2023-079.jpg`, box 0.00,0.62,0.60,0.80, bright-pixel estimate |
 | S9 | #908d82 | Granite sign plate, overcast | `parliament-house-2023-01.jpg`, box 0.08,0.62,0.12,0.8, 68% |
-| S10 | #868680 | Honed speckled granite of the sign face | `parliament-house-sign-close-up.jpg`, box 0.075,0.25,0.13,0.8, 44% |
+| S10 | #868680 | Honed speckled granite of the sign face | Retired (decision 26): the source photo showed the State Crest and the Mace and was removed. Replaced by S23 |
 | S11 | #595855 | Concrete kerb in shadow, Parliament Place | `parliament-place-road.jpg`, box 0.0,0.55,0.12,0.9, 44% |
-| S12 | #175082 | Blue lettering on the Parliament sign (letters only) | `parliament-house-sign-close-up.jpg`, box 0.34,0.69,0.66,0.74, 17% (synthesis sample) |
+| S12 | #175082 | Blue lettering on the Parliament sign | Retired (decision 26), same photo. Replaced by S22 |
 | S13 | #596d2c | Front lawn, overcast | `parliament-house-2013-02-25.jpg`, box 0.05,0.85,0.45,0.98, 28% |
 | S14 | #7a8c34 | Lawn in direct sun | `parliament-house-2023-01.jpg`, box 0.55,0.55,0.95,0.68, 54% |
 | S15 | #b65229 | Clay hip roof, sunlit slope | `parliament-house-2010-08-03.jpg`, box 0.306,0.334,0.3625,0.39, 75%, evening light |
@@ -43,10 +43,12 @@ Crop boxes are fractions of the image: left, top, right, bottom. Shares are the 
 | S19 | #d8a459 | State Crest gold | Same SVG, `.st544 { fill: #d8a459 }`, the most used gold (93 elements) |
 | S20 | #d9a6f4 | Vanda Miss Joaquim petal, lilac | `pc-vanda-miss-joaquim.jpg`, box 0.70,0.33,0.80,0.45, 36.2%, daylight in a shaded garden (Track B) |
 | S21 | #843d17 | Teak bench fronts, former chamber | `civic-chamber-benches.jpg`, box 0.25,0.50,0.75,0.55, 44.9%, interior light (Track B); agrees with S16 |
+| S22 | #85a4c2 | Evening sky above Parliament House | `parliament-house-2010-08-03.jpg`, box 0.0,0.0,0.3,0.22, 42%, no building in the crop (decision 26) |
+| S23 | #655b51 | Granite pylon of Cavenagh Bridge, shaded face | `civic-cavenagh-pylon.jpg`, box 0.21,0.25,0.30,0.75, 59%, overcast (decision 26) |
 
 ## Named colours
 
-Every hex is written once, in `app/src/palette/palette.ts`, as a named colour. Names describe the source, not the role (`gown-red`, `teak`, `orchid-lilac`, `granite-plate`, `lawn`, `sign-blue`, `gold-lace`, `roof-terracotta`, `crest-red`, `flag-white`). A derived colour is named after its parent plus its OKLCH lightness times 100 (`gown-red-80`, `stone-cladding-93`). The semantic tokens below point at named colours (`--primary: var(--gown-red)`), and `pnpm palette` generates `app/src/palette.css` from the module; `pnpm contrast` refuses to run if that file is stale. Named colours are not registered in `@theme`, so no `bg-teak` utility exists and components still use semantic tokens only. The public `/palette` route lists every named colour with its values, the tokens that use it and its source with the credit line, the licence (linked) and the Commons title (linked); thumbnails live under `app/public/palette-photos/`. The sign close-up (`parliament-house-sign-close-up.jpg`) is never shown in the app because it carries the State Crest; its colours are credited as text only.
+Every hex is written once, in `app/src/palette/palette.ts`, as a named colour. Names describe the source, not the role (`gown-red`, `teak`, `orchid-lilac`, `granite-plate`, `lawn`, `sky-blue`, `gold-lace`, `roof-terracotta`, `crest-red`, `flag-white`). A derived colour is named after its parent plus its OKLCH lightness times 100 (`gown-red-80`, `stone-cladding-93`). The semantic tokens below point at named colours (`--primary: var(--gown-red)`), and `pnpm palette` generates `app/src/palette.css` from the module; `pnpm contrast` refuses to run if that file is stale. Named colours are not registered in `@theme`, so no `bg-teak` utility exists and components still use semantic tokens only. The public `/palette` route lists every named colour with its values, the tokens that use it and its source with the credit line, the licence (linked) and the Commons title (linked); thumbnails live under `app/public/palette-photos/`, cropped to a mark-free part of the photo where the full frame shows the crest, a flag or the Mace (`SOURCES.md` lists them). The sign close-up was removed under decision 26.
 
 ## Tokens
 
@@ -74,7 +76,7 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | success-foreground | text | #ffffff | #161512 | S17 / dark background |
 | warning | state | #7b5e2f | #d8a459 | derived from S6 / S19 |
 | warning-foreground | text | #ffffff | #161512 | S17 / dark background |
-| info | state | #175082 | #89b2dc | S12 / derived from S12 |
+| info | state | #0c4a7a | #8bb2d9 | derived from S22 / derived from S22 |
 | info-foreground | text | #ffffff | #161512 | S17 / dark background |
 | reading | surface (transcript) | #fbf7ea | #221916 | derived from S5 / derived from S16 |
 | reading-foreground | text | #252320 | #dcd7c9 | S3 / derived from S4 |
@@ -92,11 +94,11 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | tag-foreground | text | #252320 | #ede8d9 | S3 / S4 |
 | tag-border | border (chip) | #843d17 | #b7734f | S21 / derived from S21 |
 | border | border | #908d82 | #726f64 | S9 / derived from S9 |
-| input | border | #868680 | #7b7b75 | S10 / derived from S10 |
+| input | border | #897e74 | #83786e | derived from S23 / derived from S23 |
 | ring | border (focus) | #8d0f14 | #e8ada6 | S1 / derived from S1 |
 | chart-1 | accent (chart) | #8d0f14 | #d76960 | S1 / derived from S1 |
 | chart-2 | accent (chart) | #596d2c | #7a8c34 | S13 / S14 |
-| chart-3 | accent (chart) | #175082 | #5c94ca | S12 / derived from S12 |
+| chart-3 | accent (chart) | #0c4a7a | #6194c4 | derived from S22 / derived from S22 |
 | chart-4 | accent (chart) | #a68758 | #a68758 | S6 / S6 |
 | chart-5 | accent (chart) | #b65229 | #b65229 | S15 / S15 |
 | sidebar | surface | #f3efea | #252320 | same as muted / same as card |
@@ -105,12 +107,12 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | sidebar-primary-foreground | text | #ffffff | #62090b | same as primary-foreground |
 | sidebar-accent | surface (hover) | #f3edd7 | #3e3424 | same as accent |
 | sidebar-accent-foreground | text | #252320 | #ede8d9 | S3 / S4 |
-| sidebar-border | border | #868680 | #726f64 | S10 / same as border |
+| sidebar-border | border | #897e74 | #726f64 | derived from S23 / same as border |
 | sidebar-ring | border (focus) | #8d0f14 | #e8ada6 | same as ring |
 
 Beyond the shadcn set and the three states, the palette adds `reading` and `reading-foreground`, which give long transcripts a warmer, paper-like column that sets the record apart from the app around it; `separator`, a lighter line for card edges, table rules and dividers (gate decision 19); `overlay`, the base colour of the dialog scrim, which is the one place an opacity utility is allowed; and hover and active steps for `primary`, `secondary` and `destructive`, so no component needs an opacity tint for a state. `destructive-foreground` is not in the current shadcn v4 defaults; it is added so the destructive button text is a token, not a hard-coded white.
 
-The light theme puts the gown's black cloth on a warm near-white. Stone greys make the surfaces and lines, the gown's red satin is the one brand colour, and gold lace covers hover and warning. The lawn gives success and the sign lettering gives info. The dark theme sets cream lace on the black cloth and keeps the same colour families.
+The light theme puts the gown's black cloth on a warm near-white. Stone greys make the surfaces and lines, the gown's red satin is the one brand colour, and gold lace covers hover and warning. The lawn gives success and the evening sky gives info. The dark theme sets cream lace on the black cloth and keeps the same colour families.
 
 ## Derived tokens
 
@@ -133,11 +135,13 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 | primary, ring, sidebar-primary, sidebar-ring | dark | #e8ada6 | S1 #8d0f14 gown red | L 0.80, C 0.07 | S1 gives 1.92:1 on the dark background. S1 stays as the light primary |
 | destructive | dark | #ef6666 | S18 #c8102e crest red | L 0.68, C 0.17 | S18 gives 3.10:1 on the dark background |
 | success | dark | #a5b961 | S14 #7a8c34 sunlit lawn | L 0.75 | S13 gives 3.17:1 on the dark background. S14 stays as dark chart-2 |
-| info | dark | #89b2dc | S12 #175082 sign lettering | L 0.75, C 0.075 | S12 gives 2.18:1 on the dark background. Chroma lowered so the blue sits with the warm surfaces |
+| info | light | #0c4a7a | S22 #85a4c2 evening sky | L 0.40, C 0.10 | The sky itself is too light for a state colour; chroma raised from 0.056 so the blue reads as blue at text darkness (sky-blue-40) |
+| info | dark | #8bb2d9 | S22 #85a4c2 | L 0.75, C 0.07 | sky-blue-75 |
 | border, sidebar-border | dark | #726f64 | S9 #908d82 granite plate | L 0.54 | S9 is 5.49:1 on the dark background, brighter than a control edge needs. Lowered to just clear 3:1 on the card |
-| input | dark | #7b7b75 | S10 #868680 granite | L 0.58 | One step above border so fields read as fields |
+| input | light | #897e74 | S23 #655b51 pylon granite | L 0.60, C 0.02 | The shaded pylon is darker than a field edge needs (granite-pylon-60) |
+| input | dark | #83786e | S23 #655b51 | L 0.58, C 0.02 | One step above border so fields read as fields (granite-pylon-58) |
 | chart-1 | dark | #d76960 | S1 #8d0f14 | L 0.65, C 0.14 | Visible on dark surfaces and distinct from the pale primary |
-| chart-3 | dark | #5c94ca | S12 #175082 | L 0.65 | Visible on dark surfaces |
+| chart-3 | dark | #6194c4 | S22 #85a4c2 | L 0.65, C 0.09 | Visible on dark surfaces (sky-blue-65) |
 | highlight | light | #e8cbf9 | S20 #d9a6f4 orchid petal | L 0.88, C 0.07 | Pale lilac behind matched text |
 | highlight | dark | #513460 | S20 #d9a6f4 | L 0.38, C 0.08 | Dark lilac behind matched text |
 | tag | light | #fde2d4 | S21 #843d17 teak (hue 42 to 50 across veneer and teak) | L 0.931, C 0.035 (named teak-93) | Warm chip surface |
@@ -154,7 +158,7 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 | destructive-hover, destructive-active | light | #b00826, #97061f | S18 #c8102e | L 0.48 C 0.19, L 0.43 C 0.17 | Darker steps keep white text above 7:1 |
 | destructive-hover, destructive-active | dark | #ff8481, #ff9b97 | S18 #c8102e | L 0.75 C 0.15, L 0.791 C 0.12 (named crest-red-79; the target L 0.80 clipped in gamut) | Lighter steps keep dark text above 7:1 |
 
-Sampled colours that stay in a non-text role because they fail as text: S6 gold lace (3.24:1 on the light background, kept as chart-4), S10 granite (3.51:1, kept as the input border), S15 terracotta (kept as chart-5; it passes 4.77:1 but reads orange next to the reds, so it is not used for text).
+Sampled colours that stay in a non-text role because they fail as text: S6 gold lace (3.24:1 on the light background, kept as chart-4), S15 terracotta (kept as chart-5; it passes 4.77:1 but reads orange next to the reds, so it is not used for text).
 
 ## Contrast
 
