@@ -53,16 +53,27 @@ const PAIRS: Pair[] = [
   ...pairs('warning-foreground', ['warning'], TEXT_MINIMUM),
   ...pairs('info-foreground', ['info'], TEXT_MINIMUM),
   ...pairs('reading-foreground', ['reading'], TEXT_MINIMUM),
+  ...pairs('highlight-foreground', ['highlight'], TEXT_MINIMUM),
+  ...pairs('tag-foreground', ['tag'], TEXT_MINIMUM),
   ...pairs('sidebar-foreground', ['sidebar'], TEXT_MINIMUM),
   ...pairs('sidebar-primary-foreground', ['sidebar-primary'], TEXT_MINIMUM),
   ...pairs('sidebar-accent-foreground', ['sidebar-accent'], TEXT_MINIMUM),
   // Secondary text, links and state text on every surface they appear on
   ...pairs(
     'muted-foreground',
-    [...SURFACES, 'muted', 'accent', 'reading'],
+    [
+      ...SURFACES,
+      'muted',
+      'secondary',
+      'secondary-hover',
+      'secondary-active',
+      'accent',
+      'reading',
+      'highlight',
+    ],
     TEXT_MINIMUM
   ),
-  ...pairs('primary', [...SURFACES, 'reading'], TEXT_MINIMUM),
+  ...pairs('primary', [...SURFACES, 'reading', 'highlight'], TEXT_MINIMUM),
   ...pairs('primary-hover', [...SURFACES, 'reading'], TEXT_MINIMUM),
   ...pairs('destructive', SURFACES, TEXT_MINIMUM),
   ...pairs('success', SURFACES, TEXT_MINIMUM),
@@ -70,6 +81,7 @@ const PAIRS: Pair[] = [
   ...pairs('info', SURFACES, TEXT_MINIMUM),
   // Borders, focus rings and chart marks
   ...pairs('border', SURFACES, UI_MINIMUM),
+  ...pairs('tag-border', ['tag', ...SURFACES], UI_MINIMUM),
   ...pairs('input', SURFACES, UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
   ...pairs('sidebar-border', ['sidebar'], UI_MINIMUM),
