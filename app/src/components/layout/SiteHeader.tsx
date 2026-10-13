@@ -2,21 +2,32 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { Search } from 'lucide-react'
 import type { FormEvent } from 'react'
 
 const NAV_ITEMS = [
   { label: 'Home', to: '/' },
+  { label: 'Search', to: '/search' },
+  { label: 'Sittings', to: '/sittings' },
+  { label: 'People', to: '/people' },
+  { label: 'Coverage', to: '/coverage' },
   { label: 'Design', to: '/design' },
   { label: 'Palette', to: '/palette' },
 ] as const
 
-function submitSearch(event: FormEvent<HTMLFormElement>) {
-  event.preventDefault()
-}
-
 export function SiteHeader() {
+  const navigate = useNavigate()
+
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const query = String(
+      new FormData(event.currentTarget).get('q') ?? ''
+    ).trim()
+    if (query === '') return
+    void navigate({ to: '/search', search: { q: query } })
+  }
+
   return (
     <header className="bg-background border-separator border-b">
       <div className="max-w-page-xl mx-auto flex w-full flex-wrap items-center gap-x-8 gap-y-3 px-5 py-3 sm:px-6 md:px-7">
@@ -35,7 +46,7 @@ export function SiteHeader() {
               <li key={item.label}>
                 <Link
                   to={item.to}
-                  activeOptions={{ exact: true }}
+                  activeOptions={{ exact: item.to === '/' }}
                   className="text-primary hover:text-primary-hover data-[status=active]:border-primary focus-visible:ring-ring focus-visible:ring-offset-background inline-block rounded-sm border-b-2 border-transparent py-1 text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 data-[status=active]:font-medium"
                 >
                   {item.label}
