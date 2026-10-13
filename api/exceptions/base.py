@@ -10,6 +10,7 @@ class ErrorCode(StrEnum):
     REPORT_NOT_FOUND = "report.not_found"
     SITTING_NOT_FOUND = "sitting.not_found"
     PERSON_NOT_FOUND = "person.not_found"
+    SEARCH_TIMED_OUT = "search.timed_out"
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,6 +33,10 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ),
     ErrorCode.PERSON_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Person not found."
+    ),
+    ErrorCode.SEARCH_TIMED_OUT: ErrorSpec(
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+        "The search took too long and was stopped.",
     ),
 }
 
