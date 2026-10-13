@@ -1,4 +1,6 @@
 import { Example, Section } from '@/components/design/Section'
+import { TableIndexSittingSpeeches } from '@/components/design/tableSittingSpeeches/TableIndexSittingSpeeches'
+import type { SittingSpeech } from '@/components/design/tableSittingSpeeches/useTableColumnsSittingSpeeches'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,54 +23,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
-  createColumnHelper,
-  createPaginatedRowModel,
-  createSortedRowModel,
-  rowPaginationFeature,
-  rowSortingFeature,
-  sortFn_alphanumeric,
-  sortFn_basic,
-  tableFeatures,
-  useTable,
-  type PaginationState,
-  type SortDirection,
-  type SortingState,
-} from '@tanstack/react-table'
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  CircleAlert,
-  CircleCheck,
-  Info,
-  TriangleAlert,
-} from 'lucide-react'
-import { useState } from 'react'
-
-interface SittingSpeech {
-  id: string
-  sittingDate: string
-  parliament: number
-  title: string
-  speaker: string
-  speechCount: number
-}
+import { CircleAlert, CircleCheck, Info, TriangleAlert } from 'lucide-react'
 
 const SITTING_SPEECHES: SittingSpeech[] = [
   {
@@ -171,218 +126,6 @@ const SITTING_SPEECHES: SittingSpeech[] = [
   },
 ]
 
-const SORT_LABELS: Record<
-  SortDirection | 'none',
-  'ascending' | 'descending' | 'none'
-> = {
-  asc: 'ascending',
-  desc: 'descending',
-  none: 'none',
-}
-
-const features = tableFeatures({
-  rowSortingFeature,
-  rowPaginationFeature,
-  sortedRowModel: createSortedRowModel(),
-  paginatedRowModel: createPaginatedRowModel(),
-  sortFns: { alphanumeric: sortFn_alphanumeric, basic: sortFn_basic },
-})
-
-const columnHelper = createColumnHelper<typeof features, SittingSpeech>()
-
-const columns = columnHelper.columns([
-  columnHelper.accessor('sittingDate', { header: 'Sitting date' }),
-  columnHelper.accessor('parliament', { header: 'Parliament' }),
-  columnHelper.accessor('title', {
-    header: 'Report title',
-    cell: (title) => (
-      <Tooltip delayDuration={500}>
-        <TooltipTrigger asChild>
-          <p className="max-w-80 truncate" tabIndex={0}>
-            {title.getValue()}
-          </p>
-        </TooltipTrigger>
-        <TooltipContent side="bottom" className="max-w-[300px]">
-          <p className="text-start">{title.getValue()}</p>
-        </TooltipContent>
-      </Tooltip>
-    ),
-  }),
-  columnHelper.accessor('speaker', { header: 'Speaker' }),
-  columnHelper.accessor('speechCount', { header: 'Speeches' }),
-])
-
-function getPageItems(pageCount: number, pageIndex: number) {
-  if (pageCount <= 7) {
-    return Array.from({ length: pageCount }, (_, index) => index)
-  }
-  const visible = new Set([
-    0,
-    pageCount - 1,
-    pageIndex - 1,
-    pageIndex,
-    pageIndex + 1,
-  ])
-  const items: (number | 'ellipsis')[] = []
-  let previous = -1
-  for (const index of [...visible]
-    .filter((i) => i >= 0 && i < pageCount)
-    .sort((a, b) => a - b)) {
-    if (index - previous > 1) {
-      items.push('ellipsis')
-    }
-    items.push(index)
-    previous = index
-  }
-  return items
-}
-
-interface TablePaginationProps {
-  pageCount: number
-  pageIndex: number
-  onPageChange: (pageIndex: number) => void
-}
-
-function TablePagination({
-  pageCount,
-  pageIndex,
-  onPageChange,
-}: TablePaginationProps) {
-  if (pageCount <= 1) {
-    return null
-  }
-
-  return (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            disabled={pageIndex === 0}
-            onClick={() => onPageChange(pageIndex - 1)}
-          />
-        </PaginationItem>
-        {getPageItems(pageCount, pageIndex).map((item, position) => (
-          <PaginationItem
-            key={item === 'ellipsis' ? `ellipsis-${position}` : item}
-          >
-            {item === 'ellipsis' ? (
-              <PaginationEllipsis />
-            ) : (
-              <PaginationLink
-                aria-label={`Go to page ${item + 1}`}
-                isActive={item === pageIndex}
-                onClick={() => onPageChange(item)}
-              >
-                {item + 1}
-              </PaginationLink>
-            )}
-          </PaginationItem>
-        ))}
-        <PaginationItem>
-          <PaginationNext
-            disabled={pageIndex === pageCount - 1}
-            onClick={() => onPageChange(pageIndex + 1)}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-  )
-}
-
-interface TableSittingSpeechesProps {
-  caption: string
-  data: SittingSpeech[]
-}
-
-function TableSittingSpeeches({ caption, data }: TableSittingSpeechesProps) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
-  })
-
-  const table = useTable({
-    features,
-    columns,
-    data,
-    getRowId: (row) => row.id,
-    state: { sorting, pagination },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-  })
-
-  return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex w-full flex-col items-center justify-center">
-        <Table aria-label={caption}>
-          <TableCaption>{caption}</TableCaption>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-muted">
-                {headerGroup.headers.map((header) => {
-                  const sorted = header.column.getIsSorted()
-                  const SortIcon =
-                    sorted === 'asc'
-                      ? ArrowUp
-                      : sorted === 'desc'
-                        ? ArrowDown
-                        : ArrowUpDown
-                  return (
-                    <TableHead
-                      key={header.id}
-                      aria-sort={SORT_LABELS[sorted || 'none']}
-                    >
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="-ml-3"
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        <table.FlexRender header={header} />
-                        <SortIcon aria-hidden />
-                      </Button>
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length === 0 ? (
-              <TableRow className="bg-background text-foreground hover:bg-background border-none">
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="border-none py-[15px] text-center"
-                >
-                  No Results.
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
-                >
-                  {row.getAllCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      <table.FlexRender cell={cell} />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <TablePagination
-        pageCount={table.getPageCount()}
-        pageIndex={table.state.pagination.pageIndex}
-        onPageChange={table.setPageIndex}
-      />
-    </div>
-  )
-}
-
 const ALERTS = [
   {
     variant: 'default',
@@ -427,27 +170,25 @@ const BADGE_VARIANTS = [
   'info',
 ] as const
 
-export function DataSection() {
+export function SectionData() {
   return (
     <Section
       id="data"
       title="Data"
       description="Tables, pagination, badges, alerts, skeletons and cards."
     >
-      <TooltipProvider>
-        <Example label="Table, sortable with pagination (click a header to sort)">
-          <TableSittingSpeeches
-            caption="Reports by sitting date, five per page"
-            data={SITTING_SPEECHES}
-          />
-        </Example>
-        <Example label="Table, empty">
-          <TableSittingSpeeches
-            caption="Reports matching the search"
-            data={[]}
-          />
-        </Example>
-      </TooltipProvider>
+      <Example label="Table, sortable with pagination (click a header to sort)">
+        <TableIndexSittingSpeeches
+          caption="Reports by sitting date, ten per page"
+          data={SITTING_SPEECHES}
+        />
+      </Example>
+      <Example label="Table, empty">
+        <TableIndexSittingSpeeches
+          caption="Reports matching the search"
+          data={[]}
+        />
+      </Example>
 
       <Example label="Pagination, many pages with an ellipsis">
         <Pagination>

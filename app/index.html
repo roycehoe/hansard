@@ -7,11 +7,11 @@
     <script>
       try {
         const stored = localStorage.getItem('theme')
-        const dark =
+        const isDark =
           stored === 'dark' ||
-          (stored === null &&
+          (stored !== 'light' &&
             matchMedia('(prefers-color-scheme: dark)').matches)
-        document.documentElement.classList.toggle('dark', dark)
+        document.documentElement.classList.toggle('dark', isDark)
       } catch {}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />

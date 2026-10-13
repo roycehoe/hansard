@@ -35,7 +35,7 @@ const FAQ_ITEMS = [
   },
 ]
 
-export function NavigationSection() {
+export function SectionNavigation() {
   return (
     <Section
       id="navigation"

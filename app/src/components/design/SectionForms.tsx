@@ -43,39 +43,45 @@ const BUTTON_TEXT_SIZES = ['sm', 'default', 'lg'] as const
 
 const BUTTON_ICON_SIZES = ['icon-sm', 'icon', 'icon-lg'] as const
 
-const SPEAKER_TYPE_GROUPS = [
+enum SpeakerType {
+  MINISTER = 'minister',
+  BACKBENCHER = 'backbencher',
+  SPEAKER = 'speaker',
+  CLERK = 'clerk',
+}
+
+enum ReportType {
+  ORAL = 'oral',
+  WRITTEN = 'written',
+  BILLS = 'bills',
+}
+
+const SPEAKER_TYPE_DROPDOWN_OPTIONS = [
   {
     label: 'Members',
     options: [
-      { value: 'minister', label: 'Minister' },
-      { value: 'backbencher', label: 'Backbencher' },
+      { value: SpeakerType.MINISTER, label: 'Minister' },
+      { value: SpeakerType.BACKBENCHER, label: 'Backbencher' },
     ],
   },
   {
     label: 'Office holders',
     options: [
-      { value: 'speaker', label: 'Speaker' },
-      { value: 'clerk', label: 'Clerk' },
+      { value: SpeakerType.SPEAKER, label: 'Speaker' },
+      { value: SpeakerType.CLERK, label: 'Clerk' },
     ],
   },
 ] as const
 
-const SPEAKER_TYPE_VALUES = [
-  'minister',
-  'backbencher',
-  'speaker',
-  'clerk',
-] as const
-
-const REPORT_TYPES = [
-  { value: 'oral', label: 'Oral answers' },
-  { value: 'written', label: 'Written answers' },
-  { value: 'bills', label: 'Bills' },
+const REPORT_TYPE_OPTIONS = [
+  { value: ReportType.ORAL, label: 'Oral answers' },
+  { value: ReportType.WRITTEN, label: 'Written answers' },
+  { value: ReportType.BILLS, label: 'Bills' },
 ] as const
 
 const formSchema = z.object({
   name: z.string().min(1, { error: 'Name is required.' }),
-  speaker_type: z.enum(SPEAKER_TYPE_VALUES, {
+  speaker_type: z.enum(SpeakerType, {
     error: 'Choose a speaker type.',
   }),
   accepted_terms: z.boolean().refine((value) => value, {
@@ -122,13 +128,15 @@ function ExampleDatePicker() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor="sitting-date">Sitting date</Label>
+      <Label id="sitting-date-label" htmlFor="sitting-date">
+        Sitting date
+      </Label>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
             id="sitting-date"
             variant="outline"
-            className="w-56 justify-start"
+            aria-labelledby="sitting-date-label sitting-date"
           >
             <CalendarIcon />
             {date ? format(date, 'PPP') : 'Pick a date'}
@@ -169,6 +177,14 @@ function ExampleForm() {
     }, 800)
   }
 
+  function getAcceptedTermsHandler(onChange: (value: boolean) => void) {
+    return function handleAcceptedTermsChange(
+      checked: boolean | 'indeterminate'
+    ) {
+      onChange(checked === true)
+    }
+  }
+
   return (
     <form
       onSubmit={handleSubmit(submitForm)}
@@ -202,6 +218,7 @@ function ExampleForm() {
               disabled={isPending}
             >
               <SelectTrigger
+                ref={field.ref}
                 id="form-speaker-type"
                 className="w-full"
                 onBlur={field.onBlur}
@@ -213,7 +230,7 @@ function ExampleForm() {
                 <SelectValue placeholder="Select a type" />
               </SelectTrigger>
               <SelectContent>
-                {SPEAKER_TYPE_GROUPS.map((group) => (
+                {SPEAKER_TYPE_DROPDOWN_OPTIONS.map((group) => (
                   <SelectGroup key={group.label}>
                     <SelectLabel>{group.label}</SelectLabel>
                     {group.options.map((option) => (
@@ -240,9 +257,10 @@ function ExampleForm() {
             name="accepted_terms"
             render={({ field }) => (
               <Checkbox
+                ref={field.ref}
                 id="form-accepted-terms"
                 checked={field.value}
-                onCheckedChange={(checked) => field.onChange(checked === true)}
+                onCheckedChange={getAcceptedTermsHandler(field.onChange)}
                 onBlur={field.onBlur}
                 disabled={isPending}
                 aria-invalid={!!errors.accepted_terms}
@@ -270,7 +288,7 @@ function ExampleForm() {
       <Button type="submit" disabled={isPending} className="self-start">
         {isPending ? (
           <>
-            <Spinner />
+            <Spinner aria-hidden />
             Saving...
           </>
         ) : (
@@ -281,7 +299,7 @@ function ExampleForm() {
   )
 }
 
-export function FormsSection() {
+export function SectionForms() {
   return (
     <Section
       id="forms"
@@ -294,15 +312,15 @@ export function FormsSection() {
 
       <Example label="Button pending">
         <Button disabled>
-          <Spinner />
+          <Spinner aria-hidden />
           Saving...
         </Button>
         <Button variant="secondary" disabled>
-          <Spinner />
+          <Spinner aria-hidden />
           Exporting...
         </Button>
         <Button variant="destructive" disabled>
-          <Spinner />
+          <Spinner aria-hidden />
           Deleting...
         </Button>
       </Example>
@@ -383,7 +401,7 @@ export function FormsSection() {
               <SelectValue placeholder="Select a type" />
             </SelectTrigger>
             <SelectContent>
-              {SPEAKER_TYPE_GROUPS.map((group) => (
+              {SPEAKER_TYPE_DROPDOWN_OPTIONS.map((group) => (
                 <SelectGroup key={group.label}>
                   <SelectLabel>{group.label}</SelectLabel>
                   {group.options.map((option) => (
@@ -403,7 +421,7 @@ export function FormsSection() {
               <SelectValue placeholder="Select a type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="oral">Oral answers</SelectItem>
+              <SelectItem value={ReportType.ORAL}>Oral answers</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -445,8 +463,8 @@ export function FormsSection() {
       </Example>
 
       <Example label="Radio group">
-        <RadioGroup defaultValue="oral" aria-label="Report type">
-          {REPORT_TYPES.map((type) => (
+        <RadioGroup defaultValue={ReportType.ORAL} aria-label="Report type">
+          {REPORT_TYPE_OPTIONS.map((type) => (
             <div key={type.value} className="flex items-center gap-2">
               <RadioGroupItem value={type.value} id={`radio-${type.value}`} />
               <Label htmlFor={`radio-${type.value}`}>{type.label}</Label>
