@@ -17,7 +17,7 @@ What was read:
 - Isomer: `packages/components/src/presets/next/index.ts` (screens, shadows, animation) and `typography.ts` (type scale). Isomer has no container or max-width tokens.
 - Not found: a `sgds-tokens` repo or Figma export. The npm package `@govtechsg/sgds` is the v2 Bootstrap build and was not needed, since `root.css` is the v3 source of truth.
 
-SGDS source paths below are relative to the `sgds-web-component` clone at the SHA above. The proposed `@theme` lines are in `theme-patch.css`, kept in the scratch directory for the orchestrator to apply. Component changes already made are listed at the end.
+SGDS source paths below are relative to the `sgds-web-component` clone at the SHA above. The `@theme` lines are applied in `app/src/index.css` under the comment "Non-colour scale from SGDS v3". Component changes are listed at the end. The page container uses `max-w-page-xl` (1168px) with `px-5 sm:px-6 md:px-7` gutters (SGDS 20/24/28px).
 
 ## Spacing
 
