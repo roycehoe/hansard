@@ -4,7 +4,7 @@ import { Slot } from 'radix-ui'
 import * as React from 'react'
 
 function Breadcrumb({ ...props }: React.ComponentProps<'nav'>) {
-  return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />
+  return <nav aria-label="Breadcrumb" data-slot="breadcrumb" {...props} />
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<'ol'>) {
@@ -42,7 +42,10 @@ function BreadcrumbLink({
   return (
     <Comp
       data-slot="breadcrumb-link"
-      className={cn('hover:text-foreground transition-colors', className)}
+      className={cn(
+        'hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm underline-offset-4 transition-colors duration-150 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-offset-2',
+        className
+      )}
       {...props}
     />
   )
