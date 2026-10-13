@@ -1,6 +1,18 @@
 {
   "feature": "hansard-foundation",
+  "status": "done",
   "pipeline": {
-    "grill-with-docs": { "status": "completed", "output": "plans/hansard-foundation-brief.md", "timestamp": "2026-10-13T00:00:00+08:00" }
-  }
+    "grill-with-docs": { "status": "completed", "output": "plans/hansard-foundation-brief.md", "timestamp": "2026-10-13T00:00:00+08:00" },
+    "convention-docs": { "status": "completed", "output": "CLAUDE.md, app/CLAUDE.md, app/STYLE.md, api/CLAUDE.md, api/STYLE.md, api/STYLE-RULINGS.md", "timestamp": "2026-10-13T19:30:00+08:00" },
+    "scaffolds": { "status": "completed", "output": "app/, api/", "timestamp": "2026-10-13T19:40:00+08:00" },
+    "palette": { "status": "completed", "output": "docs/palette.md, docs/palette-preview.html, docs/palette/sources/SOURCES.md, app/src/palette/palette.ts", "timestamp": "2026-10-13T20:30:00+08:00" },
+    "palette-gate": { "status": "completed", "output": "plans/hansard-foundation-brief.md decisions 17 to 20", "timestamp": "2026-10-13T21:00:00+08:00" },
+    "components": { "status": "completed", "output": "app/src/components/ui, app/src/components/layout, /design", "timestamp": "2026-10-13T22:30:00+08:00" },
+    "research": { "status": "completed", "output": "docs/palette/research.md, docs/palette-v2-preview.html", "timestamp": "2026-10-13T22:30:00+08:00" },
+    "v2-gate": { "status": "completed", "output": "plans/hansard-foundation-brief.md decisions 21 to 25", "timestamp": "2026-10-13T23:00:00+08:00" },
+    "sgds-tokens": { "status": "completed", "output": "docs/sgds-tokens.md", "timestamp": "2026-10-13T23:30:00+08:00" },
+    "palette-page": { "status": "completed", "output": "/palette, app/src/palette/palette.ts, app/public/palette-photos", "timestamp": "2026-10-13T23:30:00+08:00" },
+    "final-decisions": { "status": "completed", "output": "plans/hansard-foundation-brief.md decisions 26 to 29", "timestamp": "2026-10-14T00:00:00+08:00" }
+  },
+  "next": "user-stories"
 }
