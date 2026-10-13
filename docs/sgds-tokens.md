@@ -128,7 +128,7 @@ Two defaults move: `sm` from 640px to 512px and `2xl` from 1536px to 1440px. The
 
 New names only. The default `--container-*` sizes (`max-w-sm`, `max-w-lg` and so on) stay, because dialogs and popovers use them as component widths. SGDS modal widths are 480, 640, 800 and 1280px (`components/Modal/modal.css:4-18`).
 
-The page wrapper in `__root.tsx` uses `max-w-6xl` (1152px) with `px-4 sm:px-6`. The nearest SGDS container is `page-xl` (1168px). Switching is left for after the patch lands.
+The page wrapper in `__root.tsx`, `SiteHeader.tsx` and `SiteFooter.tsx` uses `max-w-page-xl` (1168px).
 
 ## Focus
 
@@ -181,7 +181,7 @@ Tailwind v4 has no named duration namespace, so durations use the numeric `durat
 - **Shadow colour.** SGDS uses literal `rgba(14,14,14,...)`. We use `--overlay` so no raw colour appears.
 - **Breakpoint names.** We keep Tailwind's names (`sm`, `md`, ...) with SGDS values. SGDS also names `xs` and `3xl`, which we add.
 - **Container names.** `page-*` names instead of `sgds-*` so no identity word leaks into class names.
-- **Page gutters.** SGDS uses 20px below 512px, 24px from 512px and 28px from 768px (`css/grid.css:5`, `52`, `99`). The app uses 16px and 24px (`px-4 sm:px-6`). 16px is an SGDS spacer but not an SGDS gutter, so this is a real gap. It was left alone because it shifts every page; the fix is `px-5 sm:px-6 md:px-7` in `__root.tsx` and `SiteFooter.tsx`, and it needs the owner's call.
+- **Page gutters (resolved).** SGDS uses 20px below 512px, 24px from 512px and 28px from 768px (`css/grid.css:5`, `52`, `99`). The app now uses `px-5 sm:px-6 md:px-7` in `__root.tsx`, `SiteHeader.tsx` and `SiteFooter.tsx` (decision 25).
 - **Switch and checkbox internals.** `h-[1.15rem]` on the switch and `size-3.5` icons are control internals, not layout spacing. SGDS icon sizes are 12, 16, 20, 24px (`root.css:192-198`). Left as is.
 
 ## Not adopted
