@@ -17,19 +17,26 @@ export function ListSpeechMatches({ results }: ListSpeechMatchesProps) {
         Speech matches
       </h2>
       {results.length === 0 ? (
-        <NoticeEmpty
-          icon={SearchX}
-          title="No speech matches"
-          description='Nothing matches these words. Common words such as "the" are ignored. Try different words or a wider date range.'
-        />
+        <div role="status">
+          <NoticeEmpty
+            icon={SearchX}
+            title="No speech matches"
+            description='Nothing matches these words. Common words such as "the" are ignored. Try different words or a wider date range.'
+          />
+        </div>
       ) : (
-        <ol className="space-y-4">
-          {results.map((result) => (
-            <li key={`${result.report_slug}-${result.ordinal}`}>
-              <CardSpeechMatch result={result} />
-            </li>
-          ))}
-        </ol>
+        <>
+          <p role="status" className="sr-only">
+            {results.length} speech matches on this page
+          </p>
+          <ol className="space-y-4">
+            {results.map((result) => (
+              <li key={`${result.report_slug}-${result.ordinal}`}>
+                <CardSpeechMatch result={result} />
+              </li>
+            ))}
+          </ol>
+        </>
       )}
     </section>
   )

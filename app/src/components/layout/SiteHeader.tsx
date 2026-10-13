@@ -2,6 +2,7 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { readSearchQuery } from '@/lib/utils'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Search } from 'lucide-react'
 import type { FormEvent } from 'react'
@@ -21,9 +22,7 @@ export function SiteHeader() {
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const query = String(
-      new FormData(event.currentTarget).get('q') ?? ''
-    ).trim()
+    const query = readSearchQuery(event.currentTarget)
     if (query === '') return
     void navigate({ to: '/search', search: { q: query } })
   }
@@ -58,6 +57,7 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-2">
           <form
             role="search"
+            aria-label="Site search"
             onSubmit={submitSearch}
             className="flex items-center gap-2"
           >

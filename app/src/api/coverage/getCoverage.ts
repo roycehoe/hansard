@@ -1,5 +1,5 @@
 import { apiGet } from '@/api/client'
-import { COVERAGE_STALE_TIME_MILLISECONDS } from '@/constants/search/constants'
+import { COVERAGE_STALE_TIME_MILLISECONDS } from '@/constants/coverage/constants'
 import { useQuery } from '@tanstack/react-query'
 
 export interface YearCoverageData {

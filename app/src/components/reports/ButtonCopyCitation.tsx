@@ -4,9 +4,13 @@ import { toast } from 'sonner'
 
 interface ButtonCopyCitationProps {
   citation: string
+  describedById?: string
 }
 
-export function ButtonCopyCitation({ citation }: ButtonCopyCitationProps) {
+export function ButtonCopyCitation({
+  citation,
+  describedById,
+}: ButtonCopyCitationProps) {
   async function copyCitation() {
     try {
       await navigator.clipboard.writeText(citation)
@@ -19,7 +23,13 @@ export function ButtonCopyCitation({ citation }: ButtonCopyCitationProps) {
   }
 
   return (
-    <Button type="button" variant="outline" size="sm" onClick={copyCitation}>
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={copyCitation}
+      aria-describedby={describedById}
+    >
       <Quote aria-hidden="true" />
       Copy citation
     </Button>

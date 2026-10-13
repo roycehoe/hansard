@@ -1,7 +1,7 @@
 import {
   LEGISLATIVE_ASSEMBLY_LABEL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
-} from '@/constants/reports/constants'
+} from '@/constants/constants'
 import { format, parseISO } from 'date-fns'
 
 const SITTING_DATE_FORMAT = 'd MMMM yyyy'

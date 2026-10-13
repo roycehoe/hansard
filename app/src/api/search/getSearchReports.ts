@@ -2,7 +2,7 @@ import { apiGet } from '@/api/client'
 import type { ReportType } from '@/constants/reports/enums'
 import type { SearchSort } from '@/constants/search/enums'
 import { buildQueryString } from '@/lib/utils'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 export interface GetSearchReportsRequest {
   q: string
@@ -10,7 +10,7 @@ export interface GetSearchReportsRequest {
   date_from?: string
   date_to?: string
   report_type?: ReportType
-  person_id?: number
+  is_text_available?: boolean
   sort?: SearchSort
   page?: number
 }
@@ -42,7 +42,7 @@ async function getSearchReportsResponse(
       date_from: request.date_from,
       date_to: request.date_to,
       report_type: request.report_type,
-      person_id: request.person_id,
+      is_text_available: request.is_text_available,
       sort: request.sort,
       page: request.page,
     })}`
@@ -59,10 +59,11 @@ export function useGetSearchReports(request: GetSearchReportsRequest) {
       request.date_from,
       request.date_to,
       request.report_type,
-      request.person_id,
+      request.is_text_available,
       request.sort,
       request.page,
     ],
+    placeholderData: keepPreviousData,
     queryFn: () => getSearchReportsResponse(request),
     enabled: !!request.q,
   })

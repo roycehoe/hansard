@@ -1,7 +1,7 @@
 import { apiGet } from '@/api/client'
 import type { ReportType } from '@/constants/reports/enums'
 import { buildQueryString } from '@/lib/utils'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 export interface GetPersonReportsRequest {
   person_id: number
@@ -36,6 +36,7 @@ async function getPersonReportsResponse(
 export function useGetPersonReports(request: GetPersonReportsRequest) {
   return useQuery({
     queryKey: ['people', request.person_id, 'reports', request.page],
+    placeholderData: keepPreviousData,
     queryFn: () => getPersonReportsResponse(request),
     enabled: !!request.person_id,
   })

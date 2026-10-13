@@ -1,6 +1,6 @@
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { Button } from '@/components/ui/button'
-import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/reports/constants'
+import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
 import { FileText } from 'lucide-react'
 
 interface NoticeTextUnavailableProps {

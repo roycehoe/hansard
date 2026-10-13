@@ -1,3 +1,4 @@
+import { NUMBER_LOCALE } from '@/constants/constants'
 import type { YearCoverageData } from '@/api/coverage/getCoverage'
 import {
   Table,
@@ -9,7 +10,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-const NUMBER_LOCALE = 'en-SG'
 const PERCENT_SCALE = 100
 
 function formatTextShare(year: YearCoverageData): string {

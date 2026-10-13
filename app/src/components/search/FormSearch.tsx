@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { FILTER_ALL } from '@/constants/people/constants'
+import { FILTER_ALL } from '@/constants/constants'
 import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import { SEARCH_SORT_DROPDOWN_OPTIONS } from '@/constants/search/constants'
@@ -49,11 +49,13 @@ export function FormSearch({
   } = useForm<FormSearchValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
+    values: defaultValues,
   })
 
   return (
     <form
       role="search"
+      aria-label="Search filters"
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       className="flex flex-wrap items-end gap-4"
