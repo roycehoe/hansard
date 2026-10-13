@@ -29,7 +29,7 @@ export function TableColoursGroup({
   return (
     <Table>
       <TableCaption className="sr-only">
-        {group.title} colours
+        {group.title}
         {flavourTitle && ` in the ${flavourTitle} flavour`}
       </TableCaption>
       <TableHeader>

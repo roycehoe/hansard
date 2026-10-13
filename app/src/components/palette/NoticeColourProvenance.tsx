@@ -34,23 +34,14 @@ function NoticeSourcePhoto({
         </a>
         .
       </p>
-      {source.isShown === false && <p>Photo not shown: {source.reason}.</p>}
     </>
   )
-
-  if (source.isShown === false) {
-    return (
-      <div className="text-muted-foreground space-y-1 text-xs whitespace-normal">
-        {caption}
-      </div>
-    )
-  }
 
   return (
     <figure className="flex items-start gap-3">
       <img
         src={`${THUMBNAIL_PATH}/${source.file}`}
-        alt={source.description}
+        alt={source.thumbnailDescription ?? source.description}
         loading="lazy"
         width={source.width}
         height={source.height}

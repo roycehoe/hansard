@@ -55,7 +55,6 @@
   --lawn-sunlit-75: #a5b961;
   --granite-plate-54: #726f64;
   --granite-pylon-60: #897e74;
-  --granite-pylon-58: #83786e;
   --sky-blue-40: #0c4a7a;
   --sky-blue-65: #6194c4;
   --sky-blue-75: #8bb2d9;
@@ -159,7 +158,7 @@
   --tag-foreground: var(--gold-lace-highlight);
   --tag-border: var(--teak-62);
   --border: var(--granite-plate-54);
-  --input: var(--granite-pylon-58);
+  --input: var(--granite-pylon-60);
   --ring: var(--gown-red-80);
   --chart-1: var(--gown-red-65);
   --chart-2: var(--lawn-sunlit);

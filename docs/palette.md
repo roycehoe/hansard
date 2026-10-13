@@ -7,7 +7,7 @@ The colour tokens for the app, where each one came from, and the contrast each o
 1. Workers fetched openly licensed photos of Parliament House, the Speaker's ceremonial gown and the former chamber from Wikimedia Commons. The committed copies and their licences are in `docs/palette/sources/` and `docs/palette/sources/SOURCES.md`.
 2. Each worker ran PIL k-means on a crop around one object (gown satin, stone cladding, lawn and so on) and recorded the cluster hex, its share of the crop and the lighting.
 3. Insignia colours come from published specifications, not photos: the flag's white, and the State Crest's red and gold as filled in its SVG. The palette takes the colours and reproduces no artwork.
-4. During synthesis, every photo a token is sampled from was viewed, k-means was re-run on the crops relied on most, and two extra samples were taken: the blue sign lettering and the gold lace on the gown's cuff.
+4. During synthesis, every photo a token is sampled from was viewed, k-means was re-run on the crops relied on most, and two extra samples were taken: the blue sign lettering (since retired under decision 26) and the gold lace on the gown's cuff.
 5. Where a sampled colour is too dark or too light for text on a given theme, it stays where it passes (accent, border, chart) and a derived token covers text. Derived tokens keep the parent's OKLCH hue and change its lightness, and sometimes its chroma. Each one is listed under "Derived tokens".
 
 Caveats:
@@ -94,7 +94,7 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | tag-foreground | text | #252320 | #ede8d9 | S3 / S4 |
 | tag-border | border (chip) | #843d17 | #b7734f | S21 / derived from S21 |
 | border | border | #908d82 | #726f64 | S9 / derived from S9 |
-| input | border | #897e74 | #83786e | derived from S23 / derived from S23 |
+| input | border | #897e74 | #897e74 | derived from S23 / derived from S23 |
 | ring | border (focus) | #8d0f14 | #e8ada6 | S1 / derived from S1 |
 | chart-1 | accent (chart) | #8d0f14 | #d76960 | S1 / derived from S1 |
 | chart-2 | accent (chart) | #596d2c | #7a8c34 | S13 / S14 |
@@ -139,7 +139,7 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 | info | dark | #8bb2d9 | S22 #85a4c2 | L 0.75, C 0.07 | sky-blue-75 |
 | border, sidebar-border | dark | #726f64 | S9 #908d82 granite plate | L 0.54 | S9 is 5.49:1 on the dark background, brighter than a control edge needs. Lowered to just clear 3:1 on the card |
 | input | light | #897e74 | S23 #655b51 pylon granite | L 0.60, C 0.02 | The shaded pylon is darker than a field edge needs (granite-pylon-60) |
-| input | dark | #83786e | S23 #655b51 | L 0.58, C 0.02 | One step above border so fields read as fields (granite-pylon-58) |
+| input | dark | #897e74 | S23 #655b51 | L 0.60, C 0.02 | Same value as light; it clears 3:1 on every dark surface including a selected row (granite-pylon-60) |
 | chart-1 | dark | #d76960 | S1 #8d0f14 | L 0.65, C 0.14 | Visible on dark surfaces and distinct from the pale primary |
 | chart-3 | dark | #6194c4 | S22 #85a4c2 | L 0.65, C 0.09 | Visible on dark surfaces (sky-blue-65) |
 | highlight | light | #e8cbf9 | S20 #d9a6f4 orchid petal | L 0.88, C 0.07 | Pale lilac behind matched text |
@@ -318,10 +318,10 @@ Loaded in `app/index.html` with one Google Fonts stylesheet link (and preconnect
 The parliament.gov.sg stylesheet was the starting palette. What happened to each part:
 
 - Purple primary (#6037b3): dropped. It appears nowhere in the building, the robes or the insignia; it is a website brand colour. The gown red takes the primary role.
-- Navy footer and nav (#1b3342): dropped. The footer will use a stone surface. The only navy in the sources is the Parliament logo, and the sign lettering blue already covers blue.
+- Navy footer and nav (#1b3342): dropped. The footer will use a stone surface. The only navy in the sources is the Parliament logo, and the evening-sky blue already covers blue.
 - Maroon hover accent (#7d1211): kept in spirit. The sampled gown red (#8d0f14) sits next to it, so the site's red accent survives with a source behind it.
 - Link blue (#0070f2) and bottom nav blue (#3e69be): dropped. Links use the primary red.
-- Status set (#d0021b danger, #008649 success, #f5a623 warning, #008196 info): replaced by source colours. The crest red is close to the old danger red; success, warning and info now come from the lawn, the gown's gold lace and the sign lettering.
+- Status set (#d0021b danger, #008649 success, #f5a623 warning, #008196 info): replaced by source colours. The crest red is close to the old danger red; success, warning and info now come from the lawn, the gown's gold lace and the evening sky.
 - Near-black text on white (#323232 on #fff): kept as an approach, with the gown's black cloth and the painted railing white as the values.
 - Lato: dropped. Decision 14 sets Inter for the interface.
 

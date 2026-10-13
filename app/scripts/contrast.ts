@@ -82,7 +82,7 @@ const PAIRS: Pair[] = [
   // Borders, focus rings and chart marks
   ...pairs('border', SURFACES, UI_MINIMUM),
   ...pairs('tag-border', ['tag', ...SURFACES], UI_MINIMUM),
-  ...pairs('input', SURFACES, UI_MINIMUM),
+  ...pairs('input', [...SURFACES, 'muted', 'secondary'], UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
   ...pairs('sidebar-border', ['sidebar'], UI_MINIMUM),
   ...pairs('sidebar-ring', ['sidebar'], UI_MINIMUM),
