@@ -168,6 +168,8 @@ export function useCreateSavedSearch() {
 
 Use `enabled: !!param` to prevent a query from firing until its required parameter exists. Always `!!`, not `Boolean()` or an explicit null check.
 
+The one exception is a parameter whose valid values include `0`, such as a Parliament number (Parliament 0 is the Legislative Assembly). There `!!` would disable the query for a real value, so the check is `param !== undefined`, and the hook says so by that comparison alone.
+
 ```typescript
 export function useGetSavedSearch(request: GetSavedSearchRequest) {
   return useQuery({
@@ -250,25 +252,29 @@ Route files (`routes/`) use `kebab-case` and shadcn UI files (`components/ui/`) 
 
 Components follow `[Category][Context].tsx`. The category is a prefix that describes what kind of component it is. The context is the specific subject it operates on — add as much as needed to disambiguate within the folder, but no more.
 
-| Category          | Used for                              | Example                              |
-| ----------------- | ------------------------------------- | ------------------------------------ |
-| `Index`           | Entry point for a feature folder      | `Index.tsx`                          |
-| `Form`            | Form components                       | `FormSearchSpeeches.tsx`             |
-| `Dialog`          | Modal dialogs                         | `DialogDeleteSavedSearch.tsx`        |
-| `Table`           | Table renderers                       | `TableSittingSpeeches.tsx`           |
-| `TableIndex`      | Table state owner + orchestrator      | `TableIndexSittingSpeeches.tsx`      |
-| `TableFilters`    | Table filter controls                 | `TableFiltersSittingSpeeches.tsx`    |
-| `TablePagination` | Table pagination wrapper              | `TablePaginationSittingSpeeches.tsx` |
-| `TableColumns`    | Column definitions (hook file)        | `useTableColumnsSittingSpeeches.tsx` |
-| `Button`          | Standalone button components          | `ButtonCopySpeechLink.tsx`           |
-| `Card`            | Card display components               | `CardSittingSummary.tsx`             |
-| `Badge`           | Status badges                         | `BadgeReportType.tsx`                |
-| `Notice`          | Empty states and informational blocks | `NoticeEmptySpeeches.tsx`            |
-| `Skeleton`        | Skeleton loaders                      | `SkeletonFetching.tsx`               |
-| `Icon`            | Icon wrapper components               | `IconReportType.tsx`                 |
-| `Section`         | A titled block of a page              | `SectionForms.tsx`                   |
-| `Swatch`          | A colour sample                       | `SwatchColour.tsx`                   |
-| `Group`           | A titled list inside a section        | `GroupColours.tsx`                   |
+| Category          | Used for                                       | Example                                  |
+| ----------------- | ---------------------------------------------- | ---------------------------------------- |
+| `Index`           | Entry point for a feature folder               | `Index.tsx`                              |
+| `Form`            | Form components                                | `FormSearchSpeeches.tsx`                 |
+| `Dialog`          | Modal dialogs                                  | `DialogDeleteSavedSearch.tsx`            |
+| `Table`           | Table renderers                                | `TableSittingSpeeches.tsx`               |
+| `TableIndex`      | Table state owner + orchestrator               | `TableIndexSittingSpeeches.tsx`          |
+| `TableFilters`    | Table filter controls                          | `TableFiltersSittingSpeeches.tsx`        |
+| `TablePagination` | Table pagination wrapper                       | `TablePaginationSittingSpeeches.tsx`     |
+| `TableColumns`    | Column definitions (hook file)                 | `useTableColumnsSittingSpeeches.tsx`     |
+| `Button`          | Standalone button components                   | `ButtonCopySpeechLink.tsx`               |
+| `Card`            | Card display components                        | `CardSittingSummary.tsx`                 |
+| `Badge`           | Status badges                                  | `BadgeReportType.tsx`                    |
+| `Notice`          | Empty states and informational blocks          | `NoticeEmptySpeeches.tsx`                |
+| `Skeleton`        | Skeleton loaders                               | `SkeletonFetching.tsx`                   |
+| `Icon`            | Icon wrapper components                        | `IconReportType.tsx`                     |
+| `Section`         | A titled block of a page                       | `SectionForms.tsx`                       |
+| `Swatch`          | A colour sample                                | `SwatchColour.tsx`                       |
+| `Group`           | A titled list inside a section                 | `GroupColours.tsx`                       |
+| `List`            | A list of records rendered as `ul` or `ol`     | `ListSpeeches.tsx`, `ListAttendance.tsx` |
+| `Text`            | A text renderer with inline markup             | `TextTranscript.tsx`                     |
+| `Snippet`         | A short excerpt with matches marked            | `SnippetHighlighted.tsx`                 |
+| `Pagination`      | A shared pager (lives in `components/layout/`) | `PaginationPrevNext.tsx`                 |
 
 When the category alone is self-explanatory within the folder, the context suffix can be omitted — e.g. `ActionBar.tsx` in a folder that only has one action bar. Add context when disambiguation is needed — e.g. `ActionBarSpeechCopy.tsx` when multiple action bars exist in the same folder.
 
