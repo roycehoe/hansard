@@ -72,8 +72,6 @@ The layout will grow into the layers below. Only the first four rows exist now.
 | `middleware/` (not yet added) | Request-path middleware registered in `main.py`, and concerns that compose calls across gateways or services. | Single-service logic |
 | `gateway/` (not yet added) | Thin wrappers around one external service each. | Interpreting failures, business logic |
 
-When `crud/` is added, port `api/crud/CLAUDE.md` from kelix-audit with it. It is not ported now.
-
 Notes on the layers that matter now:
 
 - **Routers** call one service function and return. Once `services/` exists, a router never calls `crud/` or `database/` directly.
