@@ -50,7 +50,7 @@ export const columns = columnHelper.columns([
         </TooltipTrigger>
         <TooltipContent
           side="bottom"
-          className="bg-muted text-foreground max-w-[300px] rounded-md p-2 shadow-2xl"
+          className="bg-muted text-foreground max-w-80 rounded-md p-2 shadow-lg"
         >
           <p className="p-1 px-2 text-start">{title.getValue()}</p>
         </TooltipContent>
