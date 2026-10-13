@@ -1,14 +1,16 @@
 import { SOURCE_COLOURS_GROUP } from '@/constants/palette/constants'
 import { GroupColours } from './GroupColours'
 
+const headingId = 'source-colours'
+
 export function SectionSourceColours() {
   return (
     <section
-      aria-labelledby="source-colours"
+      aria-labelledby={headingId}
       className="border-separator space-y-4 rounded-xl border p-4 sm:p-6"
     >
       <h2
-        id="source-colours"
+        id={headingId}
         className="font-serif text-xl font-semibold lg:text-2xl"
       >
         {SOURCE_COLOURS_GROUP.title}

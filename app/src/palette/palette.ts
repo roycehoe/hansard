@@ -11,8 +11,7 @@ export interface PhotoSource {
   licenceUrl: string
   url: string
   description: string
-  isShown?: false
-  reason?: string
+  thumbnailDescription?: string
 }
 
 export interface SpecSource {
@@ -29,6 +28,8 @@ export const SOURCES = {
     kind: 'photo',
     file: 'speaker-ceremonial-gown-01.jpg',
     thumbnailBox: [0.3, 0, 1, 1],
+    thumbnailDescription:
+      "The Speaker's ceremonial gown on a mannequin: black cloth, red satin facing and gold lace",
     width: 210,
     height: 400,
     title:
@@ -45,6 +46,8 @@ export const SOURCES = {
     kind: 'photo',
     file: 'parliament-house-2023-079.jpg',
     thumbnailBox: [0, 0.83, 0.38, 1],
+    thumbnailDescription:
+      'Shrubs, the white perimeter wall and the brick drive at Parliament House',
     width: 400,
     height: 119,
     title: 'Parliament House Singapore 2023 079',
@@ -60,6 +63,7 @@ export const SOURCES = {
     kind: 'photo',
     file: 'parliament-house-2023-01.jpg',
     thumbnailBox: [0.45, 0.6, 1, 1],
+    thumbnailDescription: 'Lawn and ixora hedge in front of Parliament House',
     width: 400,
     height: 164,
     title: 'Parliament House, Singapore, 2023 (01)',
@@ -88,6 +92,8 @@ export const SOURCES = {
     kind: 'photo',
     file: 'parliament-house-2013-02-25.jpg',
     thumbnailBox: [0, 0.62, 0.45, 1],
+    thumbnailDescription:
+      'Lawn and clipped hedges in front of Parliament House',
     width: 400,
     height: 225,
     title: 'Parliament House, Singapore - 20130225',
@@ -103,6 +109,8 @@ export const SOURCES = {
     kind: 'photo',
     file: 'parliament-house-2010-08-03.jpg',
     thumbnailBox: [0.4, 0.3, 0.75, 0.44],
+    thumbnailDescription:
+      'The clay roofs of Parliament House against the evening sky',
     width: 400,
     height: 107,
     title: 'Parliament House, Singapore - 20100803-01',
@@ -164,7 +172,7 @@ export const SOURCES = {
     height: 258,
     title: '2016 Singapur, Downtown Core, Most Cavenagha (03)',
     author: 'Marcin Konsek',
-    credit: 'Photo by Marcin Konsek',
+    credit: 'Photo: Marcin Konsek / Wikimedia Commons',
     licence: 'CC BY-SA 4.0',
     licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
     url: 'https://commons.wikimedia.org/wiki/File:2016_Singapur,_Downtown_Core,_Most_Cavenagha_(03).jpg',
@@ -583,13 +591,6 @@ export const COLOURS = [
     derivation: 'L 0.60, C 0.02',
   },
   {
-    name: 'granite-pylon-58',
-    hex: '#83786e',
-    source: 'cavenagh-pylon',
-    derivedFrom: 'granite-pylon',
-    derivation: 'L 0.58, C 0.02',
-  },
-  {
     name: 'sky-blue-40',
     hex: '#0c4a7a',
     source: 'house-2010',
@@ -871,7 +872,7 @@ export const TOKENS: readonly Token[] = [
     name: 'input',
     group: 'borders',
     light: 'granite-pylon-60',
-    dark: 'granite-pylon-58',
+    dark: 'granite-pylon-60',
   },
   { name: 'ring', group: 'borders', light: 'gown-red', dark: 'gown-red-80' },
   { name: 'chart-1', group: 'charts', light: 'gown-red', dark: 'gown-red-65' },

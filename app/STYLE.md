@@ -268,6 +268,7 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `Icon`            | Icon wrapper components               | `IconReportType.tsx`                 |
 | `Section`         | A titled block of a page              | `SectionForms.tsx`                   |
 | `Swatch`          | A colour sample                       | `SwatchColour.tsx`                   |
+| `Group`           | A titled list inside a section        | `GroupColours.tsx`                   |
 
 When the category alone is self-explanatory within the folder, the context suffix can be omitted — e.g. `ActionBar.tsx` in a folder that only has one action bar. Add context when disambiguation is needed — e.g. `ActionBarSpeechCopy.tsx` when multiple action bars exist in the same folder.
 

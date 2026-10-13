@@ -32,7 +32,7 @@ const TOKEN_COLOUR_NAMES: Set<string> = new Set(
 )
 
 function buildPaletteGroupsForFlavour(flavour: Flavour): PaletteGroup[] {
-  const tokenGroups = TOKEN_GROUPS.map((group) => {
+  return TOKEN_GROUPS.map((group) => {
     const tokensByColour = new Map<string, string[]>()
     for (const token of TOKENS.filter((entry) => entry.group === group)) {
       const colourName = flavour === Flavour.LIGHT ? token.light : token.dark
@@ -47,7 +47,6 @@ function buildPaletteGroupsForFlavour(flavour: Flavour): PaletteGroup[] {
     }))
     return { title: TOKEN_GROUP_TITLES[group], rows }
   })
-  return tokenGroups
 }
 
 export const SOURCE_COLOURS_GROUP: PaletteGroup = {
