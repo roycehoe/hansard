@@ -1,6 +1,6 @@
 # Palette
 
-The colour tokens for the app, where each one came from, and the contrast each one reaches. The values live in `app/src/index.css`. `docs/palette-preview.html` shows every token in both themes. Running `pnpm contrast` from `app/` checks every pair listed below and exits 1 on any failure.
+The colour tokens for the app, where each one came from, and the contrast each one reaches. The values live in `app/src/palette/palette.ts` and are generated into `app/src/palette.css`. `docs/palette-preview.html` shows every token in both themes. Running `pnpm contrast` from `app/` checks every pair listed below and exits 1 on any failure.
 
 ## Method
 
@@ -337,12 +337,12 @@ Second gate, after the v2 review: proposals 2 and 3 adopted, 1, 4 and 5 deferred
 
 ## Proposed v2 changes
 
-Status (decision 21, 2026-10-13): proposals 2 (`highlight`) and 3 (`tag`, `tag-border`) are adopted and now appear in the token table above and in `app/src/index.css`. Proposals 1 (reading tint), 4 (heading band) and 5 (chart-6) are deferred until a screen needs them; their details stay below for that day. Nothing else above this heading changed. The research behind each proposal, with crop boxes and lighting, is in `docs/palette/research.md`. `docs/palette-v2-preview.html` shows each proposal beside its v1 value in both themes.
+Status (decision 21, 2026-10-13): proposals 2 (`highlight`) and 3 (`tag`, `tag-border`) are adopted and now appear in the token table above and in `app/src/palette/palette.ts`. Proposals 1 (reading tint), 4 (heading band) and 5 (chart-6) are deferred until a screen needs them; their details stay below for that day. Nothing else above this heading changed. The research behind each proposal, with crop boxes and lighting, is in `docs/palette/research.md`. `docs/palette-v2-preview.html` shows each proposal beside its v1 value in both themes.
 
 Rules used:
 
 - Each proposed value passes the same minimum as its v1 counterpart: 4.5:1 for text and 3:1 for control borders, focus rings and chart marks (see "Contrast" above).
-- Ratios were computed with the WCAG 2.x relative-luminance formula that `pnpm contrast` uses. They have not been run through `pnpm contrast`, because the new tokens are not in `app/src/index.css`. Rerun the checker after the app takes any of them.
+- Ratios were computed with the WCAG 2.x relative-luminance formula that `pnpm contrast` uses. The adopted proposals are now in `pnpm contrast`; the deferred ones are not, so rerun the checker after the app takes any of them.
 - Where a sampled colour failed or was only a lighting peak, a passing value was derived in OKLCH from the sampled hue, as in v1.
 - The primary, `#8d0f14`, is Royce's decision and is not re-opened. No proposal here touches a primary role or sits near a party colour (research.md has the party table).
 - Four of the five proposals add a token. For a new token the "before" column names the closest v1 token as a stand-in, because v1 has no value for it.
