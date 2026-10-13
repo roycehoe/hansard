@@ -1,6 +1,9 @@
 {
   "feature": "hansard-user-stories",
   "pipeline": {
-    "grill-with-docs": { "status": "completed", "output": "plans/hansard-user-stories-brief.md", "timestamp": "2026-10-14T00:30:00+08:00" }
+    "grill-with-docs": { "status": "completed", "output": "plans/hansard-user-stories-brief.md", "timestamp": "2026-10-14T00:30:00+08:00" },
+    "feat-plan": { "status": "completed", "output": "plans/hansard-user-stories.md", "explore": "plans/hansard-user-stories-explore.md", "timestamp": "2026-10-14T02:10:00+08:00", "review": "adversarial review by an Opus worker, findings folded in" },
+    "feat-execution": { "status": "completed", "output": "plans/hansard-user-stories-execution.md", "timestamp": "2026-10-14T03:00:00+08:00" },
+    "feat-audit": { "status": "passed", "blockers": 0, "output": "plans/hansard-user-stories-audit.md", "timestamp": "2026-10-13T23:22:53+08:00" }
   }
 }
