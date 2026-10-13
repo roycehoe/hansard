@@ -203,23 +203,23 @@ queryClient.isMutating({ mutationKey: ['searches', 'export'] }) > 0
 
 Use `isLoading` (not `isFetching`) to gate a full-page loading screen. `isFetching` is also true during background refetches — using it would flash a full-page spinner over already-rendered content whenever a query silently revalidates (e.g. polling).
 
-Always render `<SpinnerLoadingPage />` for the loading state — never inline your own spinner wrapper.
+Always render the shared `<Spinner />` or a `<Skeleton />` layout from `@/components/ui` for the loading state — never inline your own spinner wrapper.
 
 ```typescript
 // Good
 const { data, isLoading, isError } = useGetSittingSpeeches({ sitting_id })
 
-if (isLoading) return <SpinnerLoadingPage />
+if (isLoading) return <Skeleton className="h-96 w-full" />
 ```
 
 ```typescript
 // Bad — isFetching triggers on background refetches
-if (isFetching) return <SpinnerLoadingPage />
+if (isFetching) return <Skeleton className="h-96 w-full" />
 
 // Bad — inline spinner wrapper
 if (isLoading) return (
   <div className="flex w-full flex-col items-center justify-center py-48">
-    <RoundSpinner color="loaderPrimary" />
+    <Spinner />
   </div>
 )
 ```
@@ -230,7 +230,7 @@ When a page depends on multiple queries, combine their `isLoading` flags:
 const { data: metadata, isLoading: isLoadingMetadata } = useGetSittingMetadata({ sitting_id })
 const { data: speeches, isLoading: isLoadingSpeeches } = useGetSittingSpeeches({ sitting_id })
 
-if (isLoadingMetadata || isLoadingSpeeches) return <SpinnerLoadingPage />
+if (isLoadingMetadata || isLoadingSpeeches) return <Skeleton className="h-96 w-full" />
 ```
 
 ---
@@ -469,7 +469,7 @@ When the trigger sits inside a clickable parent (e.g. a table row), always call 
 Every dialog follows this structure:
 
 ```tsx
-<DialogContent className="bg-backgroundPrimary flex flex-col gap-8 p-8">
+<DialogContent className="bg-background flex flex-col gap-8 p-8">
   <DialogHeader>
     <DialogTitle>Title</DialogTitle>
     <DialogDescription hidden />
@@ -480,8 +480,8 @@ Every dialog follows this structure:
   {/* Action buttons */}
   {errorMessage && (
     <div className="flex flex-row gap-4">
-      <TriangleAlert className="text-textError" />
-      <p className="text-textError">{errorMessage}</p>
+      <TriangleAlert className="text-destructive" />
+      <p className="text-destructive">{errorMessage}</p>
     </div>
   )}
 </DialogContent>
@@ -505,14 +505,14 @@ Always use `DialogClose` to wrap the cancel button so Radix handles closing. Nev
 
 ## Error Display
 
-Render inline errors with `TriangleAlert` and the message text, both in `text-textError`. Place the error below the main content and above any action buttons so it is conspicuous without obscuring the content.
+Render inline errors with `TriangleAlert` and the message text, both in `text-destructive`. Place the error below the main content and above any action buttons so it is conspicuous without obscuring the content.
 
 ```tsx
 {
   errorMessage && (
     <div className="flex flex-row gap-4">
-      <TriangleAlert className="text-textError" />
-      <p className="text-textError">{errorMessage}</p>
+      <TriangleAlert className="text-destructive" />
+      <p className="text-destructive">{errorMessage}</p>
     </div>
   )
 }
@@ -520,7 +520,7 @@ Render inline errors with `TriangleAlert` and the message text, both in `text-te
 
 Any user action that could resolve the error must clear it first — see [Mutation Error Pattern](#mutation-error-pattern) for the clearing behaviour.
 
-The `TriangleAlert` + `text-textError` treatment above is for **inline** errors — a failed mutation inside a form or dialog. A **failed page-level fetch** (a query's `isError`) uses an error notice instead — see [Error Notices](#error-notices).
+The `TriangleAlert` + `text-destructive` treatment above is for **inline** errors — a failed mutation inside a form or dialog. A **failed page-level fetch** (a query's `isError`) uses an error notice instead — see [Error Notices](#error-notices).
 
 ## Error Notices
 
@@ -532,7 +532,7 @@ The page component owns the query and branches on its flags — the notice only 
 const { data, isLoading, isError, refetch, isRefetching } =
   useGetSittingSpeeches({ sitting_id })
 
-if (isLoading) return <SpinnerLoadingPage />
+if (isLoading) return <Skeleton className="h-96 w-full" />
 if (isError) {
   return (
     <NoticeErrorSpeeches onRetry={() => refetch()} isRetrying={isRefetching} />
@@ -545,10 +545,10 @@ if (isError) {
 The anatomy is fixed:
 
 - **Container** — centred column, owning its own vertical rhythm: `flex w-full flex-col items-center justify-center gap-12 py-24`. Never wrap the notice in an `h-[100vh]` / `h-screen` shell — `py-24` is the standard, matching the empty-state notice.
-- **Icon** — `TriangleAlert` at `size={40}` in `text-textError`. Red is reserved for the icon; it is the only red element.
-- **Headline** — one short line, `text-base font-semibold text-textPrimary`. States what failed, not how (e.g. "Couldn't load the speeches").
-- **Body** — muted supporting copy, `max-w-[420px] text-sm text-textSecondary`. Explains the failure and suggests trying again.
-- **Actions** — a row with the secondary escape as `variant="outline"` (e.g. "Back to Home") and retry as the primary `variant="default"`. The retry button follows [Button Pending State](#button-pending-state) — disabled while `isRetrying`, `RoundSpinner` + progressive label ("Retrying...").
+- **Icon** — `TriangleAlert` at `size={40}` in `text-destructive`. Red is reserved for the icon; it is the only red element.
+- **Headline** — one short line, `text-base font-semibold text-foreground`. States what failed, not how (e.g. "Couldn't load the speeches").
+- **Body** — muted supporting copy, `max-w-[420px] text-sm text-muted-foreground`. Explains the failure and suggests trying again.
+- **Actions** — a row with the secondary escape as `variant="outline"` (e.g. "Back to Home") and retry as the primary `variant="default"`. The retry button follows [Button Pending State](#button-pending-state) — disabled while `isRetrying`, `Spinner` + progressive label ("Retrying...").
 
 When the failure carries detail worth showing, read it from the `ApiError` thrown by `@/api/client` (`error.status`, `error.body`) rather than from the raw error object. The notice itself still receives only `onRetry` and `isRetrying`.
 
@@ -567,11 +567,11 @@ export function NoticeErrorSpeeches({
   return (
     <div className="flex w-full flex-col items-center justify-center gap-12 py-24">
       <div className="flex flex-col items-center justify-center gap-3 text-center">
-        <TriangleAlert size={40} className="text-textError" />
-        <p className="text-textPrimary text-base font-semibold">
+        <TriangleAlert size={40} className="text-destructive" />
+        <p className="text-foreground text-base font-semibold">
           Couldn't load the speeches
         </p>
-        <p className="text-textSecondary max-w-[420px] text-sm">
+        <p className="text-muted-foreground max-w-[420px] text-sm">
           There was an issue fetching the speeches. Please try again.
         </p>
       </div>
@@ -584,7 +584,7 @@ export function NoticeErrorSpeeches({
         <Button variant="default" disabled={isRetrying} onClick={onRetry}>
           {isRetrying ? (
             <>
-              <RoundSpinner size="xs" color="white" />
+              <Spinner />
               Retrying...
             </>
           ) : (
@@ -633,14 +633,14 @@ const onSubmit = (values: FormValues) => {
 
 ## Button Pending State
 
-Loading buttons always: disable on `isPending`, render `RoundSpinner` sized to `xs`, and change the label to the progressive verb form. Never use a generic "Loading..." label. The `Button` component's `gap-2` base class handles spacing between the spinner and label automatically.
+Loading buttons always: disable on `isPending`, render `Spinner`, and change the label to the progressive verb form. Never use a generic "Loading..." label. The `Button` component's `gap-2` base class handles spacing between the spinner and label automatically.
 
 ```tsx
 // Good
 <Button disabled={isPending} type="submit">
   {isPending ? (
     <>
-      <RoundSpinner size="xs" color="white" />
+      <Spinner />
       Saving...
     </>
   ) : (
@@ -649,7 +649,7 @@ Loading buttons always: disable on `isPending`, render `RoundSpinner` sized to `
 </Button>
 ```
 
-Use `color="white"` for buttons with light text (primary, destructive) and `color="loaderPrimary"` for buttons with dark text.
+`Spinner` draws in the current text colour, so it matches the button variant without a colour prop. The `Button` base class sizes child icons to `size-4`, so do not pass a size.
 
 ## Form Character Limits
 
@@ -677,8 +677,8 @@ The Zod schema always lives in the same file as the form component. Never extrac
 
 ```typescript
 const formSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required.' }),
-  export_format: z.nativeEnum(ExportFormat),
+  name: z.string().min(1, { error: 'Name is required.' }),
+  export_format: z.enum(ExportFormat),
 })
 
 export function FormExportSpeeches(...) {
@@ -696,7 +696,7 @@ Define `formSchema` and other static constants at module scope, not inside the c
 ```typescript
 // Good — defined once at module scope
 const formSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required.' }),
+  name: z.string().min(1, { error: 'Name is required.' }),
 })
 
 export function FormCreateSavedSearch() {
@@ -706,7 +706,7 @@ export function FormCreateSavedSearch() {
 // Bad — recreated on every render
 export function FormCreateSavedSearch() {
   const formSchema = z.object({
-    name: z.string().min(1, { message: 'Name is required.' }),
+    name: z.string().min(1, { error: 'Name is required.' }),
   })
   const form = useForm<z.infer<typeof formSchema>>({ ... })
 }
@@ -721,22 +721,22 @@ Validation error messages belong in the Zod schema, not rendered manually in JSX
 ```typescript
 // Good
 const formSchema = z.object({
-  query: z.string().min(1, { message: 'You cannot submit an empty query.' }),
+  query: z.string().min(1, { error: 'You cannot submit an empty query.' }),
 })
 
 // Bad
-{!queryValue && <p className="text-textError">You cannot submit an empty query.</p>}
+{!queryValue && <p className="text-destructive">You cannot submit an empty query.</p>}
 ```
 
 ### Enum Fields
 
-Always use `z.nativeEnum()` to validate enum-typed fields — never `z.string()` for a field whose values come from an enum.
+Always use `z.enum()` with the TypeScript enum to validate enum-typed fields — never `z.string()` for a field whose values come from an enum.
 
 ```typescript
 // Good
 const formSchema = z.object({
-  sort_order: z.nativeEnum(SortOrder),
-  export_format: z.nativeEnum(ExportFormat),
+  sort_order: z.enum(SortOrder),
+  export_format: z.enum(ExportFormat),
 })
 
 // Bad — string allows any value, loses type safety
@@ -773,7 +773,7 @@ The parent gates rendering behind `isLoading` so the form always initialises wit
 
 ```typescript
 // Parent
-if (isLoading) return <SpinnerLoadingPage />
+if (isLoading) return <Skeleton className="h-96 w-full" />
 return <FormEditSavedSearch description={data.description} />
 
 // Form
@@ -821,18 +821,18 @@ Always use a defined variant and size from `button.tsx`. Never use `className` t
 
 When adding a new variant or size to `button.tsx`:
 
-- **Variants** describe visual role and hierarchy — not where the button is used. Use names like `primary`, `destructive`, `ghost`, `outline`.
-- **Sizes** describe dimensions — not where the button is used. Use names like `sm`, `lg`, `xl`, `icon`.
+- **Variants** describe visual role and hierarchy — not where the button is used. Use names like `default`, `secondary`, `outline`, `ghost`, `link`, `destructive`.
+- **Sizes** describe dimensions — not where the button is used. Use names like `sm`, `default`, `lg`, `icon`.
 
 ### Button States
 
-Every variant in `button.tsx` must define all three states using the corresponding semantic tokens:
+Every variant in `button.tsx` must define all three states using the corresponding semantic tokens, e.g. `bg-primary hover:bg-primary-hover active:bg-primary-active`:
 
 | State   | Tailwind prefix | Token pattern                     |
 | ------- | --------------- | --------------------------------- |
 | Default | —               | variant's base bg and text tokens |
-| Hover   | `hover:`        | `button*Hover` token              |
-| Pressed | `active:`       | `buttonActive` token              |
+| Hover   | `hover:`        | `{variant}-hover` token           |
+| Pressed | `active:`       | `{variant}-active` token          |
 
 The disabled state is handled globally in the base class — do not override it per variant unless the variant requires a transparent background when disabled (e.g. `ghost` variants).
 
@@ -844,7 +844,7 @@ Use `if` for rendering UI — early returns for loading/error states and enum-dr
 
 ```typescript
 // Good
-if (isFetching) return <RoundSpinner />
+if (isFetching) return <Spinner />
 if (error) return <ErrorDisplay />
 
 if (view === SittingView.TRANSCRIPT) return <Transcript />
@@ -877,10 +877,10 @@ When there is a single positive condition, return it directly rather than splitt
 
 ```typescript
 // Good — single condition, returned directly
-return isPending ? <RoundSpinner /> : null
+return isPending ? <Spinner /> : null
 
 // Bad — unnecessary early-return split for a single condition
-if (isPending) return <RoundSpinner />
+if (isPending) return <Spinner />
 return null
 ```
 
@@ -890,12 +890,12 @@ The early-return style is for multiple guard clauses (loading, error, enum branc
 
 ### Colours
 
-Always use the named semantic tokens from `src/index.css` — never raw Tailwind palette names, arbitrary hex values, or colour-named tokens like `text-red`:
+Always use the named semantic tokens from `src/index.css` — never raw Tailwind palette names, arbitrary hex values, or colour-named tokens like `text-crimson`:
 
 ```tsx
 // Good
-<div className="bg-backgroundPrimary text-textPrimary border-borderMuted" />
-<p className="text-textError" />
+<div className="bg-background text-foreground border-border" />
+<p className="text-destructive" />
 
 // Bad — raw palette name
 <div className="bg-white text-black border-gray-300" />
@@ -904,43 +904,43 @@ Always use the named semantic tokens from `src/index.css` — never raw Tailwind
 <div className="text-[#FFFFFF]" />
 
 // Bad — colour-named token, not semantic
-<p className="text-red" />
+<p className="text-crimson" />
 ```
 
 If a colour is needed that doesn't exist as a token yet, add it — don't inline it:
 
-- Theme-aware colours (different in light/dark) → add a CSS variable to both `:root` and `.dark` in `index.css`, then register it in the `@theme` block in `index.css`
-- Theme-invariant colours → add directly to the `@theme` block in `index.css` with a semantic name
+- Theme-aware colours (different in light/dark) → add a CSS variable to both `:root` and `.dark` in `index.css`, then register it in the `@theme inline` block in `index.css` as `--color-<name>`
+- Theme-invariant colours → add directly to the `@theme inline` block in `index.css` as `--color-<name>` with a semantic name
 
 Never use opacity utilities to lighten a colour. The on-screen colour is a composite of the token and whatever is behind it — it will differ across backgrounds and between light and dark mode. Define a dedicated lighter token instead.
 
 ```tsx
 // Good — dedicated token at the right lightness
-<p className="text-textMuted" />
+<p className="text-muted-foreground" />
 
 // Bad — opacity-derived colour, varies by background
-<p className="text-textPrimary opacity-50" />
-<p className="text-textPrimary/50" />
+<p className="text-foreground opacity-50" />
+<p className="text-foreground/50" />
 ```
 
 The one exception is when opacity is _necessary_ to show what sits behind the coloured element — a semi-transparent overlay or scrim, where seeing through to the content underneath is the point. Even then, the base colour is still a semantic token, never a raw palette name.
 
 ```tsx
 // Good — scrim over the page, opacity is intentional so the content shows through
-<div className="absolute inset-0 bg-overlayScrim/70" />
+<div className="absolute inset-0 bg-overlay/60" />
 
 // Bad — same intent, but raw palette name instead of a token
-<div className="absolute inset-0 bg-black/70" />
+<div className="absolute inset-0 bg-black/60" />
 ```
 
 ### Animations
 
-**Loading indicators** always use `RoundSpinner` — never a custom `div` spinner or `Loader2`. Size to context with the `size` prop:
+**Loading indicators** always use `Spinner` from `@/components/ui` — never a custom `div` spinner or a bare `Loader2`. Size to context with a `size-*` class:
 
 ```tsx
 // Good
-<RoundSpinner size="xs" color="white" />   // inside a button
-<RoundSpinner size="md" color="loaderPrimary" />  // standalone inline indicator
+<Spinner />   // inside a button, sized by the Button base class
+<Spinner className="size-6" />  // standalone inline indicator
 
 // Bad — custom div spinner
 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -969,21 +969,21 @@ If a new animation is needed, define it in `src/index.css` with an `--animate-*`
 | Expand/collapse content | `transition-all duration-300 ease-in-out`                            |
 | Drawer / sidebar        | `transition-all duration-200 ease-out`                               |
 
-Do not use `transition-all duration-1000` or similar long durations to simulate a progress bar. If a real progress value is unavailable, use a `RoundSpinner` or a named decorative animation instead.
+Do not use `transition-all duration-1000` or similar long durations to simulate a progress bar. If a real progress value is unavailable, use a `Spinner` or a named decorative animation instead.
 
 ### Custom CSS (`index.css`)
 
-`index.css` is only for things that genuinely cannot be expressed in a Tailwind `className` — Radix `data-state` attribute selectors, scrollbar overrides, and global resets. All other styling belongs in `className`. The Tailwind import, the `@theme` block and the colour token variables are the other permitted contents.
+`index.css` is only for things that genuinely cannot be expressed in a Tailwind `className` — Radix `data-state` attribute selectors, scrollbar overrides, and global resets. All other styling belongs in `className`. The Tailwind import, the `@theme inline` block and the colour token variables are the other permitted contents.
 
 ```css
 /* Good — data-state selector not expressible in Tailwind */
 .accordion-trigger[data-state='open'] {
-  background-color: var(--color-accordionExpanded);
+  background-color: var(--color-accent);
 }
 
 /* Bad — this belongs in className */
 .my-button {
-  background-color: var(--color-CTA);
+  background-color: var(--color-primary);
   padding: 1rem;
 }
 ```
@@ -1011,10 +1011,10 @@ Always use `cn()` for conditional classes — never string interpolation or raw 
 
 ```tsx
 // Good
-<div className={cn('base-class', isActive && 'bg-active', isDisabled && 'opacity-50 cursor-not-allowed')} />
+<div className={cn('base-class', isActive && 'bg-muted', isDisabled && 'opacity-50 cursor-not-allowed')} />
 
 // Bad
-<div className={`base-class ${isActive ? 'bg-active' : ''} ${isDisabled ? 'opacity-50' : ''}`} />
+<div className={`base-class ${isActive ? 'bg-muted' : ''} ${isDisabled ? 'opacity-50' : ''}`} />
 ```
 
 ## Tables
@@ -1028,17 +1028,17 @@ tableSittingSpeeches/
 ├── TableIndexSittingSpeeches.tsx      # State owner + orchestrator
 ├── TableSittingSpeeches.tsx           # Table renderer (receives table instance)
 ├── TableFiltersSittingSpeeches.tsx    # Filter controls
-├── TablePaginationSittingSpeeches.tsx # Thin wrapper around shared TablePagination
+├── TablePaginationSittingSpeeches.tsx # Thin wrapper around shared pagination
 └── useTableColumnsSittingSpeeches.tsx # Column definitions
 ```
 
-**`TableIndex`** owns all TanStack state (`columnFilters`, `sorting`, `pagination`), calls `useReactTable`, and composes the other three components. Nothing else touches state.
+**`TableIndex`** owns all TanStack state (`columnFilters`, `sorting`, `pagination`), calls `useTable`, and composes the other three components. Nothing else touches state.
 
 **`TableFilters`** receives `columnFilters`, `setColumnFilters`, and `defaultFilters` as props. It defines `getFilterValue` and `setFilterValue` helpers internally. It never owns state.
 
 **`Table`** (the main renderer) receives only the `table` instance as a prop and renders the `<Table>` shell. It handles the empty state ("No Results.") and nothing else.
 
-**`TablePagination`** is a thin wrapper that forwards its props to the shared `TablePagination` component at `@/components/common/table/TablePagination`. Never re-implement pagination logic — always delegate to the shared component.
+**`TablePagination`** is a thin wrapper that forwards its props to the shared pagination component built on `@/components/ui/pagination`. Never re-implement pagination logic — always delegate to the shared component.
 
 ### State Initialisation
 
@@ -1078,7 +1078,7 @@ const [pagination, setPagination] = useState<PaginationState>({
 The empty row uses these exact classes — `border-none` removes the bottom divider that would otherwise float in an empty table:
 
 ```tsx
-<TableRow className="bg-row text-textPrimary hover:bg-row border-none">
+<TableRow className="bg-background text-foreground hover:bg-background border-none">
   <TableCell
     colSpan={table.getAllColumns().length}
     className="border-none py-[15px] text-center"
@@ -1095,7 +1095,10 @@ Data rows always use this class string:
 ```tsx
 <TableRow
   key={row.id}
-  className={`h-tableRow border-b-[1px] border-b-rowBottomBorder bg-row py-4 last:border-b-0 ${row.getIsSelected() && 'bg-rowSelected'}`}
+  className={cn(
+    'h-12 border-b border-separator bg-background py-4 last:border-b-0',
+    row.getIsSelected() && 'bg-muted'
+  )}
 >
 ```
 
@@ -1105,33 +1108,65 @@ Data rows always use this class string:
 
 ```typescript
 // Good
-const table = useReactTable({
-  data,
+const table = useTable({
+  features,
   columns,
+  data,
   getRowId: (row) => row.id.toString(),
   // ...
 })
 ```
 
+**Register features once, at module scope.** TanStack Table v9 exposes an API only when its feature is passed to `tableFeatures()`, and each client row model is a slot in the same call. Define `features` outside the component so it stays stable between renders:
+
+```typescript
+const features = tableFeatures({
+  columnFilteringFeature,
+  rowSortingFeature,
+  rowPaginationFeature,
+  filteredRowModel: createFilteredRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  filterFns: { includesString: filterFn_includesString },
+  sortFns: { alphanumeric: sortFn_alphanumeric },
+})
+
+const table = useTable({
+  features,
+  columns,
+  data,
+  getRowId: (row) => row.id.toString(),
+  state: { columnFilters, sorting, pagination },
+  onColumnFiltersChange: setColumnFilters,
+  onSortingChange: setSorting,
+  onPaginationChange: setPagination,
+})
+```
+
+Render cells with `flexRender` (or `<table.FlexRender cell={cell} />`). Row selection (`row.getIsSelected()`) needs `rowSelectionFeature` in the same call.
+
 **Column definitions** are exported as `export const columns` when cells are self-contained, or `export function createColumns(...)` when cells need to close over external values such as IDs passed to actions inside cells. Use the simpler constant form by default; only reach for the function form when a cell references something from outside the column definition itself.
 
 ```typescript
 // Static columns — no external data needed in cells
-export const columns = [
+const columnHelper = createColumnHelper<typeof features, SittingSpeech>()
+
+export const columns = columnHelper.columns([
   columnHelper.accessor('speaker', { ... }),
   columnHelper.accessor('sitting_date', { ... }),
-]
+])
 
 // Parameterised columns — cell references sittingId from outside
 export function createColumns(sittingId: number) {
-  return [
+  return columnHelper.columns([
     columnHelper.accessor('speaker', { ... }),
     columnHelper.display({
+      id: 'actions',
       cell: ({ row }) => (
         <DialogDeleteSavedSearch sitting_id={sittingId} search_id={row.original.search_id} />
       ),
     }),
-  ]
+  ])
 }
 ```
 
@@ -1147,7 +1182,7 @@ cell: (title) => (
     </TooltipTrigger>
     <TooltipContent
       side="bottom"
-      className="max-w-[300px] rounded-md bg-rowSelected p-2 text-textPrimary shadow-2xl"
+      className="max-w-[300px] rounded-md bg-muted p-2 text-foreground shadow-2xl"
     >
       <p className="p-1 px-2 text-start">{title.getValue()}</p>
     </TooltipContent>
