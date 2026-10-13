@@ -33,10 +33,22 @@ const PAIRS: Pair[] = [
   ...pairs('foreground', ['background', 'muted', 'secondary'], TEXT_MINIMUM),
   ...pairs('card-foreground', ['card'], TEXT_MINIMUM),
   ...pairs('popover-foreground', ['popover'], TEXT_MINIMUM),
-  ...pairs('primary-foreground', ['primary'], TEXT_MINIMUM),
-  ...pairs('secondary-foreground', ['secondary'], TEXT_MINIMUM),
+  ...pairs(
+    'primary-foreground',
+    ['primary', 'primary-hover', 'primary-active'],
+    TEXT_MINIMUM
+  ),
+  ...pairs(
+    'secondary-foreground',
+    ['secondary', 'secondary-hover', 'secondary-active'],
+    TEXT_MINIMUM
+  ),
   ...pairs('accent-foreground', ['accent'], TEXT_MINIMUM),
-  ...pairs('destructive-foreground', ['destructive'], TEXT_MINIMUM),
+  ...pairs(
+    'destructive-foreground',
+    ['destructive', 'destructive-hover', 'destructive-active'],
+    TEXT_MINIMUM
+  ),
   ...pairs('success-foreground', ['success'], TEXT_MINIMUM),
   ...pairs('warning-foreground', ['warning'], TEXT_MINIMUM),
   ...pairs('info-foreground', ['info'], TEXT_MINIMUM),
@@ -51,6 +63,7 @@ const PAIRS: Pair[] = [
     TEXT_MINIMUM
   ),
   ...pairs('primary', [...SURFACES, 'reading'], TEXT_MINIMUM),
+  ...pairs('primary-hover', [...SURFACES, 'reading'], TEXT_MINIMUM),
   ...pairs('destructive', SURFACES, TEXT_MINIMUM),
   ...pairs('success', SURFACES, TEXT_MINIMUM),
   ...pairs('warning', SURFACES, TEXT_MINIMUM),
@@ -65,6 +78,10 @@ const PAIRS: Pair[] = [
     pairs(chart, SURFACES, UI_MINIMUM)
   ),
 ]
+
+// Tokens with no contrast minimum (decorative lines, the dialog scrim) that
+// must still be defined in both themes.
+const REQUIRED = ['separator', 'overlay']
 
 type Theme = Record<string, string>
 
@@ -97,6 +114,13 @@ function contrast(a: string, b: string): number {
 function check(name: string, theme: Theme): boolean {
   console.log(`\n${name}`)
   let passed = true
+  for (const token of REQUIRED) {
+    const value = theme[token]
+    passed &&= value !== undefined
+    console.log(
+      value ? `pass  ${token} ${value} (no minimum)` : `MISSING  ${token}`
+    )
+  }
   for (const pair of PAIRS) {
     const foreground = theme[pair.foreground]
     const background = theme[pair.background]
