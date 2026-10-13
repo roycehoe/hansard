@@ -41,6 +41,11 @@ Set up `roycehoe/hansard`, the web app that will sit on top of the handsard-scra
 18. **Primary and destructive (gate).** Both stay red as drafted.
 19. **Separator token (gate).** A lighter `separator` token, in light and dark, covers decorative lines: card edges, table rules, dividers. `border` and `input` stay at 3:1 because they mark controls. The brief asks for WCAG 2.2 AA, not 3:1 on every border. `pnpm contrast` checks that `separator` exists in both themes and applies no minimum.
 20. **Leather maroon (gate).** The unused former-chamber leather maroon (#863427) is dropped from the palette's open points.
+21. **v2 palette (2026-10-13).** Adopt proposal 2, `highlight` (orchid lilac), and proposal 3, `tag` and `tag-border` (veneer and teak). Defer proposal 1 (reading tint), 4 (heading band) and 5 (chart-6) until a screen needs them; they stay listed in `docs/palette.md` as deferred.
+22. **Photos with people.** `civic-chamber-benches.jpg` and `civic-cavenagh-pylon.jpg` stay.
+23. **Dark `secondary-active`.** Raised so `muted-foreground` on it reaches 4.5:1; the pair is in `pnpm contrast`.
+24. **Blues.** `info` and `chart-3` are accepted in status and chart roles only, as `docs/palette/research.md` flags.
+25. **SGDS non-colour tokens.** Spacing, type scale, radius, borders, breakpoints, containers, focus ring, shadows and motion follow SGDS v3 where it defines them, mapped in `docs/sgds-tokens.md`. Colours stay Parliament-sourced; no identity mark (ADR 0002).
 
 ## Scenarios confirmed
 

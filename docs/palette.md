@@ -41,6 +41,8 @@ Crop boxes are fractions of the image: left, top, right, bottom. Shares are the 
 | S17 | #ffffff | National flag white | Specified as Pantone White (National Heritage Board, citing the Singapore Arms and Flag and National Anthem (Amendment) Rules 2007); sRGB #FFFFFF in the Wikipedia "Flag of Singapore" infobox |
 | S18 | #c8102e | State Crest shield red | `Coat_of_arms_of_Singapore.svg` on Wikimedia Commons, `fill: #c8102e` |
 | S19 | #d8a459 | State Crest gold | Same SVG, `.st544 { fill: #d8a459 }`, the most used gold (93 elements) |
+| S20 | #d9a6f4 | Vanda Miss Joaquim petal, lilac | `pc-vanda-miss-joaquim.jpg`, box 0.70,0.33,0.80,0.45, 36.2%, daylight in a shaded garden (Track B) |
+| S21 | #843d17 | Teak bench fronts, former chamber | `civic-chamber-benches.jpg`, box 0.25,0.50,0.75,0.55, 44.9%, interior light (Track B); agrees with S16 |
 
 ## Tokens
 
@@ -80,6 +82,11 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | secondary-active | surface (active) | #d6d0c8 | #4b4742 | derived from S7 / derived from S7 |
 | destructive-hover | state (hover) | #b00826 | #ff8481 | derived from S18 / derived from S18 |
 | destructive-active | state (active) | #97061f | #ff9b97 | derived from S18 / derived from S18 |
+| highlight | accent (search matches, tags) | #e8cbf9 | #513460 | derived from S20 / derived from S20 |
+| highlight-foreground | text | #252320 | #ede8d9 | S3 / S4 |
+| tag | surface (chip) | #fde2d4 | #492a19 | derived from S21 / derived from S21 |
+| tag-foreground | text | #252320 | #ede8d9 | S3 / S4 |
+| tag-border | border (chip) | #843d17 | #b7734f | S21 / derived from S21 |
 | border | border | #908d82 | #726f64 | S9 / derived from S9 |
 | input | border | #868680 | #7b7b75 | S10 / derived from S10 |
 | ring | border (focus) | #8d0f14 | #e8ada6 | S1 / derived from S1 |
@@ -127,6 +134,11 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 | input | dark | #7b7b75 | S10 #868680 granite | L 0.58 | One step above border so fields read as fields |
 | chart-1 | dark | #d76960 | S1 #8d0f14 | L 0.65, C 0.14 | Visible on dark surfaces and distinct from the pale primary |
 | chart-3 | dark | #5c94ca | S12 #175082 | L 0.65 | Visible on dark surfaces |
+| highlight | light | #e8cbf9 | S20 #d9a6f4 orchid petal | L 0.88, C 0.07 | Pale lilac behind matched text |
+| highlight | dark | #513460 | S20 #d9a6f4 | L 0.38, C 0.08 | Dark lilac behind matched text |
+| tag | light | #fde2d4 | S21 #843d17 teak (hue 42 to 50 across veneer and teak) | L 0.92, C 0.03 | Warm chip surface |
+| tag | dark | #492a19 | S21 #843d17 | L 0.30, C 0.05 | Warm chip surface on dark |
+| tag-border | dark | #b7734f | S21 #843d17 | L 0.60, C 0.10 | Sampled teak is 1.63:1 on the dark chip |
 | separator | light | #dcd7cf | S7 #bab2a7 cladding | L 0.88, C 0.012 | Decorative line, lighter than `border`; no minimum ratio |
 | separator | dark | #3b3732 | S7 #bab2a7 | L 0.34, C 0.01 | As above |
 | overlay | both | #161512 | S3 #252320 | L 0.195 | Same as the dark background; used as `bg-overlay/60` behind dialogs |
@@ -134,7 +146,7 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 | primary-active | dark | #fed2cd | S1 #8d0f14 | L 0.90, C 0.05 | One step lighter again for pressed |
 | primary-hover | dark | #f3bfb9 | S1 #8d0f14 | L 0.85, C 0.06 | One step lighter for hover on dark |
 | secondary-hover, secondary-active | light | #e3ddd5, #d6d0c8 | S7 #bab2a7 | L 0.90, L 0.86 | Stone surface two steps down |
-| secondary-hover, secondary-active | dark | #403c37, #4b4742 | S7 #bab2a7 | L 0.36, L 0.40 | Stone surface two steps up |
+| secondary-hover, secondary-active | dark | #403c37, #46423d | S7 #bab2a7 | L 0.36, L 0.38 | Stone surface two steps up; active held at L 0.38 so `muted-foreground` stays above 4.5:1 on it (decision 23) |
 | destructive-hover, destructive-active | light | #b00826, #97061f | S18 #c8102e | L 0.48 C 0.19, L 0.43 C 0.17 | Darker steps keep white text above 7:1 |
 | destructive-hover, destructive-active | dark | #ff8481, #ff9b97 | S18 #c8102e | L 0.75 C 0.15, L 0.80 C 0.13 | Lighter steps keep dark text above 7:1 |
 
@@ -311,6 +323,8 @@ The palette takes colours only. The crest red and crest gold are hex values read
 
 ## Gate decisions (2026-10-13)
 
+Second gate, after the v2 review: proposals 2 and 3 adopted, 1, 4 and 5 deferred; the two Track B photos with people stay; dark `secondary-active` raised to #46423d so `muted-foreground` reaches 4.75:1; `info` and `chart-3` accepted as blues in status and chart roles only; SGDS v3 non-colour tokens adopted (see `docs/sgds-tokens.md`). Brief decisions 21 to 25.
+
 1. Primary and destructive both stay red as drafted. They are told apart by lightness; a read-only archive rarely shows the two side by side.
 2. `border` and `input` keep 3:1 because they mark controls. Decorative lines (card edges, table rules, dividers) use the lighter `separator` token, which has no minimum. The earlier draft said the brief asked for 3:1 on every border; it asks for WCAG 2.2 AA, which sets that ratio only for control boundaries.
 3. The former-chamber wood and seat samples are accepted with the caveat above. Royce may add his own photos later. Only images with a known licence are used.
@@ -319,7 +333,7 @@ The palette takes colours only. The crest red and crest gold are hex values read
 
 ## Proposed v2 changes
 
-Status: proposed, not applied. Nothing above this heading changed, and no v1 token value is touched by default. The research behind each proposal, with crop boxes and lighting, is in `docs/palette/research.md`. `docs/palette-v2-preview.html` shows each proposal beside its v1 value in both themes.
+Status (decision 21, 2026-10-13): proposals 2 (`highlight`) and 3 (`tag`, `tag-border`) are adopted and now appear in the token table above and in `app/src/index.css`. Proposals 1 (reading tint), 4 (heading band) and 5 (chart-6) are deferred until a screen needs them; their details stay below for that day. Nothing else above this heading changed. The research behind each proposal, with crop boxes and lighting, is in `docs/palette/research.md`. `docs/palette-v2-preview.html` shows each proposal beside its v1 value in both themes.
 
 Rules used:
 
