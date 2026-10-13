@@ -194,7 +194,7 @@ SELECT anon_1.parliament_number, count(*) AS count_1  FROM attendance JOIN sitti
 CREATE INDEX ix_report_sitting_date ON report (sitting_date);
 ```
 
-Needed by `GET /sittings/{sitting_date}`, `GET /sittings` and the date filters on `GET /search/speeches` and `GET /search/reports`.
+Needed by `GET /sittings/{sitting_date}` and the date filters on `GET /search/speeches` and `GET /search/reports`.
 
 The two date-filtered search statements are repeated under the GIN index sections, because the text predicate decides their plan. Today the date filter on `report` runs as a per-row filter after the primary-key lookup.
 
@@ -212,24 +212,6 @@ SELECT report.id, report.volume_number, report.parliament_number, report.sitting
    ->  Seq Scan on report  (cost=0.00..3976.03 rows=18 width=188)
          Filter: (sitting_date = '1993-10-12 00:00:00'::timestamp without time zone)
 (4 rows)
-```
-
-```sql
--- sittings_by_parliament (GET /sittings)
-SELECT report.sitting_date, count(*) AS count_1  FROM report  WHERE report.parliament_number = 8 GROUP BY report.sitting_date ORDER BY report.sitting_date;
-```
-
-```text
--- sittings_by_parliament (GET /sittings)
-                               QUERY PLAN                               
-------------------------------------------------------------------------
- Sort  (cost=4053.06..4055.87 rows=1123 width=16)
-   Sort Key: sitting_date
-   ->  HashAggregate  (cost=3984.93..3996.16 rows=1123 width=16)
-         Group Key: sitting_date
-         ->  Seq Scan on report  (cost=0.00..3976.03 rows=1781 width=8)
-               Filter: (parliament_number = 8)
-(6 rows)
 ```
 
 ```sql
@@ -444,6 +426,25 @@ A negation-only query, such as `-coe`, makes `websearch_to_tsquery` produce a qu
 - `report.report_id` is already unique-indexed.
 - `speaker.person_id` is already indexed.
 - `speaker` for `GET /people` has 1,434 rows, so the filter by parliament and `ILIKE` on name scans the table at negligible cost. A leading-wildcard `ILIKE` could not use a B-tree anyway.
+- `report.parliament_number` for `GET /sittings`. The service runs three group-by statements of the shape below (volume, sitting number and report count per date), each a sequential scan of 37,929 rows filtered by Parliament. That costs a few milliseconds and no index is listed for it.
+
+```sql
+-- sittings_by_parliament (GET /sittings)
+SELECT report.sitting_date, count(*) AS count_1  FROM report  WHERE report.parliament_number = 8 GROUP BY report.sitting_date ORDER BY report.sitting_date;
+```
+
+```text
+-- sittings_by_parliament (GET /sittings)
+                               QUERY PLAN                               
+------------------------------------------------------------------------
+ Sort  (cost=4053.06..4055.87 rows=1123 width=16)
+   Sort Key: sitting_date
+   ->  HashAggregate  (cost=3984.93..3996.16 rows=1123 width=16)
+         Group Key: sitting_date
+         ->  Seq Scan on report  (cost=0.00..3976.03 rows=1781 width=8)
+               Filter: (parliament_number = 8)
+(6 rows)
+```
 
 The `memberships_filtered` statement and its plan:
 
