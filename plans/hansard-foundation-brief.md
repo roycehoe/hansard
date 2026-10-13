@@ -46,6 +46,10 @@ Set up `roycehoe/hansard`, the web app that will sit on top of the handsard-scra
 23. **Dark `secondary-active`.** Raised so `muted-foreground` on it reaches 4.5:1; the pair is in `pnpm contrast`.
 24. **Blues.** `info` and `chart-3` are accepted in status and chart roles only, as `docs/palette/research.md` flags.
 25. **SGDS non-colour tokens.** Spacing, type scale, radius, borders, breakpoints, containers, focus ring, shadows and motion follow SGDS v3 where it defines them, mapped in `docs/sgds-tokens.md`. Colours stay Parliament-sourced; no identity mark (ADR 0002).
+26. **Sign close-up dropped (2026-10-13).** `docs/palette/sources/parliament-house-sign-close-up.jpg` shows the State Crest and the Mace, so it is removed and its `SOURCES.md` row moves to a "Removed" note with the reason. `granite-sign` and `sign-blue` are re-sampled from a licensed photo with no official mark in frame, viewed to confirm it. Every photo in `docs/palette/sources/` and `app/public/palette-photos/` is swept for official marks.
+27. **Source colours once.** The "Source colours" group appears once on `/palette`, above the Light and Dark flavours.
+28. **Control heights.** shadcn's 32/36/40 px stay. This is a research tool where people scan dense tables, and both scales clear WCAG 2.5.8. Recorded in `docs/sgds-tokens.md` as a deliberate difference.
+29. **Responsive type.** SGDS responsive type is adopted: heading sizes step down below 1024 px, mapped in `docs/sgds-tokens.md` and applied with breakpoint prefixes in components.
 
 ## Scenarios confirmed
 
