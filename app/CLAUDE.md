@@ -38,11 +38,12 @@ Node 24 comes from asdf. The `.tool-versions` file is at the repo root, and `pac
 
 ## Environment
 
-| Variable       | Default                 | Purpose                    |
-| -------------- | ----------------------- | -------------------------- |
-| `VITE_API_URL` | `http://localhost:8000` | Base URL of the `api/` app |
+| Variable             | Default                 | Purpose                                                                                |
+| -------------------- | ----------------------- | -------------------------------------------------------------------------------------- |
+| `VITE_API_URL`       | `http://localhost:8000` | Base URL of the `api/` app                                                             |
+| `VITE_CONTACT_EMAIL` | empty                   | Footer contact address; the line is hidden while empty. Read only in `SiteFooter.tsx`. |
 
-Read it through `import.meta.env.VITE_API_URL`. Only `src/api/client.ts` should read it.
+Read `VITE_API_URL` through `import.meta.env.VITE_API_URL`. Only `src/api/client.ts` should read it.
 
 ## Project structure
 
