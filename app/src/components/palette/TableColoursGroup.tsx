@@ -17,7 +17,7 @@ import { SwatchColour } from './SwatchColour'
 
 interface TableColoursGroupProps {
   group: PaletteGroup
-  flavourTitle: string
+  flavourTitle?: string
 }
 
 const VALUE_COLUMNS = Object.values(ColourFormat)
@@ -29,7 +29,8 @@ export function TableColoursGroup({
   return (
     <Table>
       <TableCaption className="sr-only">
-        {group.title} colours in the {flavourTitle} flavour
+        {group.title} colours
+        {flavourTitle && ` in the ${flavourTitle} flavour`}
       </TableCaption>
       <TableHeader>
         <TableRow>

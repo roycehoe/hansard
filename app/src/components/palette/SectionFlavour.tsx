@@ -1,8 +1,7 @@
 import { PALETTE_GROUPS_BY_FLAVOUR } from '@/constants/palette/constants'
 import type { Flavour } from '@/constants/palette/enums'
 import { cn } from '@/lib/utils'
-import { CardColour } from './CardColour'
-import { TableColoursGroup } from './TableColoursGroup'
+import { GroupColours } from './GroupColours'
 
 interface SectionFlavourProps {
   flavour: Flavour
@@ -20,20 +19,18 @@ export function SectionFlavour({ flavour, title }: SectionFlavourProps) {
         'bg-background text-foreground border-separator space-y-8 rounded-xl border p-4 sm:p-6'
       )}
     >
-      <h2 id={headingId} className="font-serif text-2xl font-semibold">
+      <h2
+        id={headingId}
+        className="font-serif text-xl font-semibold lg:text-2xl"
+      >
         {title}
       </h2>
       {PALETTE_GROUPS_BY_FLAVOUR[flavour].map((group) => (
         <div key={group.title} className="space-y-4">
-          <h3 className="font-serif text-xl font-semibold">{group.title}</h3>
-          <div className="hidden xl:block">
-            <TableColoursGroup group={group} flavourTitle={title} />
-          </div>
-          <div className="space-y-4 xl:hidden">
-            {group.rows.map((row) => (
-              <CardColour key={row.colour.name} row={row} />
-            ))}
-          </div>
+          <h3 className="font-serif text-lg font-semibold lg:text-xl">
+            {group.title}
+          </h3>
+          <GroupColours group={group} flavourTitle={title} />
         </div>
       ))}
     </section>

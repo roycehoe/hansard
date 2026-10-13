@@ -47,13 +47,14 @@ function buildPaletteGroupsForFlavour(flavour: Flavour): PaletteGroup[] {
     }))
     return { title: TOKEN_GROUP_TITLES[group], rows }
   })
-  const sourceColours = {
-    title: SOURCE_COLOURS_TITLE,
-    rows: COLOURS.filter((colour) => !TOKEN_COLOUR_NAMES.has(colour.name)).map(
-      (colour) => ({ colour, tokens: [] })
-    ),
-  }
-  return [...tokenGroups, sourceColours]
+  return tokenGroups
+}
+
+export const SOURCE_COLOURS_GROUP: PaletteGroup = {
+  title: SOURCE_COLOURS_TITLE,
+  rows: COLOURS.filter((colour) => !TOKEN_COLOUR_NAMES.has(colour.name)).map(
+    (colour) => ({ colour, tokens: [] })
+  ),
 }
 
 export const PALETTE_GROUPS_BY_FLAVOUR: Record<Flavour, PaletteGroup[]> = {
