@@ -1,0 +1,6 @@
+{
+  "feature": "hansard-user-stories",
+  "pipeline": {
+    "grill-with-docs": { "status": "completed", "output": "plans/hansard-user-stories-brief.md", "timestamp": "2026-10-14T00:30:00+08:00" }
+  }
+}
