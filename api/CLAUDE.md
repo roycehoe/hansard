@@ -50,12 +50,20 @@ What exists today:
 
 | Path | Contents |
 |---|---|
-| `main.py` | The `FastAPI` app. Routers are mounted here. |
+| `main.py` | The `FastAPI` app. Every router is mounted here. |
 | `settings.py` | `pydantic-settings` configuration. Holds `DATABASE_URL`. |
-| `database/engine.py` | The SQLModel engine. |
-| `routers/health.py` | `GET /health`, which runs `SELECT 1`. |
+| `enums.py` | `ReportType` (the 23 stored report type strings) and `SearchSort`. |
+| `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. |
+| `database/` | One SQLModel class per table the API reads: `Report`, `Speech`, `Sitting`, `Attendance`, `Speaker`, `Person`. Only the columns the API uses. |
+| `exceptions/` | `base.py` (`ErrorCode`, `ErrorSpec`, `ERRORS`, `AppHttpExceptionBase`) and one no-argument exception class per domain file. |
+| `utils/` | Pure helpers: report slug, official record URL, person slug, sitting date text, `LIKE` escaping. |
+| `crud/` | One read-only class per table (`CRUDReport`, `CRUDSpeech`, `CRUDSitting`, `CRUDAttendance`, `CRUDMembership`, `CRUDPerson`) and `text_search.py` with the shared full-text constants. See `crud/CLAUDE.md`. |
+| `middleware/membership.py` | `get_membership_id_to_person`, which composes `CRUDMembership` and `CRUDPerson` for every service that resolves linked rows to Persons. |
+| `schemas/` | Pydantic response models, one file per domain. No field defaults. |
+| `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage. |
+| `routers/` | One router per domain plus `health.py`. Each handler calls one service function. |
 
-The layout will grow into the layers below. Only the first four rows exist now.
+The layer table below is the full design. `validators/` and `gateway/` are not added yet.
 
 | Layer | Responsibility | Forbidden |
 |---|---|---|
@@ -63,18 +71,20 @@ The layout will grow into the layers below. Only the first four rows exist now.
 | `database/` | The engine and the SQLModel classes for tables the API reads. | Logic of any kind, importing the scraper's models |
 | `settings.py` | All env-based configuration. | Reading `os.environ` elsewhere |
 | `main.py` | App construction, router mounting. | Business logic |
-| `services/` (not yet added) | Business logic. Module-level functions, one file per domain. | Raw SQL, session handling beyond what a router passes in |
-| `crud/` (not yet added) | Database reads through SQLModel sessions. Class-based, one class per table. | Business logic, HTTP calls, writes |
-| `schemas/` (not yet added) | Pydantic request and response models. | Database access, logic |
-| `exceptions/` (not yet added) | Custom exception hierarchy. `base.py` defines the base types. | Exceptions that take arguments |
-| `utils/` (not yet added) | Pure functions with no side effects. Any layer may import from here. | Database access, HTTP calls, importing from layers above |
+| `services/` | Business logic. Module-level functions, one file per domain. | Raw SQL, session handling beyond what a router passes in |
+| `crud/` | Database reads through SQLModel sessions. Class-based, one class per table. | Business logic, HTTP calls, writes |
+| `schemas/` | Pydantic request and response models. | Database access, logic |
+| `exceptions/` | Custom exception hierarchy. `base.py` defines the base types. | Exceptions that take arguments |
+| `utils/` | Pure functions with no side effects. Any layer may import from here. | Database access, HTTP calls, importing from layers above |
 | `validators/` (not yet added) | Input validation called from routers or services. | Session use, I/O |
-| `middleware/` (not yet added) | Request-path middleware registered in `main.py`, and concerns that compose calls across gateways or services. | Single-service logic |
+| `middleware/` | Request-path middleware registered in `main.py`, and concerns that compose calls across gateways or services. | Single-service logic |
 | `gateway/` (not yet added) | Thin wrappers around one external service each. | Interpreting failures, business logic |
 
 Notes on the layers that matter now:
 
-- **Routers** call one service function and return. Once `services/` exists, a router never calls `crud/` or `database/` directly.
+- **Routers** call one service function and return. A router never calls `crud/` or `database/` directly.
+- **Terminology.** A row of the `speaker` table is a Membership everywhere outside `database/`: `CRUDMembership`, `membership_ids`, `membership_id_to_person`. The raw name on a speech is `speaker_label`. See the brief's terminology table.
+- **Indexes are the launch gate.** `docs/required-indexes.md` lists every index the API's queries need, with the exact DDL the scraper migration runs. Until they exist the queries are sequential scans, and the speech full-text search exceeds the statement timeout and answers `503 search.timed_out`.
 - **`crud/` is read-only here.** The rules in `STYLE.md` about CRUD writes stay in the guide, but this API has no write path.
 - **Raw SQL** is limited to the `SELECT 1` health check. Everything else goes through SQLModel.
 - **Do not run `mypy`.** Only `ruff` is used for static analysis.
