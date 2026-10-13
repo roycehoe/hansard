@@ -1,12 +1,15 @@
 import { Button } from '@/components/ui/button'
+import type { ColourFormat } from '@/constants/palette/enums'
 import { toast } from 'sonner'
 
 interface ButtonCopyColourValueProps {
-  format: string
+  colourName: string
+  format: ColourFormat
   value: string
 }
 
 export function ButtonCopyColourValue({
+  colourName,
   format,
   value,
 }: ButtonCopyColourValueProps) {
@@ -24,7 +27,7 @@ export function ButtonCopyColourValue({
       type="button"
       variant="ghost"
       size="sm"
-      aria-label={`Copy ${format} ${value}`}
+      aria-label={`Copy ${colourName} ${format} ${value}`}
       onClick={copyValue}
       className="font-mono text-xs"
     >

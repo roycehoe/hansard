@@ -1,3 +1,6 @@
+import { ColourFormat } from '@/constants/palette/enums'
+import type { ColourValue } from '@/types/palette/interfaces'
+
 export interface Rgb {
   r: number
   g: number
@@ -99,4 +102,14 @@ export function formatHsl({ h, s, l }: Hsl): string {
 
 export function formatOklch({ l, c, h }: Oklch): string {
   return `oklch(${l.toFixed(3)} ${c.toFixed(3)} ${h.toFixed(1)})`
+}
+
+export function getColourValues(hex: string): ColourValue[] {
+  const rgb = hexToRgb(hex)
+  return [
+    { format: ColourFormat.HEX, value: hex },
+    { format: ColourFormat.RGB, value: formatRgb(rgb) },
+    { format: ColourFormat.HSL, value: formatHsl(rgbToHsl(rgb)) },
+    { format: ColourFormat.OKLCH, value: formatOklch(hexToOklch(hex)) },
+  ]
 }

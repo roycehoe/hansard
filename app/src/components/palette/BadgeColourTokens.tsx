@@ -5,6 +5,8 @@ interface BadgeColourTokensProps {
 }
 
 export function BadgeColourTokens({ tokens }: BadgeColourTokensProps) {
+  if (tokens.length === 0) return null
+
   return (
     <ul
       aria-label="Tokens that use this colour"

@@ -12,7 +12,7 @@ const HEADER =
 const CHECK_FLAG = '--check'
 const HEX_PATTERN = /^#[0-9a-f]{6}$/
 
-function declarations(entries: [string, string][]): string {
+function formatDeclarations(entries: [string, string][]): string {
   return entries.map(([name, value]) => `  --${name}: ${value};`).join('\n')
 }
 
@@ -32,15 +32,18 @@ function validatePalette(): void {
 }
 
 function buildPaletteCss(): string {
-  const named = declarations(COLOURS.map((c) => [c.name, c.hex]))
-  const light = declarations(TOKENS.map((t) => [t.name, `var(--${t.light})`]))
-  const dark = declarations(TOKENS.map((t) => [t.name, `var(--${t.dark})`]))
+  const named = formatDeclarations(COLOURS.map((c) => [c.name, c.hex]))
+  const light = formatDeclarations(
+    TOKENS.map((t) => [t.name, `var(--${t.light})`])
+  )
+  const dark = formatDeclarations(
+    TOKENS.map((t) => [t.name, `var(--${t.dark})`])
+  )
   return (
     [
       HEADER,
-      `:root,\n.light {\n${named}\n}`,
-      `:root,\n.light {\n${light}\n}`,
-      `.dark {\n${dark}\n}`,
+      `:root,\n.light {\n  color-scheme: light;\n${named}\n${light}\n}`,
+      `.dark {\n  color-scheme: dark;\n${dark}\n}`,
     ].join('\n\n') + '\n'
   )
 }

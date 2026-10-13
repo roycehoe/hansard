@@ -2,6 +2,7 @@
 
 :root,
 .light {
+  color-scheme: light;
   --gown-red: #8d0f14;
   --gown-red-shade: #62090b;
   --gown-black: #252320;
@@ -50,7 +51,7 @@
   --crest-red-48: #b00826;
   --crest-red-68: #ef6666;
   --crest-red-75: #ff8481;
-  --crest-red-80: #ff9b97;
+  --crest-red-79: #ff9b97;
   --lawn-sunlit-75: #a5b961;
   --sign-blue-65: #5c94ca;
   --sign-blue-75: #89b2dc;
@@ -58,13 +59,9 @@
   --granite-sign-58: #7b7b75;
   --orchid-lilac-88: #e8cbf9;
   --orchid-lilac-38: #513460;
-  --teak-92: #fde2d4;
-  --teak-30: #492a19;
-  --teak-60: #b7734f;
-}
-
-:root,
-.light {
+  --teak-93: #fde2d4;
+  --teak-32: #492a19;
+  --teak-62: #b7734f;
   --background: var(--painted-fence-98);
   --foreground: var(--gown-black);
   --card: var(--flag-white);
@@ -99,7 +96,7 @@
   --destructive-active: var(--crest-red-43);
   --highlight: var(--orchid-lilac-88);
   --highlight-foreground: var(--gown-black);
-  --tag: var(--teak-92);
+  --tag: var(--teak-93);
   --tag-foreground: var(--gown-black);
   --tag-border: var(--teak);
   --border: var(--granite-plate);
@@ -121,6 +118,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: var(--gown-black-20);
   --foreground: var(--gold-lace-highlight);
   --card: var(--gown-black);
@@ -152,12 +150,12 @@
   --secondary-hover: var(--stone-cladding-36);
   --secondary-active: var(--stone-cladding-38);
   --destructive-hover: var(--crest-red-75);
-  --destructive-active: var(--crest-red-80);
+  --destructive-active: var(--crest-red-79);
   --highlight: var(--orchid-lilac-38);
   --highlight-foreground: var(--gold-lace-highlight);
-  --tag: var(--teak-30);
+  --tag: var(--teak-32);
   --tag-foreground: var(--gold-lace-highlight);
-  --tag-border: var(--teak-60);
+  --tag-border: var(--teak-62);
   --border: var(--granite-plate-54);
   --input: var(--granite-sign-58);
   --ring: var(--gown-red-80);

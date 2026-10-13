@@ -1,10 +1,17 @@
 export interface PhotoSource {
   kind: 'photo'
   file: string
+  width: number
+  height: number
+  title: string
   author: string
+  credit: string
   licence: string
+  licenceUrl: string
   url: string
   description: string
+  isShown?: false
+  reason?: string
 }
 
 export interface SpecSource {
@@ -20,8 +27,14 @@ export const SOURCES = {
   'speaker-gown': {
     kind: 'photo',
     file: 'speaker-ceremonial-gown-01.jpg',
+    width: 300,
+    height: 400,
+    title:
+      'Ceremonial gown of the Speaker of the Parliament of Singapore, ParlConnect, Parliament House, Singapore - 20150306-01',
     author: 'Smuconlaw',
+    credit: 'Photo by Smuconlaw',
     licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Ceremonial_gown_of_the_Speaker_of_the_Parliament_of_Singapore,_ParlConnect,_Parliament_House,_Singapore_-_20150306-01.jpg',
     description:
       "The Speaker's ceremonial gown on museum display, with black cloth, red satin facing and gold lace",
@@ -29,8 +42,13 @@ export const SOURCES = {
   'house-2023-079': {
     kind: 'photo',
     file: 'parliament-house-2023-079.jpg',
+    width: 400,
+    height: 267,
+    title: 'Parliament House Singapore 2023 079',
     author: 'Mike Peel',
+    credit: 'Photograph by Mike Peel (www.mikepeel.net)',
     licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Parliament_House_Singapore_2023_079.jpg',
     description:
       'Parliament House in sunlight, with stone cladding, a hip roof and a painted perimeter fence',
@@ -38,8 +56,13 @@ export const SOURCES = {
   'house-2023-01': {
     kind: 'photo',
     file: 'parliament-house-2023-01.jpg',
+    width: 400,
+    height: 225,
+    title: 'Parliament House, Singapore, 2023 (01)',
     author: 'Bahnfrend',
+    credit: 'Photo by Bahnfrend',
     licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore,_2023_(01).jpg',
     description:
       'Parliament House with its granite sign plate, a sunlit lawn and hedges',
@@ -47,25 +70,42 @@ export const SOURCES = {
   'house-sign': {
     kind: 'photo',
     file: 'parliament-house-sign-close-up.jpg',
-    author: 'Cccefalon',
+    width: 400,
+    height: 267,
+    title: 'Singapore Parliament-House-02',
+    author: 'CEphoto, Uwe Aranas',
+    credit: 'Photo by CEphoto, Uwe Aranas',
     licence: 'CC BY-SA 3.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Singapore_Parliament-House-02.jpg',
     description:
       'Close-up of the Parliament House sign, honed speckled granite with blue lettering',
+    isShown: false,
+    reason: 'it carries the State Crest',
   },
   'parliament-place': {
     kind: 'photo',
     file: 'parliament-place-road.jpg',
+    width: 400,
+    height: 300,
+    title: 'Parliament Place',
     author: 'Terence Ong',
+    credit: 'Photo by Terence Ong',
     licence: 'CC BY 2.5',
+    licenceUrl: 'https://creativecommons.org/licenses/by/2.5/',
     url: 'https://commons.wikimedia.org/wiki/File:Parliament_Place.JPG',
     description: 'Parliament Place, with its asphalt road and concrete kerb',
   },
   'house-2013': {
     kind: 'photo',
     file: 'parliament-house-2013-02-25.jpg',
+    width: 400,
+    height: 267,
+    title: 'Parliament House, Singapore - 20130225',
     author: 'Haakon S. Krohn',
+    credit: 'Photo by Haakon S. Krohn',
     licence: 'CC BY-SA 3.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore_-_20130225.jpg',
     description:
       'Parliament House under overcast skies, with the front lawn and a granite sign plinth',
@@ -73,8 +113,13 @@ export const SOURCES = {
   'house-2010': {
     kind: 'photo',
     file: 'parliament-house-2010-08-03.jpg',
+    width: 400,
+    height: 268,
+    title: 'Parliament House, Singapore - 20100803-01',
     author: 'Smuconlaw',
+    credit: 'Photo by Smuconlaw',
     licence: 'CC BY-SA 3.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore_-_20100803-01.jpg',
     description:
       'Parliament House in evening light, with its clay hip roof lit on one slope',
@@ -82,8 +127,14 @@ export const SOURCES = {
   'former-chamber-gallery': {
     kind: 'photo',
     file: 'former-chamber-strangers-gallery.jpg',
+    width: 400,
+    height: 268,
+    title:
+      "Strangers' Gallery, former Parliamentary Chamber, The Arts House at the Old Parliament, Singapore - 20110407-01",
     author: 'Smuconlaw',
+    credit: 'Photo by Smuconlaw',
     licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Strangers%27_Gallery,_former_Parliamentary_Chamber,_The_Arts_House_at_the_Old_Parliament,_Singapore_-_20110407-01.JPG',
     description:
       "The Strangers' Gallery in the former chamber, with teak panelling on its front",
@@ -91,16 +142,27 @@ export const SOURCES = {
   'vanda-miss-joaquim': {
     kind: 'photo',
     file: 'pc-vanda-miss-joaquim.jpg',
+    width: 400,
+    height: 267,
+    title: 'Papilionanthe Miss Joaquim taken at Botanic Gardens',
     author: '蕭裕',
+    credit: 'Photo by 蕭裕',
     licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Papilionanthe_Miss_Joaquim_taken_at_Botanic_Gardens.jpg',
     description: 'A Vanda Miss Joaquim orchid flower with lilac petals',
   },
   'chamber-benches': {
     kind: 'photo',
     file: 'civic-chamber-benches.jpg',
+    width: 400,
+    height: 268,
+    title:
+      'Former Parliamentary Chamber, The Arts House at the Old Parliament, Singapore - 20110407-09',
     author: 'Smuconlaw',
+    credit: 'Photo by Smuconlaw',
     licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
     url: 'https://commons.wikimedia.org/wiki/File:Former_Parliamentary_Chamber,_The_Arts_House_at_the_Old_Parliament,_Singapore_-_20110407-09.JPG',
     description:
       'Teak benches and floor in the former chamber, under interior light',
@@ -490,11 +552,11 @@ export const COLOURS = [
     derivation: 'L 0.75, C 0.15',
   },
   {
-    name: 'crest-red-80',
+    name: 'crest-red-79',
     hex: '#ff9b97',
     source: 'state-crest',
     derivedFrom: 'crest-red',
-    derivation: 'L 0.80, C 0.13',
+    derivation: 'L 0.791, C 0.12',
   },
   {
     name: 'lawn-sunlit-75',
@@ -546,25 +608,25 @@ export const COLOURS = [
     derivation: 'L 0.38, C 0.08',
   },
   {
-    name: 'teak-92',
+    name: 'teak-93',
     hex: '#fde2d4',
     source: 'chamber-benches',
     derivedFrom: 'teak',
-    derivation: 'L 0.92, C 0.03',
+    derivation: 'L 0.931, C 0.035',
   },
   {
-    name: 'teak-30',
+    name: 'teak-32',
     hex: '#492a19',
     source: 'chamber-benches',
     derivedFrom: 'teak',
-    derivation: 'L 0.30, C 0.05',
+    derivation: 'L 0.32, C 0.054',
   },
   {
-    name: 'teak-60',
+    name: 'teak-62',
     hex: '#b7734f',
     source: 'chamber-benches',
     derivedFrom: 'teak',
-    derivation: 'L 0.60, C 0.10',
+    derivation: 'L 0.62, C 0.10',
   },
 ] as const satisfies readonly Colour[]
 
@@ -760,7 +822,7 @@ export const TOKENS: readonly Token[] = [
     name: 'destructive-active',
     group: 'states',
     light: 'crest-red-43',
-    dark: 'crest-red-80',
+    dark: 'crest-red-79',
   },
   {
     name: 'highlight',
@@ -774,14 +836,14 @@ export const TOKENS: readonly Token[] = [
     light: 'gown-black',
     dark: 'gold-lace-highlight',
   },
-  { name: 'tag', group: 'accents', light: 'teak-92', dark: 'teak-30' },
+  { name: 'tag', group: 'accents', light: 'teak-93', dark: 'teak-32' },
   {
     name: 'tag-foreground',
     group: 'text',
     light: 'gown-black',
     dark: 'gold-lace-highlight',
   },
-  { name: 'tag-border', group: 'borders', light: 'teak', dark: 'teak-60' },
+  { name: 'tag-border', group: 'borders', light: 'teak', dark: 'teak-62' },
   {
     name: 'border',
     group: 'borders',

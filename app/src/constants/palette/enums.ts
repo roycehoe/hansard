@@ -4,7 +4,7 @@ export enum Flavour {
 }
 
 export enum ColourFormat {
-  HEX = 'hex',
+  HEX = 'HEX',
   RGB = 'RGB',
   HSL = 'HSL',
   OKLCH = 'OKLCH',

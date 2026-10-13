@@ -46,7 +46,7 @@ Crop boxes are fractions of the image: left, top, right, bottom. Shares are the 
 
 ## Named colours
 
-Every hex is written once, in `app/src/palette/palette.ts`, as a named colour. Names describe the source, not the role (`gown-red`, `teak`, `orchid-lilac`, `granite-plate`, `lawn`, `sign-blue`, `gold-lace`, `roof-terracotta`, `crest-red`, `flag-white`). A derived colour is named after its parent plus its OKLCH lightness times 100 (`gown-red-80`, `stone-cladding-93`). The semantic tokens below point at named colours (`--primary: var(--gown-red)`), and `pnpm palette` generates `app/src/palette.css` from the module; `pnpm contrast` refuses to run if that file is stale. Named colours are not registered in `@theme`, so no `bg-teak` utility exists and components still use semantic tokens only. The public `/palette` route lists every named colour with its values, the tokens that use it and its source with author and licence.
+Every hex is written once, in `app/src/palette/palette.ts`, as a named colour. Names describe the source, not the role (`gown-red`, `teak`, `orchid-lilac`, `granite-plate`, `lawn`, `sign-blue`, `gold-lace`, `roof-terracotta`, `crest-red`, `flag-white`). A derived colour is named after its parent plus its OKLCH lightness times 100 (`gown-red-80`, `stone-cladding-93`). The semantic tokens below point at named colours (`--primary: var(--gown-red)`), and `pnpm palette` generates `app/src/palette.css` from the module; `pnpm contrast` refuses to run if that file is stale. Named colours are not registered in `@theme`, so no `bg-teak` utility exists and components still use semantic tokens only. The public `/palette` route lists every named colour with its values, the tokens that use it and its source with the credit line, the licence (linked) and the Commons title (linked); thumbnails live under `app/public/palette-photos/`. The sign close-up (`parliament-house-sign-close-up.jpg`) is never shown in the app because it carries the State Crest; its colours are credited as text only.
 
 ## Tokens
 
@@ -140,9 +140,9 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 | chart-3 | dark | #5c94ca | S12 #175082 | L 0.65 | Visible on dark surfaces |
 | highlight | light | #e8cbf9 | S20 #d9a6f4 orchid petal | L 0.88, C 0.07 | Pale lilac behind matched text |
 | highlight | dark | #513460 | S20 #d9a6f4 | L 0.38, C 0.08 | Dark lilac behind matched text |
-| tag | light | #fde2d4 | S21 #843d17 teak (hue 42 to 50 across veneer and teak) | L 0.92, C 0.03 | Warm chip surface |
-| tag | dark | #492a19 | S21 #843d17 | L 0.30, C 0.05 | Warm chip surface on dark |
-| tag-border | dark | #b7734f | S21 #843d17 | L 0.60, C 0.10 | Sampled teak is 1.63:1 on the dark chip |
+| tag | light | #fde2d4 | S21 #843d17 teak (hue 42 to 50 across veneer and teak) | L 0.931, C 0.035 (named teak-93) | Warm chip surface |
+| tag | dark | #492a19 | S21 #843d17 | L 0.32, C 0.054 (named teak-32) | Warm chip surface on dark |
+| tag-border | dark | #b7734f | S21 #843d17 | L 0.62, C 0.10 (named teak-62) | Sampled teak is 1.63:1 on the dark chip |
 | separator | light | #dcd7cf | S7 #bab2a7 cladding | L 0.88, C 0.012 | Decorative line, lighter than `border`; no minimum ratio |
 | separator | dark | #3b3732 | S7 #bab2a7 | L 0.34, C 0.01 | As above |
 | overlay | both | #161512 | S3 #252320 | L 0.195 | Same as the dark background; used as `bg-overlay/60` behind dialogs |
@@ -152,7 +152,7 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 | secondary-hover, secondary-active | light | #e3ddd5, #d6d0c8 | S7 #bab2a7 | L 0.90, L 0.86 | Stone surface two steps down |
 | secondary-hover, secondary-active | dark | #403c37, #46423d | S7 #bab2a7 | L 0.36, L 0.38 | Stone surface two steps up; active held at L 0.38 so `muted-foreground` stays above 4.5:1 on it (decision 23) |
 | destructive-hover, destructive-active | light | #b00826, #97061f | S18 #c8102e | L 0.48 C 0.19, L 0.43 C 0.17 | Darker steps keep white text above 7:1 |
-| destructive-hover, destructive-active | dark | #ff8481, #ff9b97 | S18 #c8102e | L 0.75 C 0.15, L 0.80 C 0.13 | Lighter steps keep dark text above 7:1 |
+| destructive-hover, destructive-active | dark | #ff8481, #ff9b97 | S18 #c8102e | L 0.75 C 0.15, L 0.791 C 0.12 (named crest-red-79; the target L 0.80 clipped in gamut) | Lighter steps keep dark text above 7:1 |
 
 Sampled colours that stay in a non-text role because they fail as text: S6 gold lace (3.24:1 on the light background, kept as chart-4), S10 granite (3.51:1, kept as the input border), S15 terracotta (kept as chart-5; it passes 4.77:1 but reads orange next to the reds, so it is not used for text).
 
