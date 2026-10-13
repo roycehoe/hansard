@@ -4,6 +4,7 @@ import { ButtonCopySpeechLink } from '@/components/reports/ButtonCopySpeechLink'
 import { TextTranscript } from '@/components/reports/TextTranscript'
 import { buildReportCitation, buildSpeechCitation } from '@/lib/citation'
 import { cn } from '@/lib/utils'
+import { Link } from '@tanstack/react-router'
 
 interface CardSpeechProps {
   speech: SpeechData
@@ -38,7 +39,19 @@ export function CardSpeech({
     >
       {hasSpeakerLabel && (
         <p>
-          <span className="font-semibold">{speech.speaker_label}</span>
+          {speech.person_id !== null ? (
+            <Link
+              to="/people/$personSlug"
+              params={{
+                personSlug: `${speech.person_id}-${speech.person_slug}`,
+              }}
+              className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-semibold outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+            >
+              {speech.speaker_label}
+            </Link>
+          ) : (
+            <span className="font-semibold">{speech.speaker_label}</span>
+          )}
         </p>
       )}
       <div className={cn(!hasSpeakerLabel && 'text-muted-foreground italic')}>

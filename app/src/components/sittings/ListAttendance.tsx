@@ -1,4 +1,5 @@
 import type { AttendanceData } from '@/api/sittings/getSitting'
+import { Link } from '@tanstack/react-router'
 
 interface ListAttendanceProps {
   attendance: AttendanceData[]
@@ -27,7 +28,19 @@ function ListAttendanceGroup({
         <ul>
           {members.map((member, index) => (
             <li key={`${member.name}-${index}`} className="py-1">
-              <span>{member.name}</span>
+              {member.person_id !== null ? (
+                <Link
+                  to="/people/$personSlug"
+                  params={{
+                    personSlug: `${member.person_id}-${member.person_slug}`,
+                  }}
+                  className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                >
+                  {member.name}
+                </Link>
+              ) : (
+                <span>{member.name}</span>
+              )}
               {member.constituency !== '' && (
                 <span className="text-muted-foreground">
                   {' '}
