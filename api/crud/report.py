@@ -7,17 +7,15 @@ from sqlmodel import Session, select
 
 from crud.text_search import HEADLINE_OPTIONS, TEXT_SEARCH_CONFIGURATION
 from database.report import Report
-from enums import SearchSort
+from enums import ReportType, SearchSort
 
 _ONE_DAY = timedelta(days=1)
 
 
-def _get_report_ordering(
-    sort: SearchSort, rank: ColumnElement
-) -> tuple[ColumnElement, ...]:
+def _get_report_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
     if sort == SearchSort.DATE:
-        return (Report.sitting_date.desc(), rank.desc(), Report.id)
-    return (rank.desc(), Report.sitting_date.desc(), Report.id)
+        return [Report.sitting_date.desc(), rank.desc(), Report.id]
+    return [rank.desc(), Report.sitting_date.desc(), Report.id]
 
 
 class CRUDReport:
@@ -201,7 +199,7 @@ class CRUDReport:
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
-        report_type: Optional[str],
+        report_type: Optional[ReportType],
         is_text_available: Optional[bool],
         sort: SearchSort,
         limit: int,

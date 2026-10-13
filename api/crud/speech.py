@@ -8,14 +8,12 @@ from sqlmodel import Session, select
 from crud.text_search import HEADLINE_OPTIONS, TEXT_SEARCH_CONFIGURATION
 from database.report import Report
 from database.speech import Speech
-from enums import SearchSort
+from enums import ReportType, SearchSort
 
 _ONE_DAY = timedelta(days=1)
 
 
-def _get_speech_ordering(
-    sort: SearchSort, rank: ColumnElement
-) -> tuple[ColumnElement, ...]:
+def _get_speech_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
     sitting_date_report = aliased(Report)
     sitting_date = (
         select(sitting_date_report.sitting_date)
@@ -23,8 +21,8 @@ def _get_speech_ordering(
         .scalar_subquery()
     )
     if sort == SearchSort.DATE:
-        return (sitting_date.desc(), rank.desc(), Speech.id)
-    return (rank.desc(), sitting_date.desc(), Speech.id)
+        return [sitting_date.desc(), rank.desc(), Speech.id]
+    return [rank.desc(), sitting_date.desc(), Speech.id]
 
 
 class CRUDSpeech:
@@ -89,7 +87,7 @@ class CRUDSpeech:
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
-        report_type: Optional[str],
+        report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         sort: SearchSort,
         limit: int,

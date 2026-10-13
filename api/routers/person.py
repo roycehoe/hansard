@@ -14,10 +14,10 @@ from services import person as person_service
 _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
 
-router = APIRouter(prefix="/people")
+router = APIRouter(prefix="/people", tags=["people"])
 
 
-@router.get("")
+@router.get("", status_code=200)
 def get_all_persons(
     parliament_number: Optional[int] = Query(default=None, ge=0),
     party: Optional[str] = Query(default=None, min_length=1),
@@ -27,14 +27,14 @@ def get_all_persons(
     return person_service.get_all_persons(parliament_number, party, name, session)
 
 
-@router.get("/{person_id}")
+@router.get("/{person_id}", status_code=200)
 def get_person(
     person_id: int, session: Session = Depends(get_session)
 ) -> GetPersonResponse:
     return person_service.get_person(person_id, session)
 
 
-@router.get("/{person_id}/reports")
+@router.get("/{person_id}/reports", status_code=200)
 def get_person_reports(
     person_id: int,
     page: int = Query(default=1, ge=1),

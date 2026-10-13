@@ -1,6 +1,5 @@
 from typing import Optional
 
-from exceptions.person import PersonNotFoundException
 from sqlmodel import Session
 
 from crud.attendance import CRUDAttendance
@@ -10,6 +9,7 @@ from crud.report import CRUDReport
 from crud.speech import CRUDSpeech
 from database.person import Person
 from database.speaker import Speaker
+from exceptions.person import PersonNotFoundException
 from schemas.person import (
     GetAllPartiesResponse,
     GetAllPersonsResponse,
@@ -84,7 +84,7 @@ def get_all_persons(
                     for membership in person_id_to_memberships.get(person.id, [])
                 ],
             )
-            for person in sorted(persons, key=lambda person: person.canonical_name)
+            for person in persons
         ]
     )
 
@@ -101,10 +101,14 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
     ).get_parliament_number_to_speech_count_by_membership_ids(membership_ids)
     parliament_number_to_present_count = CRUDAttendance(
         session
-    ).get_parliament_number_to_present_count_by_membership_ids(membership_ids)
+    ).get_parliament_number_to_count_by_membership_ids_and_is_present(
+        membership_ids, True
+    )
     parliament_number_to_absent_count = CRUDAttendance(
         session
-    ).get_parliament_number_to_absent_count_by_membership_ids(membership_ids)
+    ).get_parliament_number_to_count_by_membership_ids_and_is_present(
+        membership_ids, False
+    )
     parliament_numbers = sorted(
         set(parliament_number_to_speech_count)
         | set(parliament_number_to_present_count)

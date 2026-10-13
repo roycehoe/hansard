@@ -12,7 +12,7 @@ class CRUDAttendance:
     def __init__(self, session: Session):
         self.session = session
 
-    def _get_parliament_number_to_count_by_membership_ids(
+    def get_parliament_number_to_count_by_membership_ids_and_is_present(
         self, membership_ids: list[int], is_present: bool
     ) -> dict[int, int]:
         report_dates = (
@@ -44,20 +44,6 @@ class CRUDAttendance:
             .order_by(Attendance.is_present.desc(), Attendance.speaker_name)
         )
         return list(self.session.exec(statement).all())
-
-    def get_parliament_number_to_present_count_by_membership_ids(
-        self, membership_ids: list[int]
-    ) -> dict[int, int]:
-        return self._get_parliament_number_to_count_by_membership_ids(
-            membership_ids, True
-        )
-
-    def get_parliament_number_to_absent_count_by_membership_ids(
-        self, membership_ids: list[int]
-    ) -> dict[int, int]:
-        return self._get_parliament_number_to_count_by_membership_ids(
-            membership_ids, False
-        )
 
     def get_membership_id_to_location_names_by_membership_ids(
         self, membership_ids: list[int]

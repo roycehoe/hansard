@@ -1,6 +1,3 @@
-from datetime import date, datetime
-from typing import Optional
-
 from sqlmodel import Session
 
 from crud.attendance import CRUDAttendance
@@ -10,12 +7,7 @@ from crud.report import CRUDReport
 from crud.sitting import CRUDSitting
 from crud.speech import CRUDSpeech
 from schemas.coverage import GetCoverageResponse, YearCoverageData
-
-
-def _get_date(value: Optional[datetime]) -> Optional[date]:
-    if value is None:
-        return None
-    return value.date()
+from utils.sitting_date import get_date_from_datetime
 
 
 def get_coverage(session: Session) -> GetCoverageResponse:
@@ -39,10 +31,10 @@ def get_coverage(session: Session) -> GetCoverageResponse:
         sitting_count=CRUDSitting(session).get_count(),
         attendance_count=CRUDAttendance(session).get_count(),
         linked_attendance_count=CRUDAttendance(session).get_count_with_membership_id(),
-        text_first_sitting_date=_get_date(
+        text_first_sitting_date=get_date_from_datetime(
             CRUDReport(session).get_min_sitting_date_with_text()
         ),
-        text_last_sitting_date=_get_date(
+        text_last_sitting_date=get_date_from_datetime(
             CRUDReport(session).get_max_sitting_date_with_text()
         ),
         attendance_last_sitting_date=CRUDSitting(
