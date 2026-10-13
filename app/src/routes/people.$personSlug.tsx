@@ -16,6 +16,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
 import { parsePersonSlug } from '@/lib/utils'
@@ -120,6 +121,13 @@ export const Route = createFileRoute('/people/$personSlug')({
             nameVariants === ''
               ? undefined
               : `Also recorded as: ${nameVariants}`
+          }
+          actions={
+            <Button asChild variant="outline">
+              <Link to="/search" search={{ person: data.person_id }}>
+                Search this person's speeches
+              </Link>
+            </Button>
           }
           breadcrumb={
             <Breadcrumb>
