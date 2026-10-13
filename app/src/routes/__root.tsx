@@ -17,7 +17,7 @@ export const Route = createRootRoute({
         <SiteHeader />
         <main
           id="main"
-          className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6"
+          className="max-w-page-xl mx-auto w-full flex-1 px-5 py-8 sm:px-6 md:px-7"
         >
           <Outlet />
         </main>
