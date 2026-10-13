@@ -26,3 +26,28 @@ Not committed: the State Crest, the Parliament logo and the national flag. Their
 ## Not used
 
 Every photo of the chamber interior on Commons with an open licence shows the former chamber in the Old Parliament House (now The Arts House), not the current chamber. The timber and seat tokens are therefore sampled from the former chamber, and `docs/palette.md` says so.
+
+## Track B research photos (2026-10-13)
+
+Fetched from Wikimedia Commons and the files' own pages on 2026-10-13 for the wider asset research in `docs/palette/research.md`. Same rules as above: long edge at most 1600 px, known open licence only. The Gazette files are page images taken from the Commons PDFs. Colours only; some files show a crest, logo, flag or people incidentally, and none of those were cropped or sampled.
+
+| File | Source | Author | Licence | What was sampled |
+|---|---|---|---|---|
+| `pc-parlconnect-main-hall.jpg` | https://commons.wikimedia.org/wiki/File:ParlConnect,_Parliament_House,_Singapore_-_20150306-01.jpg | Smuconlaw | CC BY-SA 4.0 | ParlConnect main hall: ochre-brown wall under track light (0.00,0.45,0.22,0.62) and cherry veneer pillar (0.58,0.30,0.61,0.55); carpet flecks viewed for texture only |
+| `pc-parlconnect-sign.jpg` | https://commons.wikimedia.org/wiki/File:ParlConnect,_Parliament_House,_Singapore_-_20150306-05.jpg | Smuconlaw | CC BY-SA 4.0 | ParlConnect sign: satin aluminium frame (0.40,0.31,0.75,0.34), charcoal wall (0.6,0.05,0.8,0.2) and lit orange-cherry veneer behind the lettering (0.20,0.45,0.23,0.58); lettering not sampled |
+| `pc-parliament-house-night.jpg` | https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore,_at_night_-_20120926.jpg | Erwin Soo | CC BY 3.0 | Floodlit terracotta pyramid roof (0.42,0.22,0.52,0.30) and hip roof (0.05,0.37,0.30,0.39); crest, flags and palms not sampled |
+| `pc-front-facade-2025.jpg` | https://commons.wikimedia.org/wiki/File:Downtown_Core,_Singapore_-_Parliament_House_of_Singapore_(MAR_2025)_-_img_05.jpg | Chainwit. | CC BY 4.0 | Granite wing wall (0.10,0.57,0.30,0.70), roof top (0.45,0.40,0.56,0.43), white fence (0.05,0.74,0.25,0.79), forecourt brick (0.52,0.90,0.66,0.98 and 0.58,0.86,0.76,0.97); crest, sign and sky not sampled |
+| `pc-vanda-miss-joaquim.jpg` | https://commons.wikimedia.org/wiki/File:Papilionanthe_Miss_Joaquim_taken_at_Botanic_Gardens.jpg | 蕭裕 | CC BY-SA 4.0 | Orchid petal lilac (0.70,0.33,0.80,0.45), lip magenta (0.50,0.65,0.65,0.85), throat (0.55,0.42,0.62,0.58) |
+| `pc-parlconnect-functions-panels.jpg` | https://commons.wikimedia.org/wiki/File:ParlConnect,_Parliament_House,_Singapore_-_20150306-02.jpg | Smuconlaw | CC BY-SA 4.0 | Printed chamber photo (0.31,0.35,0.44,0.65), red leather chair (0.70,0.52,0.76,0.62), charcoal panel header (0.115,0.10,0.26,0.22) |
+| `print-gazette-1871-issue1-text.jpg` | https://commons.wikimedia.org/wiki/File:Straits_Settlements_Government_Gazette_(1871).pdf | Straits Settlements Government | Public domain | PDF page 5 (printed p.1, No. 1, 6 Jan 1871), text area below the royal arms; paper margin and body-text ink |
+| `print-gazette-1871-p16.jpg` | https://commons.wikimedia.org/wiki/File:Straits_Settlements_Government_Gazette_(1871).pdf | Straits Settlements Government | Public domain | PDF page 20 (printed p.16, 13 Jan 1871), full page; paper and ink, side heads and running head |
+| `print-gazette-1889-p14.jpg` | https://commons.wikimedia.org/wiki/File:Straits_Settlements_Government_Gazette_(1889,_Jan-Mar).pdf | Straits Settlements Government | Public domain | PDF page 20 (printed p.14, 4 Jan 1889), full page; paper and table ink |
+| `print-gazette-1889-cover.jpg` | https://commons.wikimedia.org/wiki/File:Straits_Settlements_Government_Gazette_(1889,_Jan-Mar).pdf | Straits Settlements Government | Public domain | PDF page 1, dark green cloth binding with brown leather spine and corners; cloth area only |
+| `civic-arts-house-dusk.jpg` | https://commons.wikimedia.org/wiki/File:Antiguo_parlamento,_Singapur,_2023-08-18,_DD_24-26_HDR.jpg | Diego Delso | CC BY-SA 4.0 | Facade at dusk: render, bronze-elephant plinth, terracotta paving |
+| `civic-arts-house-daylight.jpg` | https://commons.wikimedia.org/wiki/File:Singapore_-_The_Arts_House_former_parliament_IMG_9274.jpg | Bjoertvedt | CC BY-SA 4.0 | Portico arch pier white trim and pale wall, daylight |
+| `civic-chamber-benches.jpg` | https://commons.wikimedia.org/wiki/File:Former_Parliamentary_Chamber,_The_Arts_House_at_the_Old_Parliament,_Singapore_-_20110407-09.JPG | Smuconlaw | CC BY-SA 4.0 | Teak bench fronts and floor, interior light; no people, no leather crop (visitors appear elsewhere in the frame) |
+| `civic-victoria-theatre.jpg` | https://commons.wikimedia.org/wiki/File:Front_of_Victoria_Theatre,_Singapore_-_20141101-02.JPG | Jacklee | CC BY-SA 4.0 | Grey render, arch pier, grey iron gate; medallion excluded from crops |
+| `civic-anderson-girder.jpg` | https://commons.wikimedia.org/wiki/File:Anderson_Bridge_closeup_looking_E.jpg | Orderinchaos | CC BY-SA 4.0 | Painted steel girder side plates with rivets, overcast |
+| `civic-cavenagh-pylon.jpg` | https://commons.wikimedia.org/wiki/File:2016_Singapur,_Downtown_Core,_Most_Cavenagha_(03).jpg | Marcin Konsek | CC BY-SA 4.0 | Granite pylon face and paving; red sign and plaque outside the crops |
+| `civic-padang-turf.jpg` | https://commons.wikimedia.org/wiki/File:Rugby_goal_and_markings_at_Padang.jpg | Orderinchaos | CC BY-SA 4.0 | Turf at the Padang, crop clear of the chalk lines |
+| `civic-elephant-statue.jpg` | https://commons.wikimedia.org/wiki/File:At_Singapore_2023_083_-_Elephant_statue_at_the_Old_Parliament_House,_Singapore.jpg | Mike Peel | CC BY-SA 4.0 | Elephant statue body, cream wall and white plinth |

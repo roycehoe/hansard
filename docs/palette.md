@@ -316,3 +316,164 @@ The palette takes colours only. The crest red and crest gold are hex values read
 3. The former-chamber wood and seat samples are accepted with the caveat above. Royce may add his own photos later. Only images with a known licence are used.
 4. The unused former-chamber leather maroon (#863427) is dropped from consideration.
 5. Opacity tints from the shadcn template (`outline-ring/50`, `bg-primary/90` hovers and the like) are removed in component work. The hover and active tokens above replace them; the dialog scrim uses `bg-overlay/60`, the one case the colour rule allows.
+
+## Proposed v2 changes
+
+Status: proposed, not applied. Nothing above this heading changed, and no v1 token value is touched by default. The research behind each proposal, with crop boxes and lighting, is in `docs/palette/research.md`. `docs/palette-v2-preview.html` shows each proposal beside its v1 value in both themes.
+
+Rules used:
+
+- Each proposed value passes the same minimum as its v1 counterpart: 4.5:1 for text and 3:1 for control borders, focus rings and chart marks (see "Contrast" above).
+- Ratios were computed with the WCAG 2.x relative-luminance formula that `pnpm contrast` uses. They have not been run through `pnpm contrast`, because the new tokens are not in `app/src/index.css`. Rerun the checker after the app takes any of them.
+- Where a sampled colour failed or was only a lighting peak, a passing value was derived in OKLCH from the sampled hue, as in v1.
+- The primary, `#8d0f14`, is Royce's decision and is not re-opened. No proposal here touches a primary role or sits near a party colour (research.md has the party table).
+- Four of the five proposals add a token. For a new token the "before" column names the closest v1 token as a stand-in, because v1 has no value for it.
+
+There are five proposals. The candidates that did not earn a place are listed after them.
+
+### 1. `reading` from Gazette paper
+
+Changes: a better-sourced replacement for a derived token. Light theme only; the dark `reading` stays as v1.
+
+| | Light before (v1) | Light after (proposed) | Dark |
+|---|---|---|---|
+| `reading` | `#fbf7ea` | `#fff4e8` | unchanged, `#221916` |
+
+Source: the paper margins of the three Gazette scans. `print-gazette-1871-issue1-text.jpg` `#d7bea2` (box 0.93,0.5,1.0,0.9), `print-gazette-1871-p16.jpg` `#dac0a5` (0,0.3,0.06,0.7), `print-gazette-1889-p14.jpg` `#e9caab` (0,0.2,0.1,0.8). OKLCH hue 67 to 70 on all three. v1 `reading` came from gold lace S5 at hue 92.7.
+
+Derivation: hue 70 from the paper, L 0.972 (v1's L was 0.976), C 0.02 (v1's was 0.018). The scans have L 0.82 to 0.86 and C 0.047 to 0.054, but that is the scanner cast and the microfilm, so only the hue is carried over.
+
+How much to trust it: low to moderate. Three pages from two volumes agree on hue, which shows a consistent cast, not the true paper colour. At this lightness the change from v1 is small (OKLab distance 0.008, under the usual visible threshold of about 0.02). If a visible change is wanted, raise C, not L. A halfway option, hue 78, differs from v1 by 0.005 and is not worth the churn. Treat this as optional.
+
+Party note: a peach-cream neutral, not near any party colour.
+
+| Pair | v1 | v2 | Minimum | Result |
+|---|---|---|---|---|
+| `reading-foreground` `#252320` on `reading` (light) | 14.62 | 14.45 | 4.5 | pass |
+| `muted-foreground` `#595855` on `reading` (light) | 6.64 | 6.56 | 4.5 | pass |
+| `primary` `#8d0f14` on `reading` (light) | 8.86 | 8.76 | 4.5 | pass |
+| `primary-hover` `#76080e` on `reading` (light) | 10.82 | 10.69 | 4.5 | pass |
+| `reading` on `background` `#fcfaf7` (light, for information) | 1.03 | 1.04 | none | n/a |
+| Dark pairs | unchanged | unchanged | 4.5 | pass (11.99, 8.22, 8.99, 10.64) |
+
+### 2. `highlight` for search matches
+
+Changes: a new accent, with a matching text token. Orchid lilac for search matches in the transcript and the result list.
+
+| | Light before (v1 stand-in: `accent`) | Light after | Dark before (v1 stand-in: `accent`) | Dark after |
+|---|---|---|---|---|
+| `highlight` | `#f3edd7` | `#e8cbf9` | `#3e3424` | `#513460` |
+| `highlight-foreground` | `#252320` | `#252320` (as `foreground`) | `#ede8d9` | `#ede8d9` (as `foreground`) |
+
+Source: `pc-vanda-miss-joaquim.jpg`, petal lilac `#d9a6f4` (box 0.70,0.33,0.80,0.45, 36.2%, daylight in a shaded garden), OKLCH L 0.80, C 0.120, h 313.5.
+
+Derivation: hue 313.5. Light L 0.88, C 0.07. Dark L 0.38, C 0.08. The sampled petal is too saturated and too light-medium to sit behind small text, so it is pushed pale for light and dark for dark.
+
+The orchid's magenta lip (`#bb3eca`) is not used: C 0.225 is loud and it is in the same family as the dropped website purple.
+
+Party note: the lilac is clear of the PAP, WP, PSP and SDP colours. Purple sits between red and blue, so do not combine `highlight` with a red element and a blue element in one component (that would read as the SDP pair). Highlights are shading behind text, so they also need a non-colour cue (the match is the text itself, in the same font) where colour alone must not carry meaning. No minimum applies to the highlight against the page, because the text contrast governs.
+
+| Pair | Theme | v1 stand-in (`accent`) | v2 | Minimum | Result |
+|---|---|---|---|---|---|
+| `foreground` on `highlight` | light | 13.36 | 10.70 | 4.5 | pass |
+| `muted-foreground` `#595855` on `highlight` | light | 6.07 | 4.86 | 4.5 | pass |
+| `primary` `#8d0f14` on `highlight` | light | 8.10 | 6.49 | 4.5 | pass |
+| `primary-hover` `#76080e` on `highlight` | light | not checked | 7.92 | 4.5 | pass |
+| `foreground` `#ede8d9` on `highlight` | dark | 9.96 | 8.53 | 4.5 | pass |
+| `reading-foreground` `#dcd7c9` on `highlight` | dark | not checked | 7.27 | 4.5 | pass |
+| `muted-foreground` `#bab2a7` on `highlight` | dark | 5.82 | 4.98 | 4.5 | pass |
+| `primary` `#e8ada6` on `highlight` | dark | 6.37 | 5.45 | 4.5 | pass |
+| `primary-hover` `#f3bfb9` on `highlight` | dark | not checked | 6.45 | 4.5 | pass |
+
+### 3. `tag` (warm wood chip)
+
+Changes: a new accent surface for tags and report-type chips, with a text token and a border token. A veneer-coloured chip with a thin border.
+
+| | Light before (v1 stand-in: `secondary`) | Light after | Dark before (v1 stand-in: `secondary`) | Dark after |
+|---|---|---|---|---|
+| `tag` | `#ede7df` | `#fde2d4` | `#35312c` | `#492a19` |
+| `tag-foreground` | `#252320` | `#252320` (as `foreground`) | `#ede8d9` | `#ede8d9` (as `foreground`) |
+| `tag-border` | `#908d82` (`border`) | `#843d17` | `#726f64` (`border`) | `#b7734f` |
+
+Source: the veneer on the ParlConnect sign and pillar and the former-chamber teak. `pc-parlconnect-sign.jpg` lit veneer `#be6123` (box 0.20,0.45,0.23,0.58, 33.4%, spotlit; a lighting peak), `pc-parlconnect-main-hall.jpg` pillar `#5b2e19` (0.58,0.30,0.61,0.55, 23.8%, shade), `civic-chamber-benches.jpg` teak `#843d17` (0.25,0.50,0.75,0.55, 44.9%, interior light), which agrees with S16 `#75300f`. Hue 42 to 50 across the four.
+
+Derivation: hue 48. Light `tag` L 0.93, C 0.035. Dark `tag` L 0.32, C 0.055. Light `tag-border` is the sampled teak as it is. Dark `tag-border` is derived (L 0.62, C 0.10), because the teak fails as a border on the dark chip.
+
+Party note: orange-brown at hue 48 and low chroma; none of the four parties uses it. It is about 20 degrees from the gown red's hue but a light peach tint or a brown line does not read as red. The leather red (`#7a2320`) was not used for this reason.
+
+| Pair | Theme | v2 | Minimum | Result |
+|---|---|---|---|---|
+| `foreground` on `tag` | light | 12.69 | 4.5 | pass |
+| `muted-foreground` on `tag` | light | 5.76 | 4.5 | pass |
+| `tag-border` on `tag` | light | 6.39 | 3 | pass |
+| `tag-border` on `background` | light | 7.57 | 3 | pass |
+| `tag-border` on `card` | light | 7.89 | 3 | pass |
+| `foreground` on `tag` | dark | 10.53 | 4.5 | pass |
+| `muted-foreground` on `tag` | dark | 6.15 | 4.5 | pass |
+| `tag-border` on `tag` | dark | 3.43 | 3 | pass |
+| `tag-border` on `background` | dark | 4.85 | 3 | pass |
+| `tag-border` on `card` | dark | 4.16 | 3 | pass |
+
+For comparison, the stand-in `secondary` gives `foreground` 12.76 (light) and 10.54 (dark). The chip is told apart from `secondary` mainly by hue (OKLab distance 0.025 in light), so it is a subtle change. The sampled dark teak (`#843d17` on `#492a19`) is 1.63:1, which is why the dark border is derived.
+
+### 4. `heading-band` for report headers
+
+Changes: a reading-view idea with a new token. A dark band with light text above each report, as on the ParlConnect panels. In light it is the gown black; in dark it is a lifted charcoal.
+
+| | Light before (v1 stand-in: `muted`) | Light after | Dark before (v1 stand-in: `muted`) | Dark after |
+|---|---|---|---|---|
+| `heading-band` | `#f3efea` | `#252320` (S3) | `#2e2b27` | `#47423a` |
+| `heading-band-foreground` | `#595855` (`muted-foreground`) | `#fcfaf7` (as `background`) | `#bab2a7` | `#ede8d9` (as `foreground`) |
+| `heading-band-muted` | none | `#bab2a7` (S7) | none | `#bab2a7` (S7) |
+
+Source: `pc-parlconnect-functions-panels.jpg`, panel header charcoal `#181715` (box 0.115,0.10,0.26,0.22, 41.6%) and its lit gradient `#47423a` (25.4%), track light. Light uses S3 (`#252320`, the gown's black cloth), which is already in the palette.
+
+Derivation: none for light. For dark, the sampled lit tone `#47423a` is used as is: the raw charcoal `#181715` is within one step of the dark background, so it would not lift off the page.
+
+The dark value is within one step of `secondary-active` dark (`#4b4742`, OKLab distance 0.019). The dark half could reuse that token and drop the new value. What the proposal adds is the role, and the light half, which inverts the page (dark band, light text) the way the panels do.
+
+Party note: neutral charcoal. Not near any party colour.
+
+| Pair | Theme | v2 | Minimum | Result |
+|---|---|---|---|---|
+| `heading-band-foreground` on `heading-band` | light | 15.04 | 4.5 | pass |
+| `heading-band-muted` on `heading-band` | light | 7.47 | 4.5 | pass |
+| `heading-band-foreground` on `heading-band` | dark | 8.13 | 4.5 | pass |
+| `heading-band-muted` on `heading-band` | dark | 4.75 | 4.5 | pass |
+| `primary` `#8d0f14` on `heading-band` | light | 1.65 | 4.5 | fail, so do not put primary text or links on the band; use `heading-band-foreground` with an underline |
+| `primary` `#e8ada6` on `heading-band` | dark | 5.20 | 4.5 | pass |
+| `heading-band` against `background` (for information) | light, dark | 15.04, 1.83 | none | n/a (decorative surface) |
+| `heading-band` against `card` (for information) | light, dark | 15.67, 1.57 | none | n/a |
+
+### 5. `chart-6` from the Gazette binding
+
+Changes: a new accent (chart) colour, for a sixth series only. v1 has five chart colours; this is needed only if a chart ever needs six.
+
+| | Light before | Light after | Dark before | Dark after |
+|---|---|---|---|---|
+| `chart-6` | none | `#364c40` | none | `#71a68a` |
+
+Source: `print-gazette-1889-cover.jpg`, the green cloth `#364c40` (box 0.25,0.3,0.75,0.7, 53.4%, flat photo), OKLCH L 0.394, C 0.034, h 160.5. It is the only cool green in the sources; the lawns are olive (h 120 to 127).
+
+Derivation: light is the sampled value. Dark is derived at the same hue: L 0.68, C 0.07, because the sampled cloth is too dark for marks on a dark surface.
+
+Colour-vision caution: the dark value is 0.106 (OKLab distance) from dark `chart-2`, 0.103 from `chart-4` and 0.124 from `chart-3`. That is further apart than v1's closest pair (dark `chart-2` and `chart-4`, 0.086), but it is still a muted green next to an olive, so series should also be told apart by shape, label or position, not colour alone.
+
+Party note: green; none of the four parties uses it.
+
+| Pair | Theme | v1 | v2 | Minimum | Result |
+|---|---|---|---|---|---|
+| `chart-6` on `background` | light | n/a | 8.90 | 3 | pass |
+| `chart-6` on `card` | light | n/a | 9.27 | 3 | pass |
+| `chart-6` on `background` | dark | n/a | 6.54 | 3 | pass |
+| `chart-6` on `card` | dark | n/a | 5.61 | 3 | pass |
+
+### Considered and not proposed
+
+- A `reading` ink (text) colour. The darkest 0.2% of pixels on the 1871 text page is `#2c1a06` (L 0.24, C 0.043, h 66), at about the lightness of `#252320` but with the paper's cast, so it is the paper darkened, not an independent ink. The sampled body-text cluster (`#8a7864`) is an anti-aliased edge. The evidence is too weak to replace `reading-foreground`.
+- Padang or lawn as `success` or `chart-2`. The Padang turf (`#81a24e`, h 127.1) is the same hue family as the lawn (h 120 to 124). A light value at the same L as v1 `chart-2` (`#526e20`) differs by an OKLab distance of 0.017, which is not visible. In dark, the sampled turf passes 6.27:1 on the background and 5.38:1 on the card (v1: 4.89 and 4.20) but moves closer to dark `success` (0.084, against 0.144) and no further from `chart-4` (0.094, against 0.086). It is no better sourced than v1's S14, which is also a direct sample.
+- The Gazette binding green as `success`. It is 8.90:1 on the light background, but its hue reads teal-green, and `success` is tied to the lawn. It is proposed only as `chart-6`.
+- Floodlit roof for dark `chart-5`. A derived terracotta at L 0.68 (`#ce8456`) reaches 6.14:1 on the dark background and 5.27:1 on the card (v1: 3.68 and 3.16), but it lands closer to dark `chart-1` (OKLab distance 0.07, against 0.098) and `chart-4` (0.066, against 0.124). v1 already passes 3:1; the margin is not worth losing the separation.
+- Elephant slate-black or granite as a dark surface. The elephant (`#28292d`, h 275) is a cool neutral and the granite samples are cool or warm depending on the sky. v1's `#161512` is warm and already has a source. A cool surface would split the dark theme from the warm stone and cream tokens.
+- Orchid magenta (`#bb3eca`) for any role. Too loud (C 0.225) and in the family of the dropped website purple.
+- Red leather (`#7a2320`, `#7a432d`). At the gown red's hue and near the PSP and SDP reds. No role needs it.
