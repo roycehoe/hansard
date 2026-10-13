@@ -266,6 +266,8 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `Notice`          | Empty states and informational blocks | `NoticeEmptySpeeches.tsx`            |
 | `Skeleton`        | Skeleton loaders                      | `SkeletonFetching.tsx`               |
 | `Icon`            | Icon wrapper components               | `IconReportType.tsx`                 |
+| `Section`         | A titled block of a page              | `SectionForms.tsx`                   |
+| `Swatch`          | A colour sample                       | `SwatchColour.tsx`                   |
 
 When the category alone is self-explanatory within the folder, the context suffix can be omitted — e.g. `ActionBar.tsx` in a folder that only has one action bar. Add context when disambiguation is needed — e.g. `ActionBarSpeechCopy.tsx` when multiple action bars exist in the same folder.
 
@@ -547,7 +549,7 @@ The anatomy is fixed:
 - **Container** — centred column, owning its own vertical rhythm: `flex w-full flex-col items-center justify-center gap-12 py-24`. Never wrap the notice in an `h-[100vh]` / `h-screen` shell — `py-24` is the standard, matching the empty-state notice.
 - **Icon** — `TriangleAlert` at `size={40}` in `text-destructive`. Red is reserved for the icon; it is the only red element.
 - **Headline** — one short line, `text-base font-semibold text-foreground`. States what failed, not how (e.g. "Couldn't load the speeches").
-- **Body** — muted supporting copy, `max-w-[420px] text-sm text-muted-foreground`. Explains the failure and suggests trying again.
+- **Body** — muted supporting copy, `max-w-100 text-sm text-muted-foreground`. Explains the failure and suggests trying again.
 - **Actions** — a row with the secondary escape as `variant="outline"` (e.g. "Back to Home") and retry as the primary `variant="default"`. The retry button follows [Button Pending State](#button-pending-state) — disabled while `isRetrying`, `Spinner` + progressive label ("Retrying...").
 
 When the failure carries detail worth showing, read it from the `ApiError` thrown by `@/api/client` (`error.status`, `error.body`) rather than from the raw error object. The notice itself still receives only `onRetry` and `isRetrying`.
@@ -571,7 +573,7 @@ export function NoticeErrorSpeeches({
         <p className="text-foreground text-base font-semibold">
           Couldn't load the speeches
         </p>
-        <p className="text-muted-foreground max-w-[420px] text-sm">
+        <p className="text-muted-foreground max-w-100 text-sm">
           There was an issue fetching the speeches. Please try again.
         </p>
       </div>
@@ -892,7 +894,7 @@ The early-return style is for multiple guard clauses (loading, error, enum branc
 
 ### Colours
 
-Always use the named semantic tokens from `src/index.css` — never raw Tailwind palette names, arbitrary hex values, or colour-named tokens like `text-crimson`:
+Always use the named semantic tokens generated into `src/palette.css` — never raw Tailwind palette names, arbitrary hex values, colour-named tokens like `text-crimson`, or the named source colours through arbitrary-value syntax (`bg-(--teak)`):
 
 ```tsx
 // Good
@@ -911,8 +913,8 @@ Always use the named semantic tokens from `src/index.css` — never raw Tailwind
 
 If a colour is needed that doesn't exist as a token yet, add it — don't inline it:
 
-- Theme-aware colours (different in light/dark) → add a CSS variable to both `:root` and `.dark` in `index.css`, then register it in the `@theme inline` block in `index.css` as `--color-<name>`
-- Theme-invariant colours → add directly to the `@theme inline` block in `index.css` as `--color-<name>` with a semantic name
+- Add a named source colour (or reuse one) and a semantic token that points at it for light and dark in `src/palette/palette.ts`, run `pnpm palette` to regenerate `src/palette.css`, then register the token in the `@theme inline` block in `index.css` as `--color-<name>`
+- Theme-invariant tokens still get both a light and a dark entry in `palette.ts`, pointing at the same named colour
 
 Never use opacity utilities to lighten a colour. The on-screen colour is a composite of the token and whatever is behind it — it will differ across backgrounds and between light and dark mode. Define a dedicated lighter token instead.
 
@@ -975,7 +977,7 @@ Do not use `transition-all duration-1000` or similar long durations to simulate 
 
 ### Custom CSS (`index.css`)
 
-`index.css` is only for things that genuinely cannot be expressed in a Tailwind `className` — Radix `data-state` attribute selectors, scrollbar overrides, and global resets. All other styling belongs in `className`. The Tailwind import, the `@theme inline` block and the colour token variables are the other permitted contents.
+`index.css` is only for things that genuinely cannot be expressed in a Tailwind `className` — Radix `data-state` attribute selectors, scrollbar overrides, and global resets. All other styling belongs in `className`. The Tailwind import, the `@import` of the generated `palette.css` and the `@theme inline` block are the other permitted contents. `palette.css` is generated; never edit it by hand.
 
 ```css
 /* Good — data-state selector not expressible in Tailwind */
@@ -1184,7 +1186,7 @@ cell: (title) => (
     </TooltipTrigger>
     <TooltipContent
       side="bottom"
-      className="max-w-[300px] rounded-md bg-muted p-2 text-foreground shadow-2xl"
+      className="max-w-80 rounded-md bg-muted p-2 text-foreground shadow-lg"
     >
       <p className="p-1 px-2 text-start">{title.getValue()}</p>
     </TooltipContent>

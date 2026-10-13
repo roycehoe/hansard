@@ -40,7 +40,7 @@ SGDS base unit is 4px (`src/css/utility.css:7`). Tailwind's default `--spacing: 
 | `--sgds-spacer-12` | 128px | `*-32` | 128px | `root.css:262` |
 | `--sgds-gutter-sm/md/lg` | 16 / 24 / 32px | `px-4`, `px-6`, `px-8` | same | `root.css:358-360` |
 
-Rule for components: use only the steps in the "Our token" column. Steps such as 1.5, 2.5, 3.5, 7, 9, 10, 11 and 14 are not SGDS.
+Rule for components: use only the steps in the "Our token" column. Steps such as 1.5, 2.5, 3.5, 9, 10, 11 and 14 are not SGDS spacers. Step 7 (28px) is allowed only as the `md` page gutter (`md:px-7`).
 
 Role aliases (`--sgds-padding-*`, `--sgds-gap-*`, `--sgds-layout-*`, `--sgds-component-*`) only point at these same steps (`root.css:329-375`, `responsive.css`). Layout and component padding grow with the viewport (for example component padding xs is 16px on mobile, 20px at 768px, 24px at 1440px). We use the fixed steps.
 
@@ -177,7 +177,7 @@ Tailwind v4 has no named duration namespace, so durations use the numeric `durat
 - **Focus ring.** SGDS draws a 2px inset outline in a blue primitive. We keep `outline-hidden` plus a 2px `ring-ring` with a 2px offset in `--ring`, so the colour stays a semantic token and passes the contrast check against both themes.
 - **Control height.** SGDS buttons are 32, 40, 48, 56px (`base/button.css:117-136`, `styles/form-text-control.css:37` for inputs at 48px). We keep 32, 36 and 40px because this is a dense reading and search tool. 36px (`h-9`) is not an SGDS step. Raising the default to 40 or 48 is a layout decision for the owner.
 - **Radius for cards.** SGDS surfaces use 12px, so `Card` moved to `rounded-lg`. `rounded-sm` stays on menu items, which is the SGDS indicator radius (4px).
-- **Radius var.** `--radius` in `:root` is no longer read by the theme after the patch. It can be removed in a later clean-up.
+- **Radius var.** `--radius` was removed from `:root` when the patch landed; the toast radius reads `--radius-md`.
 - **Shadow colour.** SGDS uses literal `rgba(14,14,14,...)`. We use `--overlay` so no raw colour appears.
 - **Breakpoint names.** We keep Tailwind's names (`sm`, `md`, ...) with SGDS values. SGDS also names `xs` and `3xl`, which we add.
 - **Container names.** `page-*` names instead of `sgds-*` so no identity word leaks into class names.
@@ -199,7 +199,7 @@ Tailwind v4 has no named duration namespace, so durations use the numeric `durat
 
 ## Component changes already made
 
-All are Tailwind classes that exist today, so the build passes without the patch.
+All are Tailwind classes that exist with or without the `@theme` lines, which are now applied.
 
 | File | Before | After |
 | --- | --- | --- |
