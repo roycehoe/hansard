@@ -836,6 +836,8 @@ Every variant in `button.tsx` must define all three states using the correspondi
 
 The disabled state is handled globally in the base class — do not override it per variant unless the variant requires a transparent background when disabled (e.g. `ghost` variants).
 
+Recorded exception: `outline` and `ghost` have no fill of their own, so they use the shared `accent` surface for hover (`hover:bg-accent hover:text-accent-foreground`) and `secondary-active` for pressed. `link` has no background in any state; its hover is the underline only.
+
 ---
 
 ## Conditional Branching
