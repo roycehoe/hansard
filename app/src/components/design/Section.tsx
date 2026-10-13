@@ -11,7 +11,9 @@ export function Section({ id, title, description, children }: SectionProps) {
   return (
     <section id={id} className="scroll-mt-24 space-y-6">
       <div className="border-separator space-y-1 border-b pb-3">
-        <h2 className="font-serif text-2xl font-semibold">{title}</h2>
+        <h2 className="font-serif text-xl font-semibold break-words lg:text-2xl">
+          {title}
+        </h2>
         {description && <p className="text-muted-foreground">{description}</p>}
       </div>
       <div className="space-y-8">{children}</div>

@@ -383,11 +383,11 @@ export function SectionForms() {
       </Example>
 
       <Example label="Textarea">
-        <div className="flex w-80 flex-col gap-2">
+        <div className="flex w-80 max-w-full flex-col gap-2">
           <Label htmlFor="textarea-default">Notes</Label>
           <Textarea id="textarea-default" placeholder="Add a note" />
         </div>
-        <div className="flex w-80 flex-col gap-2">
+        <div className="flex w-80 max-w-full flex-col gap-2">
           <Label htmlFor="textarea-disabled">Disabled</Label>
           <Textarea id="textarea-disabled" defaultValue="Locked" disabled />
         </div>
