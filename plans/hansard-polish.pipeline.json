@@ -1,0 +1,6 @@
+{
+  "feature": "hansard-polish",
+  "pipeline": {
+    "grill-with-docs": { "status": "completed", "output": "plans/hansard-polish-brief.md", "timestamp": "2026-10-14T09:00:00+08:00" }
+  }
+}
