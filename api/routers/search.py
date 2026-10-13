@@ -13,10 +13,10 @@ _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
 _MAX_QUERY_LENGTH = 200
 
-router = APIRouter(prefix="/search")
+router = APIRouter(prefix="/search", tags=["search"])
 
 
-@router.get("/speeches")
+@router.get("/speeches", status_code=200)
 def search_speeches(
     query: str = Query(alias="q", min_length=1, max_length=_MAX_QUERY_LENGTH),
     parliament_number: Optional[int] = Query(default=None, ge=0),
@@ -43,14 +43,14 @@ def search_speeches(
     )
 
 
-@router.get("/reports")
+@router.get("/reports", status_code=200)
 def search_reports(
     query: str = Query(alias="q", min_length=1, max_length=_MAX_QUERY_LENGTH),
     parliament_number: Optional[int] = Query(default=None, ge=0),
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
     report_type: Optional[ReportType] = None,
-    person_id: Optional[int] = Query(default=None, ge=1),
+    is_text_available: Optional[bool] = None,
     sort: SearchSort = SearchSort.RELEVANCE,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
@@ -62,7 +62,7 @@ def search_reports(
         date_from,
         date_to,
         report_type,
-        person_id,
+        is_text_available,
         sort,
         page,
         page_size,

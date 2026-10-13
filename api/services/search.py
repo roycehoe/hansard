@@ -35,18 +35,12 @@ def _get_membership_ids(
     ]
 
 
-def _get_title_text_availability(person_id: Optional[int]) -> Optional[bool]:
-    if person_id is None:
-        return None
-    return False
-
-
 def _get_validated_speeches(
     query: str,
     parliament_number: Optional[int],
     date_from: Optional[date],
     date_to: Optional[date],
-    report_type: Optional[str],
+    report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
     sort: SearchSort,
     limit: int,
@@ -76,7 +70,7 @@ def _get_validated_reports(
     parliament_number: Optional[int],
     date_from: Optional[date],
     date_to: Optional[date],
-    report_type: Optional[str],
+    report_type: Optional[ReportType],
     is_text_available: Optional[bool],
     sort: SearchSort,
     limit: int,
@@ -142,7 +136,7 @@ def search_speeches(
         parliament_number,
         date_from,
         date_to,
-        report_type.value if report_type is not None else None,
+        report_type,
         membership_ids,
         sort,
         page_size + 1,
@@ -199,7 +193,7 @@ def search_reports(
     date_from: Optional[date],
     date_to: Optional[date],
     report_type: Optional[ReportType],
-    person_id: Optional[int],
+    is_text_available: Optional[bool],
     sort: SearchSort,
     page: int,
     page_size: int,
@@ -210,8 +204,8 @@ def search_reports(
         parliament_number,
         date_from,
         date_to,
-        report_type.value if report_type is not None else None,
-        _get_title_text_availability(person_id),
+        report_type,
+        is_text_available,
         sort,
         page_size + 1,
         (page - 1) * page_size,

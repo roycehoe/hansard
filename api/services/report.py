@@ -1,6 +1,3 @@
-from typing import Optional
-
-from exceptions.report import ReportNotFoundException
 from sqlmodel import Session
 
 from crud.report import CRUDReport
@@ -8,11 +5,13 @@ from crud.speech import CRUDSpeech
 from database.person import Person
 from database.report import Report
 from database.speech import Speech
+from exceptions.report import ReportNotFoundException
 from middleware.membership import get_membership_id_to_person
 from schemas.report import GetReportResponse, SpeechData
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
+from utils.text_availability import is_text_available
 
 
 def _get_validated_report(report_slug: str, session: Session) -> Report:
@@ -23,11 +22,7 @@ def _get_validated_report(report_slug: str, session: Session) -> Report:
     raise ReportNotFoundException
 
 
-def _is_text_available(markdown_content: Optional[str]) -> bool:
-    return markdown_content is not None and markdown_content != ""
-
-
-def _build_speech_data(
+def _get_speech_data(
     speech: Speech, membership_id_to_person: dict[int, Person]
 ) -> SpeechData:
     person = (
@@ -73,8 +68,8 @@ def get_report(report_slug: str, session: Session) -> GetReportResponse:
         official_record_url=get_official_record_url(
             report.report_id, report.report_version, report.html_file_name
         ),
-        is_text_available=_is_text_available(report.markdown_content),
+        is_text_available=is_text_available(report.markdown_content),
         speeches=[
-            _build_speech_data(speech, membership_id_to_person) for speech in speeches
+            _get_speech_data(speech, membership_id_to_person) for speech in speeches
         ],
     )

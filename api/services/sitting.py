@@ -1,6 +1,5 @@
 from datetime import date, datetime, time
 
-from exceptions.sitting import SittingNotFoundException
 from sqlmodel import Session
 
 from crud.attendance import CRUDAttendance
@@ -10,6 +9,7 @@ from database.attendance import Attendance
 from database.person import Person
 from database.report import Report
 from database.sitting import Sitting
+from exceptions.sitting import SittingNotFoundException
 from middleware.membership import get_membership_id_to_person
 from schemas.sitting import (
     AttendanceData,
@@ -41,7 +41,7 @@ def _get_validated_reports(sitting_date: date, session: Session) -> list[Report]
     return reports
 
 
-def _build_attendance_data(
+def _get_attendance_data(
     attendance: Attendance, membership_id_to_person: dict[int, Person]
 ) -> AttendanceData:
     person = (
@@ -107,7 +107,7 @@ def get_sitting(sitting_date: date, session: Session) -> GetSittingResponse:
         ],
         is_attendance_available=len(attendances) > 0,
         attendance=[
-            _build_attendance_data(attendance, membership_id_to_person)
+            _get_attendance_data(attendance, membership_id_to_person)
             for attendance in attendances
         ],
     )
