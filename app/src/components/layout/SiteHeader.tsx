@@ -9,6 +9,7 @@ import type { FormEvent } from 'react'
 const NAV_ITEMS = [
   { label: 'Home', to: '/' },
   { label: 'Design', to: '/design' },
+  { label: 'Palette', to: '/palette' },
 ] as const
 
 function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -18,7 +19,7 @@ function submitSearch(event: FormEvent<HTMLFormElement>) {
 export function SiteHeader() {
   return (
     <header className="bg-background border-separator border-b">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-6">
+      <div className="max-w-page-xl mx-auto flex w-full flex-wrap items-center gap-x-8 gap-y-3 px-5 py-3 sm:px-6 md:px-7">
         <Link
           to="/"
           className="text-foreground focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-serif text-2xl font-semibold outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
