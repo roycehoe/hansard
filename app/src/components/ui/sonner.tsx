@@ -39,7 +39,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           '--warning-bg': 'var(--warning)',
           '--warning-text': 'var(--warning-foreground)',
           '--warning-border': 'var(--warning)',
-          '--border-radius': 'var(--radius)',
+          '--border-radius': 'var(--radius-md)',
         } as React.CSSProperties
       }
       {...props}
