@@ -28,7 +28,7 @@ const FOOTER_COLUMNS = [
 export function SiteFooter() {
   return (
     <footer className="bg-muted text-muted-foreground border-separator border-t">
-      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           {FOOTER_COLUMNS.map((column) => (
             <nav key={column.heading} aria-label={column.heading}>
