@@ -13,7 +13,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "contrast": "node scripts/contrast.ts",
+    "palette": "node scripts/generate-palette.ts",
+    "contrast": "node scripts/generate-palette.ts --check && node scripts/contrast.ts",
     "preview": "vite preview"
   },
   "dependencies": {

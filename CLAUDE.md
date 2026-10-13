@@ -27,6 +27,8 @@ pnpm dev          # http://localhost:5173
 pnpm build
 pnpm lint
 pnpm format
+pnpm palette      # regenerate src/palette.css from the named colours
+pnpm contrast     # WCAG check of every colour pair
 
 # Backend (from api/)
 uv sync

@@ -44,6 +44,10 @@ Crop boxes are fractions of the image: left, top, right, bottom. Shares are the 
 | S20 | #d9a6f4 | Vanda Miss Joaquim petal, lilac | `pc-vanda-miss-joaquim.jpg`, box 0.70,0.33,0.80,0.45, 36.2%, daylight in a shaded garden (Track B) |
 | S21 | #843d17 | Teak bench fronts, former chamber | `civic-chamber-benches.jpg`, box 0.25,0.50,0.75,0.55, 44.9%, interior light (Track B); agrees with S16 |
 
+## Named colours
+
+Every hex is written once, in `app/src/palette/palette.ts`, as a named colour. Names describe the source, not the role (`gown-red`, `teak`, `orchid-lilac`, `granite-plate`, `lawn`, `sign-blue`, `gold-lace`, `roof-terracotta`, `crest-red`, `flag-white`). A derived colour is named after its parent plus its OKLCH lightness times 100 (`gown-red-80`, `stone-cladding-93`). The semantic tokens below point at named colours (`--primary: var(--gown-red)`), and `pnpm palette` generates `app/src/palette.css` from the module; `pnpm contrast` refuses to run if that file is stale. Named colours are not registered in `@theme`, so no `bg-teak` utility exists and components still use semantic tokens only. The public `/palette` route lists every named colour with its values, the tokens that use it and its source with author and licence.
+
 ## Tokens
 
 Roles: surface (a background something sits on), text, accent (brand colour and chart marks), border, state (success, warning, info, destructive).
@@ -79,7 +83,7 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | primary-hover | accent (hover) | #76080e | #f3bfb9 | derived from S1 / derived from S1 |
 | primary-active | accent (active) | #62090b | #fed2cd | S2 / derived from S1 |
 | secondary-hover | surface (hover) | #e3ddd5 | #403c37 | derived from S7 / derived from S7 |
-| secondary-active | surface (active) | #d6d0c8 | #4b4742 | derived from S7 / derived from S7 |
+| secondary-active | surface (active) | #d6d0c8 | #46423d | derived from S7 / derived from S7 |
 | destructive-hover | state (hover) | #b00826 | #ff8481 | derived from S18 / derived from S18 |
 | destructive-active | state (active) | #97061f | #ff9b97 | derived from S18 / derived from S18 |
 | highlight | accent (search matches, tags) | #e8cbf9 | #513460 | derived from S20 / derived from S20 |

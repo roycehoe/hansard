@@ -1,4 +1,4 @@
-// Checks WCAG 2.2 AA contrast for the colour tokens in src/index.css.
+// Checks WCAG 2.2 AA contrast for the colour tokens in src/palette.css.
 // Run with `pnpm contrast`. Exits 1 if any pair fails or a token is missing.
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 const CSS_PATH = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  '../src/index.css'
+  '../src/palette.css'
 )
 
 const TEXT_MINIMUM = 4.5
@@ -97,17 +97,39 @@ const REQUIRED = ['separator', 'overlay']
 
 type Theme = Record<string, string>
 
-function parseBlock(css: string, selector: string): Theme {
-  const start = css.indexOf(`${selector} {`)
-  if (start === -1) throw new Error(`no ${selector} block in ${CSS_PATH}`)
-  const end = css.indexOf('}', start)
+const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/
+
+function parseBlocks(css: string, selector: string): Theme {
   const theme: Theme = {}
-  for (const match of css
-    .slice(start, end)
-    .matchAll(/--([\w-]+):\s*(#[0-9a-fA-F]{6})/g)) {
-    theme[match[1]] = match[2]
+  let from = 0
+  for (;;) {
+    const start = css.indexOf(`${selector} {`, from)
+    if (start === -1) break
+    const end = css.indexOf('}', start)
+    for (const match of css
+      .slice(start, end)
+      .matchAll(/--([\w-]+):\s*([^;]+);/g)) {
+      theme[match[1]] = match[2].trim()
+    }
+    from = end
   }
+  if (from === 0) throw new Error(`no ${selector} block in ${CSS_PATH}`)
   return theme
+}
+
+function resolveReferences(theme: Theme): Theme {
+  const resolved: Theme = {}
+  for (const [name, raw] of Object.entries(theme)) {
+    let value = raw
+    for (let depth = 0; value.includes('var(') && depth < 10; depth++) {
+      value = value.replace(
+        /var\(--([\w-]+)\)/g,
+        (whole, target: string) => theme[target] ?? whole
+      )
+    }
+    if (HEX_PATTERN.test(value)) resolved[name] = value
+  }
+  return resolved
 }
 
 function luminance(hex: string): number {
@@ -154,6 +176,8 @@ function check(name: string, theme: Theme): boolean {
 }
 
 const css = readFileSync(CSS_PATH, 'utf8')
-const lightPassed = check('light', parseBlock(css, ':root'))
-const darkPassed = check('dark', parseBlock(css, '.dark'))
+const lightTheme = parseBlocks(css, ':root,\n.light')
+const darkTheme = { ...lightTheme, ...parseBlocks(css, '.dark') }
+const lightPassed = check('light', resolveReferences(lightTheme))
+const darkPassed = check('dark', resolveReferences(darkTheme))
 process.exit(lightPassed && darkPassed ? 0 : 1)
