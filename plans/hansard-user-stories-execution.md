@@ -10,6 +10,58 @@ Orchestration note: commits run in this order. Steps 1 to 9 are sequential. Step
 
 _This section is left empty. When the execution skill discovers that implementation must deviate from a step, whether a method name is wrong, a join path differs, or a constant changes, it appends the amendment here rather than silently adapting. The plan remains the authoritative record._
 
+### Amendment for Step 1: `Report.sitting_date` is `NaiveDatetime`
+**Deviation:** the plan declared `sitting_date: datetime`.
+**Actual:** SQLModel 0.0.48 maps `datetime` to a timezone-aware column type and refuses the naive values the scraper stores (`Datetime values must have timezone information`). The field is `pydantic.NaiveDatetime`, which SQLModel maps to `timestamp without time zone`. Found by the read-only smoke test of every CRUD method.
+
+### Amendment for Step 5: `CRUDSpeech.get_report_id_to_speech_count_by_membership_ids` aggregates before the join
+**Deviation:** the plan grouped the join of `speech` and `report` and ordered it under a `LIMIT`.
+**Actual:** Postgres chose a nested loop over every report sorted by date with the matched speeches materialised, which exceeded the 30-second statement timeout for David Marshall's 6,979 speeches. The method now aggregates `speech` by `report_id` in a subquery and joins `report` to that, which the planner runs as a merge join. Same return shape.
+
+### Amendment for Step 5: `CRUDSpeech.get_parliament_number_to_speech_count_by_membership_ids` names its left side
+**Deviation:** the plan's statement selected only `Report` columns and joined `Report`.
+**Actual:** SQLAlchemy could not infer the left side; the statement adds `.select_from(Speech)`.
+
+### Amendment for Step 5: `CRUDAttendance` shares the date join through a private helper, and `CRUDPerson.get` uses `session.get`
+**Deviation:** the plan wrote the present-count and absent-count statements out twice and gave `get` by signature only.
+**Actual:** `_get_parliament_number_to_count_by_membership_ids(membership_ids, is_present)` holds the join once and both public methods call it; `CRUDPerson.get` is `self.session.get(Person, person_id)`.
+
+### Amendment for Step 7: the speech date sort orders by a scalar subquery
+**Deviation:** `_get_speech_ordering` ordered by `Report.sitting_date`.
+**Actual:** with `ORDER BY report.sitting_date` under a `LIMIT`, Postgres sorts every report first and re-scans the matched speeches for each (the same plan as the amendment above). The ordering now uses `select(aliased(Report).sitting_date).where(... == Speech.report_id).scalar_subquery()`, which keeps the plan as a filtered speech scan plus a sort. The alias is required: without it SQLAlchemy auto-correlates the subquery to the outer `Report` and emits no `FROM`.
+
+### Amendment for Step 7: speech full-text search cannot be exercised until the GIN index exists
+**Deviation:** none in code.
+**Actual:** the unindexed scan of 640k transcripts exceeds the 30-second statement timeout on the shared database, so `GET /search/speeches` returns a timeout error until the scraper adds `ix_speech_transcript_fts`. Title search runs in about a second. B1 and B2 stay unverified, as brief decision 16 provides.
+
+### Amendment for Step 13: a query cancelled by the statement timeout is a typed 503
+**Deviation:** the plan had no exception for a search the database stops.
+**Actual:** without the GIN index the speech search exceeds the 30-second statement timeout and surfaced as a bare 500, which `api/STYLE.md` forbids. `exceptions/search.py` adds `SearchTimedOutException` (`ErrorCode.SEARCH_TIMED_OUT`, 503, "The search took too long and was stopped."), and `services/search.py` wraps each CRUD search call in a `_get_validated_*` helper that catches `sqlalchemy.exc.OperationalError`, re-raises it as the typed exception when `error.orig` is `psycopg.errors.QueryCanceled`, and re-raises anything else unchanged.
+
+### Amendment for Step 3: the exception modules were committed garbled
+**Deviation:** none in the plan.
+**Actual:** the worker's step 3 files landed as `report Report REPORT.py` and the like, each defining `NotFoundException` with `ErrorCode._NOT_FOUND`. The service workers caught it; `fix: name the not-found exception modules and classes` replaced them with the three files the plan specifies.
+
+### Amendment for Steps 21 and 22: route components are named function expressions, and the sitting page has section headings
+**Deviation:** the plan wrote `PageReport` and the others as top-level functions beside `export const Route`.
+**Actual:** a top-level component next to the route export raises a react-refresh lint warning, so each page is `component: function PageReport() {...}` inside `createFileRoute`. The sitting page adds `<h2>` headings "Reports" and "Attendance" with `<h3>` for Present and Absent, so the outline stays in order. `PageSittings` calls both hooks unconditionally (hooks cannot be conditional) and branches on the search param.
+
+### Amendment for Steps 23 and 24: strings the plan left open, and the reports section owns its own states
+**Deviation:** the plan gave no error copy for the people pages, no empty-state copy for a person's report list, and no section headings.
+**Actual:** `NoticeErrorPersons` reads "The people did not load. Check your connection and try again."; `NoticeErrorPerson` reads "This person did not load. Check your connection and try again."; the empty report list reads "No reports with speeches" and "No speeches by this person are in the archive yet."; the person page has `<h2>` headings "Memberships", "Speeches and attendance" and "Reports", with the table captions `sr-only`. The report list handles its own loading and error states so a page change does not blank the page. The coverage-boundary sentence takes its date from `attendance_last_sitting_date` (13 August 2012, the same day text ends). `FormFilterPersons` exports its Zod-inferred values type for the page's handler.
+
+### Amendment for Steps 25 to 27: strings and shapes the plan left open
+**Deviation:** the plan gave no headings for the coverage page, no error copy for the coverage and search pages, no home card markup, and no validator for the search form's type field.
+**Actual:** coverage headings are "What the archive holds", "Reports with text by year" and "Known gaps"; the coverage error reads "The coverage figures did not load. Check your connection and try again."; the search error reads "The search did not finish. Check your connection and try again."; the type select's "all" option reads "All types" and its Zod field is `z.union([z.literal(FILTER_ALL), z.enum(ReportType)])`; the person-filter badge reads "Within speeches by this person" while the name loads; the home cards are `Link`s wrapping a `Card` with an `h2` each; the home search form is a plain `FormData` form like the header's; the two search groups reuse `PaginationPrevNext` from `components/people`; the footer's official record link says "(opens in a new tab)" for screen readers; a failed Parliaments load on the search page shows `NoticeErrorSearch` in place of the form.
+
+### Amendment for Step 20: `report_type` response fields are typed `ReportType`
+**Deviation:** step 9's schemas give `report_type: str`, and the plan said to mirror them.
+**Actual:** the app's Response interfaces type `report_type` as the `ReportType` enum so `REPORT_TYPE_LABELS[report_type]` indexes without a cast. An unknown stored value still renders through the `?? reportType` fallback in `BadgeReportType`. Request interfaces omit `page_size`, which the hooks never set.
+
+### Amendment for Steps 5 and 7: one commit
+**Deviation:** the plan gives steps 5 and 7 separate commits.
+**Actual:** the worker wrote both together and the step 5 files import `crud/text_search.py`, so a step 5 commit without it would not import. Both land as one commit, `feat: add the CRUD classes and full-text search methods`, followed by the step 6 docs commit.
+
 ---
 
 ## Completion Checklist
