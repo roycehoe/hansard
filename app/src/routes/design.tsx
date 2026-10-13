@@ -1,10 +1,9 @@
-import { DataSection } from '@/components/design/DataSection'
-import { FormsSection } from '@/components/design/FormsSection'
-import { LayoutSection } from '@/components/design/LayoutSection'
-import { NavigationSection } from '@/components/design/NavigationSection'
-import { OverlaysSection } from '@/components/design/OverlaysSection'
+import { SectionData } from '@/components/design/SectionData'
+import { SectionForms } from '@/components/design/SectionForms'
+import { SectionLayout } from '@/components/design/SectionLayout'
+import { SectionNavigation } from '@/components/design/SectionNavigation'
+import { SectionOverlays } from '@/components/design/SectionOverlays'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { createFileRoute } from '@tanstack/react-router'
 
 const SECTIONS = [
@@ -13,32 +12,31 @@ const SECTIONS = [
   { id: 'data', label: 'Data' },
   { id: 'navigation', label: 'Navigation' },
   { id: 'layout', label: 'Layout' },
-]
+] as const
 
 export const Route = createFileRoute('/design')({
   component: () => (
-    <div className="space-y-16 py-8">
+    <div className="space-y-16">
       <PageHeader
         title="Design"
-        description="Every primitive and layout piece, in every variant and size. Use the toggle to check both themes."
-        actions={<ThemeToggle />}
+        description="Every primitive and layout piece, in every variant and size. Use the theme toggle in the header to check both themes."
       />
       <nav aria-label="Sections" className="flex flex-wrap gap-4 text-sm">
         {SECTIONS.map((section) => (
           <a
             key={section.id}
             href={`#${section.id}`}
-            className="text-primary hover:text-primary-hover hover:underline"
+            className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             {section.label}
           </a>
         ))}
       </nav>
-      <FormsSection />
-      <OverlaysSection />
-      <DataSection />
-      <NavigationSection />
-      <LayoutSection />
+      <SectionForms />
+      <SectionOverlays />
+      <SectionData />
+      <SectionNavigation />
+      <SectionLayout />
     </div>
   ),
 })

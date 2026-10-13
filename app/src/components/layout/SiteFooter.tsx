@@ -25,9 +25,6 @@ const FOOTER_COLUMNS = [
   },
 ] as const
 
-const FOCUS_RING =
-  'outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-
 export function SiteFooter() {
   return (
     <footer className="bg-muted text-muted-foreground border-separator border-t">
@@ -43,7 +40,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className={`text-primary hover:text-primary-hover rounded-sm hover:underline ${FOCUS_RING}`}
+                      className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
                     >
                       {link.label}
                     </a>

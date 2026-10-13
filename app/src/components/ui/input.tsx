@@ -8,8 +8,8 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
       data-slot="input"
       className={cn(
         'border-input selection:bg-primary selection:text-primary-foreground file:text-foreground placeholder:text-muted-foreground h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base transition-[color,box-shadow] file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-        'focus-visible:ring-ring focus-visible:ring-offset-background outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'aria-invalid:border-destructive aria-invalid:ring-destructive aria-invalid:ring-1',
+        'focus-visible:ring-ring focus-visible:ring-offset-background outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2',
+        'aria-invalid:border-destructive',
         className
       )}
       {...props}

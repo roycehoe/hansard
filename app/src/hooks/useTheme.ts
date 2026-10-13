@@ -1,35 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 export type Theme = 'light' | 'dark'
 
 const THEME_STORAGE_KEY = 'theme'
 
+const listeners = new Set<() => void>()
+
 function readTheme(): Theme {
+  return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+export function setTheme(theme: Theme) {
+  document.documentElement.classList.toggle('dark', theme === 'dark')
   try {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY)
-    if (stored === 'light' || stored === 'dark') return stored
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
   } catch {
-    /* storage unavailable: fall through to the system preference */
+    /* storage unavailable: the class on <html> still applies */
   }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+  listeners.forEach((listener) => listener())
 }
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(readTheme)
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme)
-    } catch {
-      /* storage unavailable: the class on <html> still applies */
-    }
-  }, [theme])
+  const theme = useSyncExternalStore(subscribe, readTheme, (): Theme => 'light')
 
   function toggleTheme() {
-    setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
+    setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   return { theme, toggleTheme }

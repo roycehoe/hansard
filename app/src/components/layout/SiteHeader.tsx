@@ -11,9 +11,6 @@ const NAV_ITEMS = [
   { label: 'Design', to: '/design' },
 ] as const
 
-const FOCUS_RING =
-  'outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-
 function submitSearch(event: FormEvent<HTMLFormElement>) {
   event.preventDefault()
 }
@@ -24,7 +21,7 @@ export function SiteHeader() {
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-6">
         <Link
           to="/"
-          className={`text-foreground rounded-sm font-serif text-2xl font-semibold ${FOCUS_RING}`}
+          className="text-foreground focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-serif text-2xl font-semibold outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
         >
           Hansard
         </Link>
@@ -38,11 +35,7 @@ export function SiteHeader() {
                 <Link
                   to={item.to}
                   activeOptions={{ exact: true }}
-                  className={`text-primary hover:text-primary-hover inline-block rounded-sm border-b-2 border-transparent py-1 text-sm hover:underline ${FOCUS_RING}`}
-                  activeProps={{
-                    'aria-current': 'page',
-                    className: 'font-medium border-primary',
-                  }}
+                  className="text-primary hover:text-primary-hover data-[status=active]:border-primary focus-visible:ring-ring focus-visible:ring-offset-background inline-block rounded-sm border-b-2 border-transparent py-1 text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 data-[status=active]:font-medium"
                 >
                   {item.label}
                 </Link>
