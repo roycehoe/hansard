@@ -1,0 +1,6 @@
+{
+  "feature": "hansard-foundation",
+  "pipeline": {
+    "grill-with-docs": { "status": "completed", "output": "plans/hansard-foundation-brief.md", "timestamp": "2026-10-13T00:00:00+08:00" }
+  }
+}
