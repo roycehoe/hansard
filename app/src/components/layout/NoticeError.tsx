@@ -30,7 +30,7 @@ export function NoticeError({
         <h2 className="text-foreground text-base font-semibold">{title}</h2>
         <p className="text-muted-foreground max-w-100 text-sm">{description}</p>
       </div>
-      <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row flex-wrap items-center justify-center gap-4">
         <Button variant="outline" asChild>
           <Link to="/">
             <ChevronLeft />
