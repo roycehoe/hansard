@@ -1,8 +1,4 @@
-export enum TranscriptSegmentKind {
-  TEXT = 'text',
-  BOLD = 'bold',
-  ITALIC = 'italic',
-}
+import { TranscriptSegmentKind } from '@/constants/reports/enums'
 
 export interface TranscriptSegment {
   kind: TranscriptSegmentKind

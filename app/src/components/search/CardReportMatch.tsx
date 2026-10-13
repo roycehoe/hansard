@@ -3,7 +3,7 @@ import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { SnippetHighlighted } from '@/components/search/SnippetHighlighted'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/reports/constants'
+import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
 

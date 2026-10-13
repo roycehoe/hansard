@@ -1,7 +1,7 @@
+import { NUMBER_LOCALE } from '@/constants/constants'
 import type { GetCoverageResponse } from '@/api/coverage/getCoverage'
 import { formatSittingDate } from '@/lib/format'
 
-const NUMBER_LOCALE = 'en-SG'
 
 interface ListCoverageCountsProps {
   coverage: GetCoverageResponse

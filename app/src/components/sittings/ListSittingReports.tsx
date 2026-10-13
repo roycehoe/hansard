@@ -1,7 +1,7 @@
 import type { SittingReportData } from '@/api/sittings/getSitting'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { Badge } from '@/components/ui/badge'
-import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/reports/constants'
+import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
 import { Link } from '@tanstack/react-router'
 
 interface ListSittingReportsProps {

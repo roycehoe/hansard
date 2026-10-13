@@ -30,7 +30,7 @@ export function SnippetHighlighted({ snippet }: SnippetHighlightedProps) {
         segment.isMarked ? (
           <mark
             key={index}
-            className="bg-highlight text-highlight-foreground rounded-xs px-0.5"
+            className="bg-highlight text-highlight-foreground rounded-xs px-0.5 font-semibold"
           >
             {segment.text}
           </mark>

@@ -1,4 +1,5 @@
-import { parseTranscriptInline, TranscriptSegmentKind } from '@/lib/transcript'
+import { TranscriptSegmentKind } from '@/constants/reports/enums'
+import { parseTranscriptInline } from '@/lib/transcript'
 
 interface TextTranscriptProps {
   transcript: string

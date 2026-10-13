@@ -10,12 +10,14 @@ interface PaginationPrevNextProps {
   page: number
   hasNextPage: boolean
   onPageChange: (page: number) => void
+  ariaLabel: string
 }
 
 export function PaginationPrevNext({
   page,
   hasNextPage,
   onPageChange,
+  ariaLabel,
 }: PaginationPrevNextProps) {
   function goToPreviousPage() {
     onPageChange(page - 1)
@@ -26,7 +28,7 @@ export function PaginationPrevNext({
   }
 
   return (
-    <Pagination>
+    <Pagination aria-label={ariaLabel}>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious

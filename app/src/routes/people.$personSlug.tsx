@@ -2,10 +2,11 @@ import { ApiError } from '@/api/client'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetPersonReports } from '@/api/people/getPersonReports'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { PaginationPrevNext } from '@/components/layout/PaginationPrevNext'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
+import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
 import { NoticeNotFoundPerson } from '@/components/people/NoticeNotFoundPerson'
-import { PaginationPrevNext } from '@/components/people/PaginationPrevNext'
 import { TableMemberships } from '@/components/people/TableMemberships'
 import { TableParliamentCounts } from '@/components/people/TableParliamentCounts'
 import {
@@ -74,7 +75,7 @@ export const Route = createFileRoute('/people/$personSlug')({
       if (reports.isLoading) return <Skeleton className="h-64 w-full" />
       if (reports.isError || !reports.data) {
         return (
-          <NoticeErrorPerson
+          <NoticeErrorPersonReports
             onRetry={retryReports}
             isRetrying={reports.isRefetching}
           />
@@ -87,6 +88,7 @@ export const Route = createFileRoute('/people/$personSlug')({
             page={page}
             hasNextPage={reports.data.has_next_page}
             onPageChange={changePage}
+            ariaLabel="Reports pages"
           />
         </>
       )

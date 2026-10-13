@@ -23,3 +23,9 @@ export enum ReportType {
   MISC = 'misc',
   ATBP = 'atbp',
 }
+
+export enum TranscriptSegmentKind {
+  TEXT = 'text',
+  BOLD = 'bold',
+  ITALIC = 'italic',
+}

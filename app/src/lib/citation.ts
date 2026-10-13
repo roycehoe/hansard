@@ -1,4 +1,4 @@
-import { LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER } from '@/constants/reports/constants'
+import { LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER } from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
 
 export interface SpeakerAttribution {

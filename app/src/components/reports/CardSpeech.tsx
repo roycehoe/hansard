@@ -22,6 +22,7 @@ export function CardSpeech({
   parliamentNumber,
 }: CardSpeechProps) {
   const hasSpeakerLabel = speech.speaker_label !== ''
+  const speakerId = hasSpeakerLabel ? `s${speech.ordinal}-speaker` : undefined
   const citation = hasSpeakerLabel
     ? buildSpeechCitation(
         sittingDate,
@@ -38,7 +39,7 @@ export function CardSpeech({
       className="border-separator focus-visible:ring-ring focus-visible:ring-offset-background scroll-mt-24 space-y-2 rounded-sm border-b py-4 outline-hidden last:border-b-0 focus-visible:ring-2 focus-visible:ring-offset-2"
     >
       {hasSpeakerLabel && (
-        <p>
+        <p id={speakerId}>
           {speech.person_id !== null ? (
             <Link
               to="/people/$personSlug"
@@ -61,8 +62,9 @@ export function CardSpeech({
         <ButtonCopySpeechLink
           reportSlug={reportSlug}
           ordinal={speech.ordinal}
+          describedById={speakerId}
         />
-        <ButtonCopyCitation citation={citation} />
+        <ButtonCopyCitation citation={citation} describedById={speakerId} />
       </div>
     </article>
   )

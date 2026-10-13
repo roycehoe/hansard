@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { readSearchQuery } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import type { FormEvent } from 'react'
 
@@ -30,9 +31,7 @@ export const Route = createFileRoute('/')({
 
     function submitSearch(event: FormEvent<HTMLFormElement>) {
       event.preventDefault()
-      const query = String(
-        new FormData(event.currentTarget).get('q') ?? ''
-      ).trim()
+      const query = readSearchQuery(event.currentTarget)
       if (query === '') return
       void navigate({ to: '/search', search: { q: query } })
     }
@@ -45,6 +44,7 @@ export const Route = createFileRoute('/')({
         />
         <form
           role="search"
+          aria-label="Search the record"
           onSubmit={submitSearch}
           className="flex flex-wrap items-end gap-4"
         >

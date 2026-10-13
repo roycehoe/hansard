@@ -8,10 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  FILTER_ALL,
-  PARLIAMENT_DROPDOWN_OPTIONS,
-} from '@/constants/people/constants'
+import { FILTER_ALL } from '@/constants/constants'
+import { PARLIAMENT_DROPDOWN_OPTIONS } from '@/constants/people/constants'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
@@ -39,6 +37,7 @@ export function FormFilterPersons({
   const { register, control, handleSubmit } = useForm<FormFilterPersonsValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
+    values: defaultValues,
   })
 
   return (

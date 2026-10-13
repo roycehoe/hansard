@@ -2,12 +2,13 @@ import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
 import { useGetSearchReports } from '@/api/search/getSearchReports'
 import { useGetSearchSpeeches } from '@/api/search/getSearchSpeeches'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { PaginationPrevNext } from '@/components/people/PaginationPrevNext'
+import { PaginationPrevNext } from '@/components/layout/PaginationPrevNext'
 import { BadgePersonFilter } from '@/components/search/BadgePersonFilter'
 import type { FormSearchValues } from '@/components/search/FormSearch'
 import { FormSearch } from '@/components/search/FormSearch'
 import { ListReportMatches } from '@/components/search/ListReportMatches'
 import { ListSpeechMatches } from '@/components/search/ListSpeechMatches'
+import { NoticeErrorParliaments } from '@/components/search/NoticeErrorParliaments'
 import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
 import { NoticeTextCoverage } from '@/components/search/NoticeTextCoverage'
 import {
@@ -19,9 +20,10 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
-import { FILTER_ALL } from '@/constants/people/constants'
+import { FILTER_ALL } from '@/constants/constants'
 import { ReportType } from '@/constants/reports/enums'
 import { SearchSort } from '@/constants/search/enums'
+import { mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 
@@ -38,10 +40,6 @@ const searchSearchSchema = z.object({
   page: z.coerce.number().int().min(FIRST_PAGE).optional(),
   title_page: z.coerce.number().int().min(FIRST_PAGE).optional(),
 })
-
-function mapFilterToSearchValue(value: string): string | undefined {
-  return value === FILTER_ALL || value === '' ? undefined : value
-}
 
 export const Route = createFileRoute('/search')({
   validateSearch: searchSearchSchema,
@@ -69,7 +67,16 @@ export const Route = createFileRoute('/search')({
       sort,
     }
     const speeches = useGetSearchSpeeches({ ...request, page })
-    const reports = useGetSearchReports({ ...request, page: titlePage })
+    const reports = useGetSearchReports({
+      q: request.q,
+      parliament_number: parliament,
+      date_from: from,
+      date_to: to,
+      report_type: type,
+      is_text_available: person === undefined ? undefined : false,
+      sort,
+      page: titlePage,
+    })
     const hasQuery = q !== undefined && q !== ''
 
     function retryParliaments() {
@@ -127,7 +134,7 @@ export const Route = createFileRoute('/search')({
       if (parliaments.isLoading) return <Skeleton className="h-40 w-full" />
       if (parliaments.isError || !parliaments.data) {
         return (
-          <NoticeErrorSearch
+          <NoticeErrorParliaments
             onRetry={retryParliaments}
             isRetrying={parliaments.isRefetching}
           />
@@ -135,7 +142,6 @@ export const Route = createFileRoute('/search')({
       }
       return (
         <FormSearch
-          key={`${q ?? ''}|${parliament ?? FILTER_ALL}|${type ?? FILTER_ALL}|${from ?? ''}|${to ?? ''}|${sort ?? SearchSort.RELEVANCE}`}
           defaultValues={{
             q: q ?? '',
             parliament:
@@ -168,6 +174,7 @@ export const Route = createFileRoute('/search')({
             page={page}
             hasNextPage={speeches.data.has_next_page}
             onPageChange={changeSpeechPage}
+            ariaLabel="Speech matches pages"
           />
         </div>
       )
@@ -190,6 +197,7 @@ export const Route = createFileRoute('/search')({
             page={titlePage}
             hasNextPage={reports.data.has_next_page}
             onPageChange={changeReportPage}
+            ariaLabel="Title matches pages"
           />
         </div>
       )

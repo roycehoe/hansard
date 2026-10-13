@@ -14,19 +14,26 @@ export function ListReportMatches({ results }: ListReportMatchesProps) {
         Title matches
       </h2>
       {results.length === 0 ? (
-        <NoticeEmpty
-          icon={SearchX}
-          title="No title matches"
-          description='Nothing matches these words. Common words such as "the" are ignored. Try different words or a wider date range.'
-        />
+        <div role="status">
+          <NoticeEmpty
+            icon={SearchX}
+            title="No title matches"
+            description='Nothing matches these words. Common words such as "the" are ignored. Try different words or a wider date range.'
+          />
+        </div>
       ) : (
-        <ol className="space-y-4">
-          {results.map((result) => (
-            <li key={result.report_slug}>
-              <CardReportMatch result={result} />
-            </li>
-          ))}
-        </ol>
+        <>
+          <p role="status" className="sr-only">
+            {results.length} title matches on this page
+          </p>
+          <ol className="space-y-4">
+            {results.map((result) => (
+              <li key={result.report_slug}>
+                <CardReportMatch result={result} />
+              </li>
+            ))}
+          </ol>
+        </>
       )}
     </section>
   )

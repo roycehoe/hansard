@@ -14,7 +14,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
-import { FILTER_ALL } from '@/constants/people/constants'
+import { FILTER_ALL } from '@/constants/constants'
+import { mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 
@@ -23,10 +24,6 @@ const peopleSearchSchema = z.object({
   party: z.string().optional(),
   name: z.string().optional(),
 })
-
-function mapFilterToSearchValue(value: string): string | undefined {
-  return value === FILTER_ALL || value === '' ? undefined : value
-}
 
 export const Route = createFileRoute('/people/')({
   validateSearch: peopleSearchSchema,
@@ -71,7 +68,6 @@ export const Route = createFileRoute('/people/')({
       return (
         <div className="space-y-6">
           <FormFilterPersons
-            key={`${parliament ?? FILTER_ALL}|${party ?? FILTER_ALL}|${name ?? ''}`}
             defaultValues={{
               parliament:
                 parliament === undefined ? FILTER_ALL : String(parliament),

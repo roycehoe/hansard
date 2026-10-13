@@ -29,11 +29,3 @@ export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
 export const REPORT_TYPE_DROPDOWN_OPTIONS = Object.values(ReportType).map(
   (value) => ({ value, label: REPORT_TYPE_LABELS[value] })
 )
-
-export const LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
-
-export const LEGISLATIVE_ASSEMBLY_LABEL = 'Legislative Assembly'
-
-export const LATEST_MEMBERSHIP_PARLIAMENT_NUMBER = 15
-
-export const TEXT_NOT_IN_ARCHIVE_LABEL = 'Text not in this archive yet'

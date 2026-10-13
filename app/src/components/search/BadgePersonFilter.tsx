@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { X } from 'lucide-react'
 
+const PERSON_NAME_FALLBACK = 'this person'
+
 interface BadgePersonFilterProps {
   personId: number
 }
@@ -12,7 +14,7 @@ export function BadgePersonFilter({ personId }: BadgePersonFilterProps) {
   const navigate = useNavigate()
   const search = useSearch({ from: '/search' })
   const { data } = useGetPerson({ person_id: personId })
-  const name = data?.canonical_name ?? 'this person'
+  const name = data?.canonical_name ?? PERSON_NAME_FALLBACK
 
   function removePersonFilter() {
     void navigate({

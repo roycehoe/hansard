@@ -2,7 +2,7 @@ import { apiGet } from '@/api/client'
 import type { ReportType } from '@/constants/reports/enums'
 import type { SearchSort } from '@/constants/search/enums'
 import { buildQueryString } from '@/lib/utils'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 export interface GetSearchSpeechesRequest {
   q: string
@@ -67,6 +67,7 @@ export function useGetSearchSpeeches(request: GetSearchSpeechesRequest) {
       request.sort,
       request.page,
     ],
+    placeholderData: keepPreviousData,
     queryFn: () => getSearchSpeechesResponse(request),
     enabled: !!request.q,
   })
