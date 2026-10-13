@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import health, report
+from routers import health, parliament, report, sitting
 
 app = FastAPI(title="Hansard API")
 
@@ -14,3 +14,5 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(report.router)
+app.include_router(sitting.router)
+app.include_router(parliament.router)
