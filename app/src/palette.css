@@ -12,8 +12,8 @@
   --stone-cladding: #bab2a7;
   --painted-fence: #bdb3a6;
   --granite-plate: #908d82;
-  --granite-sign: #868680;
-  --sign-blue: #175082;
+  --granite-pylon: #655b51;
+  --sky-blue: #85a4c2;
   --kerb-shade: #595855;
   --lawn: #596d2c;
   --lawn-sunlit: #7a8c34;
@@ -53,10 +53,12 @@
   --crest-red-75: #ff8481;
   --crest-red-79: #ff9b97;
   --lawn-sunlit-75: #a5b961;
-  --sign-blue-65: #5c94ca;
-  --sign-blue-75: #89b2dc;
   --granite-plate-54: #726f64;
-  --granite-sign-58: #7b7b75;
+  --granite-pylon-60: #897e74;
+  --granite-pylon-58: #83786e;
+  --sky-blue-40: #0c4a7a;
+  --sky-blue-65: #6194c4;
+  --sky-blue-75: #8bb2d9;
   --orchid-lilac-88: #e8cbf9;
   --orchid-lilac-38: #513460;
   --teak-93: #fde2d4;
@@ -82,7 +84,7 @@
   --success-foreground: var(--flag-white);
   --warning: var(--gold-lace-50);
   --warning-foreground: var(--flag-white);
-  --info: var(--sign-blue);
+  --info: var(--sky-blue-40);
   --info-foreground: var(--flag-white);
   --reading: var(--gold-lace-97);
   --reading-foreground: var(--gown-black);
@@ -100,11 +102,11 @@
   --tag-foreground: var(--gown-black);
   --tag-border: var(--teak);
   --border: var(--granite-plate);
-  --input: var(--granite-sign);
+  --input: var(--granite-pylon-60);
   --ring: var(--gown-red);
   --chart-1: var(--gown-red);
   --chart-2: var(--lawn);
-  --chart-3: var(--sign-blue);
+  --chart-3: var(--sky-blue-40);
   --chart-4: var(--gold-lace);
   --chart-5: var(--roof-terracotta);
   --sidebar: var(--stone-cladding-95);
@@ -113,7 +115,7 @@
   --sidebar-primary-foreground: var(--flag-white);
   --sidebar-accent: var(--gold-lace-94);
   --sidebar-accent-foreground: var(--gown-black);
-  --sidebar-border: var(--granite-sign);
+  --sidebar-border: var(--granite-pylon-60);
   --sidebar-ring: var(--gown-red);
 }
 
@@ -139,7 +141,7 @@
   --success-foreground: var(--gown-black-20);
   --warning: var(--crest-gold);
   --warning-foreground: var(--gown-black-20);
-  --info: var(--sign-blue-75);
+  --info: var(--sky-blue-75);
   --info-foreground: var(--gown-black-20);
   --reading: var(--teak-panel-22);
   --reading-foreground: var(--gold-lace-88);
@@ -157,11 +159,11 @@
   --tag-foreground: var(--gold-lace-highlight);
   --tag-border: var(--teak-62);
   --border: var(--granite-plate-54);
-  --input: var(--granite-sign-58);
+  --input: var(--granite-pylon-58);
   --ring: var(--gown-red-80);
   --chart-1: var(--gown-red-65);
   --chart-2: var(--lawn-sunlit);
-  --chart-3: var(--sign-blue-65);
+  --chart-3: var(--sky-blue-65);
   --chart-4: var(--gold-lace);
   --chart-5: var(--roof-terracotta);
   --sidebar: var(--gown-black);

@@ -9,12 +9,26 @@ Not committed: the State Crest, the Parliament logo and the national flag. Their
 | `parliament-house-2023-079.jpg` | https://commons.wikimedia.org/wiki/File:Parliament_House_Singapore_2023_079.jpg | Mike Peel | CC BY-SA 4.0 | Stone cladding in sun and shade, hip roof tiles in hazy daylight, perimeter fence bars, porte-cochere brick driveway, white kerb, clipped shrubs |
 | `parliament-house-2013-02-25.jpg` | https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore_-_20130225.jpg | Haakon S. Krohn | CC BY-SA 3.0 | Granite sign plinth under overcast, front lawn under overcast, clipped box hedge |
 | `parliament-house-2023-01.jpg` | https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore,_2023_(01).jpg | Bahnfrend | CC BY-SA 4.0 | Granite sign plate, sunlit lawn, ixora hedge foliage |
-| `parliament-house-sign-close-up.jpg` | https://commons.wikimedia.org/wiki/File:Singapore_Parliament-House-02.jpg | Cccefalon | CC BY-SA 3.0 | Honed speckled granite of the Parliament sign, blue lettering on the sign, building wall in overcast |
-| `parliament-house-2010-08-03.jpg` | https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore_-_20100803-01.jpg | Smuconlaw | CC BY-SA 3.0 | Clay hip roof, sunlit and shaded slopes in evening light; tree foliage in evening shade |
+| `parliament-house-2010-08-03.jpg` | https://commons.wikimedia.org/wiki/File:Parliament_House,_Singapore_-_20100803-01.jpg | Smuconlaw | CC BY-SA 3.0 | Clay hip roof, sunlit and shaded slopes in evening light; tree foliage in evening shade; evening sky, upper left (sky-blue, decision 26) |
 | `parliament-place-road.jpg` | https://commons.wikimedia.org/wiki/File:Parliament_Place.JPG | Terence Ong | CC BY 2.5 | Parliament Place asphalt and concrete kerb |
 | `speaker-ceremonial-gown-01.jpg` | https://commons.wikimedia.org/wiki/File:Ceremonial_gown_of_the_Speaker_of_the_Parliament_of_Singapore,_ParlConnect,_Parliament_House,_Singapore_-_20150306-01.jpg | Smuconlaw | CC BY-SA 4.0 | Speaker's ceremonial gown on museum display: black cloth, red satin facing, gold lace on the front and on the cuff |
 | `former-chamber-strangers-gallery.jpg` | https://commons.wikimedia.org/wiki/File:Strangers%27_Gallery,_former_Parliamentary_Chamber,_The_Arts_House_at_the_Old_Parliament,_Singapore_-_20110407-01.JPG | Smuconlaw | CC BY-SA 4.0 | Strangers' Gallery front timber panelling, lit face (teak) |
 | `former-chamber-leather-seat.jpg` | https://commons.wikimedia.org/wiki/File:Former_Parliamentary_Chamber,_The_Arts_House_at_the_Old_Parliament,_Singapore_-_20110407-12.JPG | Smuconlaw | CC BY-SA 4.0 | Red-maroon leather seat upholstery, lit face and shadow; varnished timber floor. Sampled but no token uses it (see `docs/palette.md`, open points) |
+
+## Removed
+
+- `parliament-house-sign-close-up.jpg` (https://commons.wikimedia.org/wiki/File:Singapore_Parliament-House-02.jpg, CEphoto, Uwe Aranas, CC BY-SA 3.0) was removed on 2026-10-13 (decision 26) because it is a close-up of the Parliament sign with the State Crest and the Mace, which ADR 0002 keeps out of the repo. The two colours sampled from it, `granite-sign` #868680 and `sign-blue` #175082, were replaced by `granite-pylon` (from `civic-cavenagh-pylon.jpg`) and `sky-blue` (from `parliament-house-2010-08-03.jpg`).
+
+## Official marks in frame (sweep of 2026-10-13)
+
+Every photo was viewed. None of the remaining files is a close-up of a mark, and no thumbnail shown in the app includes one (those thumbnails are cropped; see `app/src/palette/palette.ts`). Marks that appear at small size inside a wider frame:
+
+- `parliament-house-2023-01.jpg` and `parliament-house-2013-02-25.jpg`: the Parliament sign with the crest and mace is a main subject in the lower part of the frame; flag banners or a flag on the facade.
+- `parliament-house-2023-079.jpg`: crest relief on the facade, national-flag banners between the windows, a flag on the mast.
+- `parliament-house-2010-08-03.jpg`, `pc-parliament-house-night.jpg`, `pc-front-facade-2025.jpg`: crest relief on the facade and a flag on the mast, small.
+- `speaker-ceremonial-gown-01.jpg` and `pc-parlconnect-main-hall.jpg`: the Mace in its display case at the edge of the frame.
+- `civic-victoria-theatre.jpg`: the theatre's own shield ornament above the arch (not a state mark).
+- Clean: `parliament-place-road.jpg`, `former-chamber-strangers-gallery.jpg`, `former-chamber-leather-seat.jpg`, `pc-parlconnect-sign.jpg`, `pc-parlconnect-functions-panels.jpg`, `pc-vanda-miss-joaquim.jpg`, the four `print-gazette-*` pages, `civic-arts-house-dusk.jpg`, `civic-arts-house-daylight.jpg`, `civic-chamber-benches.jpg`, `civic-anderson-girder.jpg`, `civic-cavenagh-pylon.jpg`, `civic-padang-turf.jpg`, `civic-elephant-statue.jpg`.
 
 ## Rejected on licence or provenance
 
@@ -48,6 +62,6 @@ Fetched from Wikimedia Commons and the files' own pages on 2026-10-13 for the wi
 | `civic-chamber-benches.jpg` | https://commons.wikimedia.org/wiki/File:Former_Parliamentary_Chamber,_The_Arts_House_at_the_Old_Parliament,_Singapore_-_20110407-09.JPG | Smuconlaw | CC BY-SA 4.0 | Teak bench fronts and floor, interior light; no people, no leather crop (visitors appear elsewhere in the frame) |
 | `civic-victoria-theatre.jpg` | https://commons.wikimedia.org/wiki/File:Front_of_Victoria_Theatre,_Singapore_-_20141101-02.JPG | Jacklee | CC BY-SA 4.0 | Grey render, arch pier, grey iron gate; medallion excluded from crops |
 | `civic-anderson-girder.jpg` | https://commons.wikimedia.org/wiki/File:Anderson_Bridge_closeup_looking_E.jpg | Orderinchaos | CC BY-SA 4.0 | Painted steel girder side plates with rivets, overcast |
-| `civic-cavenagh-pylon.jpg` | https://commons.wikimedia.org/wiki/File:2016_Singapur,_Downtown_Core,_Most_Cavenagha_(03).jpg | Marcin Konsek | CC BY-SA 4.0 | Granite pylon face and paving; red sign and plaque outside the crops |
+| `civic-cavenagh-pylon.jpg` | https://commons.wikimedia.org/wiki/File:2016_Singapur,_Downtown_Core,_Most_Cavenagha_(03).jpg | Marcin Konsek | CC BY-SA 4.0 | Granite pylon face, shaded (granite-pylon, decision 26) and paving; red sign and plaque outside the crops |
 | `civic-padang-turf.jpg` | https://commons.wikimedia.org/wiki/File:Rugby_goal_and_markings_at_Padang.jpg | Orderinchaos | CC BY-SA 4.0 | Turf at the Padang, crop clear of the chalk lines |
 | `civic-elephant-statue.jpg` | https://commons.wikimedia.org/wiki/File:At_Singapore_2023_083_-_Elephant_statue_at_the_Old_Parliament_House,_Singapore.jpg | Mike Peel | CC BY-SA 4.0 | Elephant statue body, cream wall and white plinth |
