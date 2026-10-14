@@ -262,10 +262,13 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `TableFilters`    | Table filter controls                          | `TableFiltersSittingSpeeches.tsx`        |
 | `TablePagination` | Table pagination wrapper                       | `TablePaginationSittingSpeeches.tsx`     |
 | `TableColumns`    | Column definitions (hook file)                 | `useTableColumnsSittingSpeeches.tsx`     |
-| `Button`          | Standalone button components                   | `ButtonCopySpeechLink.tsx`               |
+| `Button`          | Standalone button components                   | `ButtonCopyCitation.tsx`                 |
 | `Card`            | Card display components                        | `CardSittingSummary.tsx`                 |
 | `Badge`           | Status badges                                  | `BadgeReportType.tsx`                    |
 | `Notice`          | Empty states and informational blocks          | `NoticeEmptySpeeches.tsx`                |
+| `Popover`         | A trigger with its popover                     | `PopoverUnofficialTranscript.tsx`        |
+| `Row`             | One record rendered as a block in a list       | `RowSpeech.tsx`                          |
+| `ActionBar`       | A group of actions on one record               | `ActionBarSpeechCopy.tsx`                |
 | `Skeleton`        | Skeleton loaders                               | `SkeletonFetching.tsx`                   |
 | `Icon`            | Icon wrapper components                        | `IconReportType.tsx`                     |
 | `Section`         | A titled block of a page                       | `SectionForms.tsx`                       |
@@ -274,6 +277,8 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `List`            | A list of records rendered as `ul` or `ol`     | `ListSpeeches.tsx`, `ListAttendance.tsx` |
 | `Text`            | A text renderer with inline markup             | `TextTranscript.tsx`                     |
 | `Snippet`         | A short excerpt with matches marked            | `SnippetHighlighted.tsx`                 |
+| `Link`            | A link to a fixed destination                  | `LinkOfficialReportSearch.tsx`           |
+| `Quote`           | A quoted example set apart from the prose      | `QuoteCitation.tsx`                      |
 | `Pagination`      | A shared pager (lives in `components/layout/`) | `PaginationPrevNext.tsx`                 |
 
 When the category alone is self-explanatory within the folder, the context suffix can be omitted — e.g. `ActionBar.tsx` in a folder that only has one action bar. Add context when disambiguation is needed — e.g. `ActionBarSpeechCopy.tsx` when multiple action bars exist in the same folder.
@@ -1361,7 +1366,7 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 - **Hedging** (also: caveat creep, disclaimer stuffing). "May", "might", "best-effort", "typically", "in some cases". Fix: state the fact or the exact condition; if you can't, the caveat belongs on `/coverage`. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
   Before: `Links to individual speeches are best-effort, because a re-parse can renumber them.` (`NoticeDerivedText`) After: `A speech link can lead to a different speech after the archive is rebuilt.`
 - **Over-explaining** (also: padding). A second sentence that adds a reason, history or mechanism nobody asked for. Fix: cut to the outcome; a confirmation is one short phrase. [Atlassian, success messages](https://atlassian.design/foundations/content/designing-messages/success-messages).
-  Before: `Citation copied. The column number will be added once the archive has it.` (`ButtonCopyCitation`) After: `Citation copied`, with the column gap kept in `KNOWN_GAPS`.
+  Before: `Citation copied. The column number will be added once the archive has it.` (`ButtonCopyCitation`) After: `Citation copied`, with the column gap kept in `KNOWN_GAP_GROUPS`.
 - **Unrequested warning on a routine action, wrong surface** (also: toast overload). A caveat attached to a success, or lasting information in a toast that vanishes in seconds. Fix: confirm only; put the warning where the reader decides, or on `/coverage`. [NN/g, indicators, validations and notifications](https://www.nngroup.com/articles/indicators-validations-notifications/).
   Before: the two toasts above carry data gaps that `/coverage` already lists. After: both toasts confirm and nothing else.
 - **Redundant confirmation and "successfully"** (also: success filler). "Successfully", "Success!", "Done", "You have copied the link to your clipboard". Fix: noun plus past participle that names the result. [Atlassian, success messages](https://atlassian.design/foundations/content/designing-messages/success-messages).
@@ -1381,7 +1386,7 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 
 ### Rules for this codebase
 
-- **Shorten facts, don't delete them.** Where a fact doesn't belong in a toast or notice, such as that a shared `#s12` speech link can move after a rebuild, move it to `/coverage` (`KNOWN_GAPS` in `app/src/constants/coverage/constants.ts`) as one plain sentence. The toast then reads "Link copied".
+- **Shorten facts, don't delete them.** Where a fact doesn't belong in a toast or notice, such as that a shared `#s12` speech link can move after a rebuild, move it to `/coverage` (`KNOWN_GAP_GROUPS` in `app/src/constants/coverage/constants.ts`) as one plain sentence. The toast then reads "Link copied".
 - **A confirmation toast is two to four words with no trailing full stop**, such as "Link copied". Info and warning toasts appear only as `/design` samples of the variants. The one error a toast may carry is the failure of the action that would have shown the confirmation, such as "Couldn't copy the link". Every other error uses the inline [Error Display](#error-display) or an [Error Notice](#error-notices).
 - **Use the canonical terms** from `plans/hansard-user-stories-brief.md`: Person, Membership, Speaker label, Presiding officer, Report, Sitting. Never write "Speaker" for a Membership, and never shorten Presiding officer to "Speaker".
 - **Accessibility text stays accurate.** An `aria-label` contains the visible label text, ideally at the start ([WCAG 2.5.3, Label in name](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html)). Shortening one must not lose what the control does. Icon-only controls are named for their function ("Close", not "X"). "(opens in a new tab)" stays in the accessible name of every link that opens a new tab, as visible text or in `sr-only` text.
