@@ -185,7 +185,7 @@ Tailwind v4 has no named duration namespace, so durations use the numeric `durat
 ## Where we deliberately differ
 
 - **Serif headings.** Page and section headings use `font-serif` (Source Serif 4). SGDS v3 headings are sans (`root.css:152-162`; v2 used Lato, v3 uses Inter). We keep the serif for the reading product and use the SGDS sizes and line heights under it.
-- **Body font.** SGDS v3 already uses Inter (`root.css:152`), so there is no difference. `--font-sans` stays as is.
+- **Body font.** SGDS v3 already uses Inter (`root.css:152`), so there is no difference. `--font-sans` stays as is. Royce kept Inter after the 14 Oct 2026 AI-look review because SGDS v3 sets `--sgds-font-family-brand` to Inter.
 - **Medium weight.** SGDS has 300, 400, 600 and 700 only. We keep `font-medium` (500) for menu items, buttons and labels because Inter is variable and the extra step helps small text.
 - **Responsive type, no 1440px step.** Responsive roles are applied with breakpoint prefixes (`text-2xl lg:text-3xl`). SGDS adds a third step at 1440px (32, 28 and 24px for heading-lg, md and sm); 32 and 28 have no matching token, so we stop at the 1024px values for all three.
 - **Page title one role down.** SGDS reboot maps `h1` to heading-xl (32/36/40px, `reboot.css:88-92`). Our page title uses heading-lg (28/30), one level down, because a serif h1 at 30px already reads large in a dense research tool.
