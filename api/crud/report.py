@@ -154,6 +154,14 @@ class CRUDReport:
         )
         return self.session.exec(statement).one()
 
+    def get_min_sitting_date(self) -> Optional[datetime]:
+        statement = select(func.min(Report.sitting_date))
+        return self.session.exec(statement).one()
+
+    def get_max_sitting_date(self) -> Optional[datetime]:
+        statement = select(func.max(Report.sitting_date))
+        return self.session.exec(statement).one()
+
     def get_min_sitting_date_with_text(self) -> Optional[datetime]:
         statement = (
             select(func.min(Report.sitting_date))

@@ -20,6 +20,8 @@ class GetCoverageResponse(BaseModel):
     sitting_count: int
     attendance_count: int
     linked_attendance_count: int
+    first_sitting_date: Optional[date]
+    last_sitting_date: Optional[date]
     text_first_sitting_date: Optional[date]
     text_last_sitting_date: Optional[date]
     attendance_last_sitting_date: Optional[date]

@@ -47,6 +47,12 @@ def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
         sitting_count=CRUDSitting(session).get_count(),
         attendance_count=CRUDAttendance(session).get_count(),
         linked_attendance_count=CRUDAttendance(session).get_count_with_membership_id(),
+        first_sitting_date=get_date_from_datetime(
+            CRUDReport(session).get_min_sitting_date()
+        ),
+        last_sitting_date=get_date_from_datetime(
+            CRUDReport(session).get_max_sitting_date()
+        ),
         text_first_sitting_date=get_date_from_datetime(
             CRUDReport(session).get_min_sitting_date_with_text()
         ),
