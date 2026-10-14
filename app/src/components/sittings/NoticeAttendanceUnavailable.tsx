@@ -14,7 +14,7 @@ export function NoticeAttendanceUnavailable() {
     <NoticeEmpty
       icon={Users}
       title="Attendance for this sitting isn't in this archive yet"
-      description={`Attendance lists have been collected${collectedUpTo}.`}
+      description={`Attendance lists are in the archive${collectedUpTo}.`}
     />
   )
 }
