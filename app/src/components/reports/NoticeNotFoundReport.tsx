@@ -8,7 +8,7 @@ export function NoticeNotFoundReport() {
     <NoticeEmpty
       icon={SearchX}
       title="Report not found"
-      description="No report has this address. It may have been renamed by the archive."
+      description="No report has this address."
       action={
         <Button variant="outline" asChild>
           <Link to="/">Back to home</Link>

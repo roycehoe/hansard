@@ -17,9 +17,7 @@ export function ButtonCopySpeechLink({
     const speechLink = `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}#s${ordinal}`
     try {
       await navigator.clipboard.writeText(speechLink)
-      toast(
-        'Link copied. Speech links are best-effort and may move after a re-parse.'
-      )
+      toast('Link copied')
     } catch {
       toast.error("Couldn't copy the link.")
     }

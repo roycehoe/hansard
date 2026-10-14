@@ -23,7 +23,7 @@ export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
   [ReportType.OBITUARY_SPEECH]: 'Obituary speech',
   [ReportType.YANG_DI_MESSAGE]: 'Message from the Yang di-Pertuan Negara',
   [ReportType.MISC]: 'Miscellaneous',
-  [ReportType.ATBP]: 'Assent to Bills passed',
+  [ReportType.ATBP]: 'Assent to bills passed',
 }
 
 export const REPORT_TYPE_DROPDOWN_OPTIONS = Object.values(ReportType).map(
