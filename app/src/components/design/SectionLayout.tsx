@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
+import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 
 function noop() {}
@@ -19,11 +20,15 @@ const SAMPLE_BREADCRUMB = (
   <Breadcrumb>
     <BreadcrumbList>
       <BreadcrumbItem>
-        <BreadcrumbLink href="#">Home</BreadcrumbLink>
+        <BreadcrumbLink asChild>
+          <Link to="/">Home</Link>
+        </BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbLink href="#">Sittings</BreadcrumbLink>
+        <BreadcrumbLink asChild>
+          <Link to="/sittings">Sittings</Link>
+        </BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
@@ -80,7 +85,7 @@ export function SectionLayout() {
       <p className="text-muted-foreground text-sm font-medium">NoticeError</p>
       <NoticeError
         title="Couldn't load the speeches"
-        description="The speeches did not load. Check your connection and try again."
+        description="The speeches did not load. Try again in a moment."
         onRetry={noop}
         isRetrying={false}
       />
