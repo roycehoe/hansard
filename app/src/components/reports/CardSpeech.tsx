@@ -58,13 +58,17 @@ export function CardSpeech({
       <div className={cn(!hasSpeakerLabel && 'text-muted-foreground italic')}>
         <TextTranscript transcript={speech.transcript} />
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1">
         <ButtonCopySpeechLink
           reportSlug={reportSlug}
           ordinal={speech.ordinal}
           describedById={speakerId}
         />
-        <ButtonCopyCitation citation={citation} describedById={speakerId} />
+        <ButtonCopyCitation
+          citation={citation}
+          describedById={speakerId}
+          variant="quiet"
+        />
       </div>
     </article>
   )

@@ -5,11 +5,13 @@ import { toast } from 'sonner'
 interface ButtonCopyCitationProps {
   citation: string
   describedById?: string
+  variant?: 'outline' | 'quiet'
 }
 
 export function ButtonCopyCitation({
   citation,
   describedById,
+  variant = 'outline',
 }: ButtonCopyCitationProps) {
   async function copyCitation() {
     try {
@@ -25,7 +27,7 @@ export function ButtonCopyCitation({
   return (
     <Button
       type="button"
-      variant="outline"
+      variant={variant}
       size="sm"
       onClick={copyCitation}
       aria-describedby={describedById}
