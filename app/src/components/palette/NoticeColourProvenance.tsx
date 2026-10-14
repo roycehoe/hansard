@@ -47,7 +47,7 @@ function NoticeSourcePhoto({
         height={source.height}
         className="border-border h-auto w-24 shrink-0 rounded-md border"
       />
-      <figcaption className="text-muted-foreground space-y-1 text-xs whitespace-normal">
+      <figcaption className="text-muted-foreground space-y-1 text-xs wrap-anywhere whitespace-normal">
         {caption}
       </figcaption>
     </figure>
