@@ -1,8 +1,8 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
 import { ListAttributionFigures } from '@/components/coverage/ListAttributionFigures'
-import { ListCoverageCounts } from '@/components/coverage/ListCoverageCounts'
 import { ListKnownGaps } from '@/components/coverage/ListKnownGaps'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
+import { TableCoverageCounts } from '@/components/coverage/TableCoverageCounts'
 import { TableCoverageYears } from '@/components/coverage/TableCoverageYears'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
@@ -40,7 +40,7 @@ export const Route = createFileRoute('/coverage')({
             <h2 id="counts-heading" className="font-serif text-xl lg:text-2xl">
               What the archive holds
             </h2>
-            <ListCoverageCounts coverage={coverage.data} />
+            <TableCoverageCounts coverage={coverage.data} />
           </section>
           <section aria-labelledby="years-heading" className="space-y-4">
             <h2 id="years-heading" className="font-serif text-xl lg:text-2xl">
