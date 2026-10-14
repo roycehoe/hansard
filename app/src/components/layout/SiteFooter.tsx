@@ -17,7 +17,7 @@ export function SiteFooter() {
     <footer className="bg-muted text-muted-foreground border-separator border-t">
       <div className="max-w-page-xl mx-auto flex w-full flex-col gap-2 px-5 py-5 text-sm sm:px-6 md:flex-row md:items-center md:justify-between md:px-7 md:py-7">
         <p className="text-foreground font-medium">
-          Unofficial. Independent of the Parliament of Singapore.
+          Not an official Parliament site.
         </p>
         <nav aria-label="Footer">
           <ul className="flex flex-wrap gap-x-5 gap-y-1">
