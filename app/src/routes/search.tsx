@@ -51,8 +51,8 @@ function getSpeechesHeading(
 const searchSearchSchema = z.object({
   q: z.string().optional(),
   parliament: z.coerce.number().int().min(0).optional(),
-  from: z.string().optional(),
-  to: z.string().optional(),
+  from: z.iso.date().optional().catch(undefined),
+  to: z.iso.date().optional().catch(undefined),
   type: z.enum(ReportType).optional(),
   person: z.coerce.number().int().min(1).optional(),
   sort: z.enum(SearchSort).optional(),
