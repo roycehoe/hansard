@@ -19,7 +19,7 @@ export function ButtonCopySpeechLink({
       await navigator.clipboard.writeText(speechLink)
       toast('Link copied')
     } catch {
-      toast.error("Couldn't copy the link.")
+      toast.error("Couldn't copy the link")
     }
   }
 

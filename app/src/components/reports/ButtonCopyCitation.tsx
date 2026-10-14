@@ -18,7 +18,7 @@ export function ButtonCopyCitation({
       await navigator.clipboard.writeText(citation)
       toast('Citation copied')
     } catch {
-      toast.error("Couldn't copy the citation.")
+      toast.error("Couldn't copy the citation")
     }
   }
 

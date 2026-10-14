@@ -16,9 +16,9 @@ export function ButtonCopyColourValue({
   async function copyValue() {
     try {
       await navigator.clipboard.writeText(value)
-      toast.success(`Copied ${value}`)
+      toast.success(`${value} copied`)
     } catch {
-      toast.error(`Could not copy ${value}`)
+      toast.error(`Couldn't copy ${value}`)
     }
   }
 

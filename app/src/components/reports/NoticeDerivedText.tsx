@@ -9,8 +9,8 @@ export function NoticeDerivedText() {
       <AlertDescription>
         <p>
           This text is derived from the Official Report and can differ from it.
-          A speech link can change when the archive is rebuilt. The official
-          record is the authority.
+          A speech link can lead to a different speech after the archive is
+          rebuilt. The official record is the authority.
         </p>
       </AlertDescription>
     </Alert>
