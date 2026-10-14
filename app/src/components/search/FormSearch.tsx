@@ -1,5 +1,6 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
 import { PopoverPersonFilter } from '@/components/search/PopoverPersonFilter'
+import { PopoverSearchTips } from '@/components/search/PopoverSearchTips'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +16,8 @@ import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
   SEARCH_SORT_DROPDOWN_OPTIONS,
+  SEARCH_WORDS_MAX_LENGTH,
+  SEARCH_WORDS_TOO_LONG_ERROR,
   SORT_NEWEST_ONLY_DROPDOWN_OPTIONS,
 } from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
@@ -25,7 +28,11 @@ import { z } from 'zod'
 
 const formSchema = z
   .object({
-    q: z.string(),
+    q: z
+      .string()
+      .refine((value) => value.trim().length <= SEARCH_WORDS_MAX_LENGTH, {
+        error: SEARCH_WORDS_TOO_LONG_ERROR,
+      }),
     parliament: z.string(),
     type: z.union([z.literal(FILTER_ALL), z.enum(ReportType)]),
     from: z.string(),
@@ -101,7 +108,10 @@ export function FormSearch({
     >
       <div className="flex w-full flex-col gap-4 md:flex-row md:items-start">
         <div className="flex flex-1 flex-col gap-2">
-          <Label htmlFor="search-q">Search words</Label>
+          <div className="flex h-6 items-center gap-1">
+            <Label htmlFor="search-q">Search words</Label>
+            <PopoverSearchTips />
+          </div>
           <Input
             id="search-q"
             type="search"
@@ -116,7 +126,9 @@ export function FormSearch({
           )}
         </div>
         <div className="flex w-full flex-col gap-2 md:w-72">
-          <Label htmlFor="search-person">Person</Label>
+          <div className="flex h-6 items-center">
+            <Label htmlFor="search-person">Person</Label>
+          </div>
           <Controller
             control={control}
             name="person"
