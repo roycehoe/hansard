@@ -1382,9 +1382,9 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 ### Rules for this codebase
 
 - **Shorten facts, don't delete them.** Where a fact doesn't belong in a toast or notice, such as that a shared `#s12` speech link can move after a rebuild, move it to `/coverage` (`KNOWN_GAPS` in `app/src/constants/coverage/constants.ts`) as one plain sentence. The toast then reads "Link copied".
-- **A toast confirms a passive, low-stakes action in two to four words.** The one error a toast may carry is the failure of the action that would have shown the confirmation, such as "Couldn't copy the link". Every other error uses the inline [Error Display](#error-display) or an [Error Notice](#error-notices).
+- **A confirmation toast is two to four words with no trailing full stop**, such as "Link copied". Info and warning toasts appear only as `/design` samples of the variants. The one error a toast may carry is the failure of the action that would have shown the confirmation, such as "Couldn't copy the link". Every other error uses the inline [Error Display](#error-display) or an [Error Notice](#error-notices).
 - **Use the canonical terms** from `plans/hansard-user-stories-brief.md`: Person, Membership, Speaker label, Presiding officer, Report, Sitting. Never write "Speaker" for a Membership, and never shorten Presiding officer to "Speaker".
-- **Accessibility text stays accurate.** An `aria-label` contains the visible label text, ideally at the start ([WCAG 2.5.3, Label in name](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html)). Shortening one must not lose what the control does. Icon-only controls are named for their function ("Close", not "X"). "(opens in a new tab)" stays in `sr-only` text on every link that opens a new tab.
+- **Accessibility text stays accurate.** An `aria-label` contains the visible label text, ideally at the start ([WCAG 2.5.3, Label in name](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html)). Shortening one must not lose what the control does. Icon-only controls are named for their function ("Close", not "X"). "(opens in a new tab)" stays in the accessible name of every link that opens a new tab, as visible text or in `sr-only` text.
 - **Sentence case everywhere**, including headings, buttons and page titles. No trailing period on headings, buttons or labels.
 - **No em dashes.** Use the real ellipsis character (…), only for an in-progress label such as "Retrying…". Never three dots.
 - **House choices where sources disagree:**
@@ -1401,7 +1401,7 @@ Run on every diff that touches a string:
 - `git diff | rg -n '\x{2014}'` returns nothing in added lines.
 - `git diff | rg -n '\.\.\.'` returns nothing in added strings (spread syntax is code, not copy).
 - `git diff | rg -ni 'please|sorry|oops|unfortunately|successfully|best-effort|re-parse|seamless'` returns nothing in added strings.
-- Every toast is a confirmation of two to four words, with no "may" or second sentence. Every error is inline or a notice, except a failed copy.
+- Every confirmation toast is two to four words, with no "may", no second sentence and no trailing full stop. Every error is inline or a notice, except a failed copy.
 - Each caveat cut from a toast or notice is still stated, in one plain sentence, on `/coverage`.
 - Each `aria-label` starts with its visible label text, or names the function of an icon-only control.
 - Headings, buttons and labels are in sentence case with no trailing period.
