@@ -1,3 +1,4 @@
+import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FILTER_ALL } from '@/constants/constants'
-import { PARLIAMENT_DROPDOWN_OPTIONS } from '@/constants/people/constants'
+import { formatParliamentOption } from '@/lib/format'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
@@ -25,12 +26,14 @@ export type FormFilterPersonsValues = z.infer<typeof formSchema>
 
 interface FormFilterPersonsProps {
   defaultValues: FormFilterPersonsValues
+  parliaments: ParliamentData[]
   parties: string[]
   onSubmit: (values: FormFilterPersonsValues) => void
 }
 
 export function FormFilterPersons({
   defaultValues,
+  parliaments,
   parties,
   onSubmit,
 }: FormFilterPersonsProps) {
@@ -46,7 +49,7 @@ export function FormFilterPersons({
       noValidate
       className="flex flex-wrap items-end gap-4"
     >
-      <div className="flex w-full flex-col gap-2 sm:w-56">
+      <div className="flex w-full flex-col gap-2 sm:w-72">
         <Label htmlFor="filter-persons-parliament">Parliament</Label>
         <Controller
           control={control}
@@ -63,9 +66,12 @@ export function FormFilterPersons({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL}>All Parliaments</SelectItem>
-                {PARLIAMENT_DROPDOWN_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                {parliaments.map((parliament) => (
+                  <SelectItem
+                    key={parliament.parliament_number}
+                    value={String(parliament.parliament_number)}
+                  >
+                    {formatParliamentOption(parliament)}
                   </SelectItem>
                 ))}
               </SelectContent>
