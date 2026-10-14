@@ -52,7 +52,13 @@ def _get_validated_speeches(
         if query.strip() == "":
             if membership_ids is None:
                 return CRUDSpeech(session).get_all_filtered(
-                    parliament_number, date_from, date_to, report_type, limit, offset
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    sort,
+                    limit,
+                    offset,
                 )
             return CRUDSpeech(session).get_all_by_speaker_id_filtered(
                 membership_ids,
@@ -60,6 +66,7 @@ def _get_validated_speeches(
                 date_from,
                 date_to,
                 report_type,
+                sort,
                 limit,
                 offset,
             )
@@ -100,6 +107,7 @@ def _get_validated_reports(
                 date_to,
                 report_type,
                 is_text_available,
+                sort,
                 limit,
                 offset,
             )
