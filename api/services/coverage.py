@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from time import monotonic
+from typing import Optional
 
 from sqlmodel import Session
 
@@ -13,13 +15,18 @@ from utils.sitting_date import get_date_from_datetime
 
 _CACHE_TTL_SECONDS = 60 * 60
 
-# One (expires_at, response) tuple, replaced whole, so a reader never sees a
-# half-written entry. Two simultaneous first requests may both compute; the
-# last write wins and both results are equal.
-_cache: tuple[float, GetCoverageResponse] | None = None
+
+@dataclass(frozen=True)
+class _CachedCoverage:
+    expires_at: float
+    coverage: GetCoverageResponse
 
 
-def _build_coverage(session: Session) -> GetCoverageResponse:
+# NOTE: replaced whole and never mutated, so a request thread never reads a half-written entry
+_cached_coverage: Optional[_CachedCoverage] = None
+
+
+def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
     year_to_report_count = CRUDReport(session).get_year_to_report_count()
     year_to_text_report_count = CRUDReport(session).get_year_to_text_report_count()
     years = [
@@ -54,9 +61,10 @@ def _build_coverage(session: Session) -> GetCoverageResponse:
 
 
 def get_coverage(session: Session) -> GetCoverageResponse:
-    global _cache
-    if _cache is not None and monotonic() < _cache[0]:
-        return _cache[1]
-    response = _build_coverage(session)
-    _cache = (monotonic() + _CACHE_TTL_SECONDS, response)
-    return response
+    global _cached_coverage
+    cached_coverage = _cached_coverage
+    if cached_coverage is not None and monotonic() < cached_coverage.expires_at:
+        return cached_coverage.coverage
+    coverage = _get_uncached_coverage(session)
+    _cached_coverage = _CachedCoverage(monotonic() + _CACHE_TTL_SECONDS, coverage)
+    return coverage

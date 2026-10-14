@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from time import monotonic
+from typing import Optional
 
 from sqlmodel import Session
 
@@ -7,13 +9,18 @@ from schemas.parliament import GetAllParliamentsResponse, ParliamentData
 
 _CACHE_TTL_SECONDS = 60 * 60
 
-# One (expires_at, response) tuple, replaced whole, so a reader never sees a
-# half-written entry. Two simultaneous first requests may both compute; the
-# last write wins and both results are equal.
-_cache: tuple[float, GetAllParliamentsResponse] | None = None
+
+@dataclass(frozen=True)
+class _CachedAllParliaments:
+    expires_at: float
+    all_parliaments: GetAllParliamentsResponse
 
 
-def _build_all_parliaments(session: Session) -> GetAllParliamentsResponse:
+# NOTE: replaced whole and never mutated, so a request thread never reads a half-written entry
+_cached_all_parliaments: Optional[_CachedAllParliaments] = None
+
+
+def _get_uncached_all_parliaments(session: Session) -> GetAllParliamentsResponse:
     parliament_number_to_sitting_count = CRUDReport(
         session
     ).get_parliament_number_to_sitting_count()
@@ -51,9 +58,15 @@ def _build_all_parliaments(session: Session) -> GetAllParliamentsResponse:
 
 
 def get_all_parliaments(session: Session) -> GetAllParliamentsResponse:
-    global _cache
-    if _cache is not None and monotonic() < _cache[0]:
-        return _cache[1]
-    response = _build_all_parliaments(session)
-    _cache = (monotonic() + _CACHE_TTL_SECONDS, response)
-    return response
+    global _cached_all_parliaments
+    cached_all_parliaments = _cached_all_parliaments
+    if (
+        cached_all_parliaments is not None
+        and monotonic() < cached_all_parliaments.expires_at
+    ):
+        return cached_all_parliaments.all_parliaments
+    all_parliaments = _get_uncached_all_parliaments(session)
+    _cached_all_parliaments = _CachedAllParliaments(
+        monotonic() + _CACHE_TTL_SECONDS, all_parliaments
+    )
+    return all_parliaments
