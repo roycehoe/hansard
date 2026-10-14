@@ -16,7 +16,7 @@ export function NoticeTextCoverage() {
       <AlertDescription>
         <p>
           Speech text covers {formatSittingDate(first)} to{' '}
-          {formatSittingDate(last)}. Later reports can be found by title only.{' '}
+          {formatSittingDate(last)}.{' '}
           <Link
             to="/coverage"
             className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"

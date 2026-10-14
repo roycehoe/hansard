@@ -27,9 +27,7 @@ export const ATTRIBUTION_FIGURES = [
 ] as const
 
 export const KNOWN_GAPS = [
-  'No report text from 10 September 2012 onward. Reports from then on have their title and details only.',
   'Parliament 15 is not in the archive.',
-  'No attendance lists after 13 August 2012.',
   'Memberships of the Legislative Assembly (1955 to 1965) are filed under Parliament 1, so a person page counts Assembly speeches and attendance under the Legislative Assembly heading but lists the membership as Parliament 1.',
   'About 1,700 reports fetched in October 2026 carry a position number that restarts each month, so their order within a sitting can be wrong.',
   'Column numbers are not shown yet. Citations omit the column until the archive has it.',
