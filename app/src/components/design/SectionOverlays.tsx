@@ -72,7 +72,7 @@ function showSuccessToast() {
 }
 
 function showErrorToast() {
-  toast.error('Failed to save changes.')
+  toast.error("Couldn't copy the citation.")
 }
 
 function showInfoToast() {
@@ -91,17 +91,15 @@ function showPromiseToast() {
   toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
     loading: 'Copying citation…',
     success: 'Citation copied',
-    error: 'Failed to save changes.',
+    error: "Couldn't copy the citation.",
   })
 }
 
-function showRestoredToast() {
-  toast.success('Person filter restored')
-}
+function noop() {}
 
 function showActionToast() {
-  toast('Person filter removed', {
-    action: { label: 'Undo', onClick: showRestoredToast },
+  toast('Citation copied', {
+    action: { label: 'Open report', onClick: noop },
   })
 }
 
@@ -120,18 +118,18 @@ export function SectionOverlays() {
       <Example label="Dialog">
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">Filter by person</Button>
+            <Button variant="outline">Open dialog</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Filter by person</DialogTitle>
+              <DialogTitle>Dialog title</DialogTitle>
               <DialogDescription>
-                Show only speeches by one person in the search results.
+                A short description of what the dialog asks for.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2">
-              <Label htmlFor="overlays-person-name">Person</Label>
-              <Input id="overlays-person-name" defaultValue="Lee Hsien Loong" />
+              <Label htmlFor="overlays-field">Field label</Label>
+              <Input id="overlays-field" defaultValue="Field value" />
             </div>
             <DialogFooter>
               <DialogClose asChild>
@@ -211,10 +209,10 @@ export function SectionOverlays() {
               <DropdownMenuItem>Copy citation</DropdownMenuItem>
               <DropdownMenuItem>Copy link</DropdownMenuItem>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Copy as</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger>Open</DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem>Plain text</DropdownMenuItem>
-                  <DropdownMenuItem>Markdown</DropdownMenuItem>
+                  <DropdownMenuItem>This report</DropdownMenuItem>
+                  <DropdownMenuItem>Official record</DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
             </DropdownMenuGroup>
