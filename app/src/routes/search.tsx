@@ -268,6 +268,7 @@ export const Route = createFileRoute('/search')({
           <ListReportMatches
             results={reports.data.results}
             hasWords={hasWords}
+            highlightWords={hasWords ? words : undefined}
             page={reports.data.page}
             pageSize={reports.data.page_size}
             totalCount={reports.data.total_count}

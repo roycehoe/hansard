@@ -24,19 +24,12 @@ export function TextMatchCount({
   const total = totalCount.toLocaleString(NUMBER_LOCALE)
   const totalPhrase = isTotalCapped ? `more than ${total}` : total
   const noun = totalCount === 1 && !isTotalCapped ? singularNoun : pluralNoun
-  const announcement = isTotalCapped
-    ? `More than ${total} ${noun}`
-    : `${total} ${noun}`
 
   return (
-    <>
-      <p aria-hidden="true" className="text-muted-foreground text-sm">
-        Showing {firstShown.toLocaleString(NUMBER_LOCALE)} to{' '}
-        {lastShown.toLocaleString(NUMBER_LOCALE)} of {totalPhrase}
-      </p>
-      <p role="status" className="sr-only">
-        {announcement}
-      </p>
-    </>
+    <p role="status" className="text-muted-foreground text-sm">
+      Showing {firstShown.toLocaleString(NUMBER_LOCALE)} to{' '}
+      {lastShown.toLocaleString(NUMBER_LOCALE)} of {totalPhrase}
+      <span className="sr-only"> {noun}</span>
+    </p>
   )
 }

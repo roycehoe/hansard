@@ -21,6 +21,7 @@ const EMPTY_FILTERS_TITLE = 'No reports'
 interface ListReportMatchesProps {
   results: ReportMatchData[]
   hasWords: boolean
+  highlightWords: string | undefined
   page: number
   pageSize: number
   totalCount: number
@@ -31,6 +32,7 @@ interface ListReportMatchesProps {
 export function ListReportMatches({
   results,
   hasWords,
+  highlightWords,
   page,
   pageSize,
   totalCount,
@@ -80,6 +82,7 @@ export function ListReportMatches({
                   <Link
                     to="/reports/$reportSlug"
                     params={{ reportSlug: result.report_slug }}
+                    search={{ hl: highlightWords }}
                     className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
                   >
                     {result.title}
