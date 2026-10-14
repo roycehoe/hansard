@@ -42,7 +42,8 @@ export function ListPersonReports({ reports }: ListPersonReportsProps) {
           </span>
           <BadgeReportType reportType={report.report_type} />
           <span className="text-muted-foreground text-sm">
-            {report.speech_count} speeches
+            {report.speech_count}{' '}
+            {report.speech_count === 1 ? 'speech' : 'speeches'}
           </span>
         </li>
       ))}
