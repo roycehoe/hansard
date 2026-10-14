@@ -38,15 +38,16 @@ async function getAllPersonsResponse(
   )
 }
 
-export function useGetAllPersons(request: GetAllPersonsRequest) {
+export function useGetAllPersons(request: GetAllPersonsRequest | undefined) {
   return useQuery({
     queryKey: [
       'people',
       'list',
-      request.parliament_number,
-      request.party,
-      request.name,
+      request?.parliament_number,
+      request?.party,
+      request?.name,
     ],
-    queryFn: () => getAllPersonsResponse(request),
+    queryFn: () => getAllPersonsResponse(request!),
+    enabled: !!request,
   })
 }
