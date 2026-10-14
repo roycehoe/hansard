@@ -34,6 +34,8 @@ export interface GetSearchSpeechesResponse {
   page: number
   page_size: number
   has_next_page: boolean
+  total_count: number
+  is_total_capped: boolean
 }
 
 async function getSearchSpeechesResponse(

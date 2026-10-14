@@ -219,6 +219,10 @@ export const Route = createFileRoute('/search')({
             results={speeches.data.results}
             heading={speechesHeading}
             hasWords={hasWords}
+            page={speeches.data.page}
+            pageSize={speeches.data.page_size}
+            totalCount={speeches.data.total_count}
+            isTotalCapped={speeches.data.is_total_capped}
           />
           <PaginationPrevNext
             page={page}
@@ -245,6 +249,10 @@ export const Route = createFileRoute('/search')({
           <ListReportMatches
             results={reports.data.results}
             hasWords={hasWords}
+            page={reports.data.page}
+            pageSize={reports.data.page_size}
+            totalCount={reports.data.total_count}
+            isTotalCapped={reports.data.is_total_capped}
           />
           <PaginationPrevNext
             page={titlePage}
