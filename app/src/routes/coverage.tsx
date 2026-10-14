@@ -4,10 +4,10 @@ import { SectionAboutText } from '@/components/coverage/SectionAboutText'
 import { SectionArchiveBuild } from '@/components/coverage/SectionArchiveBuild'
 import { SectionAttributionFigures } from '@/components/coverage/SectionAttributionFigures'
 import { SectionCitingRecord } from '@/components/coverage/SectionCitingRecord'
+import { SectionCounts } from '@/components/coverage/SectionCounts'
 import { SectionKnownGaps } from '@/components/coverage/SectionKnownGaps'
 import { SectionSummary } from '@/components/coverage/SectionSummary'
 import { SectionYears } from '@/components/coverage/SectionYears'
-import { TableCoverageCounts } from '@/components/coverage/TableCoverageCounts'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
   Breadcrumb,
@@ -48,12 +48,7 @@ export const Route = createFileRoute('/coverage')({
       if (coverage.isError || !coverage.data) return null
       return (
         <>
-          <section aria-labelledby="counts-heading" className="space-y-4">
-            <h2 id="counts-heading" className="font-serif text-xl lg:text-2xl">
-              What the archive holds
-            </h2>
-            <TableCoverageCounts coverage={coverage.data} />
-          </section>
+          <SectionCounts coverage={coverage.data} />
           <SectionYears coverage={coverage.data} />
         </>
       )
