@@ -37,13 +37,13 @@ export const ATTRIBUTION_FIGURES = [
     label: 'Speeches with a name that are linked to a person',
     value: ATTRIBUTION_BY_PARLIAMENT[0].namedLinked,
     detail:
-      '554,901 of 567,756 speech rows with a speaker name, leaving out collective "hon. Member" references and stage directions.',
+      '554,901 of 567,756 speech rows with a speaker label, leaving out collective "hon. Member" references and stage directions.',
   },
   {
     label: 'All speeches that are linked to a person',
     value: ATTRIBUTION_BY_PARLIAMENT[0].allLinked,
     detail:
-      '554,901 of 624,332 speech rows, counting rows with no speaker name at all.',
+      '554,901 of 624,332 speech rows, counting rows with no speaker label at all.',
   },
   {
     label: 'Share of the text that sits under a linked speech',
@@ -60,7 +60,7 @@ export const KNOWN_GAPS = [
   'In 40 sittings from 16 August 2016 to 8 April 2025, 195 reports share a position number with another report in the same sitting, so their order within the sitting is undefined.',
   'Column numbers are not shown yet. Citations omit the column until the archive has it.',
   "A person's page address can change when the archive corrects who is who. Report and sitting addresses do not change.",
-  'Links to individual speeches (#s1, #s2 and so on) are best-effort. A re-parse can renumber the speeches in a report.',
+  'A link to one speech (#s12) can point to a different speech after the archive is rebuilt.',
   'Party names are shown exactly as stored, including two spellings of People\'s Action Party and placeholder values such as "Unknown".',
   'Some budget and President\'s address titles show garbled characters such as "â€™".',
   'Speeches labelled "The Chairman" cannot be linked to a person, because the report does not name the chair.',
