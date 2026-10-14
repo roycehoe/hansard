@@ -1,3 +1,5 @@
+from time import monotonic
+
 from sqlmodel import Session
 
 from crud.attendance import CRUDAttendance
@@ -9,8 +11,15 @@ from crud.speech import CRUDSpeech
 from schemas.coverage import GetCoverageResponse, YearCoverageData
 from utils.sitting_date import get_date_from_datetime
 
+_CACHE_TTL_SECONDS = 60 * 60
 
-def get_coverage(session: Session) -> GetCoverageResponse:
+# One (expires_at, response) tuple, replaced whole, so a reader never sees a
+# half-written entry. Two simultaneous first requests may both compute; the
+# last write wins and both results are equal.
+_cache: tuple[float, GetCoverageResponse] | None = None
+
+
+def _build_coverage(session: Session) -> GetCoverageResponse:
     year_to_report_count = CRUDReport(session).get_year_to_report_count()
     year_to_text_report_count = CRUDReport(session).get_year_to_text_report_count()
     years = [
@@ -42,3 +51,12 @@ def get_coverage(session: Session) -> GetCoverageResponse:
         ).get_max_sitting_date_with_attendance(),
         years=years,
     )
+
+
+def get_coverage(session: Session) -> GetCoverageResponse:
+    global _cache
+    if _cache is not None and monotonic() < _cache[0]:
+        return _cache[1]
+    response = _build_coverage(session)
+    _cache = (monotonic() + _CACHE_TTL_SECONDS, response)
+    return response
