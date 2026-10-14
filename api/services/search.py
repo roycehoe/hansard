@@ -275,11 +275,12 @@ def search_speeches(
             for speech in page_speeches
         }
     else:
+        speech_id_to_headline = CRUDSpeech(session).get_id_to_headline_by_ids(
+            [speech.id for speech in page_speeches], query
+        )
         speech_id_to_snippet = {
             speech_id: strip_markdown(headline)
-            for speech_id, headline in CRUDSpeech(session)
-            .get_id_to_headline_by_ids([speech.id for speech in page_speeches], query)
-            .items()
+            for speech_id, headline in speech_id_to_headline.items()
         }
     report_id_to_report = {
         report.id: report
