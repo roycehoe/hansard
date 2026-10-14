@@ -1,10 +1,19 @@
+from time import monotonic
+
 from sqlmodel import Session
 
 from crud.report import CRUDReport
 from schemas.parliament import GetAllParliamentsResponse, ParliamentData
 
+_CACHE_TTL_SECONDS = 60 * 60
 
-def get_all_parliaments(session: Session) -> GetAllParliamentsResponse:
+# One (expires_at, response) tuple, replaced whole, so a reader never sees a
+# half-written entry. Two simultaneous first requests may both compute; the
+# last write wins and both results are equal.
+_cache: tuple[float, GetAllParliamentsResponse] | None = None
+
+
+def _build_all_parliaments(session: Session) -> GetAllParliamentsResponse:
     parliament_number_to_sitting_count = CRUDReport(
         session
     ).get_parliament_number_to_sitting_count()
@@ -39,3 +48,12 @@ def get_all_parliaments(session: Session) -> GetAllParliamentsResponse:
             for parliament_number in sorted(parliament_number_to_report_count)
         ]
     )
+
+
+def get_all_parliaments(session: Session) -> GetAllParliamentsResponse:
+    global _cache
+    if _cache is not None and monotonic() < _cache[0]:
+        return _cache[1]
+    response = _build_all_parliaments(session)
+    _cache = (monotonic() + _CACHE_TTL_SECONDS, response)
+    return response
