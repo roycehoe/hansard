@@ -1,9 +1,12 @@
 import type { GetReportResponse } from '@/api/reports/getReport'
+import { NoticeHighlighting } from '@/components/reports/NoticeHighlighting'
 import { RowSpeech } from '@/components/reports/RowSpeech'
+import { buildHighlightPattern } from '@/lib/highlight'
 import { useEffect } from 'react'
 
 interface ListSpeechesProps {
   report: GetReportResponse
+  highlightTerms: string[]
 }
 
 function scrollToSpeechAnchor() {
@@ -15,14 +18,21 @@ function scrollToSpeechAnchor() {
   speechElement.focus()
 }
 
-export function ListSpeeches({ report }: ListSpeechesProps) {
+export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
   useEffect(scrollToSpeechAnchor, [])
+  const highlightPattern = buildHighlightPattern(highlightTerms)
 
   return (
     <section aria-labelledby="speeches-heading">
       <h2 id="speeches-heading" className="sr-only">
         Speeches
       </h2>
+      {highlightPattern !== undefined && (
+        <NoticeHighlighting
+          reportSlug={report.report_slug}
+          terms={highlightTerms}
+        />
+      )}
       {report.speeches.map((speech, index) => (
         <RowSpeech
           key={speech.ordinal}
@@ -35,6 +45,7 @@ export function ListSpeeches({ report }: ListSpeechesProps) {
           sittingDate={report.sitting_date}
           volumeNumber={report.volume_number}
           parliamentNumber={report.parliament_number}
+          highlightPattern={highlightPattern}
         />
       ))}
     </section>
