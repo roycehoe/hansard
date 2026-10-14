@@ -70,7 +70,7 @@ export function TableSittingSpeeches({
               colSpan={table.getAllColumns().length}
               className="border-none py-[15px] text-center"
             >
-              No Results.
+              No reports match the search.
             </TableCell>
           </TableRow>
         ) : (
