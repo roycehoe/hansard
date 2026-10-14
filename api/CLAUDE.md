@@ -84,7 +84,8 @@ Notes on the layers that matter now:
 
 - **Routers** call one service function and return. A router never calls `crud/` or `database/` directly.
 - **Terminology.** A row of the `speaker` table is a Membership everywhere outside `database/`: `CRUDMembership`, `membership_ids`, `membership_id_to_person`. The raw name on a speech is `speaker_label`. See the brief's terminology table.
-- **Indexes are the launch gate.** `docs/required-indexes.md` lists every index the API's queries need, with the exact DDL the scraper migration runs. All seven exist on production since 14 October 2026 (scraper commit `b15908a`). Without them the queries are sequential scans, and the speech full-text search exceeds the statement timeout and answers `503 search.timed_out`.
+- **Indexes are the launch gate.** `docs/required-indexes.md` lists every index the API's queries need, with the index definitions the scraper migration builds. All seven have existed on production since 14 October 2026 (scraper commit `b15908a`). Without them the queries are sequential scans, and the speech full-text search exceeds the statement timeout and answers `503 search.timed_out`.
+- **`/coverage` and `/parliaments` cache in-process for an hour**, as module state in `services/coverage.py` and `services/parliament.py`, filled on the first request. Restart the API after a scraper load to see new figures at once.
 - **`crud/` is read-only here.** The rules in `STYLE.md` about CRUD writes stay in the guide, but this API has no write path.
 - **Raw SQL** is limited to the `SELECT 1` health check. Everything else goes through SQLModel.
 - **Do not run `mypy`.** Only `ruff` is used for static analysis.
