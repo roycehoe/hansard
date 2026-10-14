@@ -1,6 +1,7 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
 import { PopoverPersonFilter } from '@/components/search/PopoverPersonFilter'
 import { PopoverSearchTips } from '@/components/search/PopoverSearchTips'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,18 +12,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 import { FILTER_ALL } from '@/constants/constants'
 import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
+  PHONE_MEDIA_QUERY,
+  SEARCH_FORM_ID,
   SEARCH_SORT_DROPDOWN_OPTIONS,
   SEARCH_WORDS_MAX_LENGTH,
   SEARCH_WORDS_TOO_LONG_ERROR,
   SORT_NEWEST_ONLY_DROPDOWN_OPTIONS,
 } from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatParliamentOption } from '@/lib/format'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -55,6 +69,16 @@ function getWordlessSort(sort: SearchSort): SearchSort {
   return sort === SearchSort.OLDEST ? SearchSort.OLDEST : SearchSort.DATE
 }
 
+function countActiveFilters(values: FormSearchValues): number {
+  return [
+    values.parliament !== FILTER_ALL,
+    values.type !== FILTER_ALL,
+    values.from !== '',
+    values.to !== '',
+    values.person !== undefined,
+  ].filter(Boolean).length
+}
+
 export type FormSearchValues = z.infer<typeof formSchema>
 
 interface FormSearchProps {
@@ -80,10 +104,21 @@ export function FormSearch({
     values: defaultValues,
   })
 
+  const { isMatching: isPhone } = useMediaQuery(PHONE_MEDIA_QUERY)
+  const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false)
+  const activeFilterCount = countActiveFilters(defaultValues)
   const hasWords = useWatch({ control, name: 'q' }).trim() !== ''
   const sortOptions = hasWords
     ? SEARCH_SORT_DROPDOWN_OPTIONS
     : SORT_NEWEST_ONLY_DROPDOWN_OPTIONS
+
+  function choosePersonInSheet(personId: number) {
+    setValue('person', personId)
+  }
+
+  function closeFilters() {
+    setIsFiltersOpen(false)
+  }
 
   function choosePerson(personId: number) {
     setValue('person', personId)
@@ -91,6 +126,7 @@ export function FormSearch({
   }
 
   function submitSearch(values: FormSearchValues) {
+    closeFilters()
     onSubmit(
       values.q.trim() === ''
         ? { ...values, sort: getWordlessSort(values.sort) }
@@ -98,145 +134,226 @@ export function FormSearch({
     )
   }
 
+  const wordsField = (
+    <div className="flex flex-1 flex-col gap-2">
+      <div className="flex h-6 items-center gap-1">
+        <Label htmlFor="search-q">Search words</Label>
+        <PopoverSearchTips />
+      </div>
+      <Input
+        id="search-q"
+        type="search"
+        aria-invalid={errors.q ? true : undefined}
+        aria-describedby={errors.q ? 'search-q-error' : undefined}
+        {...register('q')}
+      />
+      {errors.q && (
+        <p id="search-q-error" className="text-destructive text-sm">
+          {errors.q.message}
+        </p>
+      )}
+    </div>
+  )
+
+  function renderPersonField(onChange: (personId: number) => void) {
+    return (
+      <div className="flex w-full flex-col gap-2 md:w-72">
+        <div className="flex h-6 items-center">
+          <Label htmlFor="search-person">Person</Label>
+        </div>
+        <Controller
+          control={control}
+          name="person"
+          render={({ field }) => (
+            <PopoverPersonFilter
+              id="search-person"
+              value={field.value}
+              onChange={onChange}
+            />
+          )}
+        />
+      </div>
+    )
+  }
+
+  const parliamentField = (
+    <div className="flex w-full flex-col gap-2 sm:w-72">
+      <Label htmlFor="search-parliament">Parliament</Label>
+      <Controller
+        control={control}
+        name="parliament"
+        render={({ field }) => (
+          <Select value={field.value} onValueChange={field.onChange}>
+            <SelectTrigger
+              ref={field.ref}
+              id="search-parliament"
+              className="w-full"
+              onBlur={field.onBlur}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={FILTER_ALL}>All Parliaments</SelectItem>
+              {parliaments.map((parliament) => (
+                <SelectItem
+                  key={parliament.parliament_number}
+                  value={String(parliament.parliament_number)}
+                >
+                  {formatParliamentOption(parliament)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+    </div>
+  )
+
+  const typeField = (
+    <div className="flex w-full flex-col gap-2 sm:w-56">
+      <Label htmlFor="search-type">Type</Label>
+      <Controller
+        control={control}
+        name="type"
+        render={({ field }) => (
+          <Select value={field.value} onValueChange={field.onChange}>
+            <SelectTrigger
+              ref={field.ref}
+              id="search-type"
+              className="w-full"
+              onBlur={field.onBlur}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={FILTER_ALL}>All types</SelectItem>
+              {REPORT_TYPE_DROPDOWN_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+    </div>
+  )
+
+  const fromField = (
+    <div className="flex w-full flex-col gap-2 sm:w-44">
+      <Label htmlFor="search-from">From</Label>
+      <Input id="search-from" type="date" {...register('from')} />
+    </div>
+  )
+
+  const toField = (
+    <div className="flex w-full flex-col gap-2 sm:w-44">
+      <Label htmlFor="search-to">To</Label>
+      <Input id="search-to" type="date" {...register('to')} />
+    </div>
+  )
+
+  const sortField = (
+    <div className="flex w-full flex-col gap-2 sm:w-44">
+      <Label htmlFor="search-sort">Sort</Label>
+      <Controller
+        control={control}
+        name="sort"
+        render={({ field }) => (
+          <Select
+            value={hasWords ? field.value : getWordlessSort(field.value)}
+            onValueChange={field.onChange}
+          >
+            <SelectTrigger
+              ref={field.ref}
+              id="search-sort"
+              className="w-full"
+              onBlur={field.onBlur}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {sortOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+    </div>
+  )
+
+  const filtersButtonLabel =
+    activeFilterCount === 0 ? 'Filters' : `Filters, ${activeFilterCount} active`
+
   return (
     <form
+      id={SEARCH_FORM_ID}
       role="search"
       aria-label="Search filters"
-      onSubmit={handleSubmit(submitSearch)}
+      onSubmit={handleSubmit(submitSearch, closeFilters)}
       noValidate
       className="flex flex-wrap items-end gap-4"
     >
-      <div className="flex w-full flex-col gap-4 md:flex-row md:items-start">
-        <div className="flex flex-1 flex-col gap-2">
-          <div className="flex h-6 items-center gap-1">
-            <Label htmlFor="search-q">Search words</Label>
-            <PopoverSearchTips />
+      {isPhone ? (
+        <>
+          {wordsField}
+          <div className="flex w-full items-center gap-2">
+            <Button type="submit" className="flex-1">
+              Search
+            </Button>
+            <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  aria-label={filtersButtonLabel}
+                >
+                  Filters
+                  {activeFilterCount > 0 && (
+                    <Badge variant="secondary">{activeFilterCount}</Badge>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="max-h-[90dvh]">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                  <SheetDescription hidden />
+                </SheetHeader>
+                <div className="flex flex-col gap-4 overflow-y-auto px-4">
+                  {renderPersonField(choosePersonInSheet)}
+                  {parliamentField}
+                  {typeField}
+                  {fromField}
+                  {toField}
+                  {sortField}
+                </div>
+                <SheetFooter>
+                  <Button type="submit" form={SEARCH_FORM_ID}>
+                    Show results
+                  </Button>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
           </div>
-          <Input
-            id="search-q"
-            type="search"
-            aria-invalid={errors.q ? true : undefined}
-            aria-describedby={errors.q ? 'search-q-error' : undefined}
-            {...register('q')}
-          />
-          {errors.q && (
-            <p id="search-q-error" className="text-destructive text-sm">
-              {errors.q.message}
-            </p>
-          )}
-        </div>
-        <div className="flex w-full flex-col gap-2 md:w-72">
-          <div className="flex h-6 items-center">
-            <Label htmlFor="search-person">Person</Label>
+        </>
+      ) : (
+        <>
+          <div className="flex w-full flex-col gap-4 md:flex-row md:items-start">
+            {wordsField}
+            {renderPersonField(choosePerson)}
           </div>
-          <Controller
-            control={control}
-            name="person"
-            render={({ field }) => (
-              <PopoverPersonFilter
-                id="search-person"
-                value={field.value}
-                onChange={choosePerson}
-              />
-            )}
-          />
-        </div>
-      </div>
-      <div className="flex w-full flex-col gap-2 sm:w-72">
-        <Label htmlFor="search-parliament">Parliament</Label>
-        <Controller
-          control={control}
-          name="parliament"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger
-                ref={field.ref}
-                id="search-parliament"
-                className="w-full"
-                onBlur={field.onBlur}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={FILTER_ALL}>All Parliaments</SelectItem>
-                {parliaments.map((parliament) => (
-                  <SelectItem
-                    key={parliament.parliament_number}
-                    value={String(parliament.parliament_number)}
-                  >
-                    {formatParliamentOption(parliament)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-      <div className="flex w-full flex-col gap-2 sm:w-56">
-        <Label htmlFor="search-type">Type</Label>
-        <Controller
-          control={control}
-          name="type"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger
-                ref={field.ref}
-                id="search-type"
-                className="w-full"
-                onBlur={field.onBlur}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={FILTER_ALL}>All types</SelectItem>
-                {REPORT_TYPE_DROPDOWN_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-      <div className="flex w-full flex-col gap-2 sm:w-44">
-        <Label htmlFor="search-from">From</Label>
-        <Input id="search-from" type="date" {...register('from')} />
-      </div>
-      <div className="flex w-full flex-col gap-2 sm:w-44">
-        <Label htmlFor="search-to">To</Label>
-        <Input id="search-to" type="date" {...register('to')} />
-      </div>
-      <div className="flex w-full flex-col gap-2 sm:w-44">
-        <Label htmlFor="search-sort">Sort</Label>
-        <Controller
-          control={control}
-          name="sort"
-          render={({ field }) => (
-            <Select
-              value={hasWords ? field.value : getWordlessSort(field.value)}
-              onValueChange={field.onChange}
-            >
-              <SelectTrigger
-                ref={field.ref}
-                id="search-sort"
-                className="w-full"
-                onBlur={field.onBlur}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {sortOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-      <Button type="submit">Search</Button>
+          {parliamentField}
+          {typeField}
+          {fromField}
+          {toField}
+          {sortField}
+          <Button type="submit">Search</Button>
+        </>
+      )}
     </form>
   )
 }
