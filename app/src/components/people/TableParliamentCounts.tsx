@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 
 interface TableParliamentCountsProps {
@@ -46,9 +47,15 @@ export function TableParliamentCounts({
                   <TableCell>
                     {formatParliament(count.parliament_number)}
                   </TableCell>
-                  <TableCell>{count.speech_count}</TableCell>
-                  <TableCell>{count.present_count}</TableCell>
-                  <TableCell>{count.absent_count}</TableCell>
+                  <TableCell>
+                    {count.speech_count.toLocaleString(NUMBER_LOCALE)}
+                  </TableCell>
+                  <TableCell>
+                    {count.present_count.toLocaleString(NUMBER_LOCALE)}
+                  </TableCell>
+                  <TableCell>
+                    {count.absent_count.toLocaleString(NUMBER_LOCALE)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
