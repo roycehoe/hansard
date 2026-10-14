@@ -86,7 +86,7 @@ const formSchema = z.object({
     error: 'Choose a role.',
   }),
   accepted_terms: z.boolean().refine((value) => value, {
-    error: 'You must accept before saving.',
+    error: 'Check the transcript before saving.',
   }),
 })
 
@@ -173,7 +173,7 @@ function ExampleForm() {
     setIsPending(true)
     window.setTimeout(() => {
       setIsPending(false)
-      toast.success(`Saved ${values.name}.`)
+      toast.success(`Saved ${values.name}`)
       reset()
     }, 800)
   }
@@ -228,7 +228,7 @@ function ExampleForm() {
                   errors.speaker_type ? 'form-speaker-type-error' : undefined
                 }
               >
-                <SelectValue placeholder="Select a type" />
+                <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
                 {SPEAKER_TYPE_DROPDOWN_OPTIONS.map((group) => (
@@ -397,7 +397,7 @@ export function SectionForms() {
           <Label htmlFor="select-grouped">Role</Label>
           <Select>
             <SelectTrigger id="select-grouped" className="w-full">
-              <SelectValue placeholder="Select a type" />
+              <SelectValue placeholder="Select a role" />
             </SelectTrigger>
             <SelectContent>
               {SPEAKER_TYPE_DROPDOWN_OPTIONS.map((group) => (

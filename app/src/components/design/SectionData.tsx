@@ -149,7 +149,8 @@ const ALERTS = [
     variant: 'warning',
     icon: TriangleAlert,
     title: 'Warning alert',
-    description: 'A speech link can change when the archive is rebuilt.',
+    description:
+      'A speech link can lead to a different speech after the archive is rebuilt.',
   },
   {
     variant: 'info',
