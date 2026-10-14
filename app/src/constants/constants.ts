@@ -15,3 +15,7 @@ export const LEGISLATIVE_ASSEMBLY_LABEL = 'Legislative Assembly'
 export const TEXT_NOT_IN_ARCHIVE_LABEL = 'Text not in this archive yet'
 
 export const DEFAULT_QUERY_RETRY_COUNT = 3
+
+export const SITE_NAME = 'Hansard'
+
+export const DOCUMENT_TITLE_SEPARATOR = ' · '

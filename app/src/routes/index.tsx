@@ -1,4 +1,5 @@
 import { PageHeader } from '@/components/layout/PageHeader'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 const HOME_LINKS = [
@@ -21,6 +22,7 @@ const HOME_LINKS = [
 
 export const Route = createFileRoute('/')({
   component: function PageHome() {
+    useDocumentTitle()
     return (
       <div className="space-y-8">
         <PageHeader

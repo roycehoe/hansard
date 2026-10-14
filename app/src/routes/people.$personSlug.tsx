@@ -20,6 +20,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
@@ -41,6 +42,7 @@ export const Route = createFileRoute('/people/$personSlug')({
     const person = useGetPerson({ person_id: personId })
     const reports = useGetPersonReports({ person_id: personId, page })
     const canonicalSlug = person.data?.person_slug
+    useDocumentTitle(person.data?.canonical_name ?? 'Person')
 
     useEffect(
       function redirectToCanonicalSlug() {

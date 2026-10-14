@@ -23,6 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { FILTER_ALL } from '@/constants/constants'
 import { ReportType } from '@/constants/reports/enums'
 import { SearchSort } from '@/constants/search/enums'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
@@ -55,6 +56,7 @@ export const Route = createFileRoute('/search')({
       page = FIRST_PAGE,
       title_page: titlePage = FIRST_PAGE,
     } = Route.useSearch()
+    useDocumentTitle(...(q ? [q, 'Search'] : ['Search']))
     const navigate = useNavigate()
     const parliaments = useGetAllParliaments()
     const request = {

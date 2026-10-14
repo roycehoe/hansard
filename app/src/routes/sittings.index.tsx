@@ -13,6 +13,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
@@ -24,6 +25,7 @@ const sittingsSearchSchema = z.object({
 export const Route = createFileRoute('/sittings/')({
   validateSearch: sittingsSearchSchema,
   component: function PageSittings() {
+    useDocumentTitle('Sittings')
     const { parliament } = Route.useSearch()
     const parliaments = useGetAllParliaments()
     const sittings = useGetAllSittings({ parliament_number: parliament })
