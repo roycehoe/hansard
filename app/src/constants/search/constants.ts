@@ -5,6 +5,12 @@ export const SEARCH_SORT_DROPDOWN_OPTIONS = [
   { value: SearchSort.DATE, label: 'Newest first' },
 ]
 
+export const PERSON_PICKER_MIN_NAME_LENGTH = 2
+
+export const PERSON_PICKER_MAX_OPTIONS = 20
+
+export const PERSON_PICKER_DEBOUNCE_MS = 250
+
 export const SNIPPET_MARK_START = '<mark>'
 
 export const SNIPPET_MARK_END = '</mark>'

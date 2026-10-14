@@ -1,4 +1,5 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
+import { PopoverPersonFilter } from '@/components/search/PopoverPersonFilter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -59,6 +60,7 @@ export function FormSearch({
   const {
     register,
     control,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm<FormSearchValues>({
@@ -71,6 +73,11 @@ export function FormSearch({
   const sortOptions = hasWords
     ? SEARCH_SORT_DROPDOWN_OPTIONS
     : SORT_NEWEST_ONLY_DROPDOWN_OPTIONS
+
+  function choosePerson(personId: number) {
+    setValue('person', personId)
+    void handleSubmit(submitSearch)()
+  }
 
   function submitSearch(values: FormSearchValues) {
     onSubmit(
@@ -86,20 +93,36 @@ export function FormSearch({
       noValidate
       className="flex flex-wrap items-end gap-4"
     >
-      <div className="flex w-full flex-col gap-2">
-        <Label htmlFor="search-q">Search words</Label>
-        <Input
-          id="search-q"
-          type="search"
-          aria-invalid={errors.q ? true : undefined}
-          aria-describedby={errors.q ? 'search-q-error' : undefined}
-          {...register('q')}
-        />
-        {errors.q && (
-          <p id="search-q-error" className="text-destructive text-sm">
-            {errors.q.message}
-          </p>
-        )}
+      <div className="flex w-full flex-col gap-4 md:flex-row md:items-start">
+        <div className="flex flex-1 flex-col gap-2">
+          <Label htmlFor="search-q">Search words</Label>
+          <Input
+            id="search-q"
+            type="search"
+            aria-invalid={errors.q ? true : undefined}
+            aria-describedby={errors.q ? 'search-q-error' : undefined}
+            {...register('q')}
+          />
+          {errors.q && (
+            <p id="search-q-error" className="text-destructive text-sm">
+              {errors.q.message}
+            </p>
+          )}
+        </div>
+        <div className="flex w-full flex-col gap-2 md:w-72">
+          <Label htmlFor="search-person">Person</Label>
+          <Controller
+            control={control}
+            name="person"
+            render={({ field }) => (
+              <PopoverPersonFilter
+                id="search-person"
+                value={field.value}
+                onChange={choosePerson}
+              />
+            )}
+          />
+        </div>
       </div>
       <div className="flex w-full flex-col gap-2 sm:w-56">
         <Label htmlFor="search-parliament">Parliament</Label>
