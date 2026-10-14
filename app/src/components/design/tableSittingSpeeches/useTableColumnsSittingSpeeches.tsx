@@ -57,6 +57,6 @@ export const columns = columnHelper.columns([
       </Tooltip>
     ),
   }),
-  columnHelper.accessor('speaker', { header: 'Speaker' }),
+  columnHelper.accessor('speaker', { header: 'Person' }),
   columnHelper.accessor('speechCount', { header: 'Speeches' }),
 ])

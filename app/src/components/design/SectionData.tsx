@@ -143,20 +143,19 @@ const ALERTS = [
     variant: 'success',
     icon: CircleCheck,
     title: 'Success alert',
-    description: 'The citation has been copied.',
+    description: 'Citation copied.',
   },
   {
     variant: 'warning',
     icon: TriangleAlert,
     title: 'Warning alert',
-    description: 'Speech links can change when a report is re-parsed.',
+    description: 'A speech link can change when the archive is rebuilt.',
   },
   {
     variant: 'info',
     icon: Info,
     title: 'Info alert',
-    description:
-      'Speaker names are matched to the member roster automatically.',
+    description: 'Speaker labels are matched to the member roster.',
   },
 ] as const
 

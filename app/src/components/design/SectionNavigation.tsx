@@ -22,17 +22,17 @@ const FAQ_ITEMS = [
   {
     value: 'source',
     question: 'Where does the text come from?',
-    answer: 'Reports are parsed from the published Hansard record.',
+    answer: 'Reports come from the published Hansard record.',
   },
   {
     value: 'speakers',
-    question: 'How are speakers matched?',
+    question: 'How are speaker labels matched?',
     answer: 'Names are matched against the roster for each parliament.',
   },
   {
     value: 'gaps',
     question: 'Why are some speeches missing?',
-    answer: 'Some reports do not mark speaker names in a form we can read.',
+    answer: 'Some reports do not mark speaker labels in a readable form.',
   },
 ]
 
@@ -149,7 +149,7 @@ export function SectionNavigation() {
           <Separator orientation="vertical" />
           <span>Speeches</span>
           <Separator orientation="vertical" />
-          <span>Speakers</span>
+          <span>People</span>
         </div>
       </Example>
     </Section>
