@@ -7,6 +7,7 @@ import { PaginationPrevNext } from '@/components/layout/PaginationPrevNext'
 import { BadgePersonFilter } from '@/components/search/BadgePersonFilter'
 import type { FormSearchValues } from '@/components/search/FormSearch'
 import { FormSearch } from '@/components/search/FormSearch'
+import { ListPersonMatches } from '@/components/search/ListPersonMatches'
 import { ListReportMatches } from '@/components/search/ListReportMatches'
 import { ListSpeechMatches } from '@/components/search/ListSpeechMatches'
 import { NoticeErrorParliaments } from '@/components/search/NoticeErrorParliaments'
@@ -278,6 +279,7 @@ export const Route = createFileRoute('/search')({
         {renderForm()}
         {person !== undefined && <BadgePersonFilter personId={person} />}
         <NoticeTextCoverage />
+        <ListPersonMatches words={words} hasPerson={hasPerson} />
         {canSearch && renderSpeeches()}
         {canSearchReports && renderReports()}
       </div>
