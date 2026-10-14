@@ -1,5 +1,5 @@
 import type { SpeechData } from '@/api/reports/getReport'
-import { ButtonsSpeechActions } from '@/components/reports/ButtonsSpeechActions'
+import { ActionBarSpeechCopy } from '@/components/reports/ActionBarSpeechCopy'
 import { TextTranscript } from '@/components/reports/TextTranscript'
 import { buildSpeechCitation } from '@/lib/citation'
 import { cn } from '@/lib/utils'
@@ -43,7 +43,7 @@ export function RowSpeech({
     if (speech.person_id === null) {
       return (
         <>
-          <strong className="font-semibold">{speech.speaker_label}</strong>
+          <span className="font-semibold">{speech.speaker_label}</span>
           {': '}
         </>
       )
@@ -80,7 +80,7 @@ export function RowSpeech({
           isProcedural={!hasSpeakerLabel}
         />
       </div>
-      <ButtonsSpeechActions
+      <ActionBarSpeechCopy
         reportSlug={reportSlug}
         ordinal={speech.ordinal}
         citation={citation}

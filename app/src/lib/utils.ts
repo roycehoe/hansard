@@ -41,7 +41,7 @@ export async function copyTextWithToast(
   text: string,
   successMessage: string,
   failureMessage: string
-) {
+): Promise<void> {
   try {
     await navigator.clipboard.writeText(text)
     toast(successMessage)
