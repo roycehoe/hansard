@@ -32,3 +32,5 @@ export const EMPTY_WORDS_DESCRIPTION =
 
 export const EMPTY_FILTERS_DESCRIPTION =
   'Nothing matches these filters. Try a wider date range or another Parliament.'
+
+export const VISIBLE_SPEECH_MATCHES_PER_REPORT = 3
