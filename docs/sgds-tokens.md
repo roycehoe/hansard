@@ -192,6 +192,7 @@ Tailwind v4 has no named duration namespace, so durations use the numeric `durat
 - **Focus ring.** SGDS draws a 2px inset outline in a blue primitive. We keep `outline-hidden` plus a 2px `ring-ring` with a 2px offset in `--ring`, so the colour stays a semantic token and passes the contrast check against both themes.
 - **Control heights.** shadcn's 32/36/40 px stay. This is a research tool where people scan dense tables, and both scales clear WCAG 2.5.8 (decision 28). SGDS buttons are 32, 40, 48, 56px (`base/button.css:156` for the 48px default, `styles/form-text-control.css:37` for inputs at 48px). 36px (`h-9`) is not an SGDS step.
 - **Radius for cards.** SGDS surfaces use 12px, so `Card` moved to `rounded-lg`. `rounded-sm` stays on menu items, which is the SGDS indicator radius (4px).
+- **Card shadow.** `Card` keeps its `border-separator` hairline and drops shadcn's `shadow-sm`. Royce accepted this in the same review (proposal T5), so it overrides the shadcn default.
 - **Radius var.** `--radius` was removed from `:root` when the patch landed; the toast radius reads `--radius-md`.
 - **Shadow colour.** SGDS uses literal `rgba(14,14,14,...)`. We use `--overlay` so no raw colour appears.
 - **Breakpoint names.** We keep Tailwind's names (`sm`, `md`, ...) with SGDS values. SGDS also names `xs` and `3xl`, which we add.
@@ -228,6 +229,7 @@ All are Tailwind classes that exist with or without the `@theme` lines, which ar
 | `ui/alert.tsx`                                                                                                    | `[&_p]:leading-relaxed`                | `[&_p]:leading-5`                                                     |
 | `ui/dropdown-menu.tsx`                                                                                            | `tracking-widest`                      | `tracking-wide`                                                       |
 | `ui/card.tsx`                                                                                                     | `rounded-xl`                           | `rounded-lg`                                                          |
+| `ui/card.tsx`                                                                                                     | `shadow-sm`                            | no shadow (T5)                                                        |
 | `layout/SiteFooter.tsx`                                                                                           | `py-10`                                | `py-12`                                                               |
 | `layout/NoticeEmpty.tsx`, `layout/NoticeError.tsx`                                                                | `max-w-[420px]`                        | `max-w-100`                                                           |
 | `design/tableSittingSpeeches/useTableColumnsSittingSpeeches.tsx`                                                  | `max-w-[300px]`, `shadow-2xl`          | `max-w-80`, `shadow-lg`                                               |
