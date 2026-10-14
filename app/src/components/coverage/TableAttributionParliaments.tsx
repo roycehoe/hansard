@@ -23,6 +23,9 @@ export function TableAttributionParliaments() {
         <TableHeader>
           <TableRow>
             <TableHead scope="col">Parliament</TableHead>
+            <TableHead scope="col" className="whitespace-normal">
+              Hand check
+            </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
               Named speeches linked
             </TableHead>
@@ -31,9 +34,6 @@ export function TableAttributionParliaments() {
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
               Text share
-            </TableHead>
-            <TableHead scope="col" className="text-right whitespace-normal">
-              Hand check
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -49,6 +49,11 @@ export function TableAttributionParliaments() {
               >
                 {row.parliament}
               </TableHead>
+              <TableCell className="whitespace-normal">
+                {row.handCheckDate === null
+                  ? NOT_HAND_CHECKED_LABEL
+                  : formatSittingDate(row.handCheckDate)}
+              </TableCell>
               <TableCell className="text-right tabular-nums">
                 {row.namedLinked}
               </TableCell>
@@ -57,11 +62,6 @@ export function TableAttributionParliaments() {
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {row.textShare}
-              </TableCell>
-              <TableCell className="text-right whitespace-normal">
-                {row.handCheckDate === null
-                  ? NOT_HAND_CHECKED_LABEL
-                  : formatSittingDate(row.handCheckDate)}
               </TableCell>
             </TableRow>
           ))}
