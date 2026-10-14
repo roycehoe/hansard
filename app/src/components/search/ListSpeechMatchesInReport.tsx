@@ -11,10 +11,12 @@ const LINK_CLASS_NAME =
 
 interface ListSpeechMatchesInReportProps {
   speeches: SpeechMatchData[]
+  highlightWords: string | undefined
 }
 
 export function ListSpeechMatchesInReport({
   speeches,
+  highlightWords,
 }: ListSpeechMatchesInReportProps) {
   const [isExpanded, setIsExpanded] = useState<boolean>(false)
   const listId = useId()
@@ -57,6 +59,7 @@ export function ListSpeechMatchesInReport({
               <Link
                 to="/reports/$reportSlug"
                 params={{ reportSlug: speech.report_slug }}
+                search={{ hl: highlightWords }}
                 hash={`s${speech.ordinal}`}
                 className={LINK_CLASS_NAME}
               >

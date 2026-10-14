@@ -219,6 +219,7 @@ export const Route = createFileRoute('/search')({
             results={speeches.data.results}
             heading={speechesHeading}
             hasWords={hasWords}
+            highlightWords={hasWords ? words : undefined}
             page={speeches.data.page}
             pageSize={speeches.data.page_size}
             totalCount={speeches.data.total_count}
