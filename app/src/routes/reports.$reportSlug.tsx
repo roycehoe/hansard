@@ -5,11 +5,11 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { ButtonCopyCitation } from '@/components/reports/ButtonCopyCitation'
 import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
-import { NoticeDerivedText } from '@/components/reports/NoticeDerivedText'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
 import { NoticeNoSpeeches } from '@/components/reports/NoticeNoSpeeches'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
+import { PopoverUnofficialTranscript } from '@/components/reports/PopoverUnofficialTranscript'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -67,6 +67,11 @@ export const Route = createFileRoute('/reports/$reportSlug')({
         <PageHeader
           title={data.title}
           description={data.subtitle || undefined}
+          titleAddon={
+            <PopoverUnofficialTranscript
+              officialRecordUrl={data.official_record_url}
+            />
+          }
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -104,7 +109,6 @@ export const Route = createFileRoute('/reports/$reportSlug')({
           }
         />
         <ListReportMetadata report={data} />
-        <NoticeDerivedText />
         {renderBody(data)}
       </div>
     )
