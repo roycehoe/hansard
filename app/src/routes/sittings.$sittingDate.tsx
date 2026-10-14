@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
@@ -24,6 +25,9 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
     const { sittingDate } = Route.useParams()
     const { data, isLoading, isError, error, refetch, isRefetching } =
       useGetSitting({ sitting_date: sittingDate })
+    useDocumentTitle(
+      data ? `Sitting of ${formatSittingDate(data.sitting_date)}` : 'Sitting'
+    )
 
     function retrySitting() {
       void refetch()

@@ -14,10 +14,12 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/coverage')({
   component: function PageCoverage() {
+    useDocumentTitle('Coverage')
     const coverage = useGetCoverage()
 
     function retryCoverage() {

@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildReportCitation } from '@/lib/citation'
 import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -41,6 +42,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
     const { reportSlug } = Route.useParams()
     const { data, isLoading, isError, error, refetch, isRefetching } =
       useGetReport({ report_slug: reportSlug })
+    useDocumentTitle(data?.title ?? 'Report')
 
     function retryReport() {
       void refetch()

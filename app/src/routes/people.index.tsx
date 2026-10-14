@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FILTER_ALL } from '@/constants/constants'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
@@ -28,6 +29,7 @@ const peopleSearchSchema = z.object({
 export const Route = createFileRoute('/people/')({
   validateSearch: peopleSearchSchema,
   component: function PagePeople() {
+    useDocumentTitle('People')
     const { parliament, party, name } = Route.useSearch()
     const navigate = useNavigate()
     const parties = useGetAllParties()
