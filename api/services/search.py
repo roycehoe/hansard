@@ -254,14 +254,18 @@ def search_speeches(
         (page - 1) * page_size,
         session,
     )
-    match_count = _get_validated_speech_match_count(
-        query,
-        parliament_number,
-        date_from,
-        date_to,
-        report_type,
-        membership_ids,
-        session,
+    match_count = (
+        len(speeches)
+        if page == 1 and len(speeches) <= page_size
+        else _get_validated_speech_match_count(
+            query,
+            parliament_number,
+            date_from,
+            date_to,
+            report_type,
+            membership_ids,
+            session,
+        )
     )
     page_speeches = speeches[:page_size]
     if query.strip() == "":
@@ -339,14 +343,18 @@ def search_reports(
         (page - 1) * page_size,
         session,
     )
-    match_count = _get_validated_report_match_count(
-        query,
-        parliament_number,
-        date_from,
-        date_to,
-        report_type,
-        is_text_available,
-        session,
+    match_count = (
+        len(reports)
+        if page == 1 and len(reports) <= page_size
+        else _get_validated_report_match_count(
+            query,
+            parliament_number,
+            date_from,
+            date_to,
+            report_type,
+            is_text_available,
+            session,
+        )
     )
     page_reports = reports[:page_size]
     report_ids = [report.id for report in page_reports]
