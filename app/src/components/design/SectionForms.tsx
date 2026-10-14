@@ -451,12 +451,12 @@ export function SectionForms() {
             className="mt-0.5"
           />
           <div className="flex flex-col gap-1">
-            <Label htmlFor="checkbox-described">Save this search</Label>
+            <Label htmlFor="checkbox-described">Include the citation</Label>
             <p
               id="checkbox-described-hint"
               className="text-muted-foreground text-sm"
             >
-              Run it again from your saved searches.
+              Adds the report title and sitting date to the copied text.
             </p>
           </div>
         </div>
