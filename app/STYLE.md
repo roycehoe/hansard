@@ -557,7 +557,7 @@ The anatomy is fixed:
 - **Icon** — `TriangleAlert` at `size={40}` in `text-destructive`. Red is reserved for the icon; it is the only red element.
 - **Headline** — one short line, `text-base font-semibold text-foreground`. States what failed, not how (e.g. "Couldn't load the speeches").
 - **Body** — muted supporting copy, `max-w-100 text-sm text-muted-foreground`. Explains the failure and suggests trying again.
-- **Actions** — a row with the secondary escape as `variant="outline"` (e.g. "Back to Home") and retry as the primary `variant="default"`. The retry button follows [Button Pending State](#button-pending-state) — disabled while `isRetrying`, `Spinner` + progressive label ("Retrying...").
+- **Actions** — a row with the secondary escape as `variant="outline"` (e.g. "Back to home") and retry as the primary `variant="default"`. The retry button follows [Button Pending State](#button-pending-state) — disabled while `isRetrying`, `Spinner` + progressive label ("Retrying…").
 
 When the failure carries detail worth showing, read it from the `ApiError` thrown by `@/api/client` (`error.status`, `error.body`) rather than from the raw error object. The notice itself still receives only `onRetry` and `isRetrying`.
 
@@ -588,18 +588,18 @@ export function NoticeErrorSpeeches({
       <div className="flex flex-row items-center gap-4">
         <Button variant="outline" onClick={() => navigate({ to: '/' })}>
           <ChevronLeft className="h-4 w-4" />
-          Back to Home
+          Back to home
         </Button>
         <Button variant="default" disabled={isRetrying} onClick={onRetry}>
           {isRetrying ? (
             <>
               <Spinner />
-              Retrying...
+              Retrying…
             </>
           ) : (
             <>
               <RotateCw className="h-4 w-4" />
-              Try Again
+              Try again
             </>
           )}
         </Button>
@@ -642,7 +642,7 @@ const onSubmit = (values: FormValues) => {
 
 ## Button Pending State
 
-Loading buttons always: disable on `isPending`, render `Spinner`, and change the label to the progressive verb form. Never use a generic "Loading..." label. The `Button` component's `gap-2` base class handles spacing between the spinner and label automatically.
+Loading buttons always: disable on `isPending`, render `Spinner`, and change the label to the progressive verb form. Never use a generic "Loading…" label. The `Button` component's `gap-2` base class handles spacing between the spinner and label automatically.
 
 ```tsx
 // Good
@@ -650,7 +650,7 @@ Loading buttons always: disable on `isPending`, render `Spinner`, and change the
   {isPending ? (
     <>
       <Spinner />
-      Saving...
+      Saving…
     </>
   ) : (
     'Save'

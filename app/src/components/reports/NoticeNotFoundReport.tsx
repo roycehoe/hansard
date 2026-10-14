@@ -11,7 +11,7 @@ export function NoticeNotFoundReport() {
       description="No report has this address. It may have been renamed by the archive."
       action={
         <Button variant="outline" asChild>
-          <Link to="/">Back to Home</Link>
+          <Link to="/">Back to home</Link>
         </Button>
       }
     />
