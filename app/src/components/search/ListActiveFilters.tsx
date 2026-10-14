@@ -1,5 +1,5 @@
 import { useGetPerson } from '@/api/people/getPerson'
-import { Badge } from '@/components/ui/badge'
+import { BadgeActiveFilter } from '@/components/search/BadgeActiveFilter'
 import { Button } from '@/components/ui/button'
 import { REPORT_TYPE_LABELS } from '@/constants/reports/constants'
 import {
@@ -8,7 +8,6 @@ import {
 } from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { X } from 'lucide-react'
 import { useRef } from 'react'
 
 const PERSON_NAME_FALLBACK = 'this person'
@@ -52,6 +51,14 @@ export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
 
   if (filters.length === 0) return null
 
+  function registerRemoveButton(
+    key: FilterKey,
+    button: HTMLButtonElement | null
+  ) {
+    if (button === null) removeButtons.current.delete(key)
+    else removeButtons.current.set(key, button)
+  }
+
   function focusNeighbour(index: number) {
     const neighbour = filters[index + 1] ?? filters[index - 1]
     const target =
@@ -61,8 +68,8 @@ export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
     target?.focus()
   }
 
-  function removeFilter(key: FilterKey, index: number) {
-    focusNeighbour(index)
+  function removeFilter(key: FilterKey) {
+    focusNeighbour(filters.findIndex((filter) => filter.key === key))
     void navigate({
       to: '/search',
       search: (previous) => ({
@@ -77,25 +84,14 @@ export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <ul aria-label="Active filters" className="flex flex-wrap gap-2">
-        {filters.map((filter, index) => (
+        {filters.map((filter) => (
           <li key={filter.key}>
-            <Badge variant="outline" className="gap-1 py-0.5 pr-0.5">
-              {filter.label}
-              <Button
-                ref={(button) => {
-                  if (button === null) removeButtons.current.delete(filter.key)
-                  else removeButtons.current.set(filter.key, button)
-                }}
-                variant="ghost"
-                size="icon-xs"
-                aria-label={`Remove filter: ${filter.label}`}
-                onClick={() => {
-                  removeFilter(filter.key, index)
-                }}
-              >
-                <X />
-              </Button>
-            </Badge>
+            <BadgeActiveFilter
+              filterKey={filter.key}
+              label={filter.label}
+              onRegisterRemoveButton={registerRemoveButton}
+              onRemove={removeFilter}
+            />
           </li>
         ))}
       </ul>

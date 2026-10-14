@@ -73,17 +73,18 @@ export function ListSpeechMatchesInReport({
         ))}
       </ul>
       {hiddenCount > 0 && (
-        <Button
-          type="button"
-          variant="link"
-          size="sm"
-          className="ml-1 px-4"
-          aria-expanded={isExpanded}
-          aria-controls={listId}
-          onClick={toggleExpanded}
-        >
-          {isExpanded ? 'Show fewer' : `${hiddenCount} more in this report`}
-        </Button>
+        <div className="ml-2">
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            aria-expanded={isExpanded}
+            aria-controls={listId}
+            onClick={toggleExpanded}
+          >
+            {isExpanded ? 'Show fewer' : `${hiddenCount} more in this report`}
+          </Button>
+        </div>
       )}
     </>
   )
