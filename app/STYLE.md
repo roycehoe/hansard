@@ -581,7 +581,7 @@ export function NoticeErrorSpeeches({
           Couldn't load the speeches
         </p>
         <p className="text-muted-foreground max-w-100 text-sm">
-          There was an issue fetching the speeches. Please try again.
+          The speeches did not load. Try again in a moment.
         </p>
       </div>
 
@@ -730,11 +730,11 @@ Validation error messages belong in the Zod schema, not rendered manually in JSX
 ```typescript
 // Good
 const formSchema = z.object({
-  query: z.string().min(1, { error: 'You cannot submit an empty query.' }),
+  query: z.string().min(1, { error: 'Enter a search term.' }),
 })
 
 // Bad
-{!queryValue && <p className="text-destructive">You cannot submit an empty query.</p>}
+{!queryValue && <p className="text-destructive">Enter a search term.</p>}
 ```
 
 ### Enum Fields
@@ -1349,3 +1349,60 @@ sessionStorage.getItem(`${sittingId}SpeechFilters`)
 // Bad — key is global, collides across sittings
 sessionStorage.getItem('SpeechFilters')
 ```
+
+## Copy
+
+Every user-facing string in `app/src` follows these rules: buttons, labels, toasts, notices, empty and error states, tooltips, `aria-label` values, `sr-only` text, page and section text, placeholders, meta titles, `/design` and `/palette`, and any API error message the app shows. Copy states a fact the reader needs, in the words the interface already uses. Each symptom below is a way copy fails; the sources are linked once per symptom.
+
+### Symptoms
+
+- **Leaking system internals** (also: developer voice, internal jargon). Words the reader never sees on screen: parse, re-parse, cache, payload, status codes. Fix: say what happened or what to do, or drop it. [NN/g heuristic 2](https://www.nngroup.com/articles/ten-usability-heuristics/).
+  Before: `Link copied. Speech links are best-effort and may move after a re-parse.` After: `Link copied`.
+- **Hedging** (also: caveat creep, disclaimer stuffing). "May", "might", "best-effort", "typically", "in some cases". Fix: state the fact or the exact condition; if you can't, the caveat belongs on `/coverage`. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
+  Before: `Links to individual speeches are best-effort, because a re-parse can renumber them.` (`NoticeDerivedText`) After: `A speech link can change when the archive is rebuilt.`
+- **Over-explaining** (also: padding). A second sentence that adds a reason, history or mechanism nobody asked for. Fix: cut to the outcome; a confirmation is one short phrase. [Atlassian, success messages](https://atlassian.design/foundations/content/designing-messages/success-messages).
+  Before: `Citation copied. The column number will be added once the archive has it.` (`ButtonCopyCitation`) After: `Citation copied`, with the column gap kept in `KNOWN_GAPS`.
+- **Unrequested warning on a routine action, wrong surface** (also: toast overload). A caveat attached to a success, or lasting information in a toast that vanishes in seconds. Fix: confirm only; put the warning where the reader decides, or on `/coverage`. [NN/g, indicators, validations and notifications](https://www.nngroup.com/articles/indicators-validations-notifications/).
+  Before: the two toasts above carry data gaps that `/coverage` already lists. After: both toasts confirm and nothing else.
+- **Redundant confirmation and "successfully"** (also: success filler). "Successfully", "Success!", "Done", "You have copied the link to your clipboard". Fix: noun plus past participle that names the result. [Atlassian, success messages](https://atlassian.design/foundations/content/designing-messages/success-messages).
+  Before (illustrative): `Citation was successfully copied to your clipboard!` After: `Citation copied`.
+- **Puffery and AI vocabulary** (also: promotional language). "Seamless", "powerful", "robust", "crucial", "serves as", "delve". Fix: delete the adjective and name the capability. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
+  Before (illustrative): `Seamlessly browse the full parliamentary record.` After: `Browse every report and sitting.`
+- **Apologising and "please"** (also: politeness padding, "Oops" voice). "Sorry", "oops", "unfortunately", "please", "kindly". Fix: say what failed and the next step. [GOV.UK error message](https://design-system.service.gov.uk/components/error-message/).
+  Before: `There was an issue fetching the speeches. Please try again.` After: `The speeches did not load. Try again in a moment.`
+- **Passive or narrated system voice** (also: log-line voice). "Has been", "was processed", a missing actor. Fix: active voice, or a result phrase. A plain agentless failure ("Changes weren't saved") is fine. [GOV.UK A to Z](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/style-guides/a-to-z-style-guide/).
+  Before (illustrative): `Your link has been generated and copied.` After: `Link copied`.
+- **Restating the label** (also: echo copy). A tooltip, placeholder or `aria-label` that repeats the visible label, or adds "button" or "icon". Fix: delete it, or say what the label does not. [Microsoft, writing for all abilities](https://learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities).
+  Before (illustrative): `<Button aria-label="Search button">Search</Button>` After: `<Button>Search</Button>`.
+- **Title case** (also: headline capitalisation). Two or more capitalised words in a label that is not a proper noun. Fix: sentence case. "Parliament" and "Legislative Assembly" are proper nouns in this app. [GOV.UK A to Z](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/style-guides/a-to-z-style-guide/).
+  Before (illustrative): `Copy Speech Link` After: `Copy speech link`.
+- **Em dashes** (also: the em dash tell). U+2014 in a string where a full stop, comma or colon fits. Fix: split the sentence. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
+  Before (illustrative): `Couldn't load the speeches` and `try again` joined by U+2014. After: `Couldn't load the speeches. Try again.`
+
+### Rules for this codebase
+
+- **Shorten facts, don't delete them.** Where a fact doesn't belong in a toast or notice, such as that a shared `#s12` speech link can move after a rebuild, move it to `/coverage` (`KNOWN_GAPS` in `app/src/constants/coverage/constants.ts`) as one plain sentence. The toast then reads "Link copied".
+- **A toast confirms a passive, low-stakes action in two to four words.** The one error a toast may carry is the failure of the action that would have shown the confirmation, such as "Couldn't copy the link". Every other error uses the inline [Error Display](#error-display) or an [Error Notice](#error-notices).
+- **Use the canonical terms** from `plans/hansard-user-stories-brief.md`: Person, Membership, Speaker label, Presiding officer, Report, Sitting. Never write "Speaker" for a Membership, and never shorten Presiding officer to "Speaker".
+- **Accessibility text stays accurate.** An `aria-label` contains the visible label text, ideally at the start ([WCAG 2.5.3, Label in name](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html)). Shortening one must not lose what the control does. Icon-only controls are named for their function ("Close", not "X"). "(opens in a new tab)" stays in `sr-only` text on every link that opens a new tab.
+- **Sentence case everywhere**, including headings, buttons and page titles. No trailing period on headings, buttons or labels.
+- **No em dashes.** Use the real ellipsis character (…), only for an in-progress label such as "Retrying…". Never three dots.
+- **House choices where sources disagree:**
+  - Contractions are fine ("Couldn't load the speeches"): they match the existing copy and Microsoft's guide, though GOV.UK avoids them.
+  - No first person ("we", "I", "our"): state the fact, since the app is a record, not a speaker.
+  - No "please" and no "sorry": neither helps the reader fix anything.
+  - No exclamation marks: a records site has no routine milestone to celebrate.
+  - Dates keep the format the app already uses; don't introduce a second one.
+
+### Review checklist
+
+Run on every diff that touches a string:
+
+- `git diff | rg -n '\x{2014}'` returns nothing in added lines.
+- `git diff | rg -n '\.\.\.'` returns nothing in added strings (spread syntax is code, not copy).
+- `git diff | rg -ni 'please|sorry|oops|unfortunately|successfully|best-effort|re-parse|seamless'` returns nothing in added strings.
+- Every toast is a confirmation of two to four words, with no "may" or second sentence. Every error is inline or a notice, except a failed copy.
+- Each caveat cut from a toast or notice is still stated, in one plain sentence, on `/coverage`.
+- Each `aria-label` starts with its visible label text, or names the function of an icon-only control.
+- Headings, buttons and labels are in sentence case with no trailing period.
+- Terms match the canonical list: no "speaker" for a Membership, no "re-parse" or other pipeline word.
