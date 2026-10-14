@@ -28,20 +28,20 @@ export function TableCoverageYears({ years }: TableCoverageYearsProps) {
       <TableHeader>
         <TableRow>
           <TableHead scope="col">Year</TableHead>
-          <TableHead scope="col">Reports</TableHead>
-          <TableHead scope="col">With text</TableHead>
-          <TableHead scope="col">Share</TableHead>
+          <TableHead scope="col" className="text-right">Reports</TableHead>
+          <TableHead scope="col" className="text-right">With text</TableHead>
+          <TableHead scope="col" className="text-right">Share</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {years.map((year) => (
           <TableRow key={year.year}>
             <TableCell>{year.year}</TableCell>
-            <TableCell>{year.report_count.toLocaleString(NUMBER_LOCALE)}</TableCell>
-            <TableCell>
+            <TableCell className="text-right tabular-nums">{year.report_count.toLocaleString(NUMBER_LOCALE)}</TableCell>
+            <TableCell className="text-right tabular-nums">
               {year.text_report_count.toLocaleString(NUMBER_LOCALE)}
             </TableCell>
-            <TableCell>{formatTextShare(year)}</TableCell>
+            <TableCell className="text-right tabular-nums">{formatTextShare(year)}</TableCell>
           </TableRow>
         ))}
       </TableBody>
