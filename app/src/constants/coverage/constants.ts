@@ -57,6 +57,7 @@ export const KNOWN_GAPS = [
   'Parliament 15 is not in the archive.',
   'Memberships of the Legislative Assembly (1955 to 1965) are filed under Parliament 1, so a person page counts Assembly speeches and attendance under the Legislative Assembly heading but lists the membership as Parliament 1.',
   'About 1,800 reports fetched in October 2026 carry a position number that restarts each month, so their order within 403 sittings before 10 September 2012 can be wrong.',
+  'In 40 sittings from 16 August 2016 to 8 April 2025, 195 reports share a position number with another report in the same sitting, so their order within the sitting is undefined.',
   'Column numbers are not shown yet. Citations omit the column until the archive has it.',
   "A person's page address can change when the archive corrects who is who. Report and sitting addresses do not change.",
   'Links to individual speeches (#s1, #s2 and so on) are best-effort. A re-parse can renumber the speeches in a report.',
