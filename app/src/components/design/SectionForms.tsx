@@ -35,6 +35,7 @@ const BUTTON_VARIANTS = [
   'secondary',
   'outline',
   'ghost',
+  'quiet',
   'link',
   'destructive',
 ] as const
@@ -451,12 +452,14 @@ export function SectionForms() {
             className="mt-0.5"
           />
           <div className="flex flex-col gap-1">
-            <Label htmlFor="checkbox-described">Include the citation</Label>
+            <Label htmlFor="checkbox-described">
+              Checkbox with a description
+            </Label>
             <p
               id="checkbox-described-hint"
               className="text-muted-foreground text-sm"
             >
-              Adds the report title and sitting date to the copied text.
+              Helper text sits under the label.
             </p>
           </div>
         </div>
