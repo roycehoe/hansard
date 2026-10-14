@@ -1,6 +1,9 @@
 import type { ReportMatchData } from '@/api/search/getSearchReports'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
-import { CardReportMatch } from '@/components/search/CardReportMatch'
+import { BadgeReportType } from '@/components/reports/BadgeReportType'
+import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
+import { formatParliament, formatSittingDate } from '@/lib/format'
+import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 
 interface ListReportMatchesProps {
@@ -26,10 +29,27 @@ export function ListReportMatches({ results }: ListReportMatchesProps) {
           <p role="status" className="sr-only">
             {results.length} title matches on this page
           </p>
-          <ol className="space-y-4">
+          <ol>
             {results.map((result) => (
-              <li key={result.report_slug}>
-                <CardReportMatch result={result} />
+              <li
+                key={result.report_slug}
+                className="border-separator space-y-2 border-b py-4 last:border-b-0"
+              >
+                <Link
+                  to="/reports/$reportSlug"
+                  params={{ reportSlug: result.report_slug }}
+                  className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-serif text-base font-semibold break-words outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 lg:text-lg"
+                >
+                  {result.title}
+                </Link>
+                <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                  <span>{formatSittingDate(result.sitting_date)}</span>
+                  <span>{formatParliament(result.parliament_number)}</span>
+                  <BadgeReportType reportType={result.report_type} />
+                  {!result.is_text_available && (
+                    <span>{TEXT_NOT_IN_ARCHIVE_LABEL}</span>
+                  )}
+                </div>
               </li>
             ))}
           </ol>
