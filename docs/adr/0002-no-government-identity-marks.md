@@ -4,4 +4,4 @@ The site should look like it belongs with modern Singapore Government websites, 
 
 ## Amendment, 14 Oct 2026
 
-The footer line changed from "Unofficial. Independent of the Parliament of Singapore." to "Not an official Parliament site." Royce found the old line wordy. The short line still tells a reader the site is not the official record, which is what this decision needs the footer to do.
+The footer line changed from "Unofficial. Independent of the Parliament of Singapore." to "Not an official Parliament site." Royce found the old line wordy. The short line still tells a reader the site is not the official record, which is what this decision needs the footer to do. It no longer states independence from Parliament on purpose: saying the site is not official is enough to stop it passing for the official record.
