@@ -1047,7 +1047,7 @@ tableSittingSpeeches/
 
 **`TableFilters`** receives `columnFilters`, `setColumnFilters`, and `defaultFilters` as props. It defines `getFilterValue` and `setFilterValue` helpers internally. It never owns state.
 
-**`Table`** (the main renderer) receives only the `table` instance as a prop and renders the `<Table>` shell. It handles the empty state ("No Results.") and nothing else.
+**`Table`** (the main renderer) receives only the `table` instance as a prop and renders the `<Table>` shell. It handles the empty state and nothing else. The empty-state message says what is empty, for example "No reports match the search."
 
 **`TablePagination`** is a thin wrapper that forwards its props to the shared pagination component built on `@/components/ui/pagination`. Never re-implement pagination logic — always delegate to the shared component.
 
@@ -1094,7 +1094,7 @@ The empty row uses these exact classes — `border-none` removes the bottom divi
     colSpan={table.getAllColumns().length}
     className="border-none py-[15px] text-center"
   >
-    No Results.
+    No reports match the search.
   </TableCell>
 </TableRow>
 ```
