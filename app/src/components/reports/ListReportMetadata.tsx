@@ -1,9 +1,20 @@
 import type { GetReportResponse } from '@/api/reports/getReport'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
+import { CONTACT_EMAIL } from '@/constants/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 
 interface ListReportMetadataProps {
   report: GetReportResponse
+}
+
+const LINK_CLASS_NAME =
+  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+
+function buildReportProblemHref(title: string): string {
+  const reportUrl = `${window.location.origin}${window.location.pathname}`
+  const subject = encodeURIComponent(`Problem on ${title}`)
+  const body = encodeURIComponent(`${reportUrl}\n\nWhat is wrong:\n`)
+  return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`
 }
 
 export function ListReportMetadata({ report }: ListReportMetadataProps) {
@@ -35,11 +46,26 @@ export function ListReportMetadata({ report }: ListReportMetadataProps) {
           href={report.official_record_url}
           target="_blank"
           rel="noreferrer"
-          className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+          className={LINK_CLASS_NAME}
         >
           Read on the official record (opens in a new tab)
         </a>
       </dd>
+      {CONTACT_EMAIL && (
+        <>
+          <dt className="text-muted-foreground text-sm font-medium">
+            Problems
+          </dt>
+          <dd>
+            <a
+              href={buildReportProblemHref(report.title)}
+              className={LINK_CLASS_NAME}
+            >
+              Report a problem with this report
+            </a>
+          </dd>
+        </>
+      )}
     </dl>
   )
 }
