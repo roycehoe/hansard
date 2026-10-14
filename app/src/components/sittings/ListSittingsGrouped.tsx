@@ -61,7 +61,8 @@ export function ListSittingsGrouped({ sittings }: ListSittingsGroupedProps) {
                     <span>Volume {sitting.volume_number}</span>
                   )}
                   <span className="text-muted-foreground">
-                    {sitting.report_count} reports
+                    {sitting.report_count}{' '}
+                    {sitting.report_count === 1 ? 'report' : 'reports'}
                   </span>
                 </Link>
               </li>
