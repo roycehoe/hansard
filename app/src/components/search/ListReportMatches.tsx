@@ -35,13 +35,15 @@ export function ListReportMatches({ results }: ListReportMatchesProps) {
                 key={result.report_slug}
                 className="border-separator space-y-2 border-b py-4 last:border-b-0"
               >
-                <Link
-                  to="/reports/$reportSlug"
-                  params={{ reportSlug: result.report_slug }}
-                  className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-serif text-base font-semibold break-words outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 lg:text-lg"
-                >
-                  {result.title}
-                </Link>
+                <h3 className="font-serif text-base font-semibold break-words lg:text-lg">
+                  <Link
+                    to="/reports/$reportSlug"
+                    params={{ reportSlug: result.report_slug }}
+                    className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                  >
+                    {result.title}
+                  </Link>
+                </h3>
                 <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                   <span>{formatSittingDate(result.sitting_date)}</span>
                   <span>{formatParliament(result.parliament_number)}</span>
