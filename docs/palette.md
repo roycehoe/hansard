@@ -346,7 +346,7 @@ The parliament.gov.sg stylesheet was the starting palette. What happened to each
 
 ## Identity marks
 
-The palette takes colours only. The crest red and crest gold are hex values read from the crest's published SVG; the crest itself, the Lion Head symbol, the mace image, the Parliament logo and the "A Singapore Government Agency Website" masthead never appear in the app or in the preview. The header is a plain wordmark set in Source Serif 4. Every page footer reads "Unofficial. Independent of the Parliament of Singapore." See `docs/adr/0002-no-government-identity-marks.md`.
+The palette takes colours only. The crest red and crest gold are hex values read from the crest's published SVG; the crest itself, the Lion Head symbol, the mace image, the Parliament logo and the "A Singapore Government Agency Website" masthead never appear in the app or in the preview. The header is a plain wordmark set in Source Serif 4. Every page footer reads "Not an official Parliament site." See `docs/adr/0002-no-government-identity-marks.md`.
 
 ## Gate decisions (2026-10-13)
 
