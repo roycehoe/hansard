@@ -371,7 +371,7 @@ The brief's speed target is 300 ms warm. On 14 October 2026, with all seven inde
 
 For comparison, the same "housing estate" plan takes 300 to 480 ms on the rehearsal copy, which has the whole working set in memory. A rehearsal run of "government" at production's `work_mem` of 2MB took 6 to 8 s by relevance and 8 to 11 s by date. At 32MB the relevance query took 2.6 s, and the date sort stayed slow because it also runs the `SubPlan 1` date lookup 137,785 times. No workaround is applied, per the brief.
 
-Missing statistics make the person-filtered search worse. Production has not analysed `speech` or `report` since the indexes were built, so the planner estimates 27 matches for "housing estate" (4,822 real) and 5,343 for "government" (137,785 real). In the person-filtered search that puts the large "housing" bitmap into the `BitmapAnd`; at 2MB it turns lossy (681 of 885 heap blocks), and the recheck recomputes `to_tsvector` for rows the speaker filter then discards. On rehearsal the same statement took 146 ms with statistics and about 480 ms without. Production takes longer than rehearsal on every ranking step, and the cause was not isolated.
+Missing statistics make the person-filtered search worse. Production has not analysed `speech` or `report` since the indexes were built, so the planner estimates 27 matches for "housing estate" (4,822 real) and 5,343 for "government" (137,785 real). In the person-filtered search that puts the large "housing" bitmap into the `BitmapAnd`; at 2MB it turns lossy (681 of 885 heap blocks), and the recheck recomputes `to_tsvector` for rows the speaker filter then discards. On rehearsal the same statement took 146 ms with statistics and about 480 ms without. Production takes longer than rehearsal on every ranking step, and the cause was not isolated. An `ANALYZE speech; ANALYZE report;` on production (a scraper-side action outside this run's write permission), or the next automatic analyse, should correct the row estimates.
 
 `EXPLAIN (ANALYZE, BUFFERS)` on production, `GET /search/speeches?q=housing estate`:
 
@@ -469,6 +469,16 @@ Limit  (cost=6917.87..6983.76 rows=21 width=417)
                       Index Cond: (id = speech.report_id)
 ```
 
+One alternative, out of scope for this run (the polish brief rules out a stored tsvector column), is a stored generated column with its own GIN index:
+
+```sql
+ALTER TABLE speech ADD COLUMN transcript_tsv tsvector
+    GENERATED ALWAYS AS (to_tsvector('english', transcript)) STORED;
+create index ix_speech_transcript_fts on speech using gin (transcript_tsv);
+```
+
+The same applies to `report.title`. This stores the vector once, so ranking reads it instead of recomputing it. It also adds table size and rewrites every row on creation. The API's expression would change from `to_tsvector('english', transcript)` to the column name, so adopting it means a matching API change. The expression indexes above are what the API is built against today.
+
 The statement behind `GET /people/29` that takes the time is `speech_counts_by_parliament`. `EXPLAIN (ANALYZE, BUFFERS)` on production, with the 12 memberships of person 29:
 
 ```text
@@ -494,16 +504,6 @@ Execution Time: 249.034 ms
 ```
 
 The planner expected 16,993 speeches for these memberships (13,345 real), so it joined to `report` with a hash join over a full sequential scan (183 ms, 4,010 pages read from disk) instead of 13,345 primary-key lookups. The speech side takes 12.6 ms. The other statements of the endpoint take under 30 ms each.
-
-The alternative is a stored generated column with its own GIN index:
-
-```sql
-ALTER TABLE speech ADD COLUMN transcript_tsv tsvector
-    GENERATED ALWAYS AS (to_tsvector('english', transcript)) STORED;
-create index ix_speech_transcript_fts on speech using gin (transcript_tsv);
-```
-
-The same applies to `report.title`. This stores the vector once, so ranking reads it instead of recomputing it. It also adds table size and rewrites every row on creation. The API's expression would change from `to_tsvector('english', transcript)` to the column name, so adopting it means a matching API change. The expression indexes above are what the API is built against today.
 
 ## Queries the GIN index cannot serve
 
