@@ -30,7 +30,7 @@ export const REPORT_TYPE_DROPDOWN_OPTIONS = Object.values(ReportType).map(
   (value) => ({ value, label: REPORT_TYPE_LABELS[value] })
 )
 
-export const HIGHLIGHT_STOP_WORDS = new Set<string>([
+export const HIGHLIGHT_STOP_WORDS: ReadonlySet<string> = new Set([
   'i',
   'me',
   'my',

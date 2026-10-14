@@ -1,13 +1,10 @@
 import re
 
 _MAX_EMPHASIS_LENGTH = 300
-_HEADING_HASHES = re.compile(r"(?:(?<=\s)|^)#{1,6}(?=\s|$)")
+_HEADING_HASHES = re.compile(r"^[ \t]*#{1,6}(?=\s|$)", re.MULTILINE)
 _BLOCKQUOTE_MARKER = re.compile(r"^[ \t]*>+[ \t]?", re.MULTILINE)
 _BULLET_MARKER = re.compile(r"^[ \t]*[-*+][ \t]+", re.MULTILINE)
 _LINK = re.compile(r"!?\[([^\]]*)\]\([^)\s]*\)")
-_ASTERISK_EMPHASIS = re.compile(
-    rf"(\*{{1,3}})(?=\S)(.{{1,{_MAX_EMPHASIS_LENGTH}}}?)(?<=\S)\1", re.DOTALL
-)
 _UNDERSCORE_EMPHASIS = re.compile(
     rf"(?<!\w)(_{{1,3}})(?=\S)(.{{1,{_MAX_EMPHASIS_LENGTH}}}?)(?<=\S)\1(?!\w)",
     re.DOTALL,
@@ -20,7 +17,6 @@ def strip_markdown(text: str) -> str:
     plain = _BULLET_MARKER.sub("", plain)
     plain = _HEADING_HASHES.sub("", plain)
     plain = _LINK.sub(r"\1", plain)
-    plain = _ASTERISK_EMPHASIS.sub(r"\2", plain)
     plain = _UNDERSCORE_EMPHASIS.sub(r"\2", plain)
     plain = _STRAY_ASTERISKS.sub("", plain)
     return " ".join(plain.split())
