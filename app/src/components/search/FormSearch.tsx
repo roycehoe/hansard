@@ -104,6 +104,7 @@ export function FormSearch({
 
   const { isMatching: isPhone } = useMediaQuery(PHONE_MEDIA_QUERY)
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false)
+  const [isInvalidSubmit, setIsInvalidSubmit] = useState<boolean>(false)
   const activeFilterCount = countActiveFilters(defaultValues)
   const hasWords = useWatch({ control, name: 'q' }).trim() !== ''
   const sortOptions = hasWords
@@ -116,6 +117,18 @@ export function FormSearch({
 
   function closeFilters() {
     setIsFiltersOpen(false)
+  }
+
+  function closeFiltersOnInvalidSubmit() {
+    setIsInvalidSubmit(true)
+    closeFilters()
+  }
+
+  function focusWordsAfterInvalidSubmit(event: Event) {
+    if (!isInvalidSubmit) return
+    setIsInvalidSubmit(false)
+    event.preventDefault()
+    document.getElementById(SEARCH_WORDS_INPUT_ID)?.focus()
   }
 
   function choosePerson(personId: number) {
@@ -293,7 +306,7 @@ export function FormSearch({
       id={SEARCH_FORM_ID}
       role="search"
       aria-label="Search filters"
-      onSubmit={handleSubmit(submitSearch, closeFilters)}
+      onSubmit={handleSubmit(submitSearch, closeFiltersOnInvalidSubmit)}
       noValidate
       className="flex flex-wrap items-end gap-4"
     >
@@ -318,7 +331,11 @@ export function FormSearch({
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="max-h-[90dvh]">
+              <SheetContent
+                side="bottom"
+                className="max-h-[90dvh]"
+                onCloseAutoFocus={focusWordsAfterInvalidSubmit}
+              >
                 <SheetHeader>
                   <SheetTitle>Filters</SheetTitle>
                   <SheetDescription hidden />
