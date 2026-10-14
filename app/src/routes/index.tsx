@@ -24,7 +24,7 @@ export const Route = createFileRoute('/')({
     return (
       <div className="space-y-8">
         <PageHeader
-          title="The Singapore parliamentary record from 1955"
+          title="Singapore's parliamentary debates since 1955"
           description="Organised by person and by sitting, with citation-ready links."
         />
         <ul>
