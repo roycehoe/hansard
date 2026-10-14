@@ -76,7 +76,7 @@ function showErrorToast() {
 }
 
 function showInfoToast() {
-  toast.info('Hansard updates after each sitting')
+  toast.info('Citations leave out the column number for now')
 }
 
 function showWarningToast() {

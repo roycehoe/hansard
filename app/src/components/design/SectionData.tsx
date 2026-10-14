@@ -149,7 +149,7 @@ const ALERTS = [
     variant: 'warning',
     icon: TriangleAlert,
     title: 'Warning alert',
-    description: 'Speeches before 1955 are incomplete in the source record.',
+    description: 'Speech links can change when a report is re-parsed.',
   },
   {
     variant: 'info',
