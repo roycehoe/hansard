@@ -35,14 +35,16 @@ export function TableParliamentCounts({
             </TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead scope="col">Parliament</TableHead>
-                <TableHead scope="col" className="text-right">
+                <TableHead scope="col" className="whitespace-normal">
+                  Parliament
+                </TableHead>
+                <TableHead scope="col" className="text-right whitespace-normal">
                   Speeches
                 </TableHead>
-                <TableHead scope="col" className="text-right">
+                <TableHead scope="col" className="text-right whitespace-normal">
                   Present
                 </TableHead>
-                <TableHead scope="col" className="text-right">
+                <TableHead scope="col" className="text-right whitespace-normal">
                   Absent
                 </TableHead>
               </TableRow>
@@ -50,7 +52,7 @@ export function TableParliamentCounts({
             <TableBody>
               {parliamentCounts.map((count) => (
                 <TableRow key={count.parliament_number}>
-                  <TableCell>
+                  <TableCell className="whitespace-normal">
                     {formatParliament(count.parliament_number)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
