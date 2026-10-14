@@ -28,7 +28,7 @@ export function ButtonCopySpeechLink({
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="quiet"
       size="sm"
       onClick={copySpeechLink}
       aria-describedby={describedById}
