@@ -81,7 +81,7 @@ const REPORT_TYPE_OPTIONS = [
 ] as const
 
 const formSchema = z.object({
-  name: z.string().min(1, { error: 'Name is required.' }),
+  name: z.string().min(1, { error: 'Enter a name.' }),
   speaker_type: z.enum(SpeakerType, {
     error: 'Choose a role.',
   }),

@@ -175,7 +175,9 @@ export function SectionOverlays() {
             </SheetTrigger>
             <SheetContent side={side}>
               <SheetHeader>
-                <SheetTitle className="capitalize">{side} sheet</SheetTitle>
+                <SheetTitle className="first-letter:uppercase">
+                  {side} sheet
+                </SheetTitle>
                 <SheetDescription>
                   Filters for the speeches list.
                 </SheetDescription>
