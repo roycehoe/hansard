@@ -11,7 +11,7 @@ export function NoticeNoSpeeches({ officialRecordUrl }: NoticeNoSpeechesProps) {
     <NoticeEmpty
       icon={FileText}
       title="The text couldn't be split into speeches"
-      description="The report has text, but it did not split into speeches. Read it on the official record."
+      description="The report has text. Read it on the official record."
       action={
         <Button variant="outline" asChild>
           <a href={officialRecordUrl} target="_blank" rel="noreferrer">
