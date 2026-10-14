@@ -1,12 +1,16 @@
 import re
 
+_MAX_EMPHASIS_LENGTH = 300
 _HEADING_HASHES = re.compile(r"(?:(?<=\s)|^)#{1,6}(?=\s|$)")
 _BLOCKQUOTE_MARKER = re.compile(r"^[ \t]*>+[ \t]?", re.MULTILINE)
 _BULLET_MARKER = re.compile(r"^[ \t]*[-*+][ \t]+", re.MULTILINE)
 _LINK = re.compile(r"!?\[([^\]]*)\]\([^)\s]*\)")
-_ASTERISK_EMPHASIS = re.compile(r"(\*{1,3})(?=\S)(.+?)(?<=\S)\1", re.DOTALL)
+_ASTERISK_EMPHASIS = re.compile(
+    rf"(\*{{1,3}})(?=\S)(.{{1,{_MAX_EMPHASIS_LENGTH}}}?)(?<=\S)\1", re.DOTALL
+)
 _UNDERSCORE_EMPHASIS = re.compile(
-    r"(?<!\w)(_{1,3})(?=\S)(.+?)(?<=\S)\1(?!\w)", re.DOTALL
+    rf"(?<!\w)(_{{1,3}})(?=\S)(.{{1,{_MAX_EMPHASIS_LENGTH}}}?)(?<=\S)\1(?!\w)",
+    re.DOTALL,
 )
 _STRAY_ASTERISKS = re.compile(r"\*+")
 
