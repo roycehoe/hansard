@@ -3,6 +3,7 @@ import { SearchSort } from '@/constants/search/enums'
 export const SEARCH_SORT_DROPDOWN_OPTIONS = [
   { value: SearchSort.RELEVANCE, label: 'Relevance' },
   { value: SearchSort.DATE, label: 'Newest first' },
+  { value: SearchSort.OLDEST, label: 'Oldest first' },
 ]
 
 export const PERSON_PICKER_MIN_NAME_LENGTH = 2
@@ -25,6 +26,7 @@ export const REPORTS_HEADING = 'Reports'
 
 export const SORT_NEWEST_ONLY_DROPDOWN_OPTIONS = [
   { value: SearchSort.DATE, label: 'Newest first' },
+  { value: SearchSort.OLDEST, label: 'Oldest first' },
 ]
 
 export const EMPTY_WORDS_DESCRIPTION =

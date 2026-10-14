@@ -44,6 +44,10 @@ const formSchema = z
     { error: 'Enter search words or choose a filter.', path: ['q'] }
   )
 
+function getWordlessSort(sort: SearchSort): SearchSort {
+  return sort === SearchSort.OLDEST ? SearchSort.OLDEST : SearchSort.DATE
+}
+
 export type FormSearchValues = z.infer<typeof formSchema>
 
 interface FormSearchProps {
@@ -81,7 +85,9 @@ export function FormSearch({
 
   function submitSearch(values: FormSearchValues) {
     onSubmit(
-      values.q.trim() === '' ? { ...values, sort: SearchSort.DATE } : values
+      values.q.trim() === ''
+        ? { ...values, sort: getWordlessSort(values.sort) }
+        : values
     )
   }
 
@@ -196,7 +202,7 @@ export function FormSearch({
           name="sort"
           render={({ field }) => (
             <Select
-              value={hasWords ? field.value : SearchSort.DATE}
+              value={hasWords ? field.value : getWordlessSort(field.value)}
               onValueChange={field.onChange}
             >
               <SelectTrigger
