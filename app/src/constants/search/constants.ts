@@ -22,6 +22,7 @@ export const PERSON_PICKER_MIN_NAME_LENGTH = 2
 
 export const PERSON_PICKER_MAX_OPTIONS = 20
 
+export const SEARCH_TIPS_CLOSE_DELAY_MS = 150
 export const PERSON_PICKER_DEBOUNCE_MS = 250
 
 export const SNIPPET_MARK_START = '<mark>'
