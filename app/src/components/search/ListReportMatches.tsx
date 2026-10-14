@@ -2,32 +2,48 @@ import type { ReportMatchData } from '@/api/search/getSearchReports'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
+import {
+  EMPTY_FILTERS_DESCRIPTION,
+  EMPTY_WORDS_DESCRIPTION,
+  REPORTS_HEADING,
+  TITLE_MATCHES_HEADING,
+} from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 
+const EMPTY_WORDS_TITLE = 'No title matches'
+const EMPTY_FILTERS_TITLE = 'No reports'
+
 interface ListReportMatchesProps {
   results: ReportMatchData[]
+  hasWords: boolean
 }
 
-export function ListReportMatches({ results }: ListReportMatchesProps) {
+export function ListReportMatches({
+  results,
+  hasWords,
+}: ListReportMatchesProps) {
   return (
     <section aria-labelledby="title-matches-heading" className="space-y-4">
       <h2 id="title-matches-heading" className="font-serif text-xl lg:text-2xl">
-        Title matches
+        {hasWords ? TITLE_MATCHES_HEADING : REPORTS_HEADING}
       </h2>
       {results.length === 0 ? (
         <div role="status">
           <NoticeEmpty
             icon={SearchX}
-            title="No title matches"
-            description='Nothing matches these words. Common words such as "the" are ignored. Try different words or a wider date range.'
+            title={hasWords ? EMPTY_WORDS_TITLE : EMPTY_FILTERS_TITLE}
+            description={
+              hasWords ? EMPTY_WORDS_DESCRIPTION : EMPTY_FILTERS_DESCRIPTION
+            }
           />
         </div>
       ) : (
         <>
           <p role="status" className="sr-only">
-            {results.length} title matches on this page
+            {results.length} {hasWords ? 'title matches' : 'reports'} on this
+            page
           </p>
           <ol>
             {results.map((result) => (

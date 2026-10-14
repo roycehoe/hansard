@@ -12,21 +12,36 @@ import {
 import { FILTER_ALL } from '@/constants/constants'
 import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
-import { SEARCH_SORT_DROPDOWN_OPTIONS } from '@/constants/search/constants'
+import {
+  SEARCH_SORT_DROPDOWN_OPTIONS,
+  SORT_NEWEST_ONLY_DROPDOWN_OPTIONS,
+} from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
 import { formatParliament } from '@/lib/format'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
-const formSchema = z.object({
-  q: z.string().min(1, { error: 'Enter at least one word.' }),
-  parliament: z.string(),
-  type: z.union([z.literal(FILTER_ALL), z.enum(ReportType)]),
-  from: z.string(),
-  to: z.string(),
-  sort: z.enum(SearchSort),
-})
+const formSchema = z
+  .object({
+    q: z.string(),
+    parliament: z.string(),
+    type: z.union([z.literal(FILTER_ALL), z.enum(ReportType)]),
+    from: z.string(),
+    to: z.string(),
+    person: z.number().int().min(1).optional(),
+    sort: z.enum(SearchSort),
+  })
+  .refine(
+    (values) =>
+      values.q.trim() !== '' ||
+      values.parliament !== FILTER_ALL ||
+      values.type !== FILTER_ALL ||
+      values.from !== '' ||
+      values.to !== '' ||
+      values.person !== undefined,
+    { error: 'Enter search words or choose a filter.', path: ['q'] }
+  )
 
 export type FormSearchValues = z.infer<typeof formSchema>
 
@@ -52,11 +67,22 @@ export function FormSearch({
     values: defaultValues,
   })
 
+  const hasWords = useWatch({ control, name: 'q' }).trim() !== ''
+  const sortOptions = hasWords
+    ? SEARCH_SORT_DROPDOWN_OPTIONS
+    : SORT_NEWEST_ONLY_DROPDOWN_OPTIONS
+
+  function submitSearch(values: FormSearchValues) {
+    onSubmit(
+      values.q.trim() === '' ? { ...values, sort: SearchSort.DATE } : values
+    )
+  }
+
   return (
     <form
       role="search"
       aria-label="Search filters"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(submitSearch)}
       noValidate
       className="flex flex-wrap items-end gap-4"
     >
@@ -146,7 +172,10 @@ export function FormSearch({
           control={control}
           name="sort"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select
+              value={hasWords ? field.value : SearchSort.DATE}
+              onValueChange={field.onChange}
+            >
               <SelectTrigger
                 ref={field.ref}
                 id="search-sort"
@@ -156,7 +185,7 @@ export function FormSearch({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {SEARCH_SORT_DROPDOWN_OPTIONS.map((option) => (
+                {sortOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
