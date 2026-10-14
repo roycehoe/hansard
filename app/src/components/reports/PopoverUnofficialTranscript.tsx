@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/popover'
 import { Link } from '@tanstack/react-router'
 import { ChevronDown } from 'lucide-react'
+import { useId } from 'react'
 
 interface PopoverUnofficialTranscriptProps {
   officialRecordUrl: string
@@ -17,16 +18,23 @@ const LINK_CLASS_NAME =
 export function PopoverUnofficialTranscript({
   officialRecordUrl,
 }: PopoverUnofficialTranscriptProps) {
+  const explanationId = useId()
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="xs">
           Unofficial transcript
-          <ChevronDown aria-hidden="true" className="size-3" />
+          <ChevronDown aria-hidden="true" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="space-y-3">
-        <p className="text-sm">
+      <PopoverContent
+        align="start"
+        aria-label="Unofficial transcript"
+        aria-describedby={explanationId}
+        className="space-y-3"
+      >
+        <p id={explanationId} className="text-sm">
           This transcript is derived from the Official Report. The Official
           Report is the authority.
         </p>
@@ -37,7 +45,7 @@ export function PopoverUnofficialTranscript({
             rel="noreferrer"
             className={LINK_CLASS_NAME}
           >
-            Read the official record
+            Read on the official record
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
           <Link
@@ -45,7 +53,7 @@ export function PopoverUnofficialTranscript({
             hash="about-the-text"
             className={LINK_CLASS_NAME}
           >
-            About this text
+            About the text
           </Link>
         </div>
       </PopoverContent>
