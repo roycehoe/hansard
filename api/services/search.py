@@ -20,6 +20,7 @@ from schemas.search import (
     SearchSpeechesResponse,
     SpeechMatchData,
 )
+from utils.markdown_text import strip_markdown
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
 from utils.transcript_snippet import get_transcript_snippet
@@ -270,13 +271,16 @@ def search_speeches(
     page_speeches = speeches[:page_size]
     if query.strip() == "":
         speech_id_to_snippet = {
-            speech.id: get_transcript_snippet(speech.transcript)
+            speech.id: get_transcript_snippet(strip_markdown(speech.transcript))
             for speech in page_speeches
         }
     else:
-        speech_id_to_snippet = CRUDSpeech(session).get_id_to_headline_by_ids(
-            [speech.id for speech in page_speeches], query
-        )
+        speech_id_to_snippet = {
+            speech_id: strip_markdown(headline)
+            for speech_id, headline in CRUDSpeech(session)
+            .get_id_to_headline_by_ids([speech.id for speech in page_speeches], query)
+            .items()
+        }
     report_id_to_report = {
         report.id: report
         for report in CRUDReport(session).get_by_ids(
