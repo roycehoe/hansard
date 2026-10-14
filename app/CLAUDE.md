@@ -99,7 +99,7 @@ The backend is read-only, so most hooks are queries. Mutation hooks follow the s
 
 ### Components
 
-- `components/ui/` holds shadcn primitives. Edit them only to add variants or sizes (see STYLE.md "Buttons").
+- `components/ui/` holds shadcn primitives. Edit them only to add variants or sizes (see STYLE.md "Buttons"), or for the default overrides recorded in `docs/sgds-tokens.md`.
 - Feature components live in `components/<feature>/`.
 - Naming follows STYLE.md "File and Folder Naming" and "Component Naming".
 - Loading, error and empty states follow STYLE.md "Page Loading States" and "Error Notices".
