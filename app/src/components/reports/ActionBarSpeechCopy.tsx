@@ -7,17 +7,17 @@ import {
 import { copyTextWithToast } from '@/lib/utils'
 import { Link2, Quote } from 'lucide-react'
 
-interface ButtonsSpeechActionsProps {
+interface ActionBarSpeechCopyProps {
   reportSlug: string
   ordinal: number
   citation?: string
 }
 
-export function ButtonsSpeechActions({
+export function ActionBarSpeechCopy({
   reportSlug,
   ordinal,
   citation,
-}: ButtonsSpeechActionsProps) {
+}: ActionBarSpeechCopyProps) {
   function copySpeechLink() {
     return copyTextWithToast(
       `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}#s${ordinal}`,
@@ -35,7 +35,7 @@ export function ButtonsSpeechActions({
   }
 
   return (
-    <div className="flex shrink-0 items-start opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100">
+    <div className="flex shrink-0 items-start opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:opacity-100">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
