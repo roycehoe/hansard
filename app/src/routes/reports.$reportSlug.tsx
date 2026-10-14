@@ -23,9 +23,18 @@ import { HTTP_NOT_FOUND } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildReportCitation } from '@/lib/citation'
 import { formatSittingDate } from '@/lib/format'
+import {
+  HIGHLIGHT_QUERY_MAX_LENGTH,
+  parseHighlightTerms,
+} from '@/lib/highlight'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { z } from 'zod'
 
-function renderBody(report: GetReportResponse) {
+const reportSearchSchema = z.object({
+  hl: z.string().max(HIGHLIGHT_QUERY_MAX_LENGTH).optional().catch(undefined),
+})
+
+function renderBody(report: GetReportResponse, highlightTerms: string[]) {
   if (!report.is_text_available) {
     return (
       <NoticeTextUnavailable officialRecordUrl={report.official_record_url} />
@@ -34,12 +43,14 @@ function renderBody(report: GetReportResponse) {
   if (report.speeches.length === 0) {
     return <NoticeNoSpeeches officialRecordUrl={report.official_record_url} />
   }
-  return <ListSpeeches report={report} />
+  return <ListSpeeches report={report} highlightTerms={highlightTerms} />
 }
 
 export const Route = createFileRoute('/reports/$reportSlug')({
+  validateSearch: reportSearchSchema,
   component: function PageReport() {
     const { reportSlug } = Route.useParams()
+    const { hl } = Route.useSearch()
     const { data, isLoading, isError, error, refetch, isRefetching } =
       useGetReport({ report_slug: reportSlug })
     useDocumentTitle(data?.title ?? 'Report')
@@ -111,7 +122,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
           }
         />
         <ListReportMetadata report={data} />
-        {renderBody(data)}
+        {renderBody(data, parseHighlightTerms(hl ?? ''))}
       </div>
     )
   },

@@ -12,6 +12,7 @@ interface RowSpeechProps {
   sittingDate: string
   volumeNumber: number
   parliamentNumber: number
+  highlightPattern?: RegExp
 }
 
 export function RowSpeech({
@@ -21,6 +22,7 @@ export function RowSpeech({
   sittingDate,
   volumeNumber,
   parliamentNumber,
+  highlightPattern,
 }: RowSpeechProps) {
   const hasSpeakerLabel = speech.speaker_label !== ''
 
@@ -78,6 +80,7 @@ export function RowSpeech({
           transcript={speech.transcript}
           label={renderSpeakerLabel()}
           isProcedural={!hasSpeakerLabel}
+          highlightPattern={highlightPattern}
         />
       </div>
       <ActionBarSpeechCopy
