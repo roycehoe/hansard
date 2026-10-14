@@ -36,9 +36,15 @@ export function TableParliamentCounts({
             <TableHeader>
               <TableRow>
                 <TableHead scope="col">Parliament</TableHead>
-                <TableHead scope="col">Speeches</TableHead>
-                <TableHead scope="col">Present</TableHead>
-                <TableHead scope="col">Absent</TableHead>
+                <TableHead scope="col" className="text-right">
+                  Speeches
+                </TableHead>
+                <TableHead scope="col" className="text-right">
+                  Present
+                </TableHead>
+                <TableHead scope="col" className="text-right">
+                  Absent
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -47,13 +53,13 @@ export function TableParliamentCounts({
                   <TableCell>
                     {formatParliament(count.parliament_number)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right tabular-nums">
                     {count.speech_count.toLocaleString(NUMBER_LOCALE)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right tabular-nums">
                     {count.present_count.toLocaleString(NUMBER_LOCALE)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right tabular-nums">
                     {count.absent_count.toLocaleString(NUMBER_LOCALE)}
                   </TableCell>
                 </TableRow>
