@@ -1,7 +1,8 @@
-import { OFFICIAL_RECORD_SEARCH_URL } from '@/constants/constants'
+import {
+  CONTACT_EMAIL,
+  OFFICIAL_RECORD_SEARCH_URL,
+} from '@/constants/constants'
 import { Link } from '@tanstack/react-router'
-
-const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? ''
 
 const FOOTER_LINKS = [
   { label: 'Coverage', to: '/coverage' },
