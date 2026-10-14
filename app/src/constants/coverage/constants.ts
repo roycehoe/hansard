@@ -26,6 +26,35 @@ export const ATTRIBUTION_FIGURES = [
   },
 ] as const
 
+export const ATTRIBUTION_LATER_MEASURED_ON = '2026-10-14'
+
+export const ATTRIBUTION_BY_PARLIAMENT = [
+  {
+    parliament: '0 to 11',
+    namedLinked: '97.61%',
+    allLinked: '90.42%',
+    textShare: '96.81%',
+  },
+  {
+    parliament: '12',
+    namedLinked: '98.92%',
+    allLinked: '97.37%',
+    textShare: '98.81%',
+  },
+  {
+    parliament: '13',
+    namedLinked: '98.16%',
+    allLinked: '96.68%',
+    textShare: '99.14%',
+  },
+  {
+    parliament: '14',
+    namedLinked: '99.01%',
+    allLinked: '97.89%',
+    textShare: '99.22%',
+  },
+] as const
+
 export const KNOWN_GAPS = [
   'Parliament 15 is not in the archive.',
   'Memberships of the Legislative Assembly (1955 to 1965) are filed under Parliament 1, so a person page counts Assembly speeches and attendance under the Legislative Assembly heading but lists the membership as Parliament 1.',
