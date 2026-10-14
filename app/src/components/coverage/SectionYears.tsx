@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { NUMBER_LOCALE } from '@/constants/constants'
 import { NO_TEXT_BY_DESIGN_REPORT_COUNT } from '@/constants/coverage/constants'
 
 interface SectionYearsProps {
@@ -33,10 +34,11 @@ export function SectionYears({ coverage }: SectionYearsProps) {
         item against the Official Report.
       </p>
       <p>
-        {withoutTextCount} reports have no text.{' '}
+        {withoutTextCount.toLocaleString(NUMBER_LOCALE)} reports have no text.{' '}
         {NO_TEXT_BY_DESIGN_REPORT_COUNT} are a type the official site publishes
-        without text. The other {returnedNoTextCount} returned no text when
-        fetched.
+        without text. The other{' '}
+        {returnedNoTextCount.toLocaleString(NUMBER_LOCALE)} returned no text
+        when fetched.
       </p>
       <p>Years with reports missing text: {yearsWithoutText.join(', ')}.</p>
       <p>
