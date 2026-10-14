@@ -152,7 +152,7 @@ export const Route = createFileRoute('/search')({
           from: mapFilterToSearchValue(values.from),
           to: mapFilterToSearchValue(values.to),
           type: values.type === FILTER_ALL ? undefined : values.type,
-          person: values.person,
+          person: values.person ?? undefined,
           sort: values.sort,
           page: undefined,
           title_page: undefined,
@@ -212,7 +212,7 @@ export const Route = createFileRoute('/search')({
             type: type ?? FILTER_ALL,
             from: from ?? '',
             to: to ?? '',
-            person,
+            person: person ?? null,
             sort: sort ?? SearchSort.RELEVANCE,
           }}
           parliaments={parliaments.data.parliaments}

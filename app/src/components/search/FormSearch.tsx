@@ -51,7 +51,7 @@ const formSchema = z
     type: z.union([z.literal(FILTER_ALL), z.enum(ReportType)]),
     from: z.string(),
     to: z.string(),
-    person: z.number().int().min(1).optional(),
+    person: z.number().int().min(1).nullable(),
     sort: z.enum(SearchSort),
   })
   .refine(
@@ -61,7 +61,7 @@ const formSchema = z
       values.type !== FILTER_ALL ||
       values.from !== '' ||
       values.to !== '' ||
-      values.person !== undefined,
+      values.person !== null,
     { error: 'Enter search words or choose a filter.', path: ['q'] }
   )
 
@@ -75,7 +75,7 @@ function countActiveFilters(values: FormSearchValues): number {
     values.type !== FILTER_ALL,
     values.from !== '',
     values.to !== '',
-    values.person !== undefined,
+    values.person !== null,
   ].filter(Boolean).length
 }
 
@@ -167,7 +167,7 @@ export function FormSearch({
           render={({ field }) => (
             <PopoverPersonFilter
               id="search-person"
-              value={field.value}
+              value={field.value ?? undefined}
               onChange={onChange}
             />
           )}
