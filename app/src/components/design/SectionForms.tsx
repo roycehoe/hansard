@@ -68,7 +68,7 @@ const SPEAKER_TYPE_DROPDOWN_OPTIONS = [
   {
     label: 'Office holders',
     options: [
-      { value: SpeakerType.SPEAKER, label: 'Speaker' },
+      { value: SpeakerType.SPEAKER, label: 'Presiding officer' },
       { value: SpeakerType.CLERK, label: 'Clerk' },
     ],
   },
@@ -83,7 +83,7 @@ const REPORT_TYPE_OPTIONS = [
 const formSchema = z.object({
   name: z.string().min(1, { error: 'Name is required.' }),
   speaker_type: z.enum(SpeakerType, {
-    error: 'Choose a speaker type.',
+    error: 'Choose a role.',
   }),
   accepted_terms: z.boolean().refine((value) => value, {
     error: 'You must accept before saving.',
@@ -140,7 +140,7 @@ function ExampleDatePicker() {
             aria-labelledby="sitting-date-label sitting-date"
           >
             <CalendarIcon />
-            {date ? format(date, 'PPP') : 'Pick a date'}
+            {date ? format(date, 'd MMMM yyyy') : 'Pick a date'}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -208,7 +208,7 @@ function ExampleForm() {
         )}
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="form-speaker-type">Speaker type</Label>
+        <Label htmlFor="form-speaker-type">Role</Label>
         <Controller
           control={control}
           name="speaker_type"
@@ -273,9 +273,7 @@ function ExampleForm() {
               />
             )}
           />
-          <Label htmlFor="form-accepted-terms">
-            I have checked the transcript
-          </Label>
+          <Label htmlFor="form-accepted-terms">The transcript is checked</Label>
         </div>
         {errors.accepted_terms && (
           <p
@@ -396,7 +394,7 @@ export function SectionForms() {
 
       <Example label="Select">
         <div className="flex w-64 flex-col gap-2">
-          <Label htmlFor="select-grouped">Speaker type</Label>
+          <Label htmlFor="select-grouped">Role</Label>
           <Select>
             <SelectTrigger id="select-grouped" className="w-full">
               <SelectValue placeholder="Select a type" />

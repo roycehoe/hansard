@@ -76,11 +76,11 @@ function showErrorToast() {
 }
 
 function showInfoToast() {
-  toast.info('Citations leave out the column number for now')
+  toast.info('Column numbers not shown yet')
 }
 
 function showWarningToast() {
-  toast.warning('This search returns more than 1,000 speeches')
+  toast.warning('Over 1,000 speeches found')
 }
 
 function showLoadingToast() {
@@ -152,8 +152,7 @@ export function SectionOverlays() {
             <AlertDialogHeader>
               <AlertDialogTitle>Remove this person filter?</AlertDialogTitle>
               <AlertDialogDescription>
-                The search shows speeches by everyone again. The speeches
-                themselves are not affected.
+                The search shows speeches by everyone again.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -183,7 +182,7 @@ export function SectionOverlays() {
               </SheetHeader>
               <div className="space-y-2 px-4">
                 <Label htmlFor={`overlays-sheet-speaker-${side}`}>
-                  Speaker
+                  Speaker label
                 </Label>
                 <Input id={`overlays-sheet-speaker-${side}`} />
               </div>
@@ -228,7 +227,7 @@ export function SectionOverlays() {
               checked={isShowingSpeakers}
               onCheckedChange={setIsShowingSpeakers}
             >
-              Speaker names
+              Speaker labels
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Sort</DropdownMenuLabel>
