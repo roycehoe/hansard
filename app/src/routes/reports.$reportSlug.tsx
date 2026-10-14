@@ -102,7 +102,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
           }
         />
         <ListReportMetadata report={data} />
-        <NoticeDerivedText officialRecordUrl={data.official_record_url} />
+        <NoticeDerivedText />
         {renderBody(data)}
       </div>
     )
