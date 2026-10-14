@@ -4,26 +4,52 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { SEARCH_TIPS_TEXT } from '@/constants/search/constants'
+import {
+  SEARCH_TIPS_CLOSE_DELAY_MS,
+  SEARCH_TIPS_TEXT,
+} from '@/constants/search/constants'
 import { CircleHelp } from 'lucide-react'
 import type { FocusEvent, MouseEvent, PointerEvent } from 'react'
-import { useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 export function PopoverSearchTips() {
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const closeTimeoutRef = useRef<number | undefined>(undefined)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const tipsId = useId()
 
-  function openOnMouseEnter(event: PointerEvent<HTMLButtonElement>) {
-    if (event.pointerType !== 'mouse') return
-    setIsOpen(true)
+  function cancelClose() {
+    window.clearTimeout(closeTimeoutRef.current)
   }
 
-  function closeOnMouseLeave(event: PointerEvent<HTMLButtonElement>) {
-    if (event.pointerType !== 'mouse') return
-    if (document.activeElement === event.currentTarget) return
+  useEffect(() => cancelClose, [])
+
+  function closeAfterDelay() {
+    cancelClose()
+    closeTimeoutRef.current = window.setTimeout(
+      closeUnlessButtonFocused,
+      SEARCH_TIPS_CLOSE_DELAY_MS
+    )
+  }
+
+  function closeUnlessButtonFocused() {
+    if (document.activeElement === buttonRef.current) return
     setIsOpen(false)
   }
 
+  function openOnMouseEnter(event: PointerEvent<HTMLElement>) {
+    if (event.pointerType !== 'mouse') return
+    cancelClose()
+    setIsOpen(true)
+  }
+
+  function closeOnMouseLeave(event: PointerEvent<HTMLElement>) {
+    if (event.pointerType !== 'mouse') return
+    closeAfterDelay()
+  }
+
   function openOnFocus() {
+    cancelClose()
     setIsOpen(true)
   }
 
@@ -34,6 +60,7 @@ export function PopoverSearchTips() {
 
   function openOnClick(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
+    cancelClose()
     setIsOpen(true)
   }
 
@@ -45,10 +72,12 @@ export function PopoverSearchTips() {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
+          ref={buttonRef}
           type="button"
           variant="quiet"
           size="icon-xs"
           aria-label="Search tips"
+          aria-describedby={tipsId}
           onPointerEnter={openOnMouseEnter}
           onPointerLeave={closeOnMouseLeave}
           onFocus={openOnFocus}
@@ -62,11 +91,16 @@ export function PopoverSearchTips() {
         side="top"
         align="start"
         className="w-72 text-sm"
+        onPointerEnter={openOnMouseEnter}
+        onPointerLeave={closeOnMouseLeave}
         onOpenAutoFocus={keepFocusOnButton}
         onCloseAutoFocus={keepFocusOnButton}
       >
         {SEARCH_TIPS_TEXT}
       </PopoverContent>
+      <span id={tipsId} className="sr-only">
+        {SEARCH_TIPS_TEXT}
+      </span>
     </Popover>
   )
 }
