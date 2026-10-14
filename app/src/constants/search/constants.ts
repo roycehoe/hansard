@@ -6,6 +6,14 @@ export const SEARCH_SORT_DROPDOWN_OPTIONS = [
   { value: SearchSort.OLDEST, label: 'Oldest first' },
 ]
 
+export const SEARCH_WORDS_MAX_LENGTH = 200
+
+export const SEARCH_WORDS_TOO_LONG_ERROR = `Use ${SEARCH_WORDS_MAX_LENGTH} characters or fewer.`
+
+export const SEARCH_WORDS_TOO_LONG_NOTICE = `Search words are limited to ${SEARCH_WORDS_MAX_LENGTH} characters. Shorten them and search again.`
+
+export const SEARCH_TIPS_TEXT = `Use quotes for an exact phrase, OR for either word, and a minus sign to leave a word out. Up to ${SEARCH_WORDS_MAX_LENGTH} characters.`
+
 export const PERSON_PICKER_MIN_NAME_LENGTH = 2
 
 export const PERSON_PICKER_MAX_OPTIONS = 20

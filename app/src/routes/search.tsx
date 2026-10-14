@@ -12,6 +12,7 @@ import { ListReportMatches } from '@/components/search/ListReportMatches'
 import { ListSpeechMatches } from '@/components/search/ListSpeechMatches'
 import { NoticeErrorParliaments } from '@/components/search/NoticeErrorParliaments'
 import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
+import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
 import { NoticeTextCoverage } from '@/components/search/NoticeTextCoverage'
 import {
   Breadcrumb,
@@ -26,6 +27,7 @@ import { FILTER_ALL } from '@/constants/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
   SEARCH_WORDS_INPUT_ID,
+  SEARCH_WORDS_MAX_LENGTH,
   SPEECH_MATCHES_HEADING,
   SPEECHES_HEADING,
 } from '@/constants/search/constants'
@@ -84,7 +86,8 @@ export const Route = createFileRoute('/search')({
       !!to ||
       type !== undefined ||
       hasPerson
-    const canSearch = hasWords || hasFilter
+    const isWordsTooLong = words.length > SEARCH_WORDS_MAX_LENGTH
+    const canSearch = (hasWords || hasFilter) && !isWordsTooLong
     const canSearchReports = canSearch && (hasWords || !hasPerson)
     const resultSort =
       hasWords || sort === SearchSort.OLDEST ? sort : SearchSort.DATE
@@ -305,7 +308,10 @@ export const Route = createFileRoute('/search')({
         {renderForm()}
         <ListActiveFilters onClearFilters={clearFilters} />
         <NoticeTextCoverage />
-        <ListPersonMatches words={words} hasPerson={hasPerson} />
+        {isWordsTooLong && <NoticeSearchWordsTooLong />}
+        {!isWordsTooLong && (
+          <ListPersonMatches words={words} hasPerson={hasPerson} />
+        )}
         {canSearch && renderSpeeches()}
         {canSearchReports && renderReports()}
       </div>
