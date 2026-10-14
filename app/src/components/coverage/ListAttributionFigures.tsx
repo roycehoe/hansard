@@ -13,9 +13,9 @@ export function ListAttributionFigures() {
         How well speeches are linked to people
       </h2>
       <p className="text-muted-foreground text-sm">
-        Measured by the scraper on {formatSittingDate(ATTRIBUTION_MEASURED_ON)}{' '}
-        for {ATTRIBUTION_SCOPE}. The three figures are quoted together because
-        each denominator hides something the others show.
+        Measured on {formatSittingDate(ATTRIBUTION_MEASURED_ON)} for{' '}
+        {ATTRIBUTION_SCOPE}. The three figures are quoted together because each
+        denominator hides something the others show.
       </p>
       <dl className="grid gap-4 lg:grid-cols-3">
         {ATTRIBUTION_FIGURES.map((figure) => (
