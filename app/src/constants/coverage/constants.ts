@@ -1,5 +1,6 @@
 import {
   LEGISLATIVE_ASSEMBLY_LABEL,
+  LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
   NUMBER_LOCALE,
 } from '@/constants/constants'
 
@@ -54,7 +55,7 @@ export const CITATION_EXAMPLE_REPORT = {
 export const CITATION_EXAMPLE_SPEECH = {
   sittingDate: '1955-04-22',
   volumeNumber: 1,
-  parliamentNumber: 0,
+  parliamentNumber: LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
   speakerLabel: 'The Chief Minister (Mr D. S. Marshall)',
 } as const
 

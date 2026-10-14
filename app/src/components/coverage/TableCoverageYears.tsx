@@ -74,7 +74,10 @@ export function TableCoverageYears({
           )
           const withoutTextCount = year.report_count - year.text_report_count
           return (
-            <TableRow key={year.year}>
+            <TableRow
+              key={year.year}
+              className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
+            >
               <TableHead
                 scope="row"
                 className="text-foreground align-top whitespace-normal"
