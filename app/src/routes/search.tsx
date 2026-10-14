@@ -140,7 +140,7 @@ export const Route = createFileRoute('/search')({
       void navigate({
         to: '/search',
         search: {
-          q: values.q.trim(),
+          q: values.q.trim() === '' ? undefined : values.q.trim(),
           parliament:
             parliamentValue === undefined ? undefined : Number(parliamentValue),
           from: mapFilterToSearchValue(values.from),
