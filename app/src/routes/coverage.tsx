@@ -1,9 +1,13 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
-import { ListAttributionFigures } from '@/components/coverage/ListAttributionFigures'
-import { ListKnownGaps } from '@/components/coverage/ListKnownGaps'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
+import { SectionAboutText } from '@/components/coverage/SectionAboutText'
+import { SectionArchiveBuild } from '@/components/coverage/SectionArchiveBuild'
+import { SectionAttributionFigures } from '@/components/coverage/SectionAttributionFigures'
+import { SectionCitingRecord } from '@/components/coverage/SectionCitingRecord'
+import { SectionKnownGaps } from '@/components/coverage/SectionKnownGaps'
+import { SectionSummary } from '@/components/coverage/SectionSummary'
+import { SectionYears } from '@/components/coverage/SectionYears'
 import { TableCoverageCounts } from '@/components/coverage/TableCoverageCounts'
-import { TableCoverageYears } from '@/components/coverage/TableCoverageYears'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
   Breadcrumb,
@@ -26,8 +30,8 @@ export const Route = createFileRoute('/coverage')({
       void coverage.refetch()
     }
 
-    function renderBody() {
-      if (coverage.isLoading) return <Skeleton className="h-96 w-full" />
+    function renderSummary() {
+      if (coverage.isLoading) return <Skeleton className="h-20 w-full" />
       if (coverage.isError || !coverage.data) {
         return (
           <NoticeErrorCoverage
@@ -36,28 +40,22 @@ export const Route = createFileRoute('/coverage')({
           />
         )
       }
+      return <SectionSummary coverage={coverage.data} />
+    }
+
+    function renderCountsAndYears() {
+      if (coverage.isLoading) return <Skeleton className="h-96 w-full" />
+      if (coverage.isError || !coverage.data) return null
       return (
-        <div className="space-y-8">
+        <>
           <section aria-labelledby="counts-heading" className="space-y-4">
             <h2 id="counts-heading" className="font-serif text-xl lg:text-2xl">
               What the archive holds
             </h2>
             <TableCoverageCounts coverage={coverage.data} />
           </section>
-          <section aria-labelledby="years-heading" className="space-y-4">
-            <h2 id="years-heading" className="font-serif text-xl lg:text-2xl">
-              Reports with text by year
-            </h2>
-            <TableCoverageYears years={coverage.data.years} />
-          </section>
-          <ListAttributionFigures />
-          <section aria-labelledby="gaps-heading" className="space-y-4">
-            <h2 id="gaps-heading" className="font-serif text-xl lg:text-2xl">
-              Known gaps
-            </h2>
-            <ListKnownGaps />
-          </section>
-        </div>
+          <SectionYears coverage={coverage.data} />
+        </>
       )
     }
 
@@ -65,7 +63,6 @@ export const Route = createFileRoute('/coverage')({
       <div className="space-y-8">
         <PageHeader
           title="What the archive covers"
-          description="Which years have text, how well speeches are linked to people, and the known gaps."
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -82,7 +79,13 @@ export const Route = createFileRoute('/coverage')({
             </Breadcrumb>
           }
         />
-        {renderBody()}
+        {renderSummary()}
+        <SectionAboutText />
+        <SectionCitingRecord />
+        <SectionKnownGaps />
+        <SectionAttributionFigures />
+        {renderCountsAndYears()}
+        <SectionArchiveBuild />
       </div>
     )
   },

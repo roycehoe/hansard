@@ -1,4 +1,5 @@
 import type { GetCoverageResponse } from '@/api/coverage/getCoverage'
+import { ListCountDefinitions } from '@/components/coverage/ListCountDefinitions'
 import {
   Table,
   TableBody,
@@ -19,9 +20,9 @@ export function TableCoverageCounts({ coverage }: TableCoverageCountsProps) {
   const counts = [
     { label: 'Reports', value: coverage.report_count },
     { label: 'Reports with text', value: coverage.text_report_count },
-    { label: 'Speeches', value: coverage.speech_count },
+    { label: 'Speech passages', value: coverage.speech_count },
     {
-      label: 'Speeches linked to a person',
+      label: 'Speech passages linked to a person',
       value: coverage.linked_speech_count,
     },
     { label: 'People', value: coverage.person_count },
@@ -81,6 +82,7 @@ export function TableCoverageCounts({ coverage }: TableCoverageCountsProps) {
           <p>Attendance lists run to {formatSittingDate(attendanceLast)}.</p>
         )}
       </div>
+      <ListCountDefinitions />
     </div>
   )
 }
