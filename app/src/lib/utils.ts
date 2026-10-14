@@ -1,5 +1,6 @@
 import { FILTER_ALL } from '@/constants/constants'
 import { clsx, type ClassValue } from 'clsx'
+import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -34,4 +35,17 @@ export function mapFilterToSearchValue(value: string): string | undefined {
 
 export function readSearchQuery(form: HTMLFormElement): string {
   return String(new FormData(form).get('q') ?? '').trim()
+}
+
+export async function copyTextWithToast(
+  text: string,
+  successMessage: string,
+  failureMessage: string
+) {
+  try {
+    await navigator.clipboard.writeText(text)
+    toast(successMessage)
+  } catch {
+    toast.error(failureMessage)
+  }
 }

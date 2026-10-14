@@ -1,35 +1,22 @@
 import { Button } from '@/components/ui/button'
+import { copyTextWithToast } from '@/lib/utils'
 import { Quote } from 'lucide-react'
-import { toast } from 'sonner'
 
 interface ButtonCopyCitationProps {
   citation: string
-  describedById?: string
-  variant?: 'outline' | 'quiet'
 }
 
-export function ButtonCopyCitation({
-  citation,
-  describedById,
-  variant = 'outline',
-}: ButtonCopyCitationProps) {
-  async function copyCitation() {
-    try {
-      await navigator.clipboard.writeText(citation)
-      toast('Citation copied')
-    } catch {
-      toast.error("Couldn't copy the citation")
-    }
+export function ButtonCopyCitation({ citation }: ButtonCopyCitationProps) {
+  function copyCitation() {
+    return copyTextWithToast(
+      citation,
+      'Citation copied',
+      "Couldn't copy the citation"
+    )
   }
 
   return (
-    <Button
-      type="button"
-      variant={variant}
-      size="sm"
-      onClick={copyCitation}
-      aria-describedby={describedById}
-    >
+    <Button type="button" variant="outline" size="sm" onClick={copyCitation}>
       <Quote aria-hidden="true" />
       Copy citation
     </Button>
