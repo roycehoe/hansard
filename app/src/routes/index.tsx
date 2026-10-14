@@ -1,13 +1,12 @@
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
-import { Card, CardDescription, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { readSearchQuery } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import type { FormEvent } from 'react'
 
-const HOME_CARDS = [
+const HOME_LINKS = [
   {
     title: 'Sittings',
     description: 'Browse by Parliament, session or volume, and date.',
@@ -54,22 +53,23 @@ export const Route = createFileRoute('/')({
           </div>
           <Button type="submit">Search</Button>
         </form>
-        <ul className="grid gap-4 md:grid-cols-3">
-          {HOME_CARDS.map((card) => (
-            <li key={card.title}>
-              <Link
-                to={card.to}
-                className="focus-visible:ring-ring focus-visible:ring-offset-background block h-full rounded-lg outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
-              >
-                <Card className="hover:border-primary h-full transition-colors">
-                  <CardHeader>
-                    <h2 className="font-serif text-lg font-semibold">
-                      {card.title}
-                    </h2>
-                    <CardDescription>{card.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
+        <ul>
+          {HOME_LINKS.map((item) => (
+            <li
+              key={item.title}
+              className="border-separator space-y-1 border-b py-4 last:border-b-0"
+            >
+              <h2 className="font-serif text-lg font-semibold">
+                <Link
+                  to={item.to}
+                  className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                >
+                  {item.title}
+                </Link>
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                {item.description}
+              </p>
             </li>
           ))}
         </ul>
