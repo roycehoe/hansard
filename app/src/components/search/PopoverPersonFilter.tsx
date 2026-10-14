@@ -1,4 +1,3 @@
-import type { PersonData } from '@/api/people/getAllPersons'
 import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { useGetPerson } from '@/api/people/getPerson'
 import { Button } from '@/components/ui/button'
@@ -24,8 +23,6 @@ import { formatMembershipSummary } from '@/lib/format'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { useState } from 'react'
-
-const PERSON_LIST_ID = 'search-person-list'
 
 interface PopoverPersonFilterProps {
   id: string
@@ -56,10 +53,6 @@ export function PopoverPersonFilter({
     isNameLongEnough && (debouncedName !== name || persons.isFetching)
   const matches = isNameLongEnough ? (persons.data?.persons ?? []) : []
   const options = matches.slice(0, PERSON_PICKER_MAX_OPTIONS)
-  const triggerLabel =
-    value === undefined
-      ? 'Any person'
-      : (chosenPerson.data?.canonical_name ?? '')
 
   const isResultSettled = isNameLongEnough && !isSearching && !persons.isError
   const hintLine = isNameLongEnough
@@ -69,6 +62,12 @@ export function PopoverPersonFilter({
     isResultSettled && options.length === 0
       ? 'No people match this name.'
       : null
+
+  function getTriggerLabel(): string {
+    if (value === undefined) return 'Any person'
+    if (chosenPerson.isLoading) return 'Loading…'
+    return chosenPerson.data?.canonical_name ?? ''
+  }
 
   function changeOpen(nextIsOpen: boolean) {
     setIsOpen(nextIsOpen)
@@ -81,9 +80,9 @@ export function PopoverPersonFilter({
     changeOpen(true)
   }
 
-  function choosePerson(person: PersonData) {
+  function choosePerson(personValue: string) {
     changeOpen(false)
-    onChange(person.person_id)
+    onChange(Number(personValue))
   }
 
   function renderAnnouncement() {
@@ -96,15 +95,13 @@ export function PopoverPersonFilter({
   }
 
   return (
-    <Popover open={isOpen} onOpenChange={changeOpen}>
+    <Popover modal open={isOpen} onOpenChange={changeOpen}>
       <PopoverTrigger asChild>
         <Button
           id={id}
           type="button"
           variant="field"
           role="combobox"
-          aria-expanded={isOpen}
-          aria-controls={isOpen ? PERSON_LIST_ID : undefined}
           className="w-full"
           onKeyDown={openOnArrowDown}
         >
@@ -113,7 +110,7 @@ export function PopoverPersonFilter({
               value === undefined ? 'text-muted-foreground' : undefined
             }
           >
-            {triggerLabel}
+            {getTriggerLabel()}
           </span>
           <ChevronDown aria-hidden="true" className="text-muted-foreground" />
         </Button>
@@ -128,14 +125,12 @@ export function PopoverPersonFilter({
             value={typedName}
             onValueChange={setTypedName}
           />
-          <CommandList id={PERSON_LIST_ID}>
+          <CommandList>
             {options.map((person) => (
               <CommandItem
                 key={person.person_id}
                 value={String(person.person_id)}
-                onSelect={() => {
-                  choosePerson(person)
-                }}
+                onSelect={choosePerson}
                 className="flex-col items-start gap-0"
               >
                 <span>{person.canonical_name}</span>
