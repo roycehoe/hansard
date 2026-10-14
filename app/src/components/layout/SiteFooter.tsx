@@ -3,6 +3,12 @@ import { Link } from '@tanstack/react-router'
 
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? ''
 
+const FOOTER_LINKS = [
+  { label: 'Coverage', to: '/coverage' },
+  { label: 'Design', to: '/design' },
+  { label: 'Palette', to: '/palette' },
+] as const
+
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
@@ -15,11 +21,13 @@ export function SiteFooter() {
         </p>
         <nav aria-label="Footer">
           <ul className="flex flex-wrap gap-x-5 gap-y-1">
-            <li>
-              <Link to="/coverage" className={LINK_CLASS_NAME}>
-                Coverage
-              </Link>
-            </li>
+            {FOOTER_LINKS.map((item) => (
+              <li key={item.label}>
+                <Link to={item.to} className={LINK_CLASS_NAME}>
+                  {item.label}
+                </Link>
+              </li>
+            ))}
             <li>
               <a
                 href={OFFICIAL_RECORD_SEARCH_URL}

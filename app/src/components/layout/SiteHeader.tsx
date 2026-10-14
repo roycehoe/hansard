@@ -8,13 +8,10 @@ import { Search } from 'lucide-react'
 import type { FormEvent } from 'react'
 
 const NAV_ITEMS = [
-  { label: 'Home', to: '/' },
   { label: 'Search', to: '/search' },
   { label: 'Sittings', to: '/sittings' },
   { label: 'People', to: '/people' },
   { label: 'Coverage', to: '/coverage' },
-  { label: 'Design', to: '/design' },
-  { label: 'Palette', to: '/palette' },
 ] as const
 
 export function SiteHeader() {
@@ -45,7 +42,6 @@ export function SiteHeader() {
               <li key={item.label}>
                 <Link
                   to={item.to}
-                  activeOptions={{ exact: item.to === '/' }}
                   className="text-primary hover:text-primary-hover data-[status=active]:border-primary focus-visible:ring-ring focus-visible:ring-offset-background inline-block rounded-sm border-b-2 border-transparent py-1 text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 data-[status=active]:font-medium"
                 >
                   {item.label}
@@ -68,7 +64,7 @@ export function SiteHeader() {
               id="site-search"
               type="search"
               name="q"
-              placeholder="Search the record"
+              placeholder="Search"
               className="w-40 sm:w-64"
             />
             <Button type="submit" size="icon" aria-label="Search">
