@@ -72,7 +72,7 @@ Limit  (cost=9805.56..9805.61 rows=21 width=24)
 CREATE INDEX ix_speech_speaker_id ON speech (speaker_id);
 ```
 
-Needed by `GET /people/{person_id}`, `GET /people/{person_id}/reports` and `GET /search/speeches` when `person_id` is given.
+Needed by `GET /people/{person_id}`, `GET /people/{person_id}/reports` and `GET /search/speeches` when `person_id` is given, with or without search words.
 
 Both statements filter `speech.speaker_id`. Before the index existed each scanned the whole table. `person_reports` appears again here because it needs this index as well as `ix_speech_report_id`.
 
@@ -118,6 +118,32 @@ Limit  (cost=9805.56..9805.61 rows=21 width=24)
               ->  Index Scan using report_pkey on report  (cost=0.29..1.06 rows=1 width=16)
                     Index Cond: (id = speech.report_id)
 ```
+
+`GET /search/speeches` with a `person_id` and no search words also uses this index. The statement filters `speech.speaker_id`, keeps the Parliament, date and report type filters through the join to `report`, and orders by sitting date newest first, then `speech.id`. The sitting date sort key is a scalar subquery on `report` and not the joined column, because with the joined column the planner walks `ix_report_sitting_date_parliament_number` backward and filters speeches one at a time: 9.2 seconds for person 29 against 127 ms for the subquery form on 14 October 2026. `EXPLAIN (ANALYZE, BUFFERS)` on production, warm, third run, for person 29 (12 Memberships, 13,135 speeches), page 1:
+
+```sql
+-- speech_search_filters_person (GET /search/speeches?person_id=29)
+SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.report_id, speech.speaker_id  FROM speech JOIN report ON report.id = speech.report_id  WHERE speech.speaker_id IN (30, 91, 158, 229, 308, 382, 462, 552, 644, 743, 846, 956) ORDER BY (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, speech.id  LIMIT 21 OFFSET 0;
+```
+
+```text
+-- speech_search_filters_person (GET /search/speeches?person_id=29)
+Limit  (cost=48756.35..48756.40 rows=21 width=412) (actual time=123.973..123.984 rows=21 loops=1)
+  ->  Sort  (cost=48756.35..48795.68 rows=15733 width=412) (actual time=123.971..123.978 rows=21 loops=1)
+        Sort Key: ((SubPlan 1)) DESC, speech.id
+        Sort Method: top-N heapsort  Memory: 48kB
+        ->  Hash Join  (cost=1341.48..48332.16 rows=15733 width=412) (actual time=26.702..113.932 rows=13135 loops=1)
+              Hash Cond: (speech.report_id = report.id)
+              ->  Index Scan using ix_speech_speaker_id on speech  (cost=0.43..10645.92 rows=15733 width=404) (actual time=0.020..19.313 rows=13135 loops=1)
+                    Index Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
+              ->  Hash  (cost=818.41..818.41 rows=41811 width=4) (actual time=26.489..26.490 rows=41811 loops=1)
+                    ->  Index Only Scan using report_pkey on report  (cost=0.29..818.41 rows=41811 width=4) (actual time=0.014..10.335 rows=41811 loops=1)
+              SubPlan 1
+                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8) (actual time=0.003..0.004 rows=1 loops=13135)
+Execution Time: 124.095 ms
+```
+
+The same statement measured, warm, third run: page 50 (`OFFSET 980`) 144 ms, person 568 (39 speeches) 1.3 ms, person 29 with Parliament 5 (`report.parliament_number = 5` added) 19 ms. Every one reads the person's speeches through `ix_speech_speaker_id` and keeps the top 21 in a heap sort.
 
 ## ix_attendance_sitting_id
 
@@ -176,7 +202,7 @@ HashAggregate  (cost=1288.94..1290.94 rows=200 width=12)
 CREATE INDEX ix_report_sitting_date_parliament_number ON report (sitting_date, parliament_number);
 ```
 
-Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters on `GET /search/speeches` and `GET /search/reports`.
+Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters on `GET /search/speeches` and `GET /search/reports`, and the newest-first order of both when no search words are given.
 
 The first version of this list named a single-column index on `report (sitting_date)`. The scraper builds this composite instead. On the rehearsal copy it served every statement the single column served. It also turned the per-Parliament statements (the Parliament list, the sittings list, the `DISTINCT sitting_date, parliament_number` subquery under the attendance counts) into index-only scans of 44 pages instead of 6,309 heap pages. On production a heap scan of `report` costs 0.4 to 1.4 seconds per statement, so that is the larger gain. A `(parliament_number, sitting_date)` index served fewer statements and was no better on any of them. The composite is 352 kB.
 
@@ -234,6 +260,45 @@ Limit  (cost=8.05..8.06 rows=1 width=194)
               ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..6.53 rows=1 width=0)
                     Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
 ```
+
+`GET /search/speeches` without search words and without a `person_id`, and `GET /search/reports` without search words, order by `report.sitting_date` descending and filter by the Parliament, dates and report type. The planner walks this index backward and stops after the first few reports, so a page costs about 1 ms. These statements use the joined `report.sitting_date` as the sort key. The scalar subquery form that the person shape needs took 480 ms for Parliament 9 on 14 October 2026. `EXPLAIN (ANALYZE, BUFFERS)` on production, warm, third run:
+
+```sql
+-- speech_filters_parliament (GET /search/speeches?parliament_number=9)
+SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.report_id, speech.speaker_id  FROM speech JOIN report ON report.id = speech.report_id  WHERE report.parliament_number = 9 ORDER BY report.sitting_date DESC, speech.id  LIMIT 21 OFFSET 0;
+```
+
+```text
+-- speech_filters_parliament (GET /search/speeches?parliament_number=9)
+Limit  (cost=61.05..89.95 rows=21 width=412) (actual time=0.772..0.777 rows=21 loops=1)
+  ->  Incremental Sort  (cost=61.05..75096.54 rows=54529 width=412) (actual time=0.768..0.771 rows=21 loops=1)
+        Sort Key: report.sitting_date DESC, speech.id
+        Presorted Key: report.sitting_date
+        ->  Nested Loop  (cost=0.72..72920.08 rows=54529 width=412) (actual time=0.259..0.567 rows=222 loops=1)
+              ->  Index Scan Backward using ix_report_sitting_date_parliament_number on report  (cost=0.29..2042.99 rows=2135 width=12) (actual time=0.229..0.236 rows=7 loops=1)
+                    Index Cond: (parliament_number = 9)
+              ->  Index Scan using ix_speech_report_id on speech  (cost=0.43..32.28 rows=92 width=404) (actual time=0.008..0.032 rows=32 loops=7)
+                    Index Cond: (report_id = report.id)
+Execution Time: 0.844 ms
+```
+
+```sql
+-- report_filters_parliament (GET /search/reports?parliament_number=13)
+SELECT report.id, report.volume_number, report.parliament_number, report.sitting_number, report.sitting_date, report.speech_number, report.title, report.subtitle, report.report_id, report.report_type, report.html_file_name, report.report_version  FROM report  WHERE report.parliament_number = 13 ORDER BY report.sitting_date DESC, report.id  LIMIT 21 OFFSET 0;
+```
+
+```text
+-- report_filters_parliament (GET /search/reports?parliament_number=13)
+Limit  (cost=2.70..18.05 rows=21 width=190) (actual time=0.263..0.268 rows=21 loops=1)
+  ->  Incremental Sort  (cost=2.70..4093.86 rows=5598 width=190) (actual time=0.260..0.263 rows=21 loops=1)
+        Sort Key: sitting_date DESC, id
+        Presorted Key: sitting_date
+        ->  Index Scan Backward using ix_report_sitting_date_parliament_number on report  (cost=0.29..3941.57 rows=5598 width=190) (actual time=0.086..0.202 rows=46 loops=1)
+              Index Cond: (parliament_number = 13)
+Execution Time: 0.311 ms
+```
+
+The speech statement measured the same way: report type `oral-answer` only 0.9 ms, a date range only (1 January to 31 March 2020) 1.0 ms.
 
 ## ix_speech_transcript_fts
 
