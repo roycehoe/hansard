@@ -1,4 +1,5 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
+import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
 
@@ -23,9 +24,10 @@ export function ListParliaments({ parliaments }: ListParliamentsProps) {
               {formatParliament(parliament.parliament_number)}
             </span>
             <span className="text-muted-foreground text-sm">
-              {parliament.sitting_count} sittings, {parliament.report_count}{' '}
-              reports ({parliament.text_report_count} with text),{' '}
-              {formatSittingDate(parliament.first_sitting_date)} to{' '}
+              {parliament.sitting_count.toLocaleString(NUMBER_LOCALE)} sittings,{' '}
+              {parliament.report_count.toLocaleString(NUMBER_LOCALE)} reports (
+              {parliament.text_report_count.toLocaleString(NUMBER_LOCALE)} with
+              text), {formatSittingDate(parliament.first_sitting_date)} to{' '}
               {formatSittingDate(parliament.last_sitting_date)}
             </span>
           </Link>
