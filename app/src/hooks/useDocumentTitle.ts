@@ -9,6 +9,9 @@ export function useDocumentTitle(...pageTitleParts: string[]) {
   useEffect(
     function syncDocumentTitle() {
       document.title = documentTitle
+      return function resetDocumentTitle() {
+        document.title = SITE_NAME
+      }
     },
     [documentTitle]
   )
