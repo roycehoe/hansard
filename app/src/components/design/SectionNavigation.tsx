@@ -27,7 +27,8 @@ const FAQ_ITEMS = [
   {
     value: 'speakers',
     question: 'How are speaker labels matched?',
-    answer: 'Names are matched against the roster for each parliament.',
+    answer:
+      'Each speaker label is matched against the roster for that Parliament.',
   },
   {
     value: 'gaps',

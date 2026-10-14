@@ -3,6 +3,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { formatSittingDate } from '@/lib/format'
 import {
   createColumnHelper,
   createPaginatedRowModel,
@@ -34,7 +35,10 @@ export const features = tableFeatures({
 const columnHelper = createColumnHelper<typeof features, SittingSpeech>()
 
 export const columns = columnHelper.columns([
-  columnHelper.accessor('sittingDate', { header: 'Sitting date' }),
+  columnHelper.accessor('sittingDate', {
+    header: 'Sitting date',
+    cell: (sittingDate) => formatSittingDate(sittingDate.getValue()),
+  }),
   columnHelper.accessor('parliament', { header: 'Parliament' }),
   columnHelper.accessor('title', {
     header: 'Report title',

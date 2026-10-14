@@ -72,7 +72,7 @@ function showSuccessToast() {
 }
 
 function showErrorToast() {
-  toast.error("Couldn't copy the citation.")
+  toast.error("Couldn't copy the citation")
 }
 
 function showInfoToast() {
@@ -91,7 +91,7 @@ function showPromiseToast() {
   toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
     loading: 'Copying citation…',
     success: 'Citation copied',
-    error: "Couldn't copy the citation.",
+    error: "Couldn't copy the citation",
   })
 }
 
@@ -181,9 +181,7 @@ export function SectionOverlays() {
                 </SheetDescription>
               </SheetHeader>
               <div className="space-y-2 px-4">
-                <Label htmlFor={`overlays-sheet-speaker-${side}`}>
-                  Speaker label
-                </Label>
+                <Label htmlFor={`overlays-sheet-speaker-${side}`}>Person</Label>
                 <Input id={`overlays-sheet-speaker-${side}`} />
               </div>
               <SheetFooter>
