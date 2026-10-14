@@ -33,7 +33,7 @@ import {
 } from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { mapFilterToSearchValue } from '@/lib/utils'
+import { getSortWithoutWords, mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 
@@ -89,8 +89,7 @@ export const Route = createFileRoute('/search')({
     const isWordsTooLong = words.length > SEARCH_WORDS_MAX_LENGTH
     const canSearch = (hasWords || hasFilter) && !isWordsTooLong
     const canSearchReports = canSearch && (hasWords || !hasPerson)
-    const resultSort =
-      hasWords || sort === SearchSort.OLDEST ? sort : SearchSort.DATE
+    const resultSort = hasWords ? sort : getSortWithoutWords(sort)
     const personName = personDetail.data?.canonical_name
     const speechesHeading = getSpeechesHeading(hasWords, personName)
     useDocumentTitle(

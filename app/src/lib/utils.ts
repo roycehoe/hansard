@@ -1,4 +1,5 @@
 import { FILTER_ALL } from '@/constants/constants'
+import { SearchSort } from '@/constants/search/enums'
 import { clsx, type ClassValue } from 'clsx'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
@@ -31,6 +32,10 @@ export function parsePersonSlug(personSlug: string): {
 
 export function mapFilterToSearchValue(value: string): string | undefined {
   return value === FILTER_ALL || value === '' ? undefined : value
+}
+
+export function getSortWithoutWords(sort: SearchSort | undefined): SearchSort {
+  return sort === SearchSort.OLDEST ? SearchSort.OLDEST : SearchSort.DATE
 }
 
 export function readSearchQuery(form: HTMLFormElement): string {

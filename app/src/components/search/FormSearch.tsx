@@ -28,13 +28,15 @@ import {
   PHONE_MEDIA_QUERY,
   SEARCH_FORM_ID,
   SEARCH_SORT_DROPDOWN_OPTIONS,
+  SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS,
+  SEARCH_WORDS_INPUT_ID,
   SEARCH_WORDS_MAX_LENGTH,
   SEARCH_WORDS_TOO_LONG_ERROR,
-  SORT_NEWEST_ONLY_DROPDOWN_OPTIONS,
 } from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatParliamentOption } from '@/lib/format'
+import { getSortWithoutWords } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
@@ -64,10 +66,6 @@ const formSchema = z
       values.person !== null,
     { error: 'Enter search words or choose a filter.', path: ['q'] }
   )
-
-function getWordlessSort(sort: SearchSort): SearchSort {
-  return sort === SearchSort.OLDEST ? SearchSort.OLDEST : SearchSort.DATE
-}
 
 function countActiveFilters(values: FormSearchValues): number {
   return [
@@ -110,7 +108,7 @@ export function FormSearch({
   const hasWords = useWatch({ control, name: 'q' }).trim() !== ''
   const sortOptions = hasWords
     ? SEARCH_SORT_DROPDOWN_OPTIONS
-    : SORT_NEWEST_ONLY_DROPDOWN_OPTIONS
+    : SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS
 
   function choosePersonInSheet(personId: number) {
     setValue('person', personId)
@@ -129,26 +127,28 @@ export function FormSearch({
     closeFilters()
     onSubmit(
       values.q.trim() === ''
-        ? { ...values, sort: getWordlessSort(values.sort) }
+        ? { ...values, sort: getSortWithoutWords(values.sort) }
         : values
     )
   }
 
+  const wordsErrorId = `${SEARCH_WORDS_INPUT_ID}-error`
+
   const wordsField = (
     <div className="flex flex-1 flex-col gap-2">
       <div className="flex h-6 items-center gap-1">
-        <Label htmlFor="search-q">Search words</Label>
+        <Label htmlFor={SEARCH_WORDS_INPUT_ID}>Search words</Label>
         <PopoverSearchTips />
       </div>
       <Input
-        id="search-q"
+        id={SEARCH_WORDS_INPUT_ID}
         type="search"
         aria-invalid={errors.q ? true : undefined}
-        aria-describedby={errors.q ? 'search-q-error' : undefined}
+        aria-describedby={errors.q ? wordsErrorId : undefined}
         {...register('q')}
       />
       {errors.q && (
-        <p id="search-q-error" className="text-destructive text-sm">
+        <p id={wordsErrorId} className="text-destructive text-sm">
           {errors.q.message}
         </p>
       )}
@@ -261,7 +261,7 @@ export function FormSearch({
         name="sort"
         render={({ field }) => (
           <Select
-            value={hasWords ? field.value : getWordlessSort(field.value)}
+            value={hasWords ? field.value : getSortWithoutWords(field.value)}
             onValueChange={field.onChange}
           >
             <SelectTrigger

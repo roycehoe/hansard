@@ -20,18 +20,16 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
+import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildReportCitation } from '@/lib/citation'
 import { formatSittingDate } from '@/lib/format'
-import {
-  HIGHLIGHT_QUERY_MAX_LENGTH,
-  parseHighlightTerms,
-} from '@/lib/highlight'
+import { parseHighlightTerms } from '@/lib/highlight'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 
 const reportSearchSchema = z.object({
-  hl: z.string().max(HIGHLIGHT_QUERY_MAX_LENGTH).optional().catch(undefined),
+  hl: z.string().max(SEARCH_WORDS_MAX_LENGTH).optional().catch(undefined),
 })
 
 function renderBody(report: GetReportResponse, highlightTerms: string[]) {

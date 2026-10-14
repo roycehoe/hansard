@@ -37,7 +37,7 @@ export const TITLE_MATCHES_HEADING = 'Title matches'
 
 export const REPORTS_HEADING = 'Reports'
 
-export const SORT_NEWEST_ONLY_DROPDOWN_OPTIONS = [
+export const SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS = [
   { value: SearchSort.DATE, label: 'Newest first' },
   { value: SearchSort.OLDEST, label: 'Oldest first' },
 ]
