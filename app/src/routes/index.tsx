@@ -1,10 +1,5 @@
 import { PageHeader } from '@/components/layout/PageHeader'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { readSearchQuery } from '@/lib/utils'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import type { FormEvent } from 'react'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 const HOME_LINKS = [
   {
@@ -26,33 +21,12 @@ const HOME_LINKS = [
 
 export const Route = createFileRoute('/')({
   component: function PageHome() {
-    const navigate = useNavigate()
-
-    function submitSearch(event: FormEvent<HTMLFormElement>) {
-      event.preventDefault()
-      const query = readSearchQuery(event.currentTarget)
-      if (query === '') return
-      void navigate({ to: '/search', search: { q: query } })
-    }
-
     return (
       <div className="space-y-8">
         <PageHeader
-          title="Hansard"
-          description="The Singapore parliamentary record from 1955, organised by person and by sitting, with citation-ready links."
+          title="The Singapore parliamentary record from 1955"
+          description="Organised by person and by sitting, with citation-ready links."
         />
-        <form
-          role="search"
-          aria-label="Search the record"
-          onSubmit={submitSearch}
-          className="flex flex-wrap items-end gap-4"
-        >
-          <div className="flex w-full flex-col gap-2 sm:max-w-md sm:flex-1">
-            <Label htmlFor="home-search">Search the record</Label>
-            <Input id="home-search" type="search" name="q" />
-          </div>
-          <Button type="submit">Search</Button>
-        </form>
         <ul>
           {HOME_LINKS.map((item) => (
             <li
