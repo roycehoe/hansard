@@ -32,6 +32,7 @@ interface ListSpeechMatchesProps {
   results: SpeechMatchData[]
   heading: string
   hasWords: boolean
+  highlightWords: string | undefined
   page: number
   pageSize: number
   totalCount: number
@@ -42,6 +43,7 @@ export function ListSpeechMatches({
   results,
   heading,
   hasWords,
+  highlightWords,
   page,
   pageSize,
   totalCount,
@@ -91,6 +93,7 @@ export function ListSpeechMatches({
                   <Link
                     to="/reports/$reportSlug"
                     params={{ reportSlug: group.reportSlug }}
+                    search={{ hl: highlightWords }}
                     className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
                   >
                     {group.speeches[0].title}
@@ -105,7 +108,10 @@ export function ListSpeechMatches({
                   </span>
                   <BadgeReportType reportType={group.speeches[0].report_type} />
                 </div>
-                <ListSpeechMatchesInReport speeches={group.speeches} />
+                <ListSpeechMatchesInReport
+                  speeches={group.speeches}
+                  highlightWords={highlightWords}
+                />
               </li>
             ))}
           </ol>
