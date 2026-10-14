@@ -11,6 +11,8 @@
     "index-migration": { "status": "completed", "scraper_commit": "b15908a", "revision": "e5a9c3b7d216", "rehearsal": "hansard-rehearsal-5434, upgrade 50 to 57 s", "production": "2026-10-14 11:01 to 11:07 SGT, 392 s, alembic check clean" },
     "search-verified": { "status": "completed", "commits": ["faedc12", "3f3f606"], "note": "B1 and B2 verified against production; common-term ranking still misses 300 ms" },
     "final-review": { "status": "completed", "verdict": "ship after fixes; blocker and should-fixes applied in 44310b9 and 3f3f606", "timestamp": "2026-10-14T11:40:00+08:00" },
-    "follow-up": { "status": "pending", "note": "apply only the taste proposals Royce accepts in the artifact" }
+    "follow-up": { "status": "pending", "note": "apply only the taste proposals Royce accepts in the artifact; also, per Royce on 14 Oct: show attribution figures for Parliaments 12 to 14 on /coverage and check the 'position number restarts each month' gap against the data; fix the /palette table scroll at 1280 px, the person membership table scroll at 375 px, the second home search box and the home h1 repeating the wordmark; the footer provenance line stays dropped; data preload on hover is skipped" },
+    "analyze": { "status": "completed", "note": "ANALYZE speech and report ran on production 2026-10-14 12:29 SGT with Royce's approval" },
+    "broad-term-search": { "status": "pending", "note": "stored generated tsvector column on speech, as its own scraper migration run while nothing else writes to the table" }
   }
 }
