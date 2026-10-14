@@ -41,7 +41,7 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ),
     ErrorCode.SEARCH_FILTER_REQUIRED: ErrorSpec(
         status.HTTP_422_UNPROCESSABLE_CONTENT,
-        "Enter search words or choose a filter.",
+        "The search has no words and no filter.",
     ),
 }
 

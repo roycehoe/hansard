@@ -8,7 +8,7 @@ from database.engine import get_session
 from enums import ReportType, SearchSort
 from schemas.search import SearchReportsResponse, SearchSpeechesResponse
 from services import search as search_service
-from validators.search import validate_can_search
+from validators.search import validate_can_search_reports, validate_can_search_speeches
 
 _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
@@ -30,8 +30,8 @@ def search_speeches(
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
     session: Session = Depends(get_session),
 ) -> SearchSpeechesResponse:
-    validate_can_search(
-        query, (parliament_number, date_from, date_to, report_type, person_id)
+    validate_can_search_speeches(
+        query, parliament_number, date_from, date_to, report_type, person_id
     )
     return search_service.search_speeches(
         query,
@@ -60,9 +60,8 @@ def search_reports(
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
     session: Session = Depends(get_session),
 ) -> SearchReportsResponse:
-    validate_can_search(
-        query,
-        (parliament_number, date_from, date_to, report_type, is_text_available),
+    validate_can_search_reports(
+        query, parliament_number, date_from, date_to, report_type, is_text_available
     )
     return search_service.search_reports(
         query,
