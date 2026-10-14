@@ -1,6 +1,16 @@
 {
   "feature": "hansard-polish",
   "pipeline": {
-    "grill-with-docs": { "status": "completed", "output": "plans/hansard-polish-brief.md", "timestamp": "2026-10-14T09:00:00+08:00" }
+    "grill-with-docs": { "status": "completed", "output": "plans/hansard-polish-brief.md", "timestamp": "2026-10-14T09:00:00+08:00" },
+    "footer": { "status": "completed", "commits": ["735a636"] },
+    "ai-look-research": { "status": "completed", "note": "three Sonnet researchers; findings in the run's scratchpad, not committed (brief: no written report)" },
+    "ai-look-judge": { "status": "completed", "clear_fixes": 6, "taste_proposals": 12 },
+    "ai-look-clear-fixes": { "status": "completed", "commits": ["179fe47", "de7c9f1", "bd23745", "3e1a8e9", "67ff14e", "5b9b40b", "14ce034"] },
+    "taste-artifact": { "status": "awaiting-royce", "url": "https://claude.ai/artifact/4ipQJXrqHYbUhk4KoGaKzc", "picks": "db collection 'picks', one document per proposal id (T1 to T12) with field 'pick' = accept or reject" },
+    "api-speed": { "status": "completed", "commits": ["8a99ef4", "56d6928", "5320fd5", "44310b9"], "note": "defaultPreload 'intent' preloads route code only; no route has a loader yet" },
+    "index-migration": { "status": "completed", "scraper_commit": "b15908a", "revision": "e5a9c3b7d216", "rehearsal": "hansard-rehearsal-5434, upgrade 50 to 57 s", "production": "2026-10-14 11:01 to 11:07 SGT, 392 s, alembic check clean" },
+    "search-verified": { "status": "completed", "commits": ["faedc12", "3f3f606"], "note": "B1 and B2 verified against production; common-term ranking still misses 300 ms" },
+    "final-review": { "status": "completed", "verdict": "ship after fixes; blocker and should-fixes applied in 44310b9 and 3f3f606", "timestamp": "2026-10-14T11:40:00+08:00" },
+    "follow-up": { "status": "pending", "note": "apply only the taste proposals Royce accepts in the artifact" }
   }
 }
