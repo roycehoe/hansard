@@ -10,7 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FILTER_ALL } from '@/constants/constants'
-import { formatParliamentOption } from '@/lib/format'
+import { MEMBERSHIP_PARLIAMENT_NUMBERS } from '@/constants/people/constants'
+import { formatParliament, formatParliamentOption } from '@/lib/format'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from '@tanstack/react-router'
 import { Controller, useForm } from 'react-hook-form'
@@ -21,6 +22,18 @@ const formSchema = z.object({
   party: z.string(),
   name: z.string(),
 })
+
+function getParliamentOptionLabel(
+  parliaments: ParliamentData[],
+  parliamentNumber: number
+): string {
+  const parliament = parliaments.find(
+    (candidate) => candidate.parliament_number === parliamentNumber
+  )
+  return parliament === undefined
+    ? formatParliament(parliamentNumber)
+    : formatParliamentOption(parliament)
+}
 
 export type FormFilterPersonsValues = z.infer<typeof formSchema>
 
@@ -66,12 +79,12 @@ export function FormFilterPersons({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL}>All Parliaments</SelectItem>
-                {parliaments.map((parliament) => (
+                {MEMBERSHIP_PARLIAMENT_NUMBERS.map((parliamentNumber) => (
                   <SelectItem
-                    key={parliament.parliament_number}
-                    value={String(parliament.parliament_number)}
+                    key={parliamentNumber}
+                    value={String(parliamentNumber)}
                   >
-                    {formatParliamentOption(parliament)}
+                    {getParliamentOptionLabel(parliaments, parliamentNumber)}
                   </SelectItem>
                 ))}
               </SelectContent>
