@@ -5,7 +5,7 @@ import { buildQueryString } from '@/lib/utils'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 export interface GetSearchReportsRequest {
-  q: string
+  q?: string
   parliament_number?: number
   date_from?: string
   date_to?: string
@@ -37,7 +37,7 @@ async function getSearchReportsResponse(
 ): Promise<GetSearchReportsResponse> {
   return apiGet<GetSearchReportsResponse>(
     `/search/reports${buildQueryString({
-      q: request.q,
+      q: request.q === '' ? undefined : request.q,
       parliament_number: request.parliament_number,
       date_from: request.date_from,
       date_to: request.date_to,
@@ -49,22 +49,24 @@ async function getSearchReportsResponse(
   )
 }
 
-export function useGetSearchReports(request: GetSearchReportsRequest) {
+export function useGetSearchReports(
+  request: GetSearchReportsRequest | undefined
+) {
   return useQuery({
     queryKey: [
       'search',
       'reports',
-      request.q,
-      request.parliament_number,
-      request.date_from,
-      request.date_to,
-      request.report_type,
-      request.is_text_available,
-      request.sort,
-      request.page,
+      request?.q,
+      request?.parliament_number,
+      request?.date_from,
+      request?.date_to,
+      request?.report_type,
+      request?.is_text_available,
+      request?.sort,
+      request?.page,
     ],
     placeholderData: keepPreviousData,
-    queryFn: () => getSearchReportsResponse(request),
-    enabled: !!request.q,
+    queryFn: () => getSearchReportsResponse(request!),
+    enabled: !!request,
   })
 }

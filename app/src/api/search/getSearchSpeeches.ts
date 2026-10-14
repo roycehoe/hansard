@@ -5,7 +5,7 @@ import { buildQueryString } from '@/lib/utils'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 export interface GetSearchSpeechesRequest {
-  q: string
+  q?: string
   parliament_number?: number
   date_from?: string
   date_to?: string
@@ -41,7 +41,7 @@ async function getSearchSpeechesResponse(
 ): Promise<GetSearchSpeechesResponse> {
   return apiGet<GetSearchSpeechesResponse>(
     `/search/speeches${buildQueryString({
-      q: request.q,
+      q: request.q === '' ? undefined : request.q,
       parliament_number: request.parliament_number,
       date_from: request.date_from,
       date_to: request.date_to,
@@ -53,22 +53,24 @@ async function getSearchSpeechesResponse(
   )
 }
 
-export function useGetSearchSpeeches(request: GetSearchSpeechesRequest) {
+export function useGetSearchSpeeches(
+  request: GetSearchSpeechesRequest | undefined
+) {
   return useQuery({
     queryKey: [
       'search',
       'speeches',
-      request.q,
-      request.parliament_number,
-      request.date_from,
-      request.date_to,
-      request.report_type,
-      request.person_id,
-      request.sort,
-      request.page,
+      request?.q,
+      request?.parliament_number,
+      request?.date_from,
+      request?.date_to,
+      request?.report_type,
+      request?.person_id,
+      request?.sort,
+      request?.page,
     ],
     placeholderData: keepPreviousData,
-    queryFn: () => getSearchSpeechesResponse(request),
-    enabled: !!request.q,
+    queryFn: () => getSearchSpeechesResponse(request!),
+    enabled: !!request,
   })
 }
