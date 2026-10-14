@@ -34,3 +34,7 @@ export const EMPTY_FILTERS_DESCRIPTION =
   'Nothing matches these filters. Try a wider date range or another Parliament.'
 
 export const VISIBLE_SPEECH_MATCHES_PER_REPORT = 3
+
+export const SEARCH_WORDS_INPUT_ID = 'search-q'
+
+export const CLEAR_FILTERS_LABEL = 'Clear filters'

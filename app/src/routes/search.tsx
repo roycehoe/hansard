@@ -4,9 +4,9 @@ import { useGetSearchReports } from '@/api/search/getSearchReports'
 import { useGetSearchSpeeches } from '@/api/search/getSearchSpeeches'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationPrevNext } from '@/components/layout/PaginationPrevNext'
-import { BadgePersonFilter } from '@/components/search/BadgePersonFilter'
 import type { FormSearchValues } from '@/components/search/FormSearch'
 import { FormSearch } from '@/components/search/FormSearch'
+import { ListActiveFilters } from '@/components/search/ListActiveFilters'
 import { ListPersonMatches } from '@/components/search/ListPersonMatches'
 import { ListReportMatches } from '@/components/search/ListReportMatches'
 import { ListSpeechMatches } from '@/components/search/ListSpeechMatches'
@@ -25,6 +25,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { FILTER_ALL } from '@/constants/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
+  SEARCH_WORDS_INPUT_ID,
   SPEECH_MATCHES_HEADING,
   SPEECHES_HEADING,
 } from '@/constants/search/constants'
@@ -155,6 +156,19 @@ export const Route = createFileRoute('/search')({
       })
     }
 
+    function clearFilters() {
+      document.getElementById(SEARCH_WORDS_INPUT_ID)?.focus()
+      void navigate({
+        to: '/search',
+        search: {
+          q,
+          sort,
+          page: undefined,
+          title_page: undefined,
+        },
+      })
+    }
+
     function changeSpeechPage(nextPage: number) {
       void navigate({
         to: '/search',
@@ -224,6 +238,7 @@ export const Route = createFileRoute('/search')({
             pageSize={speeches.data.page_size}
             totalCount={speeches.data.total_count}
             isTotalCapped={speeches.data.is_total_capped}
+            onClearFilters={hasFilter ? clearFilters : undefined}
           />
           <PaginationPrevNext
             page={page}
@@ -254,6 +269,7 @@ export const Route = createFileRoute('/search')({
             pageSize={reports.data.page_size}
             totalCount={reports.data.total_count}
             isTotalCapped={reports.data.is_total_capped}
+            onClearFilters={hasFilter ? clearFilters : undefined}
           />
           <PaginationPrevNext
             page={titlePage}
@@ -286,7 +302,7 @@ export const Route = createFileRoute('/search')({
           }
         />
         {renderForm()}
-        {person !== undefined && <BadgePersonFilter personId={person} />}
+        <ListActiveFilters onClearFilters={clearFilters} />
         <NoticeTextCoverage />
         <ListPersonMatches words={words} hasPerson={hasPerson} />
         {canSearch && renderSpeeches()}
