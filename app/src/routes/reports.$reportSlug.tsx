@@ -68,9 +68,11 @@ export const Route = createFileRoute('/reports/$reportSlug')({
           title={data.title}
           description={data.subtitle || undefined}
           titleAddon={
-            <PopoverUnofficialTranscript
-              officialRecordUrl={data.official_record_url}
-            />
+            data.speeches.length > 0 && (
+              <PopoverUnofficialTranscript
+                officialRecordUrl={data.official_record_url}
+              />
+            )
           }
           breadcrumb={
             <Breadcrumb>
