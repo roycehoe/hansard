@@ -1,4 +1,3 @@
-import { NUMBER_LOCALE } from '@/constants/constants'
 import type { YearCoverageData } from '@/api/coverage/getCoverage'
 import {
   Table,
@@ -9,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { NUMBER_LOCALE } from '@/constants/constants'
 
 const PERCENT_SCALE = 100
 
@@ -28,20 +28,30 @@ export function TableCoverageYears({ years }: TableCoverageYearsProps) {
       <TableHeader>
         <TableRow>
           <TableHead scope="col">Year</TableHead>
-          <TableHead scope="col" className="text-right">Reports</TableHead>
-          <TableHead scope="col" className="text-right">With text</TableHead>
-          <TableHead scope="col" className="text-right">Share</TableHead>
+          <TableHead scope="col" className="text-right">
+            Reports
+          </TableHead>
+          <TableHead scope="col" className="text-right">
+            With text
+          </TableHead>
+          <TableHead scope="col" className="text-right">
+            Share
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {years.map((year) => (
           <TableRow key={year.year}>
             <TableCell>{year.year}</TableCell>
-            <TableCell className="text-right tabular-nums">{year.report_count.toLocaleString(NUMBER_LOCALE)}</TableCell>
+            <TableCell className="text-right tabular-nums">
+              {year.report_count.toLocaleString(NUMBER_LOCALE)}
+            </TableCell>
             <TableCell className="text-right tabular-nums">
               {year.text_report_count.toLocaleString(NUMBER_LOCALE)}
             </TableCell>
-            <TableCell className="text-right tabular-nums">{formatTextShare(year)}</TableCell>
+            <TableCell className="text-right tabular-nums">
+              {formatTextShare(year)}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
