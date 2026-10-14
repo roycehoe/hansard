@@ -2,6 +2,7 @@ import type { SpeechMatchData } from '@/api/search/getSearchSpeeches'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { SnippetHighlighted } from '@/components/search/SnippetHighlighted'
+import { TextMatchCount } from '@/components/search/TextMatchCount'
 import {
   EMPTY_FILTERS_DESCRIPTION,
   EMPTY_WORDS_DESCRIPTION,
@@ -17,12 +18,20 @@ interface ListSpeechMatchesProps {
   results: SpeechMatchData[]
   heading: string
   hasWords: boolean
+  page: number
+  pageSize: number
+  totalCount: number
+  isTotalCapped: boolean
 }
 
 export function ListSpeechMatches({
   results,
   heading,
   hasWords,
+  page,
+  pageSize,
+  totalCount,
+  isTotalCapped,
 }: ListSpeechMatchesProps) {
   return (
     <section aria-labelledby="speech-matches-heading" className="space-y-4">
@@ -44,10 +53,15 @@ export function ListSpeechMatches({
         </div>
       ) : (
         <>
-          <p role="status" className="sr-only">
-            {results.length} {hasWords ? 'speech matches' : 'speeches'} on this
-            page
-          </p>
+          <TextMatchCount
+            page={page}
+            pageSize={pageSize}
+            shownCount={results.length}
+            totalCount={totalCount}
+            isTotalCapped={isTotalCapped}
+            singularNoun={hasWords ? 'speech match' : 'speech'}
+            pluralNoun={hasWords ? 'speech matches' : 'speeches'}
+          />
           <ol>
             {results.map((result) => (
               <li

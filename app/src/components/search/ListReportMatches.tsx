@@ -1,6 +1,7 @@
 import type { ReportMatchData } from '@/api/search/getSearchReports'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
+import { TextMatchCount } from '@/components/search/TextMatchCount'
 import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
 import {
   EMPTY_FILTERS_DESCRIPTION,
@@ -18,11 +19,19 @@ const EMPTY_FILTERS_TITLE = 'No reports'
 interface ListReportMatchesProps {
   results: ReportMatchData[]
   hasWords: boolean
+  page: number
+  pageSize: number
+  totalCount: number
+  isTotalCapped: boolean
 }
 
 export function ListReportMatches({
   results,
   hasWords,
+  page,
+  pageSize,
+  totalCount,
+  isTotalCapped,
 }: ListReportMatchesProps) {
   return (
     <section aria-labelledby="title-matches-heading" className="space-y-4">
@@ -41,10 +50,15 @@ export function ListReportMatches({
         </div>
       ) : (
         <>
-          <p role="status" className="sr-only">
-            {results.length} {hasWords ? 'title matches' : 'reports'} on this
-            page
-          </p>
+          <TextMatchCount
+            page={page}
+            pageSize={pageSize}
+            shownCount={results.length}
+            totalCount={totalCount}
+            isTotalCapped={isTotalCapped}
+            singularNoun={hasWords ? 'title match' : 'report'}
+            pluralNoun={hasWords ? 'title matches' : 'reports'}
+          />
           <ol>
             {results.map((result) => (
               <li
