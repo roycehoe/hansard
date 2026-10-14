@@ -86,7 +86,8 @@ export const Route = createFileRoute('/search')({
       hasPerson
     const canSearch = hasWords || hasFilter
     const canSearchReports = canSearch && (hasWords || !hasPerson)
-    const resultSort = hasWords ? sort : SearchSort.DATE
+    const resultSort =
+      hasWords || sort === SearchSort.OLDEST ? sort : SearchSort.DATE
     const personName = personDetail.data?.canonical_name
     const speechesHeading = getSpeechesHeading(hasWords, personName)
     useDocumentTitle(
