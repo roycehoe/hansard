@@ -8,6 +8,7 @@ from database.engine import get_session
 from enums import ReportType, SearchSort
 from schemas.search import SearchReportsResponse, SearchSpeechesResponse
 from services import search as search_service
+from validators.search import validate_can_search
 
 _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
@@ -18,7 +19,7 @@ router = APIRouter(prefix="/search", tags=["search"])
 
 @router.get("/speeches", status_code=200)
 def search_speeches(
-    query: str = Query(alias="q", min_length=1, max_length=_MAX_QUERY_LENGTH),
+    query: str = Query(default="", alias="q", max_length=_MAX_QUERY_LENGTH),
     parliament_number: Optional[int] = Query(default=None, ge=0),
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
@@ -29,6 +30,9 @@ def search_speeches(
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
     session: Session = Depends(get_session),
 ) -> SearchSpeechesResponse:
+    validate_can_search(
+        query, (parliament_number, date_from, date_to, report_type, person_id)
+    )
     return search_service.search_speeches(
         query,
         parliament_number,
@@ -45,7 +49,7 @@ def search_speeches(
 
 @router.get("/reports", status_code=200)
 def search_reports(
-    query: str = Query(alias="q", min_length=1, max_length=_MAX_QUERY_LENGTH),
+    query: str = Query(default="", alias="q", max_length=_MAX_QUERY_LENGTH),
     parliament_number: Optional[int] = Query(default=None, ge=0),
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
@@ -56,6 +60,10 @@ def search_reports(
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
     session: Session = Depends(get_session),
 ) -> SearchReportsResponse:
+    validate_can_search(
+        query,
+        (parliament_number, date_from, date_to, report_type, is_text_available),
+    )
     return search_service.search_reports(
         query,
         parliament_number,

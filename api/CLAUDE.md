@@ -56,14 +56,15 @@ What exists today:
 | `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. |
 | `database/` | One SQLModel class per table the API reads: `Report`, `Speech`, `Sitting`, `Attendance`, `Speaker`, `Person`. Only the columns the API uses. |
 | `exceptions/` | `base.py` (`ErrorCode`, `ErrorSpec`, `ERRORS`, `AppHttpExceptionBase`) and one no-argument exception class per domain file. |
-| `utils/` | Pure helpers: report slug, official record URL, person slug, sitting date text, `LIKE` escaping. |
+| `utils/` | Pure helpers: report slug, official record URL, person slug, sitting date text, `LIKE` escaping, transcript snippet. |
+| `validators/` | `search.py`: `validate_can_search`, which a search router calls before the service. |
 | `crud/` | One read-only class per table (`CRUDReport`, `CRUDSpeech`, `CRUDSitting`, `CRUDAttendance`, `CRUDMembership`, `CRUDPerson`) and `text_search.py` with the shared full-text constants. See `crud/CLAUDE.md`. |
 | `middleware/membership.py` | `get_membership_id_to_person`, which composes `CRUDMembership` and `CRUDPerson` for every service that resolves linked rows to Persons. |
 | `schemas/` | Pydantic response models, one file per domain. No field defaults. |
 | `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage. |
 | `routers/` | One router per domain plus `health.py`. Each handler calls one service function. |
 
-The layer table below is the full design. `validators/` and `gateway/` are not added yet.
+The layer table below is the full design. `gateway/` is not added yet.
 
 | Layer | Responsibility | Forbidden |
 |---|---|---|
@@ -76,7 +77,7 @@ The layer table below is the full design. `validators/` and `gateway/` are not a
 | `schemas/` | Pydantic request and response models. | Database access, logic |
 | `exceptions/` | Custom exception hierarchy. `base.py` defines the base types. | Exceptions that take arguments |
 | `utils/` | Pure functions with no side effects. Any layer may import from here. | Database access, HTTP calls, importing from layers above |
-| `validators/` (not yet added) | Input validation called from routers or services. | Session use, I/O |
+| `validators/` | Input validation called from routers or services. | Session use, I/O |
 | `middleware/` | Request-path middleware registered in `main.py`, and concerns that compose calls across gateways or services. | Single-service logic |
 | `gateway/` (not yet added) | Thin wrappers around one external service each. | Interpreting failures, business logic |
 
