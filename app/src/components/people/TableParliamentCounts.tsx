@@ -69,9 +69,9 @@ export function TableParliamentCounts({
             </TableBody>
           </Table>
           <p className="text-muted-foreground text-sm">
-            Attendance is counted from the sitting lists as stored. An absence
-            can have many causes, including leave and official duties, so these
-            are counts, not a score.
+            Attendance is counted from the sitting lists. An absence can have
+            many causes, including leave and official duties, so these are
+            counts, not a score.
           </p>
         </>
       )}
