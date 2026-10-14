@@ -1,5 +1,3 @@
-export const HIGHLIGHT_QUERY_MAX_LENGTH = 200
-
 const MIN_HIGHLIGHT_TERM_LENGTH = 2
 const QUOTE_CHARACTERS = /["“”]/g
 const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/g
