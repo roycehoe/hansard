@@ -73,8 +73,16 @@ const PAIRS: Pair[] = [
     ],
     TEXT_MINIMUM
   ),
-  ...pairs('primary', [...SURFACES, 'reading', 'highlight'], TEXT_MINIMUM),
-  ...pairs('primary-hover', [...SURFACES, 'reading'], TEXT_MINIMUM),
+  ...pairs(
+    'primary',
+    [...SURFACES, 'reading', 'highlight', 'muted', 'popover'],
+    TEXT_MINIMUM
+  ),
+  ...pairs(
+    'primary-hover',
+    [...SURFACES, 'reading', 'muted', 'popover'],
+    TEXT_MINIMUM
+  ),
   ...pairs('destructive', SURFACES, TEXT_MINIMUM),
   ...pairs('success', SURFACES, TEXT_MINIMUM),
   ...pairs('warning', SURFACES, TEXT_MINIMUM),
