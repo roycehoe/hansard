@@ -14,7 +14,7 @@ export function NoticeTextUnavailable({
     <NoticeEmpty
       icon={FileText}
       title={TEXT_NOT_IN_ARCHIVE_LABEL}
-      description="Only the title and details of this report have been collected so far. Read it on the official record."
+      description="Only the title and details of this report are in the archive so far. Read it on the official record."
       action={
         <Button variant="outline" asChild>
           <a href={officialRecordUrl} target="_blank" rel="noreferrer">

@@ -16,9 +16,7 @@ export function ButtonCopyCitation({
   async function copyCitation() {
     try {
       await navigator.clipboard.writeText(citation)
-      toast(
-        'Citation copied. The column number will be added once the archive has it.'
-      )
+      toast('Citation copied')
     } catch {
       toast.error("Couldn't copy the citation.")
     }
