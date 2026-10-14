@@ -18,7 +18,7 @@ import {
   SORT_NEWEST_ONLY_DROPDOWN_OPTIONS,
 } from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
-import { formatParliament } from '@/lib/format'
+import { formatParliamentOption } from '@/lib/format'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
@@ -130,7 +130,7 @@ export function FormSearch({
           />
         </div>
       </div>
-      <div className="flex w-full flex-col gap-2 sm:w-56">
+      <div className="flex w-full flex-col gap-2 sm:w-72">
         <Label htmlFor="search-parliament">Parliament</Label>
         <Controller
           control={control}
@@ -152,7 +152,7 @@ export function FormSearch({
                     key={parliament.parliament_number}
                     value={String(parliament.parliament_number)}
                   >
-                    {formatParliament(parliament.parliament_number)}
+                    {formatParliamentOption(parliament)}
                   </SelectItem>
                 ))}
               </SelectContent>

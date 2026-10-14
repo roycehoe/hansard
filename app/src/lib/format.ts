@@ -1,3 +1,4 @@
+import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
 import type { MembershipData } from '@/api/people/getAllPersons'
 import {
   LEGISLATIVE_ASSEMBLY_LABEL,
@@ -20,6 +21,14 @@ export function formatParliament(parliamentNumber: number): string {
   return parliamentNumber === LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER
     ? LEGISLATIVE_ASSEMBLY_LABEL
     : `Parliament ${parliamentNumber}`
+}
+
+export function formatParliamentOption(parliament: ParliamentData): string {
+  const firstYear = parseISO(parliament.first_sitting_date).getFullYear()
+  const lastYear = parseISO(parliament.last_sitting_date).getFullYear()
+  const years =
+    firstYear === lastYear ? firstYear : `${firstYear} to ${lastYear}`
+  return `${formatParliament(parliament.parliament_number)} (${years})`
 }
 
 export function formatMembershipSummary(memberships: MembershipData[]): string {

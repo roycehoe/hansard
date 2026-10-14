@@ -1,3 +1,4 @@
+import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
 import { useGetAllParties } from '@/api/people/getAllParties'
 import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -32,17 +33,21 @@ export const Route = createFileRoute('/people/')({
     useDocumentTitle('People')
     const { parliament, party, name } = Route.useSearch()
     const navigate = useNavigate()
+    const parliaments = useGetAllParliaments()
     const parties = useGetAllParties()
     const persons = useGetAllPersons({
       parliament_number: parliament,
       party,
       name,
     })
-    const isLoading = parties.isLoading || persons.isLoading
-    const isError = parties.isError || persons.isError
-    const isRefetching = parties.isRefetching || persons.isRefetching
+    const isLoading =
+      parliaments.isLoading || parties.isLoading || persons.isLoading
+    const isError = parliaments.isError || parties.isError || persons.isError
+    const isRefetching =
+      parliaments.isRefetching || parties.isRefetching || persons.isRefetching
 
     function retryPeople() {
+      void parliaments.refetch()
       void parties.refetch()
       void persons.refetch()
     }
@@ -62,7 +67,7 @@ export const Route = createFileRoute('/people/')({
 
     function renderBody() {
       if (isLoading) return <Skeleton className="h-96 w-full" />
-      if (isError || !parties.data || !persons.data) {
+      if (isError || !parliaments.data || !parties.data || !persons.data) {
         return (
           <NoticeErrorPersons onRetry={retryPeople} isRetrying={isRefetching} />
         )
@@ -76,6 +81,7 @@ export const Route = createFileRoute('/people/')({
               party: party ?? FILTER_ALL,
               name: name ?? '',
             }}
+            parliaments={parliaments.data.parliaments}
             parties={parties.data.parties}
             onSubmit={applyFilters}
           />
