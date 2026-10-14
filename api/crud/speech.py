@@ -13,13 +13,35 @@ from enums import ReportType, SearchSort
 _ONE_DAY = timedelta(days=1)
 
 
-def _get_speech_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
+def _get_sitting_date() -> ColumnElement:
     sitting_date_report = aliased(Report)
-    sitting_date = (
+    return (
         select(sitting_date_report.sitting_date)
         .where(sitting_date_report.id == Speech.report_id)
         .scalar_subquery()
     )
+
+
+def _get_report_filters(
+    parliament_number: Optional[int],
+    date_from: Optional[date],
+    date_to: Optional[date],
+    report_type: Optional[ReportType],
+) -> list[ColumnElement]:
+    filters = []
+    if parliament_number is not None:
+        filters.append(Report.parliament_number == parliament_number)
+    if date_from is not None:
+        filters.append(Report.sitting_date >= date_from)
+    if date_to is not None:
+        filters.append(Report.sitting_date < date_to + _ONE_DAY)
+    if report_type is not None:
+        filters.append(Report.report_type == report_type)
+    return filters
+
+
+def _get_speech_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
+    sitting_date = _get_sitting_date()
     if sort == SearchSort.DATE:
         return [sitting_date.desc(), rank.desc(), Speech.id]
     return [rank.desc(), sitting_date.desc(), Speech.id]
@@ -98,15 +120,10 @@ class CRUDSpeech:
             TEXT_SEARCH_CONFIGURATION, Speech.transcript
         )
         rank = func.ts_rank(transcript_vector, tsquery)
-        filters = [transcript_vector.op("@@")(tsquery)]
-        if parliament_number is not None:
-            filters.append(Report.parliament_number == parliament_number)
-        if date_from is not None:
-            filters.append(Report.sitting_date >= date_from)
-        if date_to is not None:
-            filters.append(Report.sitting_date < date_to + _ONE_DAY)
-        if report_type is not None:
-            filters.append(Report.report_type == report_type)
+        filters = [
+            transcript_vector.op("@@")(tsquery),
+            *_get_report_filters(parliament_number, date_from, date_to, report_type),
+        ]
         if membership_ids is not None:
             filters.append(Speech.speaker_id.in_(membership_ids))
         ordering = _get_speech_ordering(sort, rank)
@@ -115,6 +132,50 @@ class CRUDSpeech:
             .join(Report, Report.id == Speech.report_id)
             .where(*filters)
             .order_by(*ordering)
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(self.session.exec(statement).all())
+
+    def get_all_filtered(
+        self,
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        limit: int,
+        offset: int,
+    ) -> list[Speech]:
+        statement = (
+            select(Speech)
+            .join(Report, Report.id == Speech.report_id)
+            .where(
+                *_get_report_filters(parliament_number, date_from, date_to, report_type)
+            )
+            .order_by(Report.sitting_date.desc(), Speech.id)
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(self.session.exec(statement).all())
+
+    def get_all_by_speaker_id_filtered(
+        self,
+        membership_ids: list[int],
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        limit: int,
+        offset: int,
+    ) -> list[Speech]:
+        statement = (
+            select(Speech)
+            .join(Report, Report.id == Speech.report_id)
+            .where(Speech.speaker_id.in_(membership_ids))
+            .where(
+                *_get_report_filters(parliament_number, date_from, date_to, report_type)
+            )
+            .order_by(_get_sitting_date().desc(), Speech.id)
             .limit(limit)
             .offset(offset)
         )

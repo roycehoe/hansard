@@ -22,6 +22,7 @@ from schemas.search import (
 )
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
+from utils.transcript_snippet import get_transcript_snippet
 
 
 def _get_membership_ids(
@@ -48,6 +49,20 @@ def _get_validated_speeches(
     session: Session,
 ) -> list[Speech]:
     try:
+        if query.strip() == "":
+            if membership_ids is None:
+                return CRUDSpeech(session).get_all_filtered(
+                    parliament_number, date_from, date_to, report_type, limit, offset
+                )
+            return CRUDSpeech(session).get_all_by_speaker_id_filtered(
+                membership_ids,
+                parliament_number,
+                date_from,
+                date_to,
+                report_type,
+                limit,
+                offset,
+            )
         return CRUDSpeech(session).get_all_by_query_filtered(
             query,
             parliament_number,
@@ -78,6 +93,16 @@ def _get_validated_reports(
     session: Session,
 ) -> list[Report]:
     try:
+        if query.strip() == "":
+            return CRUDReport(session).get_all_filtered(
+                parliament_number,
+                date_from,
+                date_to,
+                report_type,
+                is_text_available,
+                limit,
+                offset,
+            )
         return CRUDReport(session).get_all_by_title_query_filtered(
             query,
             parliament_number,
@@ -144,9 +169,15 @@ def search_speeches(
         session,
     )
     page_speeches = speeches[:page_size]
-    speech_id_to_headline = CRUDSpeech(session).get_id_to_headline_by_ids(
-        [speech.id for speech in page_speeches], query
-    )
+    if query.strip() == "":
+        speech_id_to_snippet = {
+            speech.id: get_transcript_snippet(speech.transcript)
+            for speech in page_speeches
+        }
+    else:
+        speech_id_to_snippet = CRUDSpeech(session).get_id_to_headline_by_ids(
+            [speech.id for speech in page_speeches], query
+        )
     report_id_to_report = {
         report.id: report
         for report in CRUDReport(session).get_by_ids(
@@ -174,7 +205,7 @@ def search_speeches(
             speech,
             report_id_to_report[speech.report_id],
             membership_id_to_person.get(speech.speaker_id),
-            speech_id_to_headline.get(speech.id, ""),
+            speech_id_to_snippet.get(speech.id, ""),
         )
         for speech in page_speeches
         if speech.report_id in report_id_to_report
@@ -213,9 +244,12 @@ def search_reports(
     )
     page_reports = reports[:page_size]
     report_ids = [report.id for report in page_reports]
-    report_id_to_headline = CRUDReport(session).get_id_to_title_headline_by_ids(
-        report_ids, query
-    )
+    if query.strip() == "":
+        report_id_to_headline = {}
+    else:
+        report_id_to_headline = CRUDReport(session).get_id_to_title_headline_by_ids(
+            report_ids, query
+        )
     report_ids_with_text = set(
         CRUDReport(session).get_all_ids_with_text_by_ids(report_ids)
     )

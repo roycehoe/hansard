@@ -11,6 +11,7 @@ class ErrorCode(StrEnum):
     SITTING_NOT_FOUND = "sitting.not_found"
     PERSON_NOT_FOUND = "person.not_found"
     SEARCH_TIMED_OUT = "search.timed_out"
+    SEARCH_FILTER_REQUIRED = "search.filter_required"
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,6 +38,10 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ErrorCode.SEARCH_TIMED_OUT: ErrorSpec(
         status.HTTP_503_SERVICE_UNAVAILABLE,
         "The search took too long and was stopped.",
+    ),
+    ErrorCode.SEARCH_FILTER_REQUIRED: ErrorSpec(
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Enter search words or choose a filter.",
     ),
 }
 
