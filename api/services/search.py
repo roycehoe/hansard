@@ -62,7 +62,7 @@ def _get_validated_speeches(
                     limit,
                     offset,
                 )
-            return CRUDSpeech(session).get_all_by_speaker_id_filtered(
+            return CRUDSpeech(session).get_all_by_membership_ids_filtered(
                 membership_ids,
                 parliament_number,
                 date_from,
@@ -149,7 +149,7 @@ def _get_validated_speech_match_count(
                     report_type,
                     _MAX_COUNTED_MATCHES + 1,
                 )
-            return CRUDSpeech(session).get_count_by_speaker_id_filtered(
+            return CRUDSpeech(session).get_count_by_membership_ids_filtered(
                 membership_ids,
                 parliament_number,
                 date_from,

@@ -20,6 +20,12 @@ def _get_report_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnEl
     return [rank.desc(), Report.sitting_date.desc(), Report.id]
 
 
+def _get_browse_ordering(sort: SearchSort) -> list[ColumnElement]:
+    if sort == SearchSort.OLDEST:
+        return [Report.sitting_date.asc(), Report.id]
+    return [Report.sitting_date.desc(), Report.id]
+
+
 def _get_report_filters(
     parliament_number: Optional[int],
     date_from: Optional[date],
@@ -292,11 +298,6 @@ class CRUDReport:
         limit: int,
         offset: int,
     ) -> list[Report]:
-        sitting_date_ordering = (
-            Report.sitting_date.asc()
-            if sort == SearchSort.OLDEST
-            else Report.sitting_date.desc()
-        )
         statement = (
             select(Report)
             .options(defer(Report.markdown_content))
@@ -309,7 +310,7 @@ class CRUDReport:
                     is_text_available,
                 )
             )
-            .order_by(sitting_date_ordering, Report.id)
+            .order_by(*_get_browse_ordering(sort))
             .limit(limit)
             .offset(offset)
         )
