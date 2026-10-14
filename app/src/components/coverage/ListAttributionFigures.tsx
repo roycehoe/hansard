@@ -21,7 +21,7 @@ export function ListAttributionFigures() {
           <div key={figure.label} className="space-y-1">
             <dt className="text-sm font-medium">{figure.label}</dt>
             <dd className="space-y-1">
-              <span className="block font-serif text-2xl font-semibold">
+              <span className="block text-lg font-semibold tabular-nums">
                 {figure.value}
               </span>
               <span className="text-muted-foreground block text-sm">

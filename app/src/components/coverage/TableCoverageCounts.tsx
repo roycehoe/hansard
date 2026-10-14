@@ -1,13 +1,20 @@
-import { NUMBER_LOCALE } from '@/constants/constants'
 import type { GetCoverageResponse } from '@/api/coverage/getCoverage'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
 
-
-interface ListCoverageCountsProps {
+interface TableCoverageCountsProps {
   coverage: GetCoverageResponse
 }
 
-export function ListCoverageCounts({ coverage }: ListCoverageCountsProps) {
+export function TableCoverageCounts({ coverage }: TableCoverageCountsProps) {
   const counts = [
     { label: 'Reports', value: coverage.report_count },
     { label: 'Reports with text', value: coverage.text_report_count },
@@ -31,16 +38,29 @@ export function ListCoverageCounts({ coverage }: ListCoverageCountsProps) {
 
   return (
     <div className="space-y-4">
-      <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {counts.map((count) => (
-          <div key={count.label} className="space-y-1">
-            <dt className="text-muted-foreground text-sm">{count.label}</dt>
-            <dd className="font-serif text-2xl font-semibold">
-              {count.value.toLocaleString(NUMBER_LOCALE)}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <div className="max-w-2xl">
+        <Table aria-labelledby="counts-heading">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Measure</TableHead>
+              <TableHead className="text-right tabular-nums">Count</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {counts.map((count) => (
+              <TableRow
+                key={count.label}
+                className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
+              >
+                <TableCell>{count.label}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {count.value.toLocaleString(NUMBER_LOCALE)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       <div className="text-muted-foreground space-y-1 text-sm">
         {textFirst !== null && textLast !== null && (
           <p>
