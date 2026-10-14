@@ -46,6 +46,24 @@ def _get_report_filters(
     return filters
 
 
+def _get_title_query_filters(
+    query: str,
+    parliament_number: Optional[int],
+    date_from: Optional[date],
+    date_to: Optional[date],
+    report_type: Optional[ReportType],
+    is_text_available: Optional[bool],
+) -> list[ColumnElement]:
+    tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
+    title_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Report.title)
+    return [
+        title_vector.op("@@")(tsquery),
+        *_get_report_filters(
+            parliament_number, date_from, date_to, report_type, is_text_available
+        ),
+    ]
+
+
 class CRUDReport:
     def __init__(self, session: Session):
         self.session = session
@@ -244,12 +262,14 @@ class CRUDReport:
         tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
         title_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Report.title)
         rank = func.ts_rank(title_vector, tsquery)
-        filters = [
-            title_vector.op("@@")(tsquery),
-            *_get_report_filters(
-                parliament_number, date_from, date_to, report_type, is_text_available
-            ),
-        ]
+        filters = _get_title_query_filters(
+            query,
+            parliament_number,
+            date_from,
+            date_to,
+            report_type,
+            is_text_available,
+        )
         ordering = _get_report_ordering(sort, rank)
         statement = (
             select(Report)
@@ -294,6 +314,58 @@ class CRUDReport:
             .offset(offset)
         )
         return list(self.session.exec(statement).all())
+
+    def get_count_by_title_query_filtered(
+        self,
+        query: str,
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        is_text_available: Optional[bool],
+        limit: int,
+    ) -> int:
+        matching_ids = (
+            select(Report.id)
+            .where(
+                *_get_title_query_filters(
+                    query,
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    is_text_available,
+                )
+            )
+            .limit(limit)
+        )
+        statement = select(func.count()).select_from(matching_ids.subquery())
+        return self.session.exec(statement).one()
+
+    def get_count_filtered(
+        self,
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        is_text_available: Optional[bool],
+        limit: int,
+    ) -> int:
+        matching_ids = (
+            select(Report.id)
+            .where(
+                *_get_report_filters(
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    is_text_available,
+                )
+            )
+            .limit(limit)
+        )
+        statement = select(func.count()).select_from(matching_ids.subquery())
+        return self.session.exec(statement).one()
 
     def get_id_to_title_headline_by_ids(
         self, report_ids: list[int], query: str

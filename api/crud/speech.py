@@ -40,6 +40,25 @@ def _get_report_filters(
     return filters
 
 
+def _get_query_filters(
+    query: str,
+    parliament_number: Optional[int],
+    date_from: Optional[date],
+    date_to: Optional[date],
+    report_type: Optional[ReportType],
+    membership_ids: Optional[list[int]],
+) -> list[ColumnElement]:
+    tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
+    transcript_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Speech.transcript)
+    filters = [
+        transcript_vector.op("@@")(tsquery),
+        *_get_report_filters(parliament_number, date_from, date_to, report_type),
+    ]
+    if membership_ids is not None:
+        filters.append(Speech.speaker_id.in_(membership_ids))
+    return filters
+
+
 def _get_speech_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
     sitting_date = _get_sitting_date()
     if sort == SearchSort.DATE:
@@ -130,12 +149,14 @@ class CRUDSpeech:
             TEXT_SEARCH_CONFIGURATION, Speech.transcript
         )
         rank = func.ts_rank(transcript_vector, tsquery)
-        filters = [
-            transcript_vector.op("@@")(tsquery),
-            *_get_report_filters(parliament_number, date_from, date_to, report_type),
-        ]
-        if membership_ids is not None:
-            filters.append(Speech.speaker_id.in_(membership_ids))
+        filters = _get_query_filters(
+            query,
+            parliament_number,
+            date_from,
+            date_to,
+            report_type,
+            membership_ids,
+        )
         ordering = _get_speech_ordering(sort, rank)
         statement = (
             select(Speech)
@@ -192,6 +213,74 @@ class CRUDSpeech:
             .offset(offset)
         )
         return list(self.session.exec(statement).all())
+
+    def get_count_by_query_filtered(
+        self,
+        query: str,
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        membership_ids: Optional[list[int]],
+        limit: int,
+    ) -> int:
+        matching_ids = (
+            select(Speech.id)
+            .join(Report, Report.id == Speech.report_id)
+            .where(
+                *_get_query_filters(
+                    query,
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    membership_ids,
+                )
+            )
+            .limit(limit)
+        )
+        statement = select(func.count()).select_from(matching_ids.subquery())
+        return self.session.exec(statement).one()
+
+    def get_count_filtered(
+        self,
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        limit: int,
+    ) -> int:
+        matching_ids = (
+            select(Speech.id)
+            .join(Report, Report.id == Speech.report_id)
+            .where(
+                *_get_report_filters(parliament_number, date_from, date_to, report_type)
+            )
+            .limit(limit)
+        )
+        statement = select(func.count()).select_from(matching_ids.subquery())
+        return self.session.exec(statement).one()
+
+    def get_count_by_speaker_id_filtered(
+        self,
+        membership_ids: list[int],
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        limit: int,
+    ) -> int:
+        matching_ids = (
+            select(Speech.id)
+            .join(Report, Report.id == Speech.report_id)
+            .where(Speech.speaker_id.in_(membership_ids))
+            .where(
+                *_get_report_filters(parliament_number, date_from, date_to, report_type)
+            )
+            .limit(limit)
+        )
+        statement = select(func.count()).select_from(matching_ids.subquery())
+        return self.session.exec(statement).one()
 
     def get_id_to_headline_by_ids(
         self, speech_ids: list[int], query: str

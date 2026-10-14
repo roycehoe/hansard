@@ -570,6 +570,24 @@ Execution Time: 249.034 ms
 
 The planner expected 16,993 speeches for these memberships (13,345 real), so it joined to `report` with a hash join over a full sequential scan (183 ms, 4,010 pages read from disk) instead of 13,345 primary-key lookups. The speech side takes 12.6 ms. The other statements of the endpoint take under 30 ms each.
 
+## Match counts
+
+Every search page also carries `total_count` and `is_total_capped`. The count is its own statement per table, built from the same filter helpers as the page query, in the shape `SELECT count(*) FROM (SELECT id ... LIMIT 1001) AS capped`. `total_count` is the number of matches up to 1,000 and `is_total_capped` is true when there are more. An exact `count(*)` was measured first. `EXPLAIN (ANALYZE, BUFFERS)`, warm, best of three, read-only, on production on 14 October 2026 (speeches joined to `report`, as the page query is):
+
+| Count | Matches | Exact | Capped at 1,000 | Capped at 10,000 |
+|---|---|---|---|---|
+| speeches, "government" | 137,785 | over 30 s (statement timeout) | 3.0 to 6.5 s | 7.3 to 10.5 s |
+| speeches, "water agreement" | 438 | 14 ms | | |
+| speeches, "housing estate" | 4,822 | 241 ms | | |
+| speeches, "government" and person 29 | | 1.3 s | 0.65 to 2.4 s | 6.7 s |
+| speeches, person 29 | 13,135 | 47 ms | 4 to 22 ms | 245 ms |
+| speeches, Parliament 9 | | 249 ms | 1 to 6 ms | 75 ms |
+| speeches, `oral-answer` | | 2.15 s | 11 to 22 ms | 189 ms |
+| reports, "government" | 1,024 | 30 ms | 3 to 15 ms | 28 ms |
+| reports, Parliament 13 | | 11 ms | | |
+
+Exact counts fail: "government" times out, and `oral-answer` alone takes 2.2 s. A cap of 1,000 keeps every search without words under 25 ms, against up to 245 ms at 10,000. No cap meets 300 ms for a broad word, because the cost there is `to_tsvector` recomputed for every row the filter tests, and the planner picks a sequential scan or a lossy bitmap whatever the limit: "government" costs 0.95 s at a cap of 100, 3 to 6 s at 1,000 and 7 to 10 s at 10,000, and "government" with person 29 adds 0.65 to 2.4 s at 1,000 against 6.7 s at 10,000. The API uses 1,000, the cap that adds least to a broad word search while still giving an exact figure for every narrow one. The fix for the broad word cost is the stored `tsvector` column described in "Ranking cost", not a smaller cap.
+
 ## Queries the GIN index cannot serve
 
 A negation-only query, such as `-coe`, makes `websearch_to_tsquery` produce a query whose `querytree` is `T` (match everything). A GIN index cannot answer that, so the planner falls back to a sequential scan of `speech` or `report`. No index fixes this, and the API does not work around it (ADR 0003). The empty state tells the reader that common words are ignored.

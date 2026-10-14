@@ -23,6 +23,8 @@ class SearchSpeechesResponse(BaseModel):
     page: int
     page_size: int
     has_next_page: bool
+    total_count: int
+    is_total_capped: bool
 
 
 class ReportMatchData(BaseModel):
@@ -40,3 +42,5 @@ class SearchReportsResponse(BaseModel):
     page: int
     page_size: int
     has_next_page: bool
+    total_count: int
+    is_total_capped: bool

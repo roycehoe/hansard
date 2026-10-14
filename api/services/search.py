@@ -24,6 +24,8 @@ from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
 from utils.transcript_snippet import get_transcript_snippet
 
+_MAX_COUNTED_MATCHES = 1_000
+
 
 def _get_membership_ids(
     person_id: Optional[int], session: Session
@@ -128,6 +130,82 @@ def _get_validated_reports(
         raise
 
 
+def _get_validated_speech_match_count(
+    query: str,
+    parliament_number: Optional[int],
+    date_from: Optional[date],
+    date_to: Optional[date],
+    report_type: Optional[ReportType],
+    membership_ids: Optional[list[int]],
+    session: Session,
+) -> int:
+    try:
+        if query.strip() == "":
+            if membership_ids is None:
+                return CRUDSpeech(session).get_count_filtered(
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    _MAX_COUNTED_MATCHES + 1,
+                )
+            return CRUDSpeech(session).get_count_by_speaker_id_filtered(
+                membership_ids,
+                parliament_number,
+                date_from,
+                date_to,
+                report_type,
+                _MAX_COUNTED_MATCHES + 1,
+            )
+        return CRUDSpeech(session).get_count_by_query_filtered(
+            query,
+            parliament_number,
+            date_from,
+            date_to,
+            report_type,
+            membership_ids,
+            _MAX_COUNTED_MATCHES + 1,
+        )
+    except OperationalError as error:
+        if isinstance(error.orig, QueryCanceled):
+            raise SearchTimedOutException
+        raise
+
+
+def _get_validated_report_match_count(
+    query: str,
+    parliament_number: Optional[int],
+    date_from: Optional[date],
+    date_to: Optional[date],
+    report_type: Optional[ReportType],
+    is_text_available: Optional[bool],
+    session: Session,
+) -> int:
+    try:
+        if query.strip() == "":
+            return CRUDReport(session).get_count_filtered(
+                parliament_number,
+                date_from,
+                date_to,
+                report_type,
+                is_text_available,
+                _MAX_COUNTED_MATCHES + 1,
+            )
+        return CRUDReport(session).get_count_by_title_query_filtered(
+            query,
+            parliament_number,
+            date_from,
+            date_to,
+            report_type,
+            is_text_available,
+            _MAX_COUNTED_MATCHES + 1,
+        )
+    except OperationalError as error:
+        if isinstance(error.orig, QueryCanceled):
+            raise SearchTimedOutException
+        raise
+
+
 def _get_speech_match_data(
     speech: Speech,
     report: Report,
@@ -174,6 +252,15 @@ def search_speeches(
         sort,
         page_size + 1,
         (page - 1) * page_size,
+        session,
+    )
+    match_count = _get_validated_speech_match_count(
+        query,
+        parliament_number,
+        date_from,
+        date_to,
+        report_type,
+        membership_ids,
         session,
     )
     page_speeches = speeches[:page_size]
@@ -223,6 +310,8 @@ def search_speeches(
         page=page,
         page_size=page_size,
         has_next_page=len(speeches) > page_size,
+        total_count=min(match_count, _MAX_COUNTED_MATCHES),
+        is_total_capped=match_count > _MAX_COUNTED_MATCHES,
     )
 
 
@@ -248,6 +337,15 @@ def search_reports(
         sort,
         page_size + 1,
         (page - 1) * page_size,
+        session,
+    )
+    match_count = _get_validated_report_match_count(
+        query,
+        parliament_number,
+        date_from,
+        date_to,
+        report_type,
+        is_text_available,
         session,
     )
     page_reports = reports[:page_size]
@@ -278,4 +376,6 @@ def search_reports(
         page=page,
         page_size=page_size,
         has_next_page=len(reports) > page_size,
+        total_count=min(match_count, _MAX_COUNTED_MATCHES),
+        is_total_capped=match_count > _MAX_COUNTED_MATCHES,
     )
