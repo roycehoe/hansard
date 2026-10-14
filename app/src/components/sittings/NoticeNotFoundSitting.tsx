@@ -11,7 +11,7 @@ export function NoticeNotFoundSitting() {
       description="No sitting on this date is in the archive."
       action={
         <Button variant="outline" asChild>
-          <Link to="/">Back to Home</Link>
+          <Link to="/">Back to home</Link>
         </Button>
       }
     />

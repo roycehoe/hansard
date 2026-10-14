@@ -11,7 +11,7 @@ export function NoticeNotFoundPerson() {
       description="No person has this address. The archive may have renumbered it."
       action={
         <Button variant="outline" asChild>
-          <Link to="/">Back to Home</Link>
+          <Link to="/">Back to home</Link>
         </Button>
       }
     />

@@ -289,7 +289,7 @@ function ExampleForm() {
         {isPending ? (
           <>
             <Spinner aria-hidden />
-            Saving...
+            Saving…
           </>
         ) : (
           'Save'
@@ -313,15 +313,15 @@ export function SectionForms() {
       <Example label="Button pending">
         <Button disabled>
           <Spinner aria-hidden />
-          Saving...
+          Saving…
         </Button>
         <Button variant="secondary" disabled>
           <Spinner aria-hidden />
-          Exporting...
+          Exporting…
         </Button>
         <Button variant="destructive" disabled>
           <Spinner aria-hidden />
-          Deleting...
+          Deleting…
         </Button>
       </Example>
 

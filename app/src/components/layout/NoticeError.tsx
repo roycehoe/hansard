@@ -34,19 +34,19 @@ export function NoticeError({
         <Button variant="outline" asChild>
           <Link to="/">
             <ChevronLeft />
-            Back to Home
+            Back to home
           </Link>
         </Button>
         <Button variant="default" disabled={isRetrying} onClick={onRetry}>
           {isRetrying ? (
             <>
               <Spinner />
-              Retrying...
+              Retrying…
             </>
           ) : (
             <>
               <RotateCw />
-              Try Again
+              Try again
             </>
           )}
         </Button>
