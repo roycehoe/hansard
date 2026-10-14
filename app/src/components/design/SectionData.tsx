@@ -143,7 +143,7 @@ const ALERTS = [
     variant: 'success',
     icon: CircleCheck,
     title: 'Success alert',
-    description: 'Your saved search has been added.',
+    description: 'The citation has been copied.',
   },
   {
     variant: 'warning',
@@ -294,22 +294,22 @@ export function SectionData() {
       <Example label="Card, with footer and action button">
         <Card className="w-full max-w-sm">
           <CardHeader>
-            <CardTitle>Saved search</CardTitle>
-            <CardDescription>Cost of living, 14th Parliament</CardDescription>
+            <CardTitle>Debate on President's Address</CardTitle>
+            <CardDescription>16 May 2018, Parliament 13</CardDescription>
             <CardAction>
               <Button variant="outline" size="sm">
-                Edit
+                Copy citation
               </Button>
             </CardAction>
           </CardHeader>
           <CardContent>
-            <p className="text-sm">42 matching speeches.</p>
+            <p className="text-sm">112 speeches.</p>
           </CardContent>
           <CardFooter className="justify-end gap-2">
             <Button variant="ghost" size="sm">
-              Remove
+              Copy link
             </Button>
-            <Button size="sm">View results</Button>
+            <Button size="sm">Read report</Button>
           </CardFooter>
         </Card>
       </Example>

@@ -32,7 +32,7 @@ const SAMPLE_BREADCRUMB = (
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbPage>13 October 2026</BreadcrumbPage>
+        <BreadcrumbPage>12 October 1993</BreadcrumbPage>
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>
@@ -53,13 +53,13 @@ export function SectionLayout() {
       <Example label="PageHeader with description, breadcrumb and actions">
         <div className="w-full">
           <PageHeader
-            title="Sitting of 13 October 2026"
+            title="Sitting of 12 October 1993"
             description="Debates, questions and statements from this sitting of Parliament."
             breadcrumb={SAMPLE_BREADCRUMB}
             actions={
               <>
-                <Button variant="outline">Share</Button>
-                <Button>Download</Button>
+                <Button variant="outline">Copy citation</Button>
+                <Button>Read on the official record</Button>
               </>
             }
           />

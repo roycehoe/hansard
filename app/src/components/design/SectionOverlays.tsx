@@ -61,14 +61,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { BookmarkIcon, SettingsIcon } from 'lucide-react'
+import { LinkIcon, SettingsIcon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 const SHEET_SIDES = ['top', 'right', 'bottom', 'left'] as const
 
 function showSuccessToast() {
-  toast.success('Search saved')
+  toast.success('Citation copied')
 }
 
 function showErrorToast() {
@@ -84,23 +84,23 @@ function showWarningToast() {
 }
 
 function showLoadingToast() {
-  toast.loading('Saving search...')
+  toast.loading('Copying citation…')
 }
 
 function showPromiseToast() {
   toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
-    loading: 'Saving search...',
-    success: 'Search saved',
+    loading: 'Copying citation…',
+    success: 'Citation copied',
     error: 'Failed to save changes.',
   })
 }
 
 function showRestoredToast() {
-  toast.success('Search restored')
+  toast.success('Person filter restored')
 }
 
 function showActionToast() {
-  toast('Search deleted', {
+  toast('Person filter removed', {
     action: { label: 'Undo', onClick: showRestoredToast },
   })
 }
@@ -120,21 +120,18 @@ export function SectionOverlays() {
       <Example label="Dialog">
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">Rename search</Button>
+            <Button variant="outline">Filter by person</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Rename search</DialogTitle>
+              <DialogTitle>Filter by person</DialogTitle>
               <DialogDescription>
-                Give this saved search a name you will recognise later.
+                Show only speeches by one person in the search results.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2">
-              <Label htmlFor="overlays-search-name">Name</Label>
-              <Input
-                id="overlays-search-name"
-                defaultValue="Housing debates, 2015 onwards"
-              />
+              <Label htmlFor="overlays-person-name">Person</Label>
+              <Input id="overlays-person-name" defaultValue="Lee Hsien Loong" />
             </div>
             <DialogFooter>
               <DialogClose asChild>
@@ -151,20 +148,20 @@ export function SectionOverlays() {
       <Example label="Alert dialog">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive">Delete search</Button>
+            <Button variant="destructive">Remove person filter</Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete this search?</AlertDialogTitle>
+              <AlertDialogTitle>Remove this person filter?</AlertDialogTitle>
               <AlertDialogDescription>
-                The saved search is removed for good. Speeches it matched are
-                not affected.
+                The search shows speeches by everyone again. The speeches
+                themselves are not affected.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction variant="destructive">
-                Delete
+                Remove
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -209,14 +206,14 @@ export function SectionOverlays() {
             <Button variant="outline">Options</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Saved search</DropdownMenuLabel>
+            <DropdownMenuLabel>Report</DropdownMenuLabel>
             <DropdownMenuGroup>
-              <DropdownMenuItem>Rename</DropdownMenuItem>
-              <DropdownMenuItem>Duplicate</DropdownMenuItem>
+              <DropdownMenuItem>Copy citation</DropdownMenuItem>
+              <DropdownMenuItem>Copy link</DropdownMenuItem>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Export as</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger>Copy as</DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem>CSV</DropdownMenuItem>
+                  <DropdownMenuItem>Plain text</DropdownMenuItem>
                   <DropdownMenuItem>Markdown</DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
@@ -257,17 +254,17 @@ export function SectionOverlays() {
       <Example label="Tooltip">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline">Save search</Button>
+            <Button variant="outline">Copy citation</Button>
           </TooltipTrigger>
-          <TooltipContent>Keep this search for later</TooltipContent>
+          <TooltipContent>Copy the citation for this report</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" aria-label="Bookmark">
-              <BookmarkIcon />
+            <Button variant="outline" size="icon" aria-label="Copy link">
+              <LinkIcon />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Bookmark</TooltipContent>
+          <TooltipContent>Copy link</TooltipContent>
         </Tooltip>
       </Example>
 
