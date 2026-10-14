@@ -50,7 +50,7 @@ export function TableColoursGroup({
             <TableCell>
               <SwatchColour colour={row.colour} />
             </TableCell>
-            <TableCell className="max-w-56 space-y-2 whitespace-normal">
+            <TableCell className="max-w-48 space-y-2 whitespace-normal">
               <p className="font-mono font-medium break-words">
                 {row.colour.name}
               </p>
@@ -65,7 +65,7 @@ export function TableColoursGroup({
                 />
               </TableCell>
             ))}
-            <TableCell className="min-w-64 whitespace-normal">
+            <TableCell className="whitespace-normal">
               <NoticeColourProvenance colour={row.colour} />
             </TableCell>
           </TableRow>
