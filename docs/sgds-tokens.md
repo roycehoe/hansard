@@ -194,6 +194,7 @@ Tailwind v4 has no named duration namespace, so durations use the numeric `durat
 - **Radius for cards.** SGDS surfaces use 12px, so `Card` moved to `rounded-lg`. `rounded-sm` stays on menu items, which is the SGDS indicator radius (4px).
 - **Badge radius.** `Badge` uses `rounded-sm` (4px), the SGDS indicator radius, in every variant, not shadcn's `rounded-full` pill. Royce accepted this in the 14 Oct 2026 AI-look review (proposal T6), so it overrides the shadcn default.
 - **Card shadow.** `Card` keeps its `border-separator` hairline and drops shadcn's `shadow-sm`. Royce accepted this in the same review (proposal T5), so it overrides the shadcn default.
+- **Command.** `command.tsx` was added for the search Person picker. It uses palette tokens as generated, and its registry import of `cn` now reads `@/lib/utils`. `dialog.tsx` was not overwritten.
 - **Radius var.** `--radius` was removed from `:root` when the patch landed; the toast radius reads `--radius-md`.
 - **Shadow colour.** SGDS uses literal `rgba(14,14,14,...)`. We use `--overlay` so no raw colour appears.
 - **Breakpoint names.** We keep Tailwind's names (`sm`, `md`, ...) with SGDS values. SGDS also names `xs` and `3xl`, which we add.
