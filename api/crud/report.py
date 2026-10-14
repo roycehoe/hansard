@@ -15,6 +15,8 @@ _ONE_DAY = timedelta(days=1)
 def _get_report_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
     if sort == SearchSort.DATE:
         return [Report.sitting_date.desc(), rank.desc(), Report.id]
+    if sort == SearchSort.OLDEST:
+        return [Report.sitting_date.asc(), rank.desc(), Report.id]
     return [rank.desc(), Report.sitting_date.desc(), Report.id]
 
 
@@ -266,9 +268,15 @@ class CRUDReport:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         is_text_available: Optional[bool],
+        sort: SearchSort,
         limit: int,
         offset: int,
     ) -> list[Report]:
+        sitting_date_ordering = (
+            Report.sitting_date.asc()
+            if sort == SearchSort.OLDEST
+            else Report.sitting_date.desc()
+        )
         statement = (
             select(Report)
             .options(defer(Report.markdown_content))
@@ -281,7 +289,7 @@ class CRUDReport:
                     is_text_available,
                 )
             )
-            .order_by(Report.sitting_date.desc(), Report.id)
+            .order_by(sitting_date_ordering, Report.id)
             .limit(limit)
             .offset(offset)
         )

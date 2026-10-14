@@ -30,3 +30,4 @@ class ReportType(StrEnum):
 class SearchSort(StrEnum):
     RELEVANCE = "relevance"
     DATE = "date"
+    OLDEST = "oldest"

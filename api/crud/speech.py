@@ -44,7 +44,17 @@ def _get_speech_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnEl
     sitting_date = _get_sitting_date()
     if sort == SearchSort.DATE:
         return [sitting_date.desc(), rank.desc(), Speech.id]
+    if sort == SearchSort.OLDEST:
+        return [sitting_date.asc(), rank.desc(), Speech.id]
     return [rank.desc(), sitting_date.desc(), Speech.id]
+
+
+def _get_browse_ordering(
+    sort: SearchSort, sitting_date: ColumnElement
+) -> list[ColumnElement]:
+    if sort == SearchSort.OLDEST:
+        return [sitting_date.asc(), Speech.id]
+    return [sitting_date.desc(), Speech.id]
 
 
 class CRUDSpeech:
@@ -143,6 +153,7 @@ class CRUDSpeech:
         date_from: Optional[date],
         date_to: Optional[date],
         report_type: Optional[ReportType],
+        sort: SearchSort,
         limit: int,
         offset: int,
     ) -> list[Speech]:
@@ -152,7 +163,7 @@ class CRUDSpeech:
             .where(
                 *_get_report_filters(parliament_number, date_from, date_to, report_type)
             )
-            .order_by(Report.sitting_date.desc(), Speech.id)
+            .order_by(*_get_browse_ordering(sort, Report.sitting_date))
             .limit(limit)
             .offset(offset)
         )
@@ -165,6 +176,7 @@ class CRUDSpeech:
         date_from: Optional[date],
         date_to: Optional[date],
         report_type: Optional[ReportType],
+        sort: SearchSort,
         limit: int,
         offset: int,
     ) -> list[Speech]:
@@ -175,7 +187,7 @@ class CRUDSpeech:
             .where(
                 *_get_report_filters(parliament_number, date_from, date_to, report_type)
             )
-            .order_by(_get_sitting_date().desc(), Speech.id)
+            .order_by(*_get_browse_ordering(sort, _get_sitting_date()))
             .limit(limit)
             .offset(offset)
         )
