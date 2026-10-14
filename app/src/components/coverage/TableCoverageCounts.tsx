@@ -2,6 +2,7 @@ import type { GetCoverageResponse } from '@/api/coverage/getCoverage'
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -38,12 +39,15 @@ export function TableCoverageCounts({ coverage }: TableCoverageCountsProps) {
 
   return (
     <div className="space-y-4">
-      <div className="max-w-2xl">
-        <Table aria-labelledby="counts-heading">
+      <div className="max-w-xl">
+        <Table>
+          <TableCaption className="sr-only">Archive counts</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead>Measure</TableHead>
-              <TableHead className="text-right tabular-nums">Count</TableHead>
+              <TableHead scope="col">Measure</TableHead>
+              <TableHead scope="col" className="text-right">
+                Count
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -52,7 +56,12 @@ export function TableCoverageCounts({ coverage }: TableCoverageCountsProps) {
                 key={count.label}
                 className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
               >
-                <TableCell>{count.label}</TableCell>
+                <TableHead
+                  scope="row"
+                  className="text-foreground whitespace-normal"
+                >
+                  {count.label}
+                </TableHead>
                 <TableCell className="text-right tabular-nums">
                   {count.value.toLocaleString(NUMBER_LOCALE)}
                 </TableCell>

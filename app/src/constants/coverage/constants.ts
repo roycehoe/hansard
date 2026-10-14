@@ -1,57 +1,55 @@
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
-export const ATTRIBUTION_MEASURED_ON = '2026-10-13'
+export const ATTRIBUTION_MEASURED_ON = '2026-10-14'
 
 export const ATTRIBUTION_SCOPE =
   'Parliaments 0 to 11 (the Legislative Assembly to 2011)'
 
-export const ATTRIBUTION_FIGURES = [
-  {
-    label: 'Speeches with a name that are linked to a person',
-    value: '97.61%',
-    detail:
-      '564,509 of 578,359 speech rows with a speaker name, leaving out collective "hon. Member" references and stage directions.',
-  },
-  {
-    label: 'All speeches that are linked to a person',
-    value: '90.42%',
-    detail:
-      '564,509 of 624,332 speech rows, counting rows with no speaker name at all.',
-  },
-  {
-    label: 'Share of the text that sits under a linked speech',
-    value: '96.81%',
-    detail:
-      'Characters of body text in a linked speech, out of every report with text, including reports that produced no speech rows.',
-  },
-] as const
-
-export const ATTRIBUTION_LATER_MEASURED_ON = '2026-10-14'
-
 export const ATTRIBUTION_BY_PARLIAMENT = [
   {
     parliament: '0 to 11',
-    namedLinked: '97.61%',
-    allLinked: '90.42%',
-    textShare: '96.81%',
+    namedLinked: '97.74%',
+    allLinked: '88.88%',
+    textShare: '96.58%',
   },
   {
     parliament: '12',
-    namedLinked: '98.92%',
-    allLinked: '97.37%',
-    textShare: '98.81%',
+    namedLinked: '98.94%',
+    allLinked: '96.93%',
+    textShare: '98.71%',
   },
   {
     parliament: '13',
-    namedLinked: '98.16%',
-    allLinked: '96.68%',
-    textShare: '99.14%',
+    namedLinked: '98.18%',
+    allLinked: '96.31%',
+    textShare: '99.06%',
   },
   {
     parliament: '14',
-    namedLinked: '99.01%',
-    allLinked: '97.89%',
-    textShare: '99.22%',
+    namedLinked: '99.02%',
+    allLinked: '97.61%',
+    textShare: '99.13%',
+  },
+] as const
+
+export const ATTRIBUTION_FIGURES = [
+  {
+    label: 'Speeches with a name that are linked to a person',
+    value: ATTRIBUTION_BY_PARLIAMENT[0].namedLinked,
+    detail:
+      '554,901 of 567,756 speech rows with a speaker name, leaving out collective "hon. Member" references and stage directions.',
+  },
+  {
+    label: 'All speeches that are linked to a person',
+    value: ATTRIBUTION_BY_PARLIAMENT[0].allLinked,
+    detail:
+      '554,901 of 624,332 speech rows, counting rows with no speaker name at all.',
+  },
+  {
+    label: 'Share of the text that sits under a linked speech',
+    value: ATTRIBUTION_BY_PARLIAMENT[0].textShare,
+    detail:
+      'Characters of body text in a linked speech, out of every report with text, including reports that produced no speech rows.',
   },
 ] as const
 
