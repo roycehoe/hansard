@@ -12,7 +12,7 @@ export function NoticeErrorParliaments({
   return (
     <NoticeError
       title="Couldn't load the Parliaments"
-      description="The Parliament list did not load. Check your connection and try again."
+      description="The Parliament list did not load. Try again in a moment."
       onRetry={onRetry}
       isRetrying={isRetrying}
     />

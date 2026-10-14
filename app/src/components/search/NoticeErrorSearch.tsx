@@ -12,7 +12,7 @@ export function NoticeErrorSearch({
   return (
     <NoticeError
       title="Couldn't run the search"
-      description="The search did not finish. Check your connection and try again."
+      description="The search did not finish. Try again in a moment."
       onRetry={onRetry}
       isRetrying={isRetrying}
     />

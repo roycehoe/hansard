@@ -12,7 +12,7 @@ export function NoticeErrorSitting({
   return (
     <NoticeError
       title="Couldn't load the sitting"
-      description="The sitting did not load. Check your connection and try again."
+      description="The sitting did not load. Try again in a moment."
       onRetry={onRetry}
       isRetrying={isRetrying}
     />

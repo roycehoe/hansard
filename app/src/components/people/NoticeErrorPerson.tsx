@@ -12,7 +12,7 @@ export function NoticeErrorPerson({
   return (
     <NoticeError
       title="Couldn't load this person"
-      description="This person did not load. Check your connection and try again."
+      description="This person did not load. Try again in a moment."
       onRetry={onRetry}
       isRetrying={isRetrying}
     />
