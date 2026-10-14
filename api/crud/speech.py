@@ -190,7 +190,7 @@ class CRUDSpeech:
         )
         return list(self.session.exec(statement).all())
 
-    def get_all_by_speaker_id_filtered(
+    def get_all_by_membership_ids_filtered(
         self,
         membership_ids: list[int],
         parliament_number: Optional[int],
@@ -261,7 +261,7 @@ class CRUDSpeech:
         statement = select(func.count()).select_from(matching_ids.subquery())
         return self.session.exec(statement).one()
 
-    def get_count_by_speaker_id_filtered(
+    def get_count_by_membership_ids_filtered(
         self,
         membership_ids: list[int],
         parliament_number: Optional[int],
