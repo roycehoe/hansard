@@ -1,15 +1,28 @@
 # Required indexes
 
-The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: seven indexes, each with the exact definition, the endpoints that need it, the SQL the API sends, and the `EXPLAIN` output from a read-only run against the production database on 13 October 2026. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. Every plan is a plain `EXPLAIN`, so no query was executed.
+The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: seven indexes, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. Every plan is a plain `EXPLAIN` taken read-only on 14 October 2026, after the indexes were built, so no query was executed.
 
-Slow sequential scans are acceptable in local development. The API does not launch until every listed index exists. B1 and B2 are built against the documented expressions and are unverified until the two GIN indexes exist.
+All seven indexes exist and are valid on production. The scraper's commit `b15908a` (`feat: add the indexes the read API relies on`, Alembic revision `e5a9c3b7d216`) created them on 14 October 2026, from 11:01 to 11:07 SGT (392 seconds in total), and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes.
+
+| Index | Table | Size on production |
+|---|---|---|
+| `ix_speech_report_id` | `speech` | 8152 kB |
+| `ix_speech_speaker_id` | `speech` | 7480 kB |
+| `ix_attendance_sitting_id` | `attendance` | 944 kB |
+| `ix_attendance_speaker_id` | `attendance` | 952 kB |
+| `ix_report_sitting_date_parliament_number` | `report` | 352 kB |
+| `ix_report_title_fts` | `report` | 1768 kB |
+| `ix_speech_transcript_fts` | `speech` | 92 MB |
+
+The API no longer waits on any listed index. B1 and B2 are verified: on 14 October 2026 `GET /search/speeches` answered 200 with results against production for "housing estate" and for "housing" filtered to person 149. Two limits remain, both in the "Ranking cost" section: a common term such as "government" still answers `503 search.timed_out`, and several speech searches take more than 300 ms.
 
 Facts that apply to every plan below:
 
-- Today only the primary keys, `report.report_id` (unique) and `speaker.person_id` are indexed.
-- `speech` holds about 640,000 rows and `report` 37,929 on 13 October 2026. The speech count moves because the scraper is rebuilding rows, so cost figures shift between runs.
-- The database default text search configuration is `simple`. The API names `english` explicitly as a SQL literal (`literal_column("'english'")` in `api/crud/text_search.py`), so the query compiles to `to_tsvector('english', transcript)`. The index must name `english` too, or the planner will not match the expression.
-- The API sets a 30-second statement timeout. Without the GIN index the speech full-text query exceeds it on the shared database (the title query runs in about a second), so `GET /search/speeches` answers `503 search.timed_out` until `ix_speech_transcript_fts` exists. Run once through psql with no timeout on 13 October 2026, while the scraper was rebuilding speech rows, the relevance-sorted speech query for "housing estate" in Parliament 8 took 394 seconds.
+- Besides the seven indexes, the tables keep their primary keys, `report.report_id` (unique) and `speaker.person_id`.
+- `speech` holds about 1.07 million rows and `report` 41,809 on 14 October 2026.
+- The database default text search configuration is `simple`. The API names `english` explicitly as a SQL literal (`literal_column("'english'")` in `api/crud/text_search.py`), so the query compiles to `to_tsvector('english', transcript)`. The index names `english` too, or the planner would not match the expression.
+- The API sets a 30-second statement timeout. Before the GIN index existed, the speech full-text query exceeded it on the shared database, so `GET /search/speeches` answered `503 search.timed_out`. Run once through psql with no timeout on 13 October 2026, the relevance-sorted speech query for "housing estate" in Parliament 8 took 394 seconds.
+- Production has not analysed `speech` or `report` since the indexes were built, so the planner has no statistics for the two GIN expressions. Its row estimates for full-text predicates are far too low (27 estimated against 4,822 matches for "housing estate"). The plans below show those estimates.
 
 ## ix_speech_report_id
 
@@ -19,7 +32,7 @@ CREATE INDEX ix_speech_report_id ON speech (report_id);
 
 Needed by `GET /reports/{report_slug}` and `GET /people/{person_id}/reports`. `GET /search/speeches` also joins `speech` to `report` on this column.
 
-Without it, `speech_by_report_id` scans all of `speech` for one report's speeches.
+Before the index existed, `speech_by_report_id` scanned all of `speech` for one report's speeches. It now reads the report's rows through the index.
 
 ```sql
 -- speech_by_report_id (GET /reports/{report_slug})
@@ -28,15 +41,10 @@ SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.repo
 
 ```text
 -- speech_by_report_id (GET /reports/{report_slug})
-                                    QUERY PLAN                                    
-----------------------------------------------------------------------------------
- Gather Merge  (cost=55989.95..55996.48 rows=56 width=403)
-   Workers Planned: 2
-   ->  Sort  (cost=54989.92..54989.99 rows=28 width=403)
-         Sort Key: ordinal
-         ->  Parallel Seq Scan on speech  (cost=0.00..54989.25 rows=28 width=403)
-               Filter: (report_id = 27549)
-(6 rows)
+Sort  (cost=72.03..72.25 rows=87 width=405)
+  Sort Key: ordinal
+  ->  Index Scan using ix_speech_report_id on speech  (cost=0.43..69.23 rows=87 width=405)
+        Index Cond: (report_id = 27549)
 ```
 
 ```sql
@@ -46,25 +54,16 @@ SELECT anon_1.report_id, anon_1.speech_count  FROM (SELECT speech.report_id AS r
 
 ```text
 -- person_reports (GET /people/{person_id}/reports)
-                                                   QUERY PLAN                                                   
-----------------------------------------------------------------------------------------------------------------
- Limit  (cost=61507.97..61508.02 rows=21 width=24)
-   ->  Sort  (cost=61507.97..61520.53 rows=5022 width=24)
-         Sort Key: report.sitting_date DESC, report.speech_number DESC
-         ->  Merge Join  (cost=56169.40..61372.57 rows=5022 width=24)
-               Merge Cond: (speech.report_id = report.id)
-               ->  Finalize GroupAggregate  (cost=56169.11..57020.47 rows=5022 width=12)
-                     Group Key: speech.report_id
-                     ->  Gather Merge  (cost=56169.11..56939.24 rows=6202 width=12)
-                           Workers Planned: 2
-                           ->  Partial GroupAggregate  (cost=55169.09..55223.35 rows=3101 width=12)
-                                 Group Key: speech.report_id
-                                 ->  Sort  (cost=55169.09..55176.84 rows=3101 width=4)
-                                       Sort Key: speech.report_id
-                                       ->  Parallel Seq Scan on speech  (cost=0.00..54989.25 rows=3101 width=4)
-                                             Filter: (speaker_id = 1349)
-               ->  Index Scan using report_pkey on report  (cost=0.29..4193.32 rows=38402 width=16)
-(16 rows)
+Limit  (cost=9805.56..9805.61 rows=21 width=24)
+  ->  Sort  (cost=9805.56..9817.65 rows=4836 width=24)
+        Sort Key: report.sitting_date DESC, report.speech_number DESC
+        ->  Nested Loop  (cost=4492.03..9675.17 rows=4836 width=24)
+              ->  HashAggregate  (cost=4491.74..4540.10 rows=4836 width=12)
+                    Group Key: speech.report_id
+                    ->  Index Scan using ix_speech_speaker_id on speech  (cost=0.43..4460.39 rows=6270 width=4)
+                          Index Cond: (speaker_id = 1349)
+              ->  Index Scan using report_pkey on report  (cost=0.29..1.06 rows=1 width=16)
+                    Index Cond: (id = speech.report_id)
 ```
 
 ## ix_speech_speaker_id
@@ -75,7 +74,7 @@ CREATE INDEX ix_speech_speaker_id ON speech (speaker_id);
 
 Needed by `GET /people/{person_id}`, `GET /people/{person_id}/reports` and `GET /search/speeches` when `person_id` is given.
 
-Both statements filter `speech.speaker_id` and scan the whole table today. `person_reports` appears again here because it needs this index as well as `ix_speech_report_id`.
+Both statements filter `speech.speaker_id`. Before the index existed each scanned the whole table. `person_reports` appears again here because it needs this index as well as `ix_speech_report_id`.
 
 ```sql
 -- speech_counts_by_parliament (GET /people/{person_id})
@@ -84,22 +83,21 @@ SELECT report.parliament_number, count(*) AS count_1  FROM speech JOIN report ON
 
 ```text
 -- speech_counts_by_parliament (GET /people/{person_id})
-                                               QUERY PLAN                                               
---------------------------------------------------------------------------------------------------------
- Finalize GroupAggregate  (cost=58629.83..58657.00 rows=15 width=12)
-   Group Key: report.parliament_number
-   ->  Gather Merge  (cost=58629.83..58656.70 rows=30 width=12)
-         Workers Planned: 2
-         ->  Partial GroupAggregate  (cost=57629.81..57653.21 rows=15 width=12)
-               Group Key: report.parliament_number
-               ->  Sort  (cost=57629.81..57637.56 rows=3101 width=4)
-                     Sort Key: report.parliament_number
-                     ->  Nested Loop  (cost=0.29..57449.97 rows=3101 width=4)
-                           ->  Parallel Seq Scan on speech  (cost=0.00..54989.25 rows=3101 width=4)
-                                 Filter: (speaker_id = 1349)
-                           ->  Index Scan using report_pkey on report  (cost=0.29..0.79 rows=1 width=8)
-                                 Index Cond: (id = speech.report_id)
-(13 rows)
+Finalize GroupAggregate  (cost=10130.81..10134.61 rows=15 width=12)
+  Group Key: report.parliament_number
+  ->  Gather Merge  (cost=10130.81..10134.31 rows=30 width=12)
+        Workers Planned: 2
+        ->  Sort  (cost=9130.78..9130.82 rows=15 width=12)
+              Sort Key: report.parliament_number
+              ->  Partial HashAggregate  (cost=9130.34..9130.49 rows=15 width=12)
+                    Group Key: report.parliament_number
+                    ->  Nested Loop  (cost=55.31..9117.28 rows=2612 width=4)
+                          ->  Parallel Bitmap Heap Scan on speech  (cost=55.02..6123.68 rows=2612 width=4)
+                                Recheck Cond: (speaker_id = 1349)
+                                ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..53.45 rows=6270 width=0)
+                                      Index Cond: (speaker_id = 1349)
+                          ->  Index Scan using report_pkey on report  (cost=0.29..1.15 rows=1 width=8)
+                                Index Cond: (id = speech.report_id)
 ```
 
 ```sql
@@ -109,25 +107,16 @@ SELECT anon_1.report_id, anon_1.speech_count  FROM (SELECT speech.report_id AS r
 
 ```text
 -- person_reports (GET /people/{person_id}/reports)
-                                                   QUERY PLAN                                                   
-----------------------------------------------------------------------------------------------------------------
- Limit  (cost=61507.97..61508.02 rows=21 width=24)
-   ->  Sort  (cost=61507.97..61520.53 rows=5022 width=24)
-         Sort Key: report.sitting_date DESC, report.speech_number DESC
-         ->  Merge Join  (cost=56169.40..61372.57 rows=5022 width=24)
-               Merge Cond: (speech.report_id = report.id)
-               ->  Finalize GroupAggregate  (cost=56169.11..57020.47 rows=5022 width=12)
-                     Group Key: speech.report_id
-                     ->  Gather Merge  (cost=56169.11..56939.24 rows=6202 width=12)
-                           Workers Planned: 2
-                           ->  Partial GroupAggregate  (cost=55169.09..55223.35 rows=3101 width=12)
-                                 Group Key: speech.report_id
-                                 ->  Sort  (cost=55169.09..55176.84 rows=3101 width=4)
-                                       Sort Key: speech.report_id
-                                       ->  Parallel Seq Scan on speech  (cost=0.00..54989.25 rows=3101 width=4)
-                                             Filter: (speaker_id = 1349)
-               ->  Index Scan using report_pkey on report  (cost=0.29..4193.32 rows=38402 width=16)
-(16 rows)
+Limit  (cost=9805.56..9805.61 rows=21 width=24)
+  ->  Sort  (cost=9805.56..9817.65 rows=4836 width=24)
+        Sort Key: report.sitting_date DESC, report.speech_number DESC
+        ->  Nested Loop  (cost=4492.03..9675.17 rows=4836 width=24)
+              ->  HashAggregate  (cost=4491.74..4540.10 rows=4836 width=12)
+                    Group Key: speech.report_id
+                    ->  Index Scan using ix_speech_speaker_id on speech  (cost=0.43..4460.39 rows=6270 width=4)
+                          Index Cond: (speaker_id = 1349)
+              ->  Index Scan using report_pkey on report  (cost=0.29..1.06 rows=1 width=16)
+                    Index Cond: (id = speech.report_id)
 ```
 
 ## ix_attendance_sitting_id
@@ -145,13 +134,10 @@ SELECT attendance.id, attendance.speaker_name, attendance.location_name, attenda
 
 ```text
 -- attendance_by_sitting_id (GET /sittings/{sitting_date})
-                             QUERY PLAN                              
----------------------------------------------------------------------
- Sort  (cost=2321.36..2321.53 rows=69 width=40)
-   Sort Key: is_present DESC, speaker_name
-   ->  Seq Scan on attendance  (cost=0.00..2319.25 rows=69 width=40)
-         Filter: (sitting_id = 5852)
-(4 rows)
+Sort  (cost=79.97..80.16 rows=76 width=40)
+  Sort Key: is_present DESC, speaker_name
+  ->  Index Scan using ix_attendance_sitting_id on attendance  (cost=0.29..77.59 rows=76 width=40)
+        Index Cond: (sitting_id = 5852)
 ```
 
 ## ix_attendance_speaker_id
@@ -169,34 +155,32 @@ SELECT anon_1.parliament_number, count(*) AS count_1  FROM attendance JOIN sitti
 
 ```text
 -- attendance_counts_by_parliament (GET /people/{person_id})
-                                                  QUERY PLAN                                                  
---------------------------------------------------------------------------------------------------------------
- HashAggregate  (cost=6819.37..6821.37 rows=200 width=12)
-   Group Key: anon_1.parliament_number
-   ->  Hash Join  (cost=4197.11..6806.99 rows=2477 width=4)
-         Hash Cond: (to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text) = (anon_1.sitting_date)::date)
-         ->  Nested Loop  (cost=0.28..2399.31 rows=129 width=9)
-               ->  Seq Scan on attendance  (cost=0.00..2319.25 rows=129 width=4)
-                     Filter: ((is_present IS TRUE) AND (speaker_id = 1349))
-               ->  Index Scan using sitting_pkey on sitting  (cost=0.28..0.62 rows=1 width=13)
-                     Index Cond: (id = attendance.sitting_id)
-         ->  Hash  (cost=4148.83..4148.83 rows=3840 width=12)
-               ->  Subquery Scan on anon_1  (cost=4072.03..4148.83 rows=3840 width=12)
-                     ->  HashAggregate  (cost=4072.03..4110.43 rows=3840 width=12)
-                           Group Key: report.sitting_date, report.parliament_number
-                           ->  Seq Scan on report  (cost=0.00..3880.02 rows=38402 width=12)
-(14 rows)
+HashAggregate  (cost=1288.94..1290.94 rows=200 width=12)
+  Group Key: report.parliament_number
+  ->  Hash Join  (cost=186.06..1279.84 rows=1819 width=4)
+        Hash Cond: ((report.sitting_date)::date = to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text))
+        ->  Unique  (cost=0.29..882.51 rows=4181 width=12)
+              ->  Index Only Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..673.45 rows=41811 width=12)
+        ->  Hash  (cost=184.69..184.69 rows=87 width=9)
+              ->  Nested Loop  (cost=0.57..184.69 rows=87 width=9)
+                    ->  Index Scan using ix_attendance_speaker_id on attendance  (cost=0.29..85.02 rows=87 width=4)
+                          Index Cond: (speaker_id = 1349)
+                          Filter: (is_present IS TRUE)
+                    ->  Index Scan using sitting_pkey on sitting  (cost=0.28..1.15 rows=1 width=13)
+                          Index Cond: (id = attendance.sitting_id)
 ```
 
-## ix_report_sitting_date
+## ix_report_sitting_date_parliament_number
 
 ```sql
-CREATE INDEX ix_report_sitting_date ON report (sitting_date);
+CREATE INDEX ix_report_sitting_date_parliament_number ON report (sitting_date, parliament_number);
 ```
 
-Needed by `GET /sittings/{sitting_date}` and the date filters on `GET /search/speeches` and `GET /search/reports`.
+Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters on `GET /search/speeches` and `GET /search/reports`.
 
-The two date-filtered search statements are repeated under the GIN index sections, because the text predicate decides their plan. Today the date filter on `report` runs as a per-row filter after the primary-key lookup.
+The first version of this list named a single-column index on `report (sitting_date)`. The scraper builds this composite instead. On the rehearsal copy it served every statement the single column served. It also turned the per-Parliament statements (the Parliament list, the sittings list, the `DISTINCT sitting_date, parliament_number` subquery under the attendance counts) into index-only scans of 44 pages instead of 6,309 heap pages. On production a heap scan of `report` costs 0.4 to 1.4 seconds per statement, so that is the larger gain. A `(parliament_number, sitting_date)` index served fewer statements and was no better on any of them. The composite is 352 kB.
+
+The two date-filtered search statements are repeated under the GIN index sections, because the text predicate decides their plan. With no statistics for the GIN expressions on production, the planner still applies the date filter as a per-row filter after the primary-key lookup.
 
 ```sql
 -- report_by_sitting_date (GET /sittings/{sitting_date})
@@ -205,13 +189,10 @@ SELECT report.id, report.volume_number, report.parliament_number, report.sitting
 
 ```text
 -- report_by_sitting_date (GET /sittings/{sitting_date})
-                                     QUERY PLAN                                      
--------------------------------------------------------------------------------------
- Sort  (cost=3976.40..3976.45 rows=18 width=188)
-   Sort Key: speech_number
-   ->  Seq Scan on report  (cost=0.00..3976.03 rows=18 width=188)
-         Filter: (sitting_date = '1993-10-12 00:00:00'::timestamp without time zone)
-(4 rows)
+Sort  (cost=19.37..19.41 rows=19 width=190)
+  Sort Key: speech_number
+  ->  Index Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..18.96 rows=19 width=190)
+        Index Cond: (sitting_date = '1993-10-12 00:00:00'::timestamp without time zone)
 ```
 
 ```sql
@@ -221,26 +202,20 @@ SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.repo
 
 ```text
 -- speech_search_date (GET /search/speeches)
-                                                                           QUERY PLAN                                                                           
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
- Limit  (cost=123059.87..123059.90 rows=11 width=415)
-   ->  Sort  (cost=123059.87..123059.90 rows=11 width=415)
-         Sort Key: ((SubPlan 1)) DESC, (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, speech.id
-         ->  Gather  (cost=1000.29..123059.68 rows=11 width=415)
-               Workers Planned: 2
-               ->  Nested Loop  (cost=0.29..122030.42 rows=5 width=403)
-                     ->  Parallel Seq Scan on speech  (cost=0.00..122014.25 rows=7 width=403)
-                           Filter: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-                     ->  Index Scan using report_pkey on report  (cost=0.29..2.31 rows=1 width=4)
-                           Index Cond: (id = speech.report_id)
-                           Filter: (sitting_date >= '1993-01-01 00:00:00'::timestamp without time zone)
-               SubPlan 1
-                 ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
-                       Index Cond: (id = speech.report_id)
- JIT:
-   Functions: 16
-   Options: Inlining false, Optimization false, Expressions true, Deforming true
-(17 rows)
+Limit  (cost=153.70..153.75 rows=19 width=417)
+  ->  Sort  (cost=153.70..153.75 rows=19 width=417)
+        Sort Key: ((SubPlan 1)) DESC, (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, speech.id
+        ->  Nested Loop  (cost=9.49..153.30 rows=19 width=417)
+              ->  Bitmap Heap Scan on speech  (cost=9.20..43.29 rows=27 width=405)
+                    Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
+                    ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..9.19 rows=27 width=0)
+                          Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
+              ->  Index Scan using report_pkey on report  (cost=0.29..2.27 rows=1 width=4)
+                    Index Cond: (id = speech.report_id)
+                    Filter: (sitting_date >= '1993-01-01 00:00:00'::timestamp without time zone)
+              SubPlan 1
+                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
+                      Index Cond: (id = speech.report_id)
 ```
 
 ```sql
@@ -250,16 +225,14 @@ SELECT report.id, report.volume_number, report.parliament_number, report.sitting
 
 ```text
 -- title_search_date (GET /search/reports)
-                                                                    QUERY PLAN                                                                    
---------------------------------------------------------------------------------------------------------------------------------------------------
- Limit  (cost=8736.58..8736.59 rows=1 width=192)
-   ->  Sort  (cost=8736.58..8736.59 rows=1 width=192)
-         Sort Key: sitting_date DESC, (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''hous'' & ''estat'''::tsquery)) DESC, id
-         ->  Gather  (cost=1000.00..8736.57 rows=1 width=192)
-               Workers Planned: 2
-               ->  Parallel Seq Scan on report  (cost=0.00..7736.47 rows=1 width=192)
-                     Filter: ((parliament_number = 14) AND (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery))
-(7 rows)
+Limit  (cost=8.05..8.06 rows=1 width=194)
+  ->  Sort  (cost=8.05..8.06 rows=1 width=194)
+        Sort Key: sitting_date DESC, (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''hous'' & ''estat'''::tsquery)) DESC, id
+        ->  Bitmap Heap Scan on report  (cost=6.53..8.04 rows=1 width=194)
+              Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
+              Filter: (parliament_number = 14)
+              ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..6.53 rows=1 width=0)
+                    Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
 ```
 
 ## ix_speech_transcript_fts
@@ -280,7 +253,7 @@ The API orders speech results by a scalar subquery on `report.sitting_date`, so 
                        Index Cond: (id = speech.report_id)
 ```
 
-The plans below are the current state, before the index exists: a parallel sequential scan filtered by the `@@` predicate. `speech_headlines` reads at most one page of rows by primary key and needs no index of its own, but it only runs after a search has returned ids.
+The plans below are production's current plans. Each uses the GIN index through a bitmap scan. `speech_headlines` reads at most one page of rows by primary key and needs no index of its own, but it only runs after a search has returned ids.
 
 ```sql
 -- speech_search_relevance (GET /search/speeches)
@@ -289,26 +262,20 @@ SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.repo
 
 ```text
 -- speech_search_relevance (GET /search/speeches)
-                                                                           QUERY PLAN                                                                           
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
- Limit  (cost=123033.09..123033.10 rows=1 width=415)
-   ->  Sort  (cost=123033.09..123033.10 rows=1 width=415)
-         Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
-         ->  Gather  (cost=1000.29..123033.08 rows=1 width=415)
-               Workers Planned: 2
-               ->  Nested Loop  (cost=0.29..122030.42 rows=1 width=403)
-                     ->  Parallel Seq Scan on speech  (cost=0.00..122014.25 rows=7 width=403)
-                           Filter: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-                     ->  Index Scan using report_pkey on report  (cost=0.29..2.31 rows=1 width=4)
-                           Index Cond: (id = speech.report_id)
-                           Filter: (parliament_number = 8)
-               SubPlan 1
-                 ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
-                       Index Cond: (id = speech.report_id)
- JIT:
-   Functions: 16
-   Options: Inlining false, Optimization false, Expressions true, Deforming true
-(17 rows)
+Limit  (cost=107.23..107.23 rows=1 width=417)
+  ->  Sort  (cost=107.23..107.23 rows=1 width=417)
+        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
+        ->  Nested Loop  (cost=9.49..107.22 rows=1 width=417)
+              ->  Bitmap Heap Scan on speech  (cost=9.20..43.29 rows=27 width=405)
+                    Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
+                    ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..9.19 rows=27 width=0)
+                          Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
+              ->  Index Scan using report_pkey on report  (cost=0.29..2.27 rows=1 width=4)
+                    Index Cond: (id = speech.report_id)
+                    Filter: (parliament_number = 8)
+              SubPlan 1
+                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
+                      Index Cond: (id = speech.report_id)
 ```
 
 ```sql
@@ -318,26 +285,20 @@ SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.repo
 
 ```text
 -- speech_search_date (GET /search/speeches)
-                                                                           QUERY PLAN                                                                           
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
- Limit  (cost=123059.87..123059.90 rows=11 width=415)
-   ->  Sort  (cost=123059.87..123059.90 rows=11 width=415)
-         Sort Key: ((SubPlan 1)) DESC, (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, speech.id
-         ->  Gather  (cost=1000.29..123059.68 rows=11 width=415)
-               Workers Planned: 2
-               ->  Nested Loop  (cost=0.29..122030.42 rows=5 width=403)
-                     ->  Parallel Seq Scan on speech  (cost=0.00..122014.25 rows=7 width=403)
-                           Filter: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-                     ->  Index Scan using report_pkey on report  (cost=0.29..2.31 rows=1 width=4)
-                           Index Cond: (id = speech.report_id)
-                           Filter: (sitting_date >= '1993-01-01 00:00:00'::timestamp without time zone)
-               SubPlan 1
-                 ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
-                       Index Cond: (id = speech.report_id)
- JIT:
-   Functions: 16
-   Options: Inlining false, Optimization false, Expressions true, Deforming true
-(17 rows)
+Limit  (cost=153.70..153.75 rows=19 width=417)
+  ->  Sort  (cost=153.70..153.75 rows=19 width=417)
+        Sort Key: ((SubPlan 1)) DESC, (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, speech.id
+        ->  Nested Loop  (cost=9.49..153.30 rows=19 width=417)
+              ->  Bitmap Heap Scan on speech  (cost=9.20..43.29 rows=27 width=405)
+                    Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
+                    ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..9.19 rows=27 width=0)
+                          Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
+              ->  Index Scan using report_pkey on report  (cost=0.29..2.27 rows=1 width=4)
+                    Index Cond: (id = speech.report_id)
+                    Filter: (sitting_date >= '1993-01-01 00:00:00'::timestamp without time zone)
+              SubPlan 1
+                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
+                      Index Cond: (id = speech.report_id)
 ```
 
 ```sql
@@ -347,11 +308,8 @@ SELECT speech.id, ts_headline('english', speech.transcript, websearch_to_tsquery
 
 ```text
 -- speech_headlines (GET /search/speeches)
-                                QUERY PLAN                                 
----------------------------------------------------------------------------
- Index Scan using speech_pkey on speech  (cost=0.42..8.04 rows=3 width=36)
-   Index Cond: (id = ANY ('{1,2,3}'::integer[]))
-(2 rows)
+Index Scan using speech_pkey on speech  (cost=0.43..7.08 rows=3 width=36)
+  Index Cond: (id = ANY ('{1,2,3}'::integer[]))
 ```
 
 ## ix_report_title_fts
@@ -362,7 +320,7 @@ CREATE INDEX ix_report_title_fts ON report USING gin (to_tsvector('english', tit
 
 Needed by `GET /search/reports` (B1).
 
-The title query is cheap today (about a second), but it also scans the whole table and gets the same expression index.
+The title query was cheap before the index existed (about a second) but scanned the whole table. It now uses the same kind of expression index.
 
 ```sql
 -- title_search_relevance (GET /search/reports)
@@ -371,16 +329,13 @@ SELECT report.id, report.volume_number, report.parliament_number, report.sitting
 
 ```text
 -- title_search_relevance (GET /search/reports)
-                                                                 QUERY PLAN                                                                 
---------------------------------------------------------------------------------------------------------------------------------------------
- Limit  (cost=8696.58..8696.59 rows=1 width=192)
-   ->  Sort  (cost=8696.58..8696.59 rows=1 width=192)
-         Sort Key: (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''hous'' & ''estat'''::tsquery)) DESC, sitting_date DESC, id
-         ->  Gather  (cost=1000.00..8696.57 rows=1 width=192)
-               Workers Planned: 2
-               ->  Parallel Seq Scan on report  (cost=0.00..7696.47 rows=1 width=192)
-                     Filter: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
-(7 rows)
+Limit  (cost=8.05..8.06 rows=1 width=194)
+  ->  Sort  (cost=8.05..8.06 rows=1 width=194)
+        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''hous'' & ''estat'''::tsquery)) DESC, sitting_date DESC, id
+        ->  Bitmap Heap Scan on report  (cost=6.53..8.04 rows=1 width=194)
+              Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
+              ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..6.53 rows=1 width=0)
+                    Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
 ```
 
 ```sql
@@ -390,21 +345,155 @@ SELECT report.id, report.volume_number, report.parliament_number, report.sitting
 
 ```text
 -- title_search_date (GET /search/reports)
-                                                                    QUERY PLAN                                                                    
---------------------------------------------------------------------------------------------------------------------------------------------------
- Limit  (cost=8736.58..8736.59 rows=1 width=192)
-   ->  Sort  (cost=8736.58..8736.59 rows=1 width=192)
-         Sort Key: sitting_date DESC, (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''hous'' & ''estat'''::tsquery)) DESC, id
-         ->  Gather  (cost=1000.00..8736.57 rows=1 width=192)
-               Workers Planned: 2
-               ->  Parallel Seq Scan on report  (cost=0.00..7736.47 rows=1 width=192)
-                     Filter: ((parliament_number = 14) AND (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery))
-(7 rows)
+Limit  (cost=8.05..8.06 rows=1 width=194)
+  ->  Sort  (cost=8.05..8.06 rows=1 width=194)
+        Sort Key: sitting_date DESC, (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''hous'' & ''estat'''::tsquery)) DESC, id
+        ->  Bitmap Heap Scan on report  (cost=6.53..8.04 rows=1 width=194)
+              Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
+              Filter: (parliament_number = 14)
+              ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..6.53 rows=1 width=0)
+                    Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
 ```
 
 ## Ranking cost
 
-`ts_rank` needs a `tsvector`, and an expression index stores none. Postgres therefore recomputes `to_tsvector('english', transcript)` for every matched row to rank it. A common word such as "government" matches roughly 94,000 speeches, so a broad query ranks all of them before the `LIMIT 21` applies. That is acceptable in development.
+`ts_rank` needs a `tsvector`, and an expression index stores none. Postgres therefore recomputes `to_tsvector('english', transcript)` for every matched row to rank it, and both sort orders use `ts_rank` as a sort key. The GIN index finds the matches quickly; ranking them is what costs time. A common word such as "government" matches 137,785 speeches, so a broad query ranks all of them before the `LIMIT 21` applies.
+
+The brief's speed target is 300 ms warm. On 14 October 2026, with all seven indexes in place, timed through a local API against production, every endpoint met it except these:
+
+| Request | Matches | Time | Cause |
+|---|---|---|---|
+| `GET /search/speeches?q=housing estate` | 4,822 | 1.5 to 1.8 s | `ts_rank` recomputes 4,822 transcript vectors (1.57 s of 1.60 s in `EXPLAIN ANALYZE`) |
+| `GET /search/speeches?q=housing estate&sort=date` | 4,822 | 0.73 to 0.84 s | same ranking cost, as the second sort key |
+| `GET /search/speeches?q=housing&person_id=149` | 608 of 67,059 | 2.1 to 2.4 s | lossy bitmap at `work_mem` 2MB; the recheck recomputes vectors for 12,089 rows |
+| `GET /search/speeches?q=government` | 137,785 | `503 search.timed_out` after 30 s | ranking 137,785 transcripts plus a lossy bitmap |
+| `GET /people/29` | | 0.30 to 0.64 s | one statement, `speech_counts_by_parliament`, plans a sequential scan of `report` |
+
+For comparison, the same "housing estate" plan takes 300 to 480 ms on the rehearsal copy, which has the whole working set in memory. A rehearsal run of "government" at production's `work_mem` of 2MB took 6 to 8 s by relevance and 8 to 11 s by date. At 32MB the relevance query took 2.6 s, and the date sort stayed slow because it also runs the `SubPlan 1` date lookup 137,785 times. No workaround is applied, per the brief.
+
+Missing statistics make the person-filtered search worse. Production has not analysed `speech` or `report` since the indexes were built, so the planner estimates 27 matches for "housing estate" (4,822 real) and 5,343 for "government" (137,785 real). In the person-filtered search that puts the large "housing" bitmap into the `BitmapAnd`; at 2MB it turns lossy (681 of 885 heap blocks), and the recheck recomputes `to_tsvector` for rows the speaker filter then discards. On rehearsal the same statement took 146 ms with statistics and about 480 ms without. Production takes longer than rehearsal on every ranking step, and the cause was not isolated.
+
+`EXPLAIN (ANALYZE, BUFFERS)` on production, `GET /search/speeches?q=housing estate`:
+
+```text
+Limit  (cost=148.35..148.40 rows=21 width=417) (actual time=1603.404..1603.432 rows=21 loops=1)
+  Buffers: shared hit=27970
+  ->  Sort  (cost=148.35..148.42 rows=27 width=417) (actual time=1603.401..1603.424 rows=21 loops=1)
+        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
+        Sort Method: top-N heapsort  Memory: 71kB
+        Buffers: shared hit=27970
+        ->  Nested Loop  (cost=9.49..147.71 rows=27 width=417) (actual time=5.263..1593.445 rows=4822 loops=1)
+              Buffers: shared hit=27970
+              ->  Bitmap Heap Scan on speech  (cost=9.20..43.29 rows=27 width=405) (actual time=4.930..23.829 rows=4822 loops=1)
+                    Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
+                    Heap Blocks: exact=3667
+                    Buffers: shared hit=3705
+                    ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..9.19 rows=27 width=0) (actual time=3.985..3.986 rows=4822 loops=1)
+                          Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
+                          Buffers: shared hit=38
+              ->  Index Only Scan using report_pkey on report  (cost=0.29..1.31 rows=1 width=4) (actual time=0.004..0.004 rows=1 loops=4822)
+                    Index Cond: (id = speech.report_id)
+                    Heap Fetches: 0
+                    Buffers: shared hit=9645
+              SubPlan 1
+                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8) (actual time=0.007..0.007 rows=1 loops=4822)
+                      Index Cond: (id = speech.report_id)
+                      Buffers: shared hit=14466
+Planning:
+  Buffers: shared hit=18
+Planning Time: 0.731 ms
+Execution Time: 1603.736 ms
+```
+
+`EXPLAIN (ANALYZE, BUFFERS)` on production, `GET /search/speeches?q=housing&person_id=149`:
+
+```text
+Limit  (cost=402.86..402.91 rows=21 width=417) (actual time=4196.406..4196.420 rows=21 loops=1)
+  Buffers: shared hit=4041
+  ->  Sort  (cost=402.86..402.99 rows=54 width=417) (actual time=4196.403..4196.411 rows=21 loops=1)
+        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
+        Sort Method: top-N heapsort  Memory: 63kB
+        Buffers: shared hit=4041
+        ->  Nested Loop  (cost=129.40..401.40 rows=54 width=417) (actual time=30.475..4186.007 rows=608 loops=1)
+              Buffers: shared hit=4041
+              ->  Bitmap Heap Scan on speech  (cost=129.11..197.56 rows=54 width=405) (actual time=29.983..3814.507 rows=608 loops=1)
+                    Recheck Cond: ((to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'''::tsquery) AND (speaker_id = ANY ('{385,466,556,647,746,849,959,1074,1181,1304}'::integer[])))
+                    Rows Removed by Index Recheck: 11481
+                    Heap Blocks: exact=204 lossy=681
+                    Buffers: shared hit=988
+                    ->  BitmapAnd  (cost=129.09..129.09 rows=54 width=0) (actual time=29.235..29.238 rows=0 loops=1)
+                          Buffers: shared hit=60
+                          ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..32.93 rows=5343 width=0) (actual time=26.124..26.125 rows=67059 loops=1)
+                                Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'''::tsquery)
+                                Buffers: shared hit=19
+                          ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..95.88 rows=10875 width=0) (actual time=0.919..0.919 rows=11985 loops=1)
+                                Index Cond: (speaker_id = ANY ('{385,466,556,647,746,849,959,1074,1181,1304}'::integer[]))
+                                Buffers: shared hit=41
+              ->  Index Only Scan using report_pkey on report  (cost=0.29..1.21 rows=1 width=4) (actual time=0.035..0.035 rows=1 loops=608)
+                    Index Cond: (id = speech.report_id)
+                    Heap Fetches: 0
+                    Buffers: shared hit=1217
+              SubPlan 1
+                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8) (actual time=0.031..0.032 rows=1 loops=608)
+                      Index Cond: (id = speech.report_id)
+                      Buffers: shared hit=1824
+Planning:
+  Buffers: shared hit=18
+Planning Time: 0.851 ms
+Execution Time: 4196.582 ms
+```
+
+Plain `EXPLAIN` on production, `GET /search/speeches?q=government` (the query runs past 30 s, so it is not executed here):
+
+```text
+Limit  (cost=6917.87..6983.76 rows=21 width=417)
+  ->  Incremental Sort  (cost=6917.87..23681.39 rows=5343 width=417)
+        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''govern'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
+        Presorted Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''govern'''::tsquery))
+        ->  Nested Loop  (cost=6914.75..23442.04 rows=5343 width=417)
+              ->  Gather Merge  (cost=6914.45..7536.73 rows=5343 width=405)
+                    Workers Planned: 2
+                    ->  Sort  (cost=5914.43..5919.99 rows=2226 width=405)
+                          Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''govern'''::tsquery)) DESC
+                          ->  Parallel Bitmap Heap Scan on speech  (cost=34.27..5790.66 rows=2226 width=405)
+                                Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''govern'''::tsquery)
+                                ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..32.93 rows=5343 width=0)
+                                      Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''govern'''::tsquery)
+              ->  Memoize  (cost=0.30..0.50 rows=1 width=4)
+                    Cache Key: speech.report_id
+                    Cache Mode: logical
+                    ->  Index Only Scan using report_pkey on report  (cost=0.29..0.49 rows=1 width=4)
+                          Index Cond: (id = speech.report_id)
+              SubPlan 1
+                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
+                      Index Cond: (id = speech.report_id)
+```
+
+The statement behind `GET /people/29` that takes the time is `speech_counts_by_parliament`. `EXPLAIN (ANALYZE, BUFFERS)` on production, with the 12 memberships of person 29:
+
+```text
+HashAggregate  (cost=18568.61..18568.76 rows=15 width=12) (actual time=248.854..248.866 rows=12 loops=1)
+  Group Key: report.parliament_number
+  Batches: 1  Memory Usage: 24kB
+  Buffers: shared hit=5691 read=4010
+  ->  Hash Join  (cost=7025.17..18483.64 rows=16993 width=4) (actual time=223.608..243.978 rows=13345 loops=1)
+        Hash Cond: (speech.report_id = report.id)
+        Buffers: shared hit=5691 read=4010
+        ->  Index Scan using ix_speech_speaker_id on speech  (cost=0.43..11414.29 rows=16993 width=4) (actual time=0.030..12.556 rows=13345 loops=1)
+              Index Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
+              Buffers: shared hit=3617
+        ->  Hash  (cost=6502.11..6502.11 rows=41811 width=8) (actual time=222.096..222.099 rows=41811 loops=1)
+              Buckets: 65536  Batches: 1  Memory Usage: 2146kB
+              Buffers: shared hit=2074 read=4010
+              ->  Seq Scan on report  (cost=0.00..6502.11 rows=41811 width=8) (actual time=0.113..182.858 rows=41811 loops=1)
+                    Buffers: shared hit=2074 read=4010
+Planning:
+  Buffers: shared hit=17
+Planning Time: 1.359 ms
+Execution Time: 249.034 ms
+```
+
+The planner expected 16,993 speeches for these memberships (13,345 real), so it joined to `report` with a hash join over a full sequential scan (183 ms, 4,010 pages read from disk) instead of 13,345 primary-key lookups. The speech side takes 12.6 ms. The other statements of the endpoint take under 30 ms each.
 
 The alternative is a stored generated column with its own GIN index:
 
@@ -426,7 +515,7 @@ A negation-only query, such as `-coe`, makes `websearch_to_tsquery` produce a qu
 - `report.report_id` is already unique-indexed.
 - `speaker.person_id` is already indexed.
 - `speaker` for `GET /people` has 1,434 rows, so the filter by parliament and `ILIKE` on name scans the table at negligible cost. A leading-wildcard `ILIKE` could not use a B-tree anyway.
-- `report.parliament_number` for `GET /sittings`. The service runs three group-by statements of the shape below (volume, sitting number and report count per date), each a sequential scan of 37,929 rows filtered by Parliament. That costs a few milliseconds and no index is listed for it.
+- `report.parliament_number` on its own, for `GET /sittings`. The service runs three group-by statements of the shape below (volume, sitting number and report count per date), each a scan of `report` filtered by Parliament. `ix_report_sitting_date_parliament_number` serves them as an index-only scan, and no separate index on `parliament_number` is listed.
 
 ```sql
 -- sittings_by_parliament (GET /sittings)
@@ -435,15 +524,10 @@ SELECT report.sitting_date, count(*) AS count_1  FROM report  WHERE report.parli
 
 ```text
 -- sittings_by_parliament (GET /sittings)
-                               QUERY PLAN                               
-------------------------------------------------------------------------
- Sort  (cost=4053.06..4055.87 rows=1123 width=16)
-   Sort Key: sitting_date
-   ->  HashAggregate  (cost=3984.93..3996.16 rows=1123 width=16)
-         Group Key: sitting_date
-         ->  Seq Scan on report  (cost=0.00..3976.03 rows=1781 width=8)
-               Filter: (parliament_number = 8)
-(6 rows)
+GroupAggregate  (cost=0.29..400.29 rows=1182 width=16)
+  Group Key: sitting_date
+  ->  Index Only Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..378.60 rows=1973 width=8)
+        Index Cond: (parliament_number = 8)
 ```
 
 The `memberships_filtered` statement and its plan:
@@ -455,9 +539,6 @@ SELECT speaker.id, speaker.name, speaker.party, speaker.parliament_number, speak
 
 ```text
 -- memberships_filtered (GET /people)
-                                 QUERY PLAN                                 
-----------------------------------------------------------------------------
- Seq Scan on speaker  (cost=0.00..51.51 rows=7 width=51)
-   Filter: (((name)::text ~~* '%%tan%%'::text) AND (parliament_number = 9))
-(2 rows)
+Seq Scan on speaker  (cost=0.00..51.51 rows=7 width=51)
+  Filter: (((name)::text ~~* '%%tan%%'::text) AND (parliament_number = 9))
 ```
