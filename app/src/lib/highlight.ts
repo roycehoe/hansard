@@ -1,3 +1,5 @@
+import { HIGHLIGHT_STOP_WORDS } from '@/constants/reports/constants'
+
 const MIN_HIGHLIGHT_TERM_LENGTH = 2
 const QUOTE_CHARACTERS = /["“”]/g
 const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/g
@@ -17,7 +19,8 @@ export function parseHighlightTerms(query: string): string[] {
       (word) =>
         word !== OR_OPERATOR &&
         !word.startsWith(EXCLUDED_WORD_PREFIX) &&
-        word.length >= MIN_HIGHLIGHT_TERM_LENGTH
+        word.length >= MIN_HIGHLIGHT_TERM_LENGTH &&
+        !HIGHLIGHT_STOP_WORDS.has(word.toLowerCase())
     )
   const seenWords = new Set<string>()
   return words.filter((word) => {
