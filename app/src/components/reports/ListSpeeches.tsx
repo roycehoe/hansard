@@ -1,6 +1,7 @@
-import type { GetReportResponse } from '@/api/reports/getReport'
+import type { GetReportResponse, SpeechData } from '@/api/reports/getReport'
 import { NoticeHighlighting } from '@/components/reports/NoticeHighlighting'
 import { RowSpeech } from '@/components/reports/RowSpeech'
+import { SpeechKind } from '@/constants/reports/enums'
 import { buildHighlightPattern } from '@/lib/highlight'
 import { useEffect } from 'react'
 
@@ -16,6 +17,22 @@ function scrollToSpeechAnchor() {
   if (!speechElement) return
   speechElement.scrollIntoView()
   speechElement.focus()
+}
+
+function getPreviousSpeakerLabel(
+  speeches: SpeechData[],
+  index: number
+): string | undefined {
+  for (let previousIndex = index - 1; previousIndex >= 0; previousIndex--) {
+    const previousSpeech = speeches[previousIndex]
+    if (
+      previousSpeech.kind !== SpeechKind.CHAMBER_EVENT &&
+      previousSpeech.kind !== SpeechKind.EDITORIAL_NOTE
+    ) {
+      return previousSpeech.speaker_label
+    }
+  }
+  return undefined
 }
 
 export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
@@ -39,7 +56,8 @@ export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
           speech={speech}
           isContinuation={
             speech.speaker_label !== '' &&
-            report.speeches[index - 1]?.speaker_label === speech.speaker_label
+            getPreviousSpeakerLabel(report.speeches, index) ===
+              speech.speaker_label
           }
           reportSlug={report.report_slug}
           sittingDate={report.sitting_date}
