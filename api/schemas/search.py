@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from enums import SpeechKind
+
 
 class SpeechMatchData(BaseModel):
     report_slug: str
@@ -12,6 +14,7 @@ class SpeechMatchData(BaseModel):
     parliament_number: int
     ordinal: int
     speaker_label: str
+    kind: Optional[SpeechKind]
     person_id: Optional[int]
     person_slug: str
     person_name: str

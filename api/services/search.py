@@ -221,6 +221,7 @@ def _get_speech_match_data(
         parliament_number=report.parliament_number,
         ordinal=speech.ordinal,
         speaker_label=speech.speaker or "",
+        kind=speech.kind,
         person_id=person.id if person is not None else None,
         person_slug=get_person_slug(person.canonical_name)
         if person is not None

@@ -31,3 +31,13 @@ class SearchSort(StrEnum):
     RELEVANCE = "relevance"
     DATE = "date"
     OLDEST = "oldest"
+
+
+class SpeechKind(StrEnum):
+    SPEECH = "SPEECH"
+    PROCEDURAL = "PROCEDURAL"
+    CHAMBER_EVENT = "CHAMBER_EVENT"
+    EDITORIAL_NOTE = "EDITORIAL_NOTE"
+    DOCUMENT_TEXT = "DOCUMENT_TEXT"
+    HEADING = "HEADING"
+    UNCLASSIFIED = "UNCLASSIFIED"
