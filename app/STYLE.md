@@ -965,27 +965,21 @@ The one exception is when opacity is _necessary_ to show what sits behind the co
 <Loader2 className="h-4 w-4 animate-spin" />
 ```
 
-**Decorative animations** are acceptable when used sparingly to communicate that a background process is running (generation, ingestion, long-running tasks). Always use named `animate-*` classes defined in `src/index.css` — never inline `style={{ animation: ... }}`:
+**No decorative animation.** Motion answers a user action (open, close, expand, hover) or shows real progress. Nothing moves on its own: no entrance fades, no scroll reveals, no pulsing status dot, no bounce easing. The app is a read-only record with no background process to signal. If an animation is needed, define it in `src/index.css` with an `--animate-*` variable in the `@theme` block and the matching `@keyframes`, and never inline `style={{ animation: ... }}`. Built-in animations from `tw-animate-css` are fine to use as they are.
 
-```tsx
-// Good — named class signals background activity
-<div className="animate-pulse-glow" />
-
-// Bad — inline style
-<div style={{ animation: 'pulse 2s infinite' }} />
-```
-
-If a new animation is needed, define it in `src/index.css` with an `--animate-*` variable in the `@theme` block and the matching `@keyframes`. Built-in animations from `tw-animate-css` are fine to use as they are.
-
-**Transitions** follow standard durations by context — do not vary these arbitrarily:
+**Transitions** name the property they animate and follow standard durations by context. Never use `transition-all`, which animates layout properties nobody asked for. Primitives in `components/ui/` keep the classes shadcn ships with.
 
 | Context                 | Classes                                                              |
 | ----------------------- | -------------------------------------------------------------------- |
 | Hover (colour, opacity) | `transition-colors duration-150` / `transition-opacity duration-150` |
-| Expand/collapse content | `transition-all duration-300 ease-in-out`                            |
-| Drawer / sidebar        | `transition-all duration-200 ease-out`                               |
+| Expand/collapse content | `transition-[grid-template-rows] duration-300 ease-in-out`           |
+| Drawer / sidebar        | `transition-transform duration-200 ease-out`                         |
 
-Do not use `transition-all duration-1000` or similar long durations to simulate a progress bar. If a real progress value is unavailable, use a `Spinner` or a named decorative animation instead.
+For expand/collapse, put the transition on a grid wrapper that moves between `grid-rows-[0fr]` and `grid-rows-[1fr]`. Use `transition-[height]` instead when the open height is fixed.
+
+Hover never scales (`hover:scale-*`). It is a colour or background step.
+
+Do not use `duration-1000` or similar long durations to simulate a progress bar. If a real progress value is unavailable, use a `Spinner`.
 
 ### Custom CSS (`index.css`)
 
@@ -1032,6 +1026,64 @@ Always use `cn()` for conditional classes — never string interpolation or raw 
 // Bad
 <div className={`base-class ${isActive ? 'bg-muted' : ''} ${isDisabled ? 'opacity-50' : ''}`} />
 ```
+
+## Visual design
+
+Most of this app is written by Claude, and Claude's defaults with shadcn and Tailwind produce AI tells. An AI tell is a visible pattern that people associate with AI-generated websites. This section lists the AI tells in layout, type, colour, radius, shadow, icons and motion that apply to a record browser. AI tells in copy are in [Copy](#copy). Each symptom below links its source once. The rules come from the cleanup skills vetted in the hansard-polish run on 14 Oct 2026 (`plans/hansard-polish-brief.md`), and the examples are the changes Royce accepted from it.
+
+**Clear fix or taste proposal.** Fixing an AI tell is a clear fix when the fix removes something broken, fake or non-functional, or brings code into line with a hard rule below. Apply a clear fix without asking. Fixing an AI tell is a taste proposal when the fix changes type, colour, spacing, layout, radius, shadow, icons or component choice beyond what a rule requires, or reverses a pick recorded here. A taste proposal goes to Royce as a before and after screenshot with the AI-look reason, and nothing reaches master until he accepts it.
+
+### Symptoms
+
+- **Cards for a list of records** (also: card grid, cards for everything). Search results, reports, sittings and links rendered as a column or grid of bordered cards. Fix: divided rows, `border-separator border-b py-4 last:border-b-0` on each `<li>`, as on every list page. Card is for a self-contained object shown side by side, such as a `/palette` colour swatch, never for a list item. [Impeccable](https://www.impeccable.style/slop).
+  Before: home as three equal cards in `grid gap-4 md:grid-cols-3`, and search results as 20 shadowed cards. After: full-width row links (`routes/index.tsx`) and divided rows (`ListReportMatches.tsx`).
+- **Stat grid** (also: hero metric, big number with small label). A grid of large figures with captions above any real content. Fix: a table with a "Measure" and a "Count" column, [Numeric Columns](#numeric-columns) rules, and figures at body weight. [Anthropic, frontend-design](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md).
+  Before: nine big serif numbers in `grid sm:grid-cols-2 lg:grid-cols-3` on `/coverage`, a full screen at 375 px. After: `TableCoverageCounts`.
+- **Stacked elevation** (also: elevation soup). A border and a shadow on the same element, or a ring on top of both. Fix: a border for anything on the page. A shadow is only for a layer that floats above the page (popover, dropdown, tooltip, sheet, dialog), and those primitives already set it in `components/ui/`. [Impeccable](https://www.impeccable.style/slop).
+  Before: `card.tsx` with `border` and `shadow-sm`. After: `border` only.
+- **Rounded everything** (also: pills by reflex). `rounded-full`, `rounded-xl` or `rounded-2xl` on tags, controls and sections because it is the default. Fix: SGDS radii from `docs/sgds-tokens.md`. Use `rounded-sm` (4px) for indicators such as badges, `rounded-md` (8px) for interactive and form controls, and `rounded-lg` for a card. `rounded-full` is only for something round, such as an avatar placeholder. [DeSlop](https://github.com/nate-zz/DeSlop).
+  Before: `badge.tsx` with `rounded-full`, about 25 pills in one viewport on a sitting page. After: `rounded-sm`.
+- **Loud repeated actions.** The same outlined or filled buttons repeated on every item, competing with the content. Fix: per-item actions use the `quiet` button variant (see [Buttons](#buttons)). Only the page-level action is outlined. [Anthropic, frontend-design](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md).
+  Before: one ghost and one outline button under every speech, including "Question put, and agreed to." After: `ActionBarSpeechCopy` with `quiet` icon buttons.
+- **Decorative effects.** Gradient backgrounds, gradient text (`bg-clip-text`), glassmorphism (`backdrop-blur`), glow shadows, a coloured border stripe wider than 1px on one side of a card, blobs, grain and floating shapes. Fix: delete them. Colour comes from the semantic tokens in [Colours](#colours) and means something. [DeSlop](https://github.com/nate-zz/DeSlop).
+  Before (illustrative): `<h1 className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">`. After: `<h1 className="font-serif">`.
+- **Template chrome.** A tracked all-caps eyebrow label above a heading, 01/02/03 markers on content that isn't a sequence, one word of a heading in italic or a colour, middle-dot meta strings, "→" appended to link text, an icon in a tinted rounded square above a heading, emoji as icons, and monospace used to look technical. Fix: delete it. A heading needs no label above it, and icons come from `lucide-react` at one size and stroke. [Anthropic, frontend-design](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md).
+  Before (illustrative): `<p className="text-xs tracking-wider uppercase">Archive</p>` above `<h1>Sittings</h1>`. After: `<h1>Sittings</h1>`.
+- **Scaffold in the product** (also: generator residue). Placeholder `href="#"` links, specimen pages such as `/design` and `/palette` in the primary nav, and the same destination linked twice in one view. Fix: every link goes somewhere real, specimen pages sit in the footer, and each destination is linked once per view. [Hallmark](https://github.com/Nutlope/hallmark).
+  Before: a header nav of Home, Search, Sittings, People, Coverage, Design and Palette that wrapped to two rows at 375 px, and "Read on the official record" in both the metadata list and the alert below it. After: `NAV_ITEMS` of Search, Sittings, People and Coverage (the wordmark links home), and one official-record link in `ListReportMetadata`.
+- **Decorative motion.** See [Animations](#animations): no `transition-all`, no hover scale, nothing that moves on its own. [Hallmark](https://github.com/Nutlope/hallmark).
+
+### Rules for this codebase
+
+- **Records are rows.** Any list of reports, speeches, sittings, people or links is a list of divided rows or a table. This rule has no exceptions outside `/design` and `/palette`.
+- **Numbers line up.** Numeric table columns follow [Numeric Columns](#numeric-columns), and counts in prose use `NUMBER_LOCALE`.
+- **Check the rendered page.** Open every changed route at 375 px and 1280 px before calling it done. The page has no horizontal scroll, and nav links and buttons don't wrap onto a second line.
+- **Every state is designed.** Loading, empty, error and not-found follow [Page Loading States](#page-loading-states), [Error Notices](#error-notices) and the table [Empty State](#empty-state). Test them with real content, such as a long all-caps report title, a person with one speech and a Parliament with no reports.
+- **Preference:** one thing per screen is the focal point, and everything around it stays quiet. Spend emphasis (size, weight, the `primary` colour) on that one thing.
+- **Preference:** density matches the task. Record lists and tables are compact. Reading pages give the transcript room.
+- **Preference:** a new choice of type, colour or layout should have a stated reason other than "it is the default". Avoiding the AI tells listed here and reaching for a different default creates a new AI tell.
+
+### House choices where sources disagree
+
+These choices stay on purpose, even though one or more sources call them AI tells. Don't flag them in review.
+
+- **Inter for UI text.** Hallmark, anti-ai-slop and Impeccable list Inter as the most overused AI font. SGDS v3 sets `--sgds-font-family-brand` to Inter, and Royce kept it after the 14 Oct 2026 review, which compared it with Source Sans 3 (`docs/sgds-tokens.md`). It is paired with Source Serif 4, so it is not the only face.
+- **Serif headings and speech text.** Source Serif 4, for a reading product. The background isn't cream (#fcfaf7, chroma 0.004) and the accent is gown-red #8d0f14, not terracotta, so the site sits outside frontend-design's cream, serif and terracotta cluster.
+- **Lucide icons.** Hallmark calls Lucide a SaaS default. Here Lucide marks functions only (search, copy, theme, retry) and the notice anatomy in [Error Notices](#error-notices), never decoration.
+- **shadcn primitives.** anti-ai-slop and Hallmark name the untouched shadcn card as an AI tell. The primitives here carry the overrides in `docs/sgds-tokens.md`, and new overrides are recorded there.
+- **The lilac search highlight.** Purple is the most cited AI colour. `--highlight` is a text highlight sampled from the national flower under the insignia palette (`docs/palette.md`), not a purple brand accent or a gradient.
+- **Monospace on `/palette`.** It sets hex, RGB and OKLCH values and token names, which is functional.
+- **All-caps report titles.** They come from the Official Report source data.
+
+### Review checklist
+
+Run on every diff that touches `app/src`:
+
+- `git diff -U0 -- app/src ':!app/src/components/ui' | rg '^\+' | rg -n 'bg-gradient|bg-linear|bg-radial|bg-clip-text|backdrop-blur|transition-all|hover:scale|rounded-(full|xl|2xl|3xl)|shadow-|uppercase.*tracking|tracking.*uppercase|href="#"'` returns nothing, or each hit is justified by a rule above (an avatar's `rounded-full`, a floating layer's shadow).
+- `git diff -U0 -- app/src | rg '^\+' | rg -n '[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]'` returns nothing.
+- No list of records is wrapped in `Card`, and no grid holds equal cards.
+- Each changed route was opened at 375 px and 1280 px, with no horizontal scroll and no wrapped nav or button text.
+- A change that alters type, colour, spacing, layout, radius, shadow, icons or component choice beyond a rule above is a taste proposal with a before and after for Royce.
 
 ## Tables
 
@@ -1102,6 +1154,23 @@ The empty row uses these exact classes — `border-none` removes the bottom divi
     No reports match the search.
   </TableCell>
 </TableRow>
+```
+
+The message says what is empty. Never ship the shadcn template default `No Results.`
+
+### Numeric Columns
+
+A column of counts, shares or other figures is right-aligned with `tabular-nums` on every cell, and its head is right-aligned to match, so digits line up by place value. A year or date column stays left-aligned and still takes `tabular-nums`. Format counts with `toLocaleString(NUMBER_LOCALE)`, as described in [Copy](#copy).
+
+```tsx
+// Good
+<TableHead scope="col" className="text-right">Speeches</TableHead>
+<TableCell className="text-right tabular-nums">
+  {count.speech_count.toLocaleString(NUMBER_LOCALE)}
+</TableCell>
+
+// Bad: proportional figures, left-aligned, no separators, so "1366" and "914" don't line up
+<TableCell>{count.speech_count}</TableCell>
 ```
 
 ### Row Classes
@@ -1383,6 +1452,16 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
   Before (illustrative): `Copy Speech Link` After: `Copy speech link`.
 - **Em dashes** (also: the em dash tell). U+2014 in a string where a full stop, comma or colon fits. Fix: split the sentence. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
   Before (illustrative): `Couldn't load the speeches` and `try again` joined by U+2014. After: `Couldn't load the speeches. Try again.`
+- **Generic action labels** (also: Submit, OK). A button that names no action, or a label that fits any product. Fix: a verb plus the object it acts on. [Anthropic, frontend-design](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md).
+  Before (illustrative): `<Button>Submit</Button>` on the search form. After: `<Button>Search</Button>`, or `Copy citation` where the object needs naming.
+- **Guessing the cause** (also: blaming the reader). An error that names a cause the app can't know. Fix: say what failed and the next step, and name a cause only when the code knows it. [Impeccable](https://github.com/pbakaus/impeccable).
+  Before: `The report did not load. Check your connection and try again.` on a 5xx, where the reader's connection worked (`main.tsx` retries 5xx and network failures alike). After: `The report did not load. Try again in a moment.`
+- **Invented figures and claims** (also: fabricated stats, made-up features). A count, date, update cadence or capability that the data doesn't back. Fix: every figure comes from the API or a constant traced to the data, and every claim describes something the app does. [DeSlop](https://github.com/nate-zz/DeSlop).
+  Before: `toast.info('Hansard updates after each sitting')` when speech text stops at 8 April 2025. After: a true statement, or nothing.
+- **Broken plurals and unformatted counts.** "1 speeches", or "11308" on one page and "1,068,620" on the next. Fix: choose the singular for 1, and format every count with `toLocaleString(NUMBER_LOCALE)` from `@/constants/constants`. [anti-ai-slop](https://github.com/Vinayak-Shukla-03/anti-ai-slop).
+  Before: `{report.speech_count} speeches`. After: `{report.speech_count.toLocaleString(NUMBER_LOCALE)} {report.speech_count === 1 ? 'speech' : 'speeches'}`.
+- **Template and specimen residue** (also: placeholder content). A shadcn or generator default left in place, or `/design` specimen copy about a feature the app doesn't have. Fix: write the string for this app, and give specimens real Hansard content. [Hallmark](https://github.com/Nutlope/hallmark).
+  Before: `No Results.` in a table, and a `/design` card about "saved searches". After: `No reports match the search.`, and a specimen card for "Debate on President's Address" with a `Copy citation` action.
 
 ### Rules for this codebase
 
@@ -1411,3 +1490,6 @@ Run on every diff that touches a string:
 - Each `aria-label` starts with its visible label text, or names the function of an icon-only control.
 - Headings, buttons and labels are in sentence case with no trailing period.
 - Terms match the canonical list: no "speaker" for a Membership, no "re-parse" or other pipeline word.
+- `git diff | rg -n '>(Submit|OK|Click here)<|Check your connection|No Results'` returns nothing in added lines.
+- Every added count is formatted with `NUMBER_LOCALE` and has a singular form for 1.
+- Every added figure or claim traces to the API, a constant from the data, or something the app does.

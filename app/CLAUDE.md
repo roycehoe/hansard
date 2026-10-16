@@ -124,7 +124,7 @@ TanStack Table, split into the file layout described in STYLE.md "Tables". Alway
 
 Light and dark themes use the class strategy: the `.dark` class sits on the `html` element. Colour tokens are CSS variables generated for `:root` and `.dark` into `src/palette.css` from `src/palette/palette.ts`, then registered in the `@theme` block in `src/index.css` so Tailwind generates the utilities. There is no `tailwind.config.js`.
 
-Use semantic tokens only. The colour rules, animation rules and transition table are in STYLE.md "Styling". A new colour is added to `src/palette/palette.ts` (a named colour plus the tokens that use it), then `pnpm palette` regenerates `src/palette.css` and `pnpm contrast` checks it. Spacing, type scale, radius, breakpoints and motion follow SGDS v3 as mapped in `docs/sgds-tokens.md`.
+Use semantic tokens only. The colour rules, animation rules and transition table are in STYLE.md "Styling". A new colour is added to `src/palette/palette.ts` (a named colour plus the tokens that use it), then `pnpm palette` regenerates `src/palette.css` and `pnpm contrast` checks it. Spacing, type scale, radius, breakpoints and motion follow SGDS v3 as mapped in `docs/sgds-tokens.md`. The AI tells to avoid in layout, radius, shadow, icons and motion are in STYLE.md "Visual design".
 
 Use `cn()` from `@/lib/utils` for conditional classes.
 
