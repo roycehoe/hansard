@@ -1,5 +1,5 @@
 import { apiGet } from '@/api/client'
-import type { ReportType } from '@/constants/reports/enums'
+import type { ReportType, SpeechKind } from '@/constants/reports/enums'
 import { useQuery } from '@tanstack/react-query'
 
 export interface GetReportRequest {
@@ -10,6 +10,7 @@ export interface SpeechData {
   ordinal: number
   speaker_label: string
   transcript: string
+  kind: SpeechKind | null
   person_id: number | null
   person_slug: string
   person_name: string

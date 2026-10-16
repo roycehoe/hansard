@@ -1,5 +1,5 @@
 import { apiGet } from '@/api/client'
-import type { ReportType } from '@/constants/reports/enums'
+import type { ReportType, SpeechKind } from '@/constants/reports/enums'
 import type { SearchSort } from '@/constants/search/enums'
 import { buildQueryString } from '@/lib/utils'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
@@ -23,6 +23,7 @@ export interface SpeechMatchData {
   parliament_number: number
   ordinal: number
   speaker_label: string
+  kind: SpeechKind | null
   person_id: number | null
   person_slug: string
   person_name: string
