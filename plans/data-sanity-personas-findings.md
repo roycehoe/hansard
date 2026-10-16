@@ -161,7 +161,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-05. Speaker labels that are sentence fragments or headings
 
 - Severity: medium. Owner: scraper; the app citation (DS-01) should not build a citation from such a label. Status: confirmed.
-- Fix status, 16 Oct: open. G2 re-ran the SQL on write #3 data (the replica): verb fragments 174 to 174, all capitals 192 to 36 (change C unlinked the 156 "SECTION" headings of 31083), leading punctuation 395 to 229 (166 report subtitles read as labels were rebuilt). G3 is building the census detector. The parser fix is not in this run.
+- Fix status, 16 Oct: open. G2 re-ran the SQL on write #3 data (the replica): verb fragments 174 to 174, all capitals 192 to 36 (change C unlinked the 156 "SECTION" headings of 31083), leading punctuation 395 to 229 (166 report subtitles read as labels were rebuilt). G3 built the census detector and read every distinct unlinked label (244 strings, 19,019 rows): on write #3 data DS-05 is 1,069 rows in 90 Reports, 295,235 countable characters (heading 788, fragment 162, caption or table 81, junk 38). 720 of them sit in 50 held Reports that a rebuild fixes; 349 need a parser fix. The detector and the doc patch wait for the scraper commit lock. The parser fix is not in this run.
 - Personas: historian, lawyer, journalist, citizen.
 - App URL: http://localhost:5174/reports/00000425-XA.00068254-ZZ_1%23id005_20020404_S0006_T00071-president-address#s194
 - API call: `GET /reports/00000425-XA.00068254-ZZ_1%23id005_20020404_S0006_T00071-president-address`
@@ -258,7 +258,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-09. Speaker labels that name a person are not linked
 
 - Severity: low. Owner: scraper. Status: confirmed. One aggregate finding, per scenario 2 of the brief.
-- Fix status, 16 Oct: open. G2 re-ran the SQL on write #3 data: 96 / 59 / 35 become 69 / 34 / 35. 25 single-row Speaker announcements became HEADING rows with no speaker; none was relinked, because the `_preclean` fix is not in write #3. G3 is building the census detector. The linking fix is not in this run.
+- Fix status, 16 Oct: open. G2 re-ran the SQL on write #3 data: 96 / 59 / 35 become 69 / 34 / 35. 25 single-row Speaker announcements became HEADING rows with no speaker; none was relinked, because the `_preclean` fix is not in write #3. G3's detector counts 268 rows in 160 Reports, 203,890 countable characters. A dry run of `_preclean`-style rewrites links 160 of them; 96 more need a name table or fuzzy match, 12 are parser cases that must get no speaker. The detector and the doc patch wait for the scraper commit lock. The linking fix is not in this run.
 - Personas: historian, lawyer, journalist, citizen.
 - App URL: any Report with "Dr Yeoh Ghim Seng (Mr Speaker)"; use the SQL to find one.
 - API call: `GET /reports/{slug}`, `speeches[].person_id` is null on these.
