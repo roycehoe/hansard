@@ -11,7 +11,6 @@ from schemas.report import GetReportResponse, SpeechData
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
-from utils.text_availability import is_text_available
 
 
 def _get_validated_report(report_slug: str, session: Session) -> Report:
@@ -70,7 +69,7 @@ def get_report(report_slug: str, session: Session) -> GetReportResponse:
         official_record_url=get_official_record_url(
             report.report_id, report.report_version, report.html_file_name
         ),
-        is_text_available=is_text_available(report.markdown_content),
+        is_text_available=len(speeches) > 0,
         speeches=[
             _get_speech_data(speech, membership_id_to_person) for speech in speeches
         ],
