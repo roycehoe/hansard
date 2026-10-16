@@ -18,8 +18,8 @@ Confirmed: 2 high, 5 medium, 7 low. Owners of confirmed findings: app 1, api 1, 
 
 | id | Title | Severity | Owner | Status | Group | Fix status | Records affected |
 |---|---|---|---|---|---|---|---|
-| DS-01 | Copied speech citation names an office fragment as the speaker | high | app | confirmed | G1 | in progress | 1,967 speeches, 31 labels, 148 Reports; plus 71 speeches with a lesser form |
-| DS-02 | Reports with header-only text are counted and labelled as having text | low | api | confirmed | G1 | in progress | 654 Reports |
+| DS-01 | Copied speech citation names an office fragment as the speaker | high | app | confirmed | G1 | fixed in code | 1,967 speeches, 31 labels, 148 Reports; plus 71 speeches with a lesser form |
+| DS-02 | Reports with header-only text are counted and labelled as having text | low | api | confirmed | G1 | fixed in code | 654 Reports |
 | DS-03 | Chiam See Tong has the wrong party for Parliaments 6 to 9 | high | scraper | confirmed | G5 | in progress | 4 Memberships |
 | DS-04 | Duplicate Reports in one Sitting | medium | scraper | confirmed | G4 | open | 8 pairs (818 duplicated speeches) plus 3 stub Reports |
 | DS-05 | Speaker labels that are sentence fragments or headings | medium | scraper | confirmed | G3, G2 | open | about 700 speeches by SQL shape; the scraper's own estimate is about 1,320 |
@@ -46,7 +46,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-01. Copied speech citation names an office fragment as the speaker
 
 - Severity: high. Owner: app. Status: confirmed.
-- Fix status, 16 Oct: in progress. G1 is fixing `app/src/lib/citation.ts`. No commit yet.
+- Fix status, 16 Oct: fixed in code, commit `22c1255`. A linked speech cites `person_name`, except a stored "Surname, Given" name (DS-13), which falls back to the label. An unlinked label uses the last bracket that starts with a title. Checked on the replica with every DS-01 label; 781,774 of 884,819 speeches change citation text, mostly because the honorific goes with `person_name`. "Mr Speaker" labels now cite the person without the office. Heading labels (DS-05) still give a citation such as "(SECTION III - REVENUE AND TAX CHANGES)".
 - Personas: lawyer.
 - App URL: http://localhost:5174/reports/president-address-256#s1 (copy-citation button on speech 1).
 - API call: `GET /reports/president-address-256`, field `speeches[].speaker_label`.
@@ -83,7 +83,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-02. Reports with header-only text are counted and labelled as having text
 
 - Severity: low. Owner: api, with a scraper note. Status: confirmed.
-- Fix status, 16 Oct: in progress. G1 is changing the API so a Report has text only when it has a Speech (decision 6). No commit yet.
+- Fix status, 16 Oct: fixed in code, commit `8c69fd9`. A Report has text only when a Speech points at it, everywhere the API decides it (EXISTS on `speech.report_id`). The app drops the no-speeches notice. On the replica `text_report_count` goes from 41,683 to 41,029, and `/coverage` answers in 0.56 s cold.
 - Personas: lawyer, journalist; the historian listed the same Reports as Explained.
 - App URL: http://localhost:5174/reports/00068872-ZZ.00047415-ZZ_1%23id043_19551123_S0003_T00431-budget
 - API call: `GET /reports/00068872-ZZ.00047415-ZZ_1%23id043_19551123_S0003_T00431-budget`
@@ -210,7 +210,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-07. Attendance list of 25 Mar 1986 holds 5 names instead of about 77
 
 - Severity: medium. Owner: scraper, with an api note. Status: confirmed.
-- Fix status, 16 Oct: in progress. G6 is preparing the re-fetch and re-parse of sitting 5988. No write and no commit yet.
+- Fix status, 16 Oct: in progress. G6 found the cause: SPRS and the stored raw HTML hold the full list (76 present, 3 absent), and today's parser reads all 79. The 5 stored rows are the first 5 of the parse, left by an interrupted first run of stage 7 that committed one row at a time. Sittings 5941 (2 Dec 1996, 53 of 85) and 6009 (20 Jul 2005, 50 of 94) are truncated the same way. The fix is an insert-only completion of 150 rows, all linked, dry-run counted on the replica. No write and no commit yet.
 - Personas: citizen.
 - App URL: http://localhost:5174/sittings/1986-03-25
 - API call: `GET /sittings/1986-03-25`
@@ -404,7 +404,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-17. The PAP has two party strings, so the party filter splits it
 
 - Status: explained. Owner: scraper, with an api option. Personas: historian, citizen.
-- Fix status, 16 Oct: in progress. G1 is merging the two strings in the API party list and filter as a stopgap; G5 researches the scraper normalisation. No commit yet.
+- Fix status, 16 Oct: in progress. The API stopgap is fixed in code, commit `47f59d7`: `/parties` lists one PAP string and either spelling returns 347 people on the replica. The stored strings still differ until G5's scraper normalisation ships.
 - Actual: `/parties` lists "People's Action Party" (straight apostrophe, 853 Memberships, 262 people) and "People’s Action Party" (curly, 298 Memberships, 85 people). `GET /people?party=` with either returns only its own set.
 - Why: `/coverage` discloses "two spellings of People's Action Party" (`app/src/constants/coverage/constants.ts:150`). The source site changed apostrophes between scrape eras (`gateway/speakers_by_parliament.py:42,54`; scraper `plans/person-identity.md:73-74`).
 - Worth fixing anyway: normalising the apostrophe in the party filter and the party list (`api/crud/membership.py:47,56`) would merge the two. The two strings look the same in the dropdown, so a user cannot tell which to pick.
@@ -412,7 +412,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-18. Later speeches in a run cite the name without the office
 
 - Status: explained. Owner: scraper (source labels). Personas: lawyer.
-- Fix status, 16 Oct: open. Explained, no data fix. G1's DS-01 change makes these citations use `person_name`. G2 re-checks on write #3 data. No commit yet.
+- Fix status, 16 Oct: open. Explained, no data fix. Since `22c1255` these citations use `person_name`, so the name form matches across a run; the office still shows only where the label prints it. G2 re-checks on write #3 data.
 - Actual: in http://localhost:5174/reports/bill-364 speech 2 is "The Minister for Law (Mr K Shanmugam)" and later speeches are "Mr K Shanmugam", so their citations read "(Mr K Shanmugam)" without the office.
 - Why: the Official Report prints the label that way; triage saw `<strong>Mr K Shanmugam</strong>:` in the SPRS JSON for 7 May 2019. The citation uses the label as printed. A fix in DS-01 that prefers `person_name` would at least make the name form match.
 
