@@ -1,0 +1,15 @@
+{
+  "feature": "style-guide-ai-tells",
+  "pipeline": {
+    "grill-with-docs": {
+      "status": "completed",
+      "output": "plans/style-guide-ai-tells-brief.md",
+      "timestamp": "2026-10-16T17:30:44+08:00"
+    },
+    "direct-edit": {
+      "status": "completed",
+      "timestamp": "2026-10-16T17:55:00+08:00",
+      "note": "docs-only change applied directly instead of feat-plan to feat-execute; T12 resolved as the verdict's C3 (empty table message), so Royce accepted 11 of 12 taste proposals"
+    }
+  }
+}
