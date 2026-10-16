@@ -39,6 +39,8 @@ Confirmed: 2 high, 5 medium, 7 low. Owners of confirmed findings: app 1, api 1, 
 | DS-19 | "Terence Ho Wee San" and "Terence Ho" may be one Person | low | scraper | unconfirmed | G5 | open | 2 Persons |
 | DS-20 | "The Chairman" linked on some speeches of a Report and not others | low | scraper | unconfirmed | none | open | 9 speeches in bill-367 |
 
+Ordinals and `#s` anchors in this file predate write #3, which renumbers 599,528 ordinals; the DS-05 example moves from `#s194` to `#s197`.
+
 All SQL below runs through the read-only wrapper: `cd api && uv run python <scratchpad>/tools/sql.py "<query>"`. Queries that filter `speech.speaker` scan the whole table and take 10 to 30 s; the wrapper's statement timeout cancels anything heavier.
 
 ## App
@@ -159,7 +161,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-05. Speaker labels that are sentence fragments or headings
 
 - Severity: medium. Owner: scraper; the app citation (DS-01) should not build a citation from such a label. Status: confirmed.
-- Fix status, 16 Oct: open. Queued for G3 (census detector) and G2 (re-check on write #3 data). No commit yet.
+- Fix status, 16 Oct: open. G2 re-ran the SQL on write #3 data (the replica): verb fragments 174 to 174, all capitals 192 to 36 (change C unlinked the 156 "SECTION" headings of 31083), leading punctuation 395 to 229 (166 report subtitles read as labels were rebuilt). G3 is building the census detector. The parser fix is not in this run.
 - Personas: historian, lawyer, journalist, citizen.
 - App URL: http://localhost:5174/reports/00000425-XA.00068254-ZZ_1%23id005_20020404_S0006_T00071-president-address#s194
 - API call: `GET /reports/00000425-XA.00068254-ZZ_1%23id005_20020404_S0006_T00071-president-address`
@@ -184,7 +186,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-06. Attendance lists the same MP twice, or lists rows that are not people
 
 - Severity: medium. Owner: scraper. Status: confirmed.
-- Fix status, 16 Oct: open. Write #3 (plan v4) is on the replica. Its production ship is being run by the scraper loop session, outside this run. G2 re-checks the two queries on write #3 data. No commit yet.
+- Fix status, 16 Oct: open. Write #3 removes none of the 10 pairs or 8 junk rows: its 45 attendance deletes are office-title fragments in 37 other Sittings. A re-parse at scraper HEAD keeps them too. A parser fix and a dedupe are still needed, and DS-06 is in no group of this run.
 - Personas: citizen.
 - App URLs: http://localhost:5174/sittings/1958-04-23, http://localhost:5174/sittings/1959-12-10
 - API call: `GET /sittings/1958-04-23`, `attendance[]`.
@@ -256,7 +258,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-09. Speaker labels that name a person are not linked
 
 - Severity: low. Owner: scraper. Status: confirmed. One aggregate finding, per scenario 2 of the brief.
-- Fix status, 16 Oct: open. Queued for G3 (census detector) and G2 (re-check on write #3 data). No commit yet.
+- Fix status, 16 Oct: open. G2 re-ran the SQL on write #3 data: 96 / 59 / 35 become 69 / 34 / 35. 25 single-row Speaker announcements became HEADING rows with no speaker; none was relinked, because the `_preclean` fix is not in write #3. G3 is building the census detector. The linking fix is not in this run.
 - Personas: historian, lawyer, journalist, citizen.
 - App URL: any Report with "Dr Yeoh Ghim Seng (Mr Speaker)"; use the SQL to find one.
 - API call: `GET /reports/{slug}`, `speeches[].person_id` is null on these.
@@ -382,7 +384,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-15. `speech.kind` is NULL on every Speech
 
 - Status: explained. Owner: scraper. Personas: historian, lawyer, journalist, citizen. Three rated it high and the journalist medium.
-- Fix status, 16 Oct: applied to rehearsal. Write #3 (plan v4) fills `speech.kind` on the replica. Its production ship is being run by the scraper loop session, outside this run. G2 re-checks the kind commits on write #3 data. No commit yet.
+- Fix status, 16 Oct: applied to rehearsal. On the replica every row has a kind except 4,146 rows in the 162 held Reports, as ADR 0009 says. The loop session's production ship has written the kind of 1,004,419 rows (its pre-step, done at 14:40); the locked phase is still to come. G2 ran the app's kind logic (`ee80a9b` to `64e4128`) on write #3 data: styles and runs match ADR 0009. One defect: 488 SPEECH rows with no speaker, in 10 Reports, render as unlabelled body text, so they read as the previous speaker's. The search API has no kind filter.
 - Actual: `select kind, count(*) from speech group by 1` returns one row, NULL 1,044,594.
 - Why: the scraper parser sets `kind` on every row since commit `2eef141` (`services/speech.py:587-601`, stored at `populate/speeches.py:58`). Stored rows get a kind only when write #3 ships. `docs/adr/0009-speech-kind-column.md:3` says "Write #3 fills the column for stored rows, so stored rows have no kind yet", and `docs/vision.md:65` says write #3 is "rehearsed on a replica and not shipped". After it ships, 4,146 rows in 162 held Reports stay NULL by design.
 - Did ee80a9b to 64e4128 ship dead code? No. The code is inert until write #3 ships, and its NULL fallback reproduces the behaviour from before those commits exactly:
@@ -412,7 +414,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-18. Later speeches in a run cite the name without the office
 
 - Status: explained. Owner: scraper (source labels). Personas: lawyer.
-- Fix status, 16 Oct: open. Explained, no data fix. Since `22c1255` these citations use `person_name`, so the name form matches across a run; the office still shows only where the label prints it. G2 re-checks on write #3 data.
+- Fix status, 16 Oct: open. Explained, no data fix. On write #3 data the shape covers 217,473 rows in 10,930 Reports. Since `22c1255` these citations use `person_name`, so the name form matches across a run; the office still shows only where the label prints it. G2 re-checks on write #3 data.
 - Actual: in http://localhost:5174/reports/bill-364 speech 2 is "The Minister for Law (Mr K Shanmugam)" and later speeches are "Mr K Shanmugam", so their citations read "(Mr K Shanmugam)" without the office.
 - Why: the Official Report prints the label that way; triage saw `<strong>Mr K Shanmugam</strong>:` in the SPRS JSON for 7 May 2019. The citation uses the label as printed. A fix in DS-01 that prefers `person_name` would at least make the name form match.
 
