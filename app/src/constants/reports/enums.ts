@@ -39,3 +39,10 @@ export enum SpeechKind {
   HEADING = 'HEADING',
   UNCLASSIFIED = 'UNCLASSIFIED',
 }
+
+export enum TranscriptStyle {
+  BODY = 'body',
+  MUTED = 'muted',
+  QUOTED = 'quoted',
+  HEADING = 'heading',
+}
