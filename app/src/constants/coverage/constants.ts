@@ -109,7 +109,7 @@ export const ATTRIBUTION_FIGURES = [
 export const ATTRIBUTION_MEASUREMENTS = [
   `Speeches with a speaker label: ${LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of ${SPEECH_WITH_SPEAKER_LABEL_COUNT.toLocaleString(NUMBER_LOCALE)} speeches with a speaker label, leaving out collective "hon. Member" references and stage directions.`,
   `All speeches: ${LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of ${SPEECH_ROW_COUNT.toLocaleString(NUMBER_LOCALE)} speeches, counting those with no speaker label.`,
-  'Text share: characters of text in a linked speech, out of all the text in reports with text, including reports with no speeches.',
+  'Text share: characters of text in a linked speech, out of all the text in reports, including reports with no speeches.',
   'Parliament 12 counts the whole Parliament, before and after 10 September 2012.',
 ] as const
 

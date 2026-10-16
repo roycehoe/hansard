@@ -6,7 +6,6 @@ import { ButtonCopyCitation } from '@/components/reports/ButtonCopyCitation'
 import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
-import { NoticeNoSpeeches } from '@/components/reports/NoticeNoSpeeches'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
 import { PopoverUnofficialTranscript } from '@/components/reports/PopoverUnofficialTranscript'
@@ -37,9 +36,6 @@ function renderBody(report: GetReportResponse, highlightTerms: string[]) {
     return (
       <NoticeTextUnavailable officialRecordUrl={report.official_record_url} />
     )
-  }
-  if (report.speeches.length === 0) {
-    return <NoticeNoSpeeches officialRecordUrl={report.official_record_url} />
   }
   return <ListSpeeches report={report} highlightTerms={highlightTerms} />
 }

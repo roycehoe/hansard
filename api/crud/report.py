@@ -1,15 +1,20 @@
 from datetime import date, datetime, timedelta
 from typing import Optional
 
-from sqlalchemy import ColumnElement, Integer, cast, func, or_
+from sqlalchemy import ColumnElement, Integer, cast, exists, func, not_
 from sqlalchemy.orm import defer
 from sqlmodel import Session, select
 
 from crud.text_search import HEADLINE_OPTIONS, TEXT_SEARCH_CONFIGURATION
 from database.report import Report
+from database.speech import Speech
 from enums import ReportType, SearchSort
 
 _ONE_DAY = timedelta(days=1)
+
+
+def _get_is_text_available() -> ColumnElement:
+    return exists().where(Speech.report_id == Report.id)
 
 
 def _get_report_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
@@ -43,12 +48,9 @@ def _get_report_filters(
     if report_type is not None:
         filters.append(Report.report_type == report_type)
     if is_text_available is True:
-        filters.append(Report.markdown_content.is_not(None))
-        filters.append(Report.markdown_content != "")
+        filters.append(_get_is_text_available())
     if is_text_available is False:
-        filters.append(
-            or_(Report.markdown_content.is_(None), Report.markdown_content == "")
-        )
+        filters.append(not_(_get_is_text_available()))
     return filters
 
 
@@ -99,8 +101,7 @@ class CRUDReport:
         statement = (
             select(Report.id)
             .where(Report.id.in_(report_ids))
-            .where(Report.markdown_content.is_not(None))
-            .where(Report.markdown_content != "")
+            .where(_get_is_text_available())
         )
         return list(self.session.exec(statement).all())
 
@@ -127,9 +128,7 @@ class CRUDReport:
     def get_parliament_number_to_text_report_count(self) -> dict[int, int]:
         statement = select(
             Report.parliament_number,
-            func.count().filter(
-                Report.markdown_content.is_not(None), Report.markdown_content != ""
-            ),
+            func.count().filter(_get_is_text_available()),
         ).group_by(Report.parliament_number)
         rows = self.session.exec(statement).all()
         return {
@@ -199,10 +198,7 @@ class CRUDReport:
 
     def get_text_report_count(self) -> int:
         statement = (
-            select(func.count())
-            .select_from(Report)
-            .where(Report.markdown_content.is_not(None))
-            .where(Report.markdown_content != "")
+            select(func.count()).select_from(Report).where(_get_is_text_available())
         )
         return self.session.exec(statement).one()
 
@@ -215,18 +211,14 @@ class CRUDReport:
         return self.session.exec(statement).one()
 
     def get_min_sitting_date_with_text(self) -> Optional[datetime]:
-        statement = (
-            select(func.min(Report.sitting_date))
-            .where(Report.markdown_content.is_not(None))
-            .where(Report.markdown_content != "")
+        statement = select(func.min(Report.sitting_date)).where(
+            _get_is_text_available()
         )
         return self.session.exec(statement).one()
 
     def get_max_sitting_date_with_text(self) -> Optional[datetime]:
-        statement = (
-            select(func.max(Report.sitting_date))
-            .where(Report.markdown_content.is_not(None))
-            .where(Report.markdown_content != "")
+        statement = select(func.max(Report.sitting_date)).where(
+            _get_is_text_available()
         )
         return self.session.exec(statement).one()
 
@@ -239,12 +231,7 @@ class CRUDReport:
     def get_year_to_text_report_count(self) -> dict[int, int]:
         year = cast(func.extract("year", Report.sitting_date), Integer)
         statement = (
-            select(
-                year,
-                func.count().filter(
-                    Report.markdown_content.is_not(None), Report.markdown_content != ""
-                ),
-            )
+            select(year, func.count().filter(_get_is_text_available()))
             .group_by(year)
             .order_by(year)
         )

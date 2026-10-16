@@ -38,7 +38,7 @@ export function SectionYears({ coverage }: SectionYearsProps) {
         {NO_TEXT_BY_DESIGN_REPORT_COUNT} are a type the official site publishes
         without text. The other{' '}
         {returnedNoTextCount.toLocaleString(NUMBER_LOCALE)} returned no text
-        when fetched.
+        when fetched, or hold text that could not be split into speeches.
       </p>
       <p>Years with reports missing text: {yearsWithoutText.join(', ')}.</p>
       <p>
