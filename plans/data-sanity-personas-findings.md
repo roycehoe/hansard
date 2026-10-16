@@ -16,28 +16,28 @@ No code was changed and nothing was written to any database.
 
 Confirmed: 2 high, 5 medium, 7 low. Owners of confirmed findings: app 1, api 1, scraper 12. Explained: 4. Unconfirmed: 2.
 
-| id | Title | Severity | Owner | Status | Records affected |
-|---|---|---|---|---|---|
-| DS-01 | Copied speech citation names an office fragment as the speaker | high | app | confirmed | 1,967 speeches, 31 labels, 148 Reports; plus 71 speeches with a lesser form |
-| DS-02 | Reports with header-only text are counted and labelled as having text | low | api | confirmed | 654 Reports |
-| DS-03 | Chiam See Tong has the wrong party for Parliaments 6 to 9 | high | scraper | confirmed | 4 Memberships |
-| DS-04 | Duplicate Reports in one Sitting | medium | scraper | confirmed | 8 pairs (818 duplicated speeches) plus 3 stub Reports |
-| DS-05 | Speaker labels that are sentence fragments or headings | medium | scraper | confirmed | about 700 speeches by SQL shape; the scraper's own estimate is about 1,320 |
-| DS-06 | Attendance lists the same MP twice, or lists rows that are not people | medium | scraper | confirmed | 10 duplicated pairs and 8 junk rows, in 12 Sittings |
-| DS-07 | Attendance list of 25 Mar 1986 holds 5 names instead of about 77 | medium | scraper | confirmed | 1 Sitting |
-| DS-08 | Sitting and session numbers missing | medium | scraper | confirmed | 3,942 Reports and 204 Sittings without a sitting number; 1,333 Sittings without a session number |
-| DS-09 | Speaker labels that name a person are not linked | low | scraper | confirmed | 131 speeches |
-| DS-10 | Constituency names carry OCR typos | low | scraper | confirmed | 133 Memberships show more than one name |
-| DS-11 | Report titles repeated, untrimmed or holding HTML | low | scraper | confirmed | 55 repeated, 362 untrimmed, 2 with `<br>` |
-| DS-12 | `is_legislative_assembly` is true on Memberships in Parliaments 2 to 12 | low | scraper | confirmed | 68 Memberships |
-| DS-13 | Person names in two formats, with honorifics, and almost no name variants | low | scraper | confirmed | 88 comma-form names; 2 of 573 Persons have a variant |
-| DS-14 | Language markers such as "( In Malay )" are dropped | low | scraper | confirmed | not countable in SQL |
-| DS-15 | `speech.kind` is NULL on every Speech | none | scraper | explained | 1,044,594 speeches |
-| DS-16 | Legislative Assembly Memberships are filed under Parliament 1 | none | scraper | explained | 97 Memberships; 73 people listed under Parliament 1 who never sat in it |
-| DS-17 | The PAP has two party strings, so the party filter splits it | none | scraper | explained | 1,151 Memberships |
-| DS-18 | Later speeches in a run cite the name without the office | none | scraper | explained | not counted |
-| DS-19 | "Terence Ho Wee San" and "Terence Ho" may be one Person | low | scraper | unconfirmed | 2 Persons |
-| DS-20 | "The Chairman" linked on some speeches of a Report and not others | low | scraper | unconfirmed | 9 speeches in bill-367 |
+| id | Title | Severity | Owner | Status | Group | Fix status | Records affected |
+|---|---|---|---|---|---|---|---|
+| DS-01 | Copied speech citation names an office fragment as the speaker | high | app | confirmed | G1 | in progress | 1,967 speeches, 31 labels, 148 Reports; plus 71 speeches with a lesser form |
+| DS-02 | Reports with header-only text are counted and labelled as having text | low | api | confirmed | G1 | in progress | 654 Reports |
+| DS-03 | Chiam See Tong has the wrong party for Parliaments 6 to 9 | high | scraper | confirmed | G5 | in progress | 4 Memberships |
+| DS-04 | Duplicate Reports in one Sitting | medium | scraper | confirmed | G4 | open | 8 pairs (818 duplicated speeches) plus 3 stub Reports |
+| DS-05 | Speaker labels that are sentence fragments or headings | medium | scraper | confirmed | G3, G2 | open | about 700 speeches by SQL shape; the scraper's own estimate is about 1,320 |
+| DS-06 | Attendance lists the same MP twice, or lists rows that are not people | medium | scraper | confirmed | G2 | open | 10 duplicated pairs and 8 junk rows, in 12 Sittings |
+| DS-07 | Attendance list of 25 Mar 1986 holds 5 names instead of about 77 | medium | scraper | confirmed | G6 | in progress | 1 Sitting |
+| DS-08 | Sitting and session numbers missing | medium | scraper | confirmed | G4 | open | 3,942 Reports and 204 Sittings without a sitting number; 1,333 Sittings without a session number |
+| DS-09 | Speaker labels that name a person are not linked | low | scraper | confirmed | G3, G2 | open | 131 speeches |
+| DS-10 | Constituency names carry OCR typos | low | scraper | confirmed | G5 | in progress | 133 Memberships show more than one name |
+| DS-11 | Report titles repeated, untrimmed or holding HTML | low | scraper | confirmed | G4 | open | 55 repeated, 362 untrimmed, 2 with `<br>` |
+| DS-12 | `is_legislative_assembly` is true on Memberships in Parliaments 2 to 12 | low | scraper | confirmed | G4 | open | 68 Memberships |
+| DS-13 | Person names in two formats, with honorifics, and almost no name variants | low | scraper | confirmed | G5 | in progress | 88 comma-form names; 2 of 573 Persons have a variant |
+| DS-14 | Language markers such as "( In Malay )" are dropped | low | scraper | confirmed | none | deferred | not countable in SQL |
+| DS-15 | `speech.kind` is NULL on every Speech | none | scraper | explained | G2 | applied to rehearsal | 1,044,594 speeches |
+| DS-16 | Legislative Assembly Memberships are filed under Parliament 1 | none | scraper | explained | G5 | in progress | 97 Memberships; 73 people listed under Parliament 1 who never sat in it |
+| DS-17 | The PAP has two party strings, so the party filter splits it | none | scraper | explained | G1, G5 | in progress | 1,151 Memberships |
+| DS-18 | Later speeches in a run cite the name without the office | none | scraper | explained | G2 | open | not counted |
+| DS-19 | "Terence Ho Wee San" and "Terence Ho" may be one Person | low | scraper | unconfirmed | G5 | in progress | 2 Persons |
+| DS-20 | "The Chairman" linked on some speeches of a Report and not others | low | scraper | unconfirmed | none | open | 9 speeches in bill-367 |
 
 All SQL below runs through the read-only wrapper: `cd api && uv run python <scratchpad>/tools/sql.py "<query>"`. Queries that filter `speech.speaker` scan the whole table and take 10 to 30 s; the wrapper's statement timeout cancels anything heavier.
 
@@ -46,6 +46,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-01. Copied speech citation names an office fragment as the speaker
 
 - Severity: high. Owner: app. Status: confirmed.
+- Fix status, 16 Oct: in progress. G1 is fixing `app/src/lib/citation.ts`. No commit yet.
 - Personas: lawyer.
 - App URL: http://localhost:5174/reports/president-address-256#s1 (copy-citation button on speech 1).
 - API call: `GET /reports/president-address-256`, field `speeches[].speaker_label`.
@@ -82,6 +83,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-02. Reports with header-only text are counted and labelled as having text
 
 - Severity: low. Owner: api, with a scraper note. Status: confirmed.
+- Fix status, 16 Oct: in progress. G1 is changing the API so a Report has text only when it has a Speech (decision 6). No commit yet.
 - Personas: lawyer, journalist; the historian listed the same Reports as Explained.
 - App URL: http://localhost:5174/reports/00068872-ZZ.00047415-ZZ_1%23id043_19551123_S0003_T00431-budget
 - API call: `GET /reports/00068872-ZZ.00047415-ZZ_1%23id043_19551123_S0003_T00431-budget`
@@ -107,6 +109,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-03. Chiam See Tong has the wrong party for Parliaments 6 to 9
 
 - Severity: high. Owner: scraper. Status: confirmed.
+- Fix status, 16 Oct: in progress. G5 is checking party per Membership against election results. Research only; no scraper commit yet.
 - Personas: historian, lawyer.
 - App URL: http://localhost:5174/people/140-chiam-see-tong
 - API call: `GET /people/140`, `memberships[].party`; also `GET /people?party=Singapore%20Democratic%20Alliance`.
@@ -127,6 +130,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-04. Duplicate Reports in one Sitting
 
 - Severity: medium. Owner: scraper. Status: confirmed.
+- Fix status, 16 Oct: open. Queued for G4, after write #3. No commit yet.
 - Personas: lawyer, journalist.
 - App URLs: http://localhost:5174/sittings/1963-04-09 (two "BUDGET, MINISTRY OF LABOUR"), http://localhost:5174/sittings/2011-11-21 (two "Central Provident Fund (Amendment) Bill"), http://localhost:5174/sittings/2003-10-16 (stubs).
 - API calls: `GET /sittings/1963-04-09`, `GET /search/reports?q=martial+arts+instruction&date_from=2003-10-16&date_to=2003-10-16`.
@@ -155,6 +159,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-05. Speaker labels that are sentence fragments or headings
 
 - Severity: medium. Owner: scraper; the app citation (DS-01) should not build a citation from such a label. Status: confirmed.
+- Fix status, 16 Oct: open. Queued for G3 (census detector) and G2 (re-check on write #3 data). No commit yet.
 - Personas: historian, lawyer, journalist, citizen.
 - App URL: http://localhost:5174/reports/00000425-XA.00068254-ZZ_1%23id005_20020404_S0006_T00071-president-address#s194
 - API call: `GET /reports/00000425-XA.00068254-ZZ_1%23id005_20020404_S0006_T00071-president-address`
@@ -179,6 +184,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-06. Attendance lists the same MP twice, or lists rows that are not people
 
 - Severity: medium. Owner: scraper. Status: confirmed.
+- Fix status, 16 Oct: open. Write #3 (plan v4) is on the replica. Its production ship is being run by the scraper loop session, outside this run. G2 re-checks the two queries on write #3 data. No commit yet.
 - Personas: citizen.
 - App URLs: http://localhost:5174/sittings/1958-04-23, http://localhost:5174/sittings/1959-12-10
 - API call: `GET /sittings/1958-04-23`, `attendance[]`.
@@ -204,6 +210,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-07. Attendance list of 25 Mar 1986 holds 5 names instead of about 77
 
 - Severity: medium. Owner: scraper, with an api note. Status: confirmed.
+- Fix status, 16 Oct: in progress. G6 is preparing the re-fetch and re-parse of sitting 5988. No write and no commit yet.
 - Personas: citizen.
 - App URL: http://localhost:5174/sittings/1986-03-25
 - API call: `GET /sittings/1986-03-25`
@@ -227,6 +234,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-08. Sitting and session numbers missing
 
 - Severity: medium. Owner: scraper. Status: confirmed.
+- Fix status, 16 Oct: open. Queued for G4, after write #3. No commit yet.
 - Personas: lawyer, citizen.
 - App URLs: http://localhost:5174/reports/00075611-WA.00072393-ZZ_1 (no "Sitting number" in the header), http://localhost:5174/sittings/2007-10-22
 - API calls: `GET /reports/00075611-WA.00072393-ZZ_1` (`sitting_number: null`), `GET /sittings/2007-10-22` (`sitting_number: null, session_number: null`), `GET /sittings?parliament_number=9` (`session_number: null` on all 121).
@@ -248,6 +256,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-09. Speaker labels that name a person are not linked
 
 - Severity: low. Owner: scraper. Status: confirmed. One aggregate finding, per scenario 2 of the brief.
+- Fix status, 16 Oct: open. Queued for G3 (census detector) and G2 (re-check on write #3 data). No commit yet.
 - Personas: historian, lawyer, journalist, citizen.
 - App URL: any Report with "Dr Yeoh Ghim Seng (Mr Speaker)"; use the SQL to find one.
 - API call: `GET /reports/{slug}`, `speeches[].person_id` is null on these.
@@ -269,6 +278,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-10. Constituency names carry OCR typos
 
 - Severity: low. Owner: scraper; the API could normalise as a stopgap. Status: confirmed.
+- Fix status, 16 Oct: in progress. G5 is building the constituency table per Parliament. Research only; no scraper commit yet.
 - Personas: historian, lawyer, citizen.
 - App URL: http://localhost:5174/people/29-lee-kuan-yew
 - API call: `GET /people/29`, `memberships[].constituencies`.
@@ -293,6 +303,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-11. Report titles repeated, untrimmed or holding HTML
 
 - Severity: low. Owner: scraper. Status: confirmed.
+- Fix status, 16 Oct: open. Queued for G4, after write #3. No commit yet.
 - Personas: historian, lawyer, journalist.
 - App URL: http://localhost:5174/reports/00075611-WA.00072393-ZZ_1
 - API call: `GET /reports/00075611-WA.00072393-ZZ_1`
@@ -314,6 +325,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-12. `is_legislative_assembly` is true on Memberships in Parliaments 2 to 12
 
 - Severity: low. Owner: scraper; the API passes it through. Status: confirmed.
+- Fix status, 16 Oct: open. Queued for G4, after write #3; it depends on G5's DS-16 choice. No commit yet.
 - Personas: historian, lawyer, citizen, journalist.
 - App URL: none; the app does not render the flag.
 - API call: `GET /people/29`, `memberships[].is_legislative_assembly` is true on all 12 Memberships, including Parliament 12 (2011 to 2015).
@@ -331,6 +343,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-13. Person names in two formats, with honorifics, and almost no name variants
 
 - Severity: low. Owner: scraper. Status: confirmed.
+- Fix status, 16 Oct: in progress. G5 is building display names without a new column. Research only; no scraper commit yet.
 - Personas: historian, lawyer.
 - App URL: http://localhost:5174/people/47-rajaratnam-s, http://localhost:5174/people
 - API call: `GET /people`, `GET /people/171`
@@ -349,6 +362,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-14. Language markers such as "( In Malay )" are dropped
 
 - Severity: low. Owner: scraper. Status: confirmed.
+- Fix status, 16 Oct: deferred. Deferred by the brief: it needs a new column.
 - Personas: lawyer.
 - App URL: http://localhost:5174/reports/00069608-ZZ.00061888-ZZ_1%23id013_19900222_S0003_T00033-bill#s119
 - API call: `GET /reports/00069608-ZZ.00061888-ZZ_1%23id013_19900222_S0003_T00033-bill`, speeches 119 and 169.
@@ -368,6 +382,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-15. `speech.kind` is NULL on every Speech
 
 - Status: explained. Owner: scraper. Personas: historian, lawyer, journalist, citizen. Three rated it high and the journalist medium.
+- Fix status, 16 Oct: applied to rehearsal. Write #3 (plan v4) fills `speech.kind` on the replica. Its production ship is being run by the scraper loop session, outside this run. G2 re-checks the kind commits on write #3 data. No commit yet.
 - Actual: `select kind, count(*) from speech group by 1` returns one row, NULL 1,044,594.
 - Why: the scraper parser sets `kind` on every row since commit `2eef141` (`services/speech.py:587-601`, stored at `populate/speeches.py:58`). Stored rows get a kind only when write #3 ships. `docs/adr/0009-speech-kind-column.md:3` says "Write #3 fills the column for stored rows, so stored rows have no kind yet", and `docs/vision.md:65` says write #3 is "rehearsed on a replica and not shipped". After it ships, 4,146 rows in 162 held Reports stay NULL by design.
 - Did ee80a9b to 64e4128 ship dead code? No. The code is inert until write #3 ships, and its NULL fallback reproduces the behaviour from before those commits exactly:
@@ -381,6 +396,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-16. Legislative Assembly Memberships are filed under Parliament 1
 
 - Status: explained. Owner: scraper. Personas: historian, lawyer, citizen, journalist.
+- Fix status, 16 Oct: in progress. G5 is working out the Parliament 0 representation. Research only; no scraper commit yet.
 - Actual: no `speaker` row has `parliament_number = 0`. 97 Assembly Memberships are stored as Parliament 1. `GET /people?parliament_number=1` returns 136 people, 73 of whom never sat in a Parliament 1 Report (David Marshall 499, Lim Ching Siong 513, Ong Eng Guan 511). Lee Kuan Yew's one Parliament 1 row covers both the Assembly and 1965 to 1968.
 - Why: the `/coverage` known gaps say so (`app/src/constants/coverage/constants.ts:149`). The scraper's `scripts/load_colonial_la_speakers.py:12-26` loads the Assembly members as Parliament 1, and `gateway/speakers_by_parliament.py:14` has no page for Parliament 0. The scraper's own `docs/data-dictionary.md:38,204` says "Parliament 0 is the colonial LA", which contradicts the data.
 - Worth fixing anyway: a historian filtering People by Parliament 1 gets 73 wrong names and the people page does not warn. Either the scraper stores Assembly Memberships as Parliament 0, or the API maps an `is_legislative_assembly` Parliament 1 row with no Parliament 1 Report to Parliament 0.
@@ -388,6 +404,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-17. The PAP has two party strings, so the party filter splits it
 
 - Status: explained. Owner: scraper, with an api option. Personas: historian, citizen.
+- Fix status, 16 Oct: in progress. G1 is merging the two strings in the API party list and filter as a stopgap; G5 researches the scraper normalisation. No commit yet.
 - Actual: `/parties` lists "People's Action Party" (straight apostrophe, 853 Memberships, 262 people) and "People’s Action Party" (curly, 298 Memberships, 85 people). `GET /people?party=` with either returns only its own set.
 - Why: `/coverage` discloses "two spellings of People's Action Party" (`app/src/constants/coverage/constants.ts:150`). The source site changed apostrophes between scrape eras (`gateway/speakers_by_parliament.py:42,54`; scraper `plans/person-identity.md:73-74`).
 - Worth fixing anyway: normalising the apostrophe in the party filter and the party list (`api/crud/membership.py:47,56`) would merge the two. The two strings look the same in the dropdown, so a user cannot tell which to pick.
@@ -395,6 +412,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-18. Later speeches in a run cite the name without the office
 
 - Status: explained. Owner: scraper (source labels). Personas: lawyer.
+- Fix status, 16 Oct: open. Explained, no data fix. G1's DS-01 change makes these citations use `person_name`. G2 re-checks on write #3 data. No commit yet.
 - Actual: in http://localhost:5174/reports/bill-364 speech 2 is "The Minister for Law (Mr K Shanmugam)" and later speeches are "Mr K Shanmugam", so their citations read "(Mr K Shanmugam)" without the office.
 - Why: the Official Report prints the label that way; triage saw `<strong>Mr K Shanmugam</strong>:` in the SPRS JSON for 7 May 2019. The citation uses the label as printed. A fix in DS-01 that prefers `person_name` would at least make the name form match.
 
@@ -403,12 +421,14 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-19. "Terence Ho Wee San" and "Terence Ho" may be one Person
 
 - Severity: low. Owner: scraper. Personas: historian.
+- Fix status, 16 Oct: in progress. G5 is checking the NMP lists. Research only; no scraper commit yet.
 - Evidence: Person 389 "Terence Ho Wee San" has one Membership, speaker 1055, Parliament 13, party "Nominated Member of Parliament". Person 496 "Terence Ho" has one Membership, speaker 1337, Parliament 15, also a Nominated Member. Same name stem and same seat type make one man likely, but nothing in the database proves it.
 - To confirm: check the Parliament 15 NMP list on parliament.gov.sg. If one man, add a merge to the scraper's `person_decisions.json`.
 
 ### DS-20. "The Chairman" linked on some speeches of a Report and not others
 
 - Severity: low. Owner: scraper. Personas: journalist.
+- Fix status, 16 Oct: open. Not in any group of this run. Open.
 - Evidence: in bill-367 (8 May 2019) "The Chairman" is linked to Charles Chong (Person 165) on 43 speeches and unlinked on 9. Triage did not re-run it. Unlinked "The Chairman" is by design when the chair can't be resolved, so this may be correct if the chair changed.
 - To confirm: list the 9 ordinals and check whether a different member took the chair around them.
 
