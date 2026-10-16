@@ -51,7 +51,8 @@ export function RowSpeech({
         sittingDate,
         volumeNumber,
         parliamentNumber,
-        speech.speaker_label
+        speech.speaker_label,
+        speech.person_name
       )
     : undefined
 

@@ -29,7 +29,8 @@ export function SectionCitingRecord() {
           CITATION_EXAMPLE_SPEECH.sittingDate,
           CITATION_EXAMPLE_SPEECH.volumeNumber,
           CITATION_EXAMPLE_SPEECH.parliamentNumber,
-          CITATION_EXAMPLE_SPEECH.speakerLabel
+          CITATION_EXAMPLE_SPEECH.speakerLabel,
+          CITATION_EXAMPLE_SPEECH.personName
         )}
       </QuoteCitation>
       <p>

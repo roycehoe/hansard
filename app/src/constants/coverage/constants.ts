@@ -57,6 +57,7 @@ export const CITATION_EXAMPLE_SPEECH = {
   volumeNumber: 1,
   parliamentNumber: LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
   speakerLabel: 'The Chief Minister (Mr D. S. Marshall)',
+  personName: 'David Marshall',
 } as const
 
 export const ATTRIBUTION_BY_PARLIAMENT = [
