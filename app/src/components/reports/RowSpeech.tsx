@@ -1,6 +1,7 @@
 import type { SpeechData } from '@/api/reports/getReport'
 import { ActionBarSpeechCopy } from '@/components/reports/ActionBarSpeechCopy'
 import { TextTranscript } from '@/components/reports/TextTranscript'
+import { SPEAKER_NOT_RECORDED_LABEL } from '@/constants/reports/constants'
 import { SpeechKind, TranscriptStyle } from '@/constants/reports/enums'
 import { buildSpeechCitation } from '@/lib/citation'
 import { cn } from '@/lib/utils'
@@ -57,6 +58,16 @@ export function RowSpeech({
     : undefined
 
   function renderSpeakerLabel() {
+    if (!hasSpeakerLabel && speech.kind === SpeechKind.SPEECH) {
+      return (
+        <>
+          <span className="text-muted-foreground font-semibold">
+            {SPEAKER_NOT_RECORDED_LABEL}
+          </span>
+          {': '}
+        </>
+      )
+    }
     if (!hasSpeakerLabel) return undefined
     if (isContinuation) {
       return (

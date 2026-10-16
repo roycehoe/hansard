@@ -159,3 +159,5 @@ export const HIGHLIGHT_STOP_WORDS: ReadonlySet<string> = new Set([
   'should',
   'now',
 ])
+
+export const SPEAKER_NOT_RECORDED_LABEL = 'Speaker not recorded'
