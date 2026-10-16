@@ -16,6 +16,7 @@ const OFFICE_LABEL_PREFIX = 'The '
 const NAME_BRACKET_TITLE =
   /^(?:Mr|Mrs|Ms|Miss|Mdm|Madam|Dr|Prof|Assoc|Er|BG|RAdm|LG|Col|LTC|MG|Cdre|Encik|Inche|Haji|Hajjah|Tuan|Tun|Dato|Datuk|Sir|Rev|Capt|Maj|Cdr|Lt)[ .]/
 const ACTING_FOR_BRACKET = /^(?:for(?:the)?|on behalf of)\b/i
+const PRESIDING_OFFICE = /^(?:(?:Mr|Madam|Mdm) )?(?:Deputy )?(?:Speaker|Chairman)$/
 const NAME_DOT = /\./g
 const PARLIAMENT_CITATION_TITLE =
   'Singapore Parliamentary Debates, Official Report'
@@ -69,35 +70,63 @@ function cleanName(name: string): string {
   return name.replace(NAME_DOT, '').trim()
 }
 
+function getLabelHead(speakerLabel: string, groups: BracketGroup[]): string {
+  const [firstGroup] = groups
+  return (
+    firstGroup === undefined
+      ? speakerLabel
+      : speakerLabel.slice(0, firstGroup.start)
+  ).trim()
+}
+
+function removeOfficeLabelPrefix(office: string): string {
+  return office.startsWith(OFFICE_LABEL_PREFIX)
+    ? office.slice(OFFICE_LABEL_PREFIX.length)
+    : office
+}
+
 export function parseSpeakerLabel(
   speakerLabel: string,
   storedPersonName: string
 ): SpeakerAttribution {
-  // person_name keeps the stored "Surname, Given" form until DS-13 is fixed in the scraper
-  const personName = storedPersonName.includes(',') ? '' : storedPersonName
-  if (!speakerLabel.startsWith(OFFICE_LABEL_PREFIX)) {
-    const [head] = speakerLabel.split('(')
+  const groups = findBracketGroups(speakerLabel)
+  const head = getLabelHead(speakerLabel, groups)
+  const isOfficeLabel =
+    speakerLabel.startsWith(OFFICE_LABEL_PREFIX) || PRESIDING_OFFICE.test(head)
+  if (!isOfficeLabel) {
+    const officeGroup = groups.find((group) =>
+      PRESIDING_OFFICE.test(group.content.trim())
+    )
     return {
-      name: cleanName(personName !== '' ? personName : head),
-      office: '',
+      name: cleanName(head),
+      office: officeGroup === undefined ? '' : officeGroup.content.trim(),
     }
   }
-  const groups = findBracketGroups(speakerLabel)
   const nameGroup = [...groups].reverse().find(isNameGroup)
-  const office = removeBracketGroups(
-    speakerLabel,
-    groups.filter((group) => group === nameGroup || isActingForGroup(group))
+  const officeText =
+    nameGroup === undefined
+      ? speakerLabel
+      : speakerLabel.slice(0, nameGroup.start)
+  const office = removeOfficeLabelPrefix(
+    removeBracketGroups(
+      officeText,
+      groups.filter(
+        (group) => group.end <= officeText.length && isActingForGroup(group)
+      )
+    ).trim()
   )
-    .trim()
-    .slice(OFFICE_LABEL_PREFIX.length)
-  if (personName !== '') return { name: cleanName(personName), office }
-  if (nameGroup === undefined) return { name: '', office }
-  const nestedGroups = findBracketGroups(nameGroup.content)
-  const name = removeBracketGroups(
-    nameGroup.content,
-    nestedGroups.filter(isActingForGroup)
-  )
-  return { name: cleanName(name), office }
+  if (nameGroup !== undefined) {
+    const nestedGroups = findBracketGroups(nameGroup.content)
+    const name = removeBracketGroups(
+      nameGroup.content,
+      nestedGroups.filter(isActingForGroup)
+    )
+    return { name: cleanName(name), office }
+  }
+  if (groups.length === 0) return { name: '', office }
+  // person_name keeps the stored "Surname, Given" form until DS-13 is fixed in the scraper
+  const personName = storedPersonName.includes(',') ? '' : storedPersonName
+  return { name: cleanName(personName), office }
 }
 
 function getCitationTitle(parliamentNumber: number): string {
