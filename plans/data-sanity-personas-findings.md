@@ -36,7 +36,7 @@ Confirmed: 2 high, 5 medium, 7 low. Owners of confirmed findings: app 1, api 1, 
 | DS-16 | Legislative Assembly Memberships are filed under Parliament 1 | none | scraper | explained | G5 | in progress | 97 Memberships; 73 people listed under Parliament 1 who never sat in it |
 | DS-17 | The PAP has two party strings, so the party filter splits it | none | scraper | explained | G1, G5 | in progress | 1,151 Memberships |
 | DS-18 | Later speeches in a run cite the name without the office | none | scraper | explained | G2 | open | not counted |
-| DS-19 | "Terence Ho Wee San" and "Terence Ho" may be one Person | low | scraper | unconfirmed | G5 | in progress | 2 Persons |
+| DS-19 | "Terence Ho Wee San" and "Terence Ho" may be one Person | low | scraper | unconfirmed | G5 | open | 2 Persons |
 | DS-20 | "The Chairman" linked on some speeches of a Report and not others | low | scraper | unconfirmed | none | open | 9 speeches in bill-367 |
 
 All SQL below runs through the read-only wrapper: `cd api && uv run python <scratchpad>/tools/sql.py "<query>"`. Queries that filter `speech.speaker` scan the whole table and take 10 to 30 s; the wrapper's statement timeout cancels anything heavier.
@@ -109,7 +109,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-03. Chiam See Tong has the wrong party for Parliaments 6 to 9
 
 - Severity: high. Owner: scraper. Status: confirmed.
-- Fix status, 16 Oct: in progress. G5 is checking party per Membership against election results. Research only; no scraper commit yet.
+- Fix status, 16 Oct: in progress. G5 checked 178 Memberships against the Elections Department results. Outside Parliament 1 only Chiam's rows 359, 437 and 522 (to SDP) and 615 (to SPP) are wrong. Parliament 1 has 3 source errors and many errors in the hand-typed `data/colonial_la_members.json`: 61 rows change under the ballot-party rule. The cause: the parliament.gov.sg list holds one party per person, which the scraper copies onto every Parliament. Waiting on Royce's rulings, the commit lock and a rehearsal clone.
 - Personas: historian, lawyer.
 - App URL: http://localhost:5174/people/140-chiam-see-tong
 - API call: `GET /people/140`, `memberships[].party`; also `GET /people?party=Singapore%20Democratic%20Alliance`.
@@ -278,7 +278,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-10. Constituency names carry OCR typos
 
 - Severity: low. Owner: scraper; the API could normalise as a stopgap. Status: confirmed.
-- Fix status, 16 Oct: in progress. G5 is building the constituency table per Parliament. Research only; no scraper commit yet.
+- Fix status, 16 Oct: in progress. G5 mapped all 257 strings against the Elections Department division lists: 656 attendance rows and 128 Memberships change, and Memberships with more than one name drop from 133 to 11, all real seat moves. Waiting on Royce's rulings, the commit lock and a rehearsal clone.
 - Personas: historian, lawyer, citizen.
 - App URL: http://localhost:5174/people/29-lee-kuan-yew
 - API call: `GET /people/29`, `memberships[].constituencies`.
@@ -343,7 +343,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-13. Person names in two formats, with honorifics, and almost no name variants
 
 - Severity: low. Owner: scraper. Status: confirmed.
-- Fix status, 16 Oct: in progress. G5 is building display names without a new column. Research only; no scraper commit yet.
+- Fix status, 16 Oct: in progress. G5 proposes a stage 9 rule (`invert_to_natural` plus a decoration strip) and 4 hand decisions: 90 `canonical_name` values change, person ids stay, old slugs redirect by id. `name_variants` from speech labels is a feature, left out. Waiting on Royce's rulings.
 - Personas: historian, lawyer.
 - App URL: http://localhost:5174/people/47-rajaratnam-s, http://localhost:5174/people
 - API call: `GET /people`, `GET /people/171`
@@ -396,7 +396,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-16. Legislative Assembly Memberships are filed under Parliament 1
 
 - Status: explained. Owner: scraper. Personas: historian, lawyer, citizen, journalist.
-- Fix status, 16 Oct: in progress. G5 is working out the Parliament 0 representation. Research only; no scraper commit yet.
+- Fix status, 16 Oct: in progress. G5 recommends moving the 71 Assembly-only rows to Parliament 0, with two stage 8 constant changes in the same change, which keeps 0 speech and attendance links moving in simulation. The code and data must land together, so after write #4. Waiting on Royce's rulings.
 - Actual: no `speaker` row has `parliament_number = 0`. 97 Assembly Memberships are stored as Parliament 1. `GET /people?parliament_number=1` returns 136 people, 73 of whom never sat in a Parliament 1 Report (David Marshall 499, Lim Ching Siong 513, Ong Eng Guan 511). Lee Kuan Yew's one Parliament 1 row covers both the Assembly and 1965 to 1968.
 - Why: the `/coverage` known gaps say so (`app/src/constants/coverage/constants.ts:149`). The scraper's `scripts/load_colonial_la_speakers.py:12-26` loads the Assembly members as Parliament 1, and `gateway/speakers_by_parliament.py:14` has no page for Parliament 0. The scraper's own `docs/data-dictionary.md:38,204` says "Parliament 0 is the colonial LA", which contradicts the data.
 - Worth fixing anyway: a historian filtering People by Parliament 1 gets 73 wrong names and the people page does not warn. Either the scraper stores Assembly Memberships as Parliament 0, or the API maps an `is_legislative_assembly` Parliament 1 row with no Parliament 1 Report to Parliament 0.
@@ -421,7 +421,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-19. "Terence Ho Wee San" and "Terence Ho" may be one Person
 
 - Severity: low. Owner: scraper. Personas: historian.
-- Fix status, 16 Oct: in progress. G5 is checking the NMP lists. Research only; no scraper commit yet.
+- Fix status, 16 Oct: open. G5 found two people: separate parliament.gov.sg records with different Chinese names, and `person_decisions.json` already keeps them distinct. G5 recommends closing this as rejected; Royce decides.
 - Evidence: Person 389 "Terence Ho Wee San" has one Membership, speaker 1055, Parliament 13, party "Nominated Member of Parliament". Person 496 "Terence Ho" has one Membership, speaker 1337, Parliament 15, also a Nominated Member. Same name stem and same seat type make one man likely, but nothing in the database proves it.
 - To confirm: check the Parliament 15 NMP list on parliament.gov.sg. If one man, add a merge to the scraper's `person_decisions.json`.
 
