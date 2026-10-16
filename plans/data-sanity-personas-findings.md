@@ -43,12 +43,19 @@ Ordinals and `#s` anchors in this file predate write #3, which renumbers 599,528
 
 All SQL below runs through the read-only wrapper: `cd api && uv run python <scratchpad>/tools/sql.py "<query>"`. Queries that filter `speech.speaker` scan the whole table and take 10 to 30 s; the wrapper's statement timeout cancels anything heavier.
 
+## Reconciled after cycle 4
+
+Cycle 4 of the scraper's speech fidelity loop ended on 16 Oct with parser commits `2ec5fe8` (page-reference footnotes and division records), `73ed1d6` (procedural lines in variant spellings) and `1220161` (older-system first readings), all in `services/speech.py` and test fixtures, and docs commits `5bc317a` and `ae17e46`. Its data writes: write #3 (plan v4) shipped to production at 16:03; write #4 (2,923 Reports, 42 held Reports released) is rehearsed and waits for Royce. A bounded read of production at 23:13 found 1,048,728 speeches, kind NULL on 4,146 and the DS-06 query unchanged, and the replica equals production. Every finding's SQL was re-run on the replica and on `hansard_w4`, the replica with write #4 applied (`/Users/user/hansard-fixrun-2026-10-16/recon/`). The note under each finding gives the result against hansard_w4; the counts are re-checked on production after write #4 ships.
+
+Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 code commit touches; only `docs/data-loss-register.md` needed a merge. G2's register and vision patch for report 22149 is dropped, because write #4 rebuilds 22149 and `ae17e46` registers it. G3's census moved by more than 5% (DS-05 1,069 to 431 rows), so its doc patch is held.
+
 ## App
 
 ### DS-01. Copied speech citation names an office fragment as the speaker
 
 - Severity: high. Owner: app. Status: confirmed.
 - Fix status, 16 Oct: fixed in code, commit `22c1255`. A linked speech cites `person_name`, except a stored "Surname, Given" name (DS-13), which falls back to the label. An unlinked label uses the last bracket that starts with a title. Checked on the replica with every DS-01 label; 781,774 of 884,819 speeches change citation text, mostly because the honorific goes with `person_name`. "Mr Speaker" labels now cite the person without the office. Heading labels (DS-05) still give a citation such as "(SECTION III - REVENUE AND TAX CHANGES)".
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged by cycle 4; the SQL gives 1,981 speeches in 33 labels on both copies. Commit `21f67be` redoes the citation under ruling 1: the name comes from the label (the last titled bracket of an office label), presiding-officer labels keep the office, and `person_name` is used only when a label has brackets and none of them names a person. 2,297 of 962,541 citations differ from the code before `22c1255`. A bare "Mr Speaker" or "The Prime Minister" cites as printed.
 - Personas: lawyer.
 - App URL: http://localhost:5174/reports/president-address-256#s1 (copy-citation button on speech 1).
 - API call: `GET /reports/president-address-256`, field `speeches[].speaker_label`.
@@ -86,6 +93,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: api, with a scraper note. Status: confirmed.
 - Fix status, 16 Oct: fixed in code, commit `8c69fd9`. A Report has text only when a Speech points at it, everywhere the API decides it (EXISTS on `speech.report_id`). The app drops the no-speeches notice. On the replica `text_report_count` goes from 41,683 to 41,029, and `/coverage` answers in 0.56 s cold.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 654 Reports with markdown and no speech on both copies. Fixed in code by `8c69fd9`.
 - Personas: lawyer, journalist; the historian listed the same Reports as Explained.
 - App URL: http://localhost:5174/reports/00068872-ZZ.00047415-ZZ_1%23id043_19551123_S0003_T00431-budget
 - API call: `GET /reports/00068872-ZZ.00047415-ZZ_1%23id043_19551123_S0003_T00431-budget`
@@ -112,6 +120,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: high. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G5 checked 178 Memberships against the Elections Department results. Outside Parliament 1 only Chiam's rows 359, 437 and 522 (to SDP) and 615 (to SPP) are wrong. Parliament 1 has 3 source errors and many errors in the hand-typed `data/colonial_la_members.json`: 61 rows change under the ballot-party rule. The cause: the parliament.gov.sg list holds one party per person, which the scraper copies onto every Parliament. Waiting on Royce's rulings, the commit lock and a rehearsal clone.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: Chiam's six rows still say Singapore Democratic Alliance. G5 goes ahead under ruling 7.
 - Personas: historian, lawyer.
 - App URL: http://localhost:5174/people/140-chiam-see-tong
 - API call: `GET /people/140`, `memberships[].party`; also `GET /people?party=Singapore%20Democratic%20Alliance`.
@@ -133,6 +142,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: medium. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared the rule: 10 Reports and 825 speech rows to delete, listed in `data/excluded_report_ids.json` with the Report kept, and stage 3 learns to skip them. On write #3 data every pair is still identical. The 16 Oct 2003 stubs 24909 and 42986 go; 24905 has no twin and stays. A hansard patch maps the 10 old slugs to the kept Reports (ADR 0004). Prepared as patches, dry-run counted on the replica; not committed, not written.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 8 `html_file_name` groups (16 Reports), every pair still identical by speech md5, and the 3 stubs of 16 Oct 2003. G4's rebased dry run: 10 Reports and 825 speeches to delete, as recorded.
 - Personas: lawyer, journalist.
 - App URLs: http://localhost:5174/sittings/1963-04-09 (two "BUDGET, MINISTRY OF LABOUR"), http://localhost:5174/sittings/2011-11-21 (two "Central Provident Fund (Amendment) Bill"), http://localhost:5174/sittings/2003-10-16 (stubs).
 - API calls: `GET /sittings/1963-04-09`, `GET /search/reports?q=martial+arts+instruction&date_from=2003-10-16&date_to=2003-10-16`.
@@ -162,6 +172,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: medium. Owner: scraper; the app citation (DS-01) should not build a citation from such a label. Status: confirmed.
 - Fix status, 16 Oct: open. G2 re-ran the SQL on write #3 data (the replica): verb fragments 174 to 174, all capitals 192 to 36 (change C unlinked the 156 "SECTION" headings of 31083), leading punctuation 395 to 229 (166 report subtitles read as labels were rebuilt). G3 built the census detector and read every distinct unlinked label (244 strings, 19,019 rows): on write #3 data DS-05 is 1,069 rows in 90 Reports, 295,235 countable characters (heading 788, fragment 162, caption or table 81, junk 38). 720 of them sit in 50 held Reports that a rebuild fixes; 349 need a parser fix. The detector and the doc patch wait for the scraper commit lock. The parser fix is not in this run.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): partly fixed by cycle 4: write #4 releases 42 held Reports. The SQL shapes go from 174, 36 and 229 on production now to 174, 34 and 149. G3's census: 431 rows in 51 labels and 50 Reports, 133,346 countable characters (heading 208, fragment 159, caption or table 40, junk 24), down from 1,069. G3's doc patch carries the write #3 figures, so it is held for Royce under the 5% rule.
 - Personas: historian, lawyer, journalist, citizen.
 - App URL: http://localhost:5174/reports/00000425-XA.00068254-ZZ_1%23id005_20020404_S0006_T00071-president-address#s194
 - API call: `GET /reports/00000425-XA.00068254-ZZ_1%23id005_20020404_S0006_T00071-president-address`
@@ -187,6 +198,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: medium. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: open. Write #3 removes none of the 10 pairs or 8 junk rows: its 45 attendance deletes are office-title fragments in 37 other Sittings. A re-parse at scraper HEAD keeps them too. A parser fix and a dedupe are still needed, and DS-06 is in no group of this run.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged on production (10 duplicated pairs and 8 junk rows, read 16 Oct 23:15) and on hansard_w4. Ruling 10 gives it its own group, which also takes decision memo 04 (111 unmatched attendance names).
 - Personas: citizen.
 - App URLs: http://localhost:5174/sittings/1958-04-23, http://localhost:5174/sittings/1959-12-10
 - API call: `GET /sittings/1958-04-23`, `attendance[]`.
@@ -213,6 +225,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: medium. Owner: scraper, with an api note. Status: confirmed.
 - Fix status, 16 Oct: in progress. G6 found the cause: SPRS and the stored raw HTML hold the full list (76 present, 3 absent), and today's parser reads all 79. The 5 stored rows are the first 5 of the parse, left by an interrupted first run of stage 7 that committed one row at a time. Sittings 5941 (2 Dec 1996, 53 of 85) and 6009 (20 Jul 2005, 50 of 94) are truncated the same way. The fix is an insert-only completion of 150 rows, all linked, dry-run counted on the replica. No write and no commit yet.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: Sittings 5941, 5988 and 6009 hold 53, 5 and 50 rows. G6's dry run: insert 150 rows (32, 74 and 44), all linked, as recorded. A parse of all 1,719 Sittings finds no other truncated list.
 - Personas: citizen.
 - App URL: http://localhost:5174/sittings/1986-03-25
 - API call: `GET /sittings/1986-03-25`
@@ -237,6 +250,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: medium. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared a backfill from the stored header tables: 3,942 Report sitting numbers, 204 Sitting sitting numbers and 1,332 session numbers. A rebuild from the raw tables with the patched code gives the same values with 0 mismatches. The 18 Mar 1986 session number stays NULL, and 16 Oct 2003 stays as stored (4; its header says 22). Not committed, not written.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 3,942 Reports and 204 Sittings without a sitting number, 1,333 Sittings without a session number. G4's dry run: 3,942 (3,938 after DS-04), 204 and 1,332, as recorded; a rebuild from the raw tables gives the same values.
 - Personas: lawyer, citizen.
 - App URLs: http://localhost:5174/reports/00075611-WA.00072393-ZZ_1 (no "Sitting number" in the header), http://localhost:5174/sittings/2007-10-22
 - API calls: `GET /reports/00075611-WA.00072393-ZZ_1` (`sitting_number: null`), `GET /sittings/2007-10-22` (`sitting_number: null, session_number: null`), `GET /sittings?parliament_number=9` (`session_number: null` on all 121).
@@ -259,6 +273,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: scraper. Status: confirmed. One aggregate finding, per scenario 2 of the brief.
 - Fix status, 16 Oct: open. G2 re-ran the SQL on write #3 data: 96 / 59 / 35 become 69 / 34 / 35. 25 single-row Speaker announcements became HEADING rows with no speaker; none was relinked, because the `_preclean` fix is not in write #3. G3's detector counts 268 rows in 160 Reports, 203,890 countable characters. A dry run of `_preclean`-style rewrites links 160 of them; 96 more need a name table or fuzzy match, 12 are parser cases that must get no speaker. The detector and the doc patch wait for the scraper commit lock. The linking fix is not in this run.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): the SQL is unchanged (69, 34, 35). G3's census: 254 rows in 89 labels and 152 Reports (was 268); 249 of them would link to the named person.
 - Personas: historian, lawyer, journalist, citizen.
 - App URL: any Report with "Dr Yeoh Ghim Seng (Mr Speaker)"; use the SQL to find one.
 - API call: `GET /reports/{slug}`, `speeches[].person_id` is null on these.
@@ -281,6 +296,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: scraper; the API could normalise as a stopgap. Status: confirmed.
 - Fix status, 16 Oct: in progress. G5 mapped all 257 strings against the Elections Department division lists: 656 attendance rows and 128 Memberships change, and Memberships with more than one name drop from 133 to 11, all real seat moves. Waiting on Royce's rulings, the commit lock and a rehearsal clone.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 257 names, 100 used three times or fewer, 133 Memberships with more than one name.
 - Personas: historian, lawyer, citizen.
 - App URL: http://localhost:5174/people/29-lee-kuan-yew
 - API call: `GET /people/29`, `memberships[].constituencies`.
@@ -306,6 +322,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared the rule: trim, replace tags, collapse equal comma-joined parts. 416 titles change (340 trims, 41 repeats, 15 grouped titles, 16 with a bracket split into the subtitle); `original_title` keeps the raw value. A re-parse of all 416 Reports gives identical rows for 413, and 3 recover 81 rows of question groups. Not committed, not written.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 55 repeated, 362 untrimmed, 2 with HTML. G4's dry run: 416 titles (412 after DS-04), as recorded. With cycle 4's parser, a re-parse gives the stored rows for 413 of the 416 Reports; 22789, 23760 and 43147 would gain 81 rows, because the collapsed title lets the parser find the start. The title write alone does not re-parse them.
 - Personas: historian, lawyer, journalist.
 - App URL: http://localhost:5174/reports/00075611-WA.00072393-ZZ_1
 - API call: `GET /reports/00075611-WA.00072393-ZZ_1`
@@ -328,6 +345,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: scraper; the API passes it through. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared an override file shared with G5's DS-03 work: 96 flag changes (68 cleared in Parliaments 2 to 12, Ho Kah Leong cleared, 27 members elected in 1963 set), or the minimal 68. Stage 9 gives the same 573 clusters under both, and stage 8 does not read the flag. Not committed, not written.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 68 Memberships in Parliaments 2 to 12. G4's dry run with the full override set: 96 flags, as recorded.
 - Personas: historian, lawyer, citizen, journalist.
 - App URL: none; the app does not render the flag.
 - API call: `GET /people/29`, `memberships[].is_legislative_assembly` is true on all 12 Memberships, including Parliament 12 (2011 to 2015).
@@ -346,6 +364,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G5 proposes a stage 9 rule (`invert_to_natural` plus a decoration strip) and 4 hand decisions: 90 `canonical_name` values change, person ids stay, old slugs redirect by id. `name_variants` from speech labels is a feature, left out. Waiting on Royce's rulings.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 88 comma-form names, 2 Persons with a variant.
 - Personas: historian, lawyer.
 - App URL: http://localhost:5174/people/47-rajaratnam-s, http://localhost:5174/people
 - API call: `GET /people`, `GET /people/171`
@@ -365,6 +384,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: deferred. Deferred by the brief: it needs a new column.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): not re-checked; deferred and not countable in SQL.
 - Personas: lawyer.
 - App URL: http://localhost:5174/reports/00069608-ZZ.00061888-ZZ_1%23id013_19900222_S0003_T00033-bill#s119
 - API call: `GET /reports/00069608-ZZ.00061888-ZZ_1%23id013_19900222_S0003_T00033-bill`, speeches 119 and 169.
@@ -385,6 +405,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Status: explained. Owner: scraper. Personas: historian, lawyer, journalist, citizen. Three rated it high and the journalist medium.
 - Fix status, 16 Oct: applied to rehearsal. On the replica every row has a kind except 4,146 rows in the 162 held Reports, as ADR 0009 says. The loop session's production ship has written the kind of 1,004,419 rows (its pre-step, done at 14:40); the locked phase is still to come. G2 ran the app's kind logic (`ee80a9b` to `64e4128`) on write #3 data: styles and runs match ADR 0009. One defect: 488 SPEECH rows with no speaker, in 10 Reports, render as unlabelled body text, so they read as the previous speaker's. The search API has no kind filter.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): partly fixed. Write #3 is on production, with kind NULL on 4,146 rows. After write #4, 2,275 rows stay NULL (the 121 held Reports, 22647 and 22650). Kinds: SPEECH 961,080, PROCEDURAL 49,841, UNCLASSIFIED 20,944, CHAMBER_EVENT 5,838, EDITORIAL_NOTE 3,187, DOCUMENT_TEXT 2,616, HEADING 2,570. The 488 SPEECH rows with no speaker are the same rows in the same 10 Reports; commit `556bbc4` labels them "Speaker not recorded" (ruling 2).
 - Actual: `select kind, count(*) from speech group by 1` returns one row, NULL 1,044,594.
 - Why: the scraper parser sets `kind` on every row since commit `2eef141` (`services/speech.py:587-601`, stored at `populate/speeches.py:58`). Stored rows get a kind only when write #3 ships. `docs/adr/0009-speech-kind-column.md:3` says "Write #3 fills the column for stored rows, so stored rows have no kind yet", and `docs/vision.md:65` says write #3 is "rehearsed on a replica and not shipped". After it ships, 4,146 rows in 162 held Reports stay NULL by design.
 - Did ee80a9b to 64e4128 ship dead code? No. The code is inert until write #3 ships, and its NULL fallback reproduces the behaviour from before those commits exactly:
@@ -399,6 +420,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Status: explained. Owner: scraper. Personas: historian, lawyer, citizen, journalist.
 - Fix status, 16 Oct: in progress. G5 recommends moving the 71 Assembly-only rows to Parliament 0, with two stage 8 constant changes in the same change, which keeps 0 speech and attendance links moving in simulation. The code and data must land together, so after write #4. Waiting on Royce's rulings.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: no Parliament 0 row, 97 Assembly rows in Parliament 1.
 - Actual: no `speaker` row has `parliament_number = 0`. 97 Assembly Memberships are stored as Parliament 1. `GET /people?parliament_number=1` returns 136 people, 73 of whom never sat in a Parliament 1 Report (David Marshall 499, Lim Ching Siong 513, Ong Eng Guan 511). Lee Kuan Yew's one Parliament 1 row covers both the Assembly and 1965 to 1968.
 - Why: the `/coverage` known gaps say so (`app/src/constants/coverage/constants.ts:149`). The scraper's `scripts/load_colonial_la_speakers.py:12-26` loads the Assembly members as Parliament 1, and `gateway/speakers_by_parliament.py:14` has no page for Parliament 0. The scraper's own `docs/data-dictionary.md:38,204` says "Parliament 0 is the colonial LA", which contradicts the data.
 - Worth fixing anyway: a historian filtering People by Parliament 1 gets 73 wrong names and the people page does not warn. Either the scraper stores Assembly Memberships as Parliament 0, or the API maps an `is_legislative_assembly` Parliament 1 row with no Parliament 1 Report to Parliament 0.
@@ -407,6 +429,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Status: explained. Owner: scraper, with an api option. Personas: historian, citizen.
 - Fix status, 16 Oct: in progress. The API stopgap is fixed in code, commit `47f59d7`: `/parties` lists one PAP string and either spelling returns 347 people on the replica. The stored strings still differ until G5's scraper normalisation ships.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged in the data: 298 curly and 853 straight.
 - Actual: `/parties` lists "People's Action Party" (straight apostrophe, 853 Memberships, 262 people) and "People’s Action Party" (curly, 298 Memberships, 85 people). `GET /people?party=` with either returns only its own set.
 - Why: `/coverage` discloses "two spellings of People's Action Party" (`app/src/constants/coverage/constants.ts:150`). The source site changed apostrophes between scrape eras (`gateway/speakers_by_parliament.py:42,54`; scraper `plans/person-identity.md:73-74`).
 - Worth fixing anyway: normalising the apostrophe in the party filter and the party list (`api/crud/membership.py:47,56`) would merge the two. The two strings look the same in the dropdown, so a user cannot tell which to pick.
@@ -415,6 +438,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Status: explained. Owner: scraper (source labels). Personas: lawyer.
 - Fix status, 16 Oct: open. Explained, no data fix. On write #3 data the shape covers 217,473 rows in 10,930 Reports. Since `22c1255` these citations use `person_name`, so the name form matches across a run; the office still shows only where the label prints it. G2 re-checks on write #3 data.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): not re-counted; cycle 4 changed no label of this shape. Since `21f67be` a citation takes the name as the label prints it, so a later speech in a run cites "(Mr K Shanmugam)" as printed, without the office.
 - Actual: in http://localhost:5174/reports/bill-364 speech 2 is "The Minister for Law (Mr K Shanmugam)" and later speeches are "Mr K Shanmugam", so their citations read "(Mr K Shanmugam)" without the office.
 - Why: the Official Report prints the label that way; triage saw `<strong>Mr K Shanmugam</strong>:` in the SPRS JSON for 7 May 2019. The citation uses the label as printed. A fix in DS-01 that prefers `person_name` would at least make the name form match.
 
@@ -424,6 +448,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: scraper. Personas: historian.
 - Fix status, 16 Oct: open. G5 found two people: separate parliament.gov.sg records with different Chinese names, and `person_decisions.json` already keeps them distinct. G5 recommends closing this as rejected; Royce decides.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged (Persons 389 and 496). Rejected under ruling 7.
 - Evidence: Person 389 "Terence Ho Wee San" has one Membership, speaker 1055, Parliament 13, party "Nominated Member of Parliament". Person 496 "Terence Ho" has one Membership, speaker 1337, Parliament 15, also a Nominated Member. Same name stem and same seat type make one man likely, but nothing in the database proves it.
 - To confirm: check the Parliament 15 NMP list on parliament.gov.sg. If one man, add a merge to the scraper's `person_decisions.json`.
 
@@ -431,6 +456,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 - Severity: low. Owner: scraper. Personas: journalist.
 - Fix status, 16 Oct: open. Not in any group of this run. Open.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): changed by write #3, not by cycle 4: bill-367 has 32 linked and 7 unlinked "The Chairman" rows on both copies (43 and 9 before write #3). Not in a group.
 - Evidence: in bill-367 (8 May 2019) "The Chairman" is linked to Charles Chong (Person 165) on 43 speeches and unlinked on 9. Triage did not re-run it. Unlinked "The Chairman" is by design when the chair can't be resolved, so this may be correct if the chair changed.
 - To confirm: list the 9 ordinals and check whether a different member took the chair around them.
 
