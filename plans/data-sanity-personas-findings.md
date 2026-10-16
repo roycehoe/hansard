@@ -21,15 +21,15 @@ Confirmed: 2 high, 5 medium, 7 low. Owners of confirmed findings: app 1, api 1, 
 | DS-01 | Copied speech citation names an office fragment as the speaker | high | app | confirmed | G1 | fixed in code | 1,967 speeches, 31 labels, 148 Reports; plus 71 speeches with a lesser form |
 | DS-02 | Reports with header-only text are counted and labelled as having text | low | api | confirmed | G1 | fixed in code | 654 Reports |
 | DS-03 | Chiam See Tong has the wrong party for Parliaments 6 to 9 | high | scraper | confirmed | G5 | in progress | 4 Memberships |
-| DS-04 | Duplicate Reports in one Sitting | medium | scraper | confirmed | G4 | open | 8 pairs (818 duplicated speeches) plus 3 stub Reports |
+| DS-04 | Duplicate Reports in one Sitting | medium | scraper | confirmed | G4 | in progress | 8 pairs (818 duplicated speeches) plus 3 stub Reports |
 | DS-05 | Speaker labels that are sentence fragments or headings | medium | scraper | confirmed | G3, G2 | open | about 700 speeches by SQL shape; the scraper's own estimate is about 1,320 |
 | DS-06 | Attendance lists the same MP twice, or lists rows that are not people | medium | scraper | confirmed | G2 | open | 10 duplicated pairs and 8 junk rows, in 12 Sittings |
 | DS-07 | Attendance list of 25 Mar 1986 holds 5 names instead of about 77 | medium | scraper | confirmed | G6 | in progress | 1 Sitting |
-| DS-08 | Sitting and session numbers missing | medium | scraper | confirmed | G4 | open | 3,942 Reports and 204 Sittings without a sitting number; 1,333 Sittings without a session number |
+| DS-08 | Sitting and session numbers missing | medium | scraper | confirmed | G4 | in progress | 3,942 Reports and 204 Sittings without a sitting number; 1,333 Sittings without a session number |
 | DS-09 | Speaker labels that name a person are not linked | low | scraper | confirmed | G3, G2 | open | 131 speeches |
 | DS-10 | Constituency names carry OCR typos | low | scraper | confirmed | G5 | in progress | 133 Memberships show more than one name |
-| DS-11 | Report titles repeated, untrimmed or holding HTML | low | scraper | confirmed | G4 | open | 55 repeated, 362 untrimmed, 2 with `<br>` |
-| DS-12 | `is_legislative_assembly` is true on Memberships in Parliaments 2 to 12 | low | scraper | confirmed | G4 | open | 68 Memberships |
+| DS-11 | Report titles repeated, untrimmed or holding HTML | low | scraper | confirmed | G4 | in progress | 55 repeated, 362 untrimmed, 2 with `<br>` |
+| DS-12 | `is_legislative_assembly` is true on Memberships in Parliaments 2 to 12 | low | scraper | confirmed | G4 | in progress | 68 Memberships |
 | DS-13 | Person names in two formats, with honorifics, and almost no name variants | low | scraper | confirmed | G5 | in progress | 88 comma-form names; 2 of 573 Persons have a variant |
 | DS-14 | Language markers such as "( In Malay )" are dropped | low | scraper | confirmed | none | deferred | not countable in SQL |
 | DS-15 | `speech.kind` is NULL on every Speech | none | scraper | explained | G2 | applied to rehearsal | 1,044,594 speeches |
@@ -132,7 +132,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-04. Duplicate Reports in one Sitting
 
 - Severity: medium. Owner: scraper. Status: confirmed.
-- Fix status, 16 Oct: open. Queued for G4, after write #3. No commit yet.
+- Fix status, 16 Oct: in progress. G4 prepared the rule: 10 Reports and 825 speech rows to delete, listed in `data/excluded_report_ids.json` with the Report kept, and stage 3 learns to skip them. On write #3 data every pair is still identical. The 16 Oct 2003 stubs 24909 and 42986 go; 24905 has no twin and stays. A hansard patch maps the 10 old slugs to the kept Reports (ADR 0004). Prepared as patches, dry-run counted on the replica; not committed, not written.
 - Personas: lawyer, journalist.
 - App URLs: http://localhost:5174/sittings/1963-04-09 (two "BUDGET, MINISTRY OF LABOUR"), http://localhost:5174/sittings/2011-11-21 (two "Central Provident Fund (Amendment) Bill"), http://localhost:5174/sittings/2003-10-16 (stubs).
 - API calls: `GET /sittings/1963-04-09`, `GET /search/reports?q=martial+arts+instruction&date_from=2003-10-16&date_to=2003-10-16`.
@@ -236,7 +236,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-08. Sitting and session numbers missing
 
 - Severity: medium. Owner: scraper. Status: confirmed.
-- Fix status, 16 Oct: open. Queued for G4, after write #3. No commit yet.
+- Fix status, 16 Oct: in progress. G4 prepared a backfill from the stored header tables: 3,942 Report sitting numbers, 204 Sitting sitting numbers and 1,332 session numbers. A rebuild from the raw tables with the patched code gives the same values with 0 mismatches. The 18 Mar 1986 session number stays NULL, and 16 Oct 2003 stays as stored (4; its header says 22). Not committed, not written.
 - Personas: lawyer, citizen.
 - App URLs: http://localhost:5174/reports/00075611-WA.00072393-ZZ_1 (no "Sitting number" in the header), http://localhost:5174/sittings/2007-10-22
 - API calls: `GET /reports/00075611-WA.00072393-ZZ_1` (`sitting_number: null`), `GET /sittings/2007-10-22` (`sitting_number: null, session_number: null`), `GET /sittings?parliament_number=9` (`session_number: null` on all 121).
@@ -305,7 +305,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-11. Report titles repeated, untrimmed or holding HTML
 
 - Severity: low. Owner: scraper. Status: confirmed.
-- Fix status, 16 Oct: open. Queued for G4, after write #3. No commit yet.
+- Fix status, 16 Oct: in progress. G4 prepared the rule: trim, replace tags, collapse equal comma-joined parts. 416 titles change (340 trims, 41 repeats, 15 grouped titles, 16 with a bracket split into the subtitle); `original_title` keeps the raw value. A re-parse of all 416 Reports gives identical rows for 413, and 3 recover 81 rows of question groups. Not committed, not written.
 - Personas: historian, lawyer, journalist.
 - App URL: http://localhost:5174/reports/00075611-WA.00072393-ZZ_1
 - API call: `GET /reports/00075611-WA.00072393-ZZ_1`
@@ -327,7 +327,7 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 ### DS-12. `is_legislative_assembly` is true on Memberships in Parliaments 2 to 12
 
 - Severity: low. Owner: scraper; the API passes it through. Status: confirmed.
-- Fix status, 16 Oct: open. Queued for G4, after write #3; it depends on G5's DS-16 choice. No commit yet.
+- Fix status, 16 Oct: in progress. G4 prepared an override file shared with G5's DS-03 work: 96 flag changes (68 cleared in Parliaments 2 to 12, Ho Kah Leong cleared, 27 members elected in 1963 set), or the minimal 68. Stage 9 gives the same 573 clusters under both, and stage 8 does not read the flag. Not committed, not written.
 - Personas: historian, lawyer, citizen, journalist.
 - App URL: none; the app does not render the flag.
 - API call: `GET /people/29`, `memberships[].is_legislative_assembly` is true on all 12 Memberships, including Parliament 12 (2011 to 2015).
