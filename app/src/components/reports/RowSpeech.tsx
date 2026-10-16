@@ -1,6 +1,7 @@
 import type { SpeechData } from '@/api/reports/getReport'
 import { ActionBarSpeechCopy } from '@/components/reports/ActionBarSpeechCopy'
 import { TextTranscript } from '@/components/reports/TextTranscript'
+import { SpeechKind, TranscriptStyle } from '@/constants/reports/enums'
 import { buildSpeechCitation } from '@/lib/citation'
 import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
@@ -13,6 +14,25 @@ interface RowSpeechProps {
   volumeNumber: number
   parliamentNumber: number
   highlightPattern?: RegExp
+}
+
+function getTranscriptStyle(speech: SpeechData): TranscriptStyle {
+  switch (speech.kind) {
+    case SpeechKind.SPEECH:
+      return TranscriptStyle.BODY
+    case SpeechKind.PROCEDURAL:
+    case SpeechKind.CHAMBER_EVENT:
+    case SpeechKind.EDITORIAL_NOTE:
+      return TranscriptStyle.MUTED
+    case SpeechKind.DOCUMENT_TEXT:
+      return TranscriptStyle.QUOTED
+    case SpeechKind.HEADING:
+      return TranscriptStyle.HEADING
+    default:
+      return speech.speaker_label === ''
+        ? TranscriptStyle.MUTED
+        : TranscriptStyle.BODY
+  }
 }
 
 export function RowSpeech({
@@ -79,7 +99,7 @@ export function RowSpeech({
         <TextTranscript
           transcript={speech.transcript}
           label={renderSpeakerLabel()}
-          isProcedural={!hasSpeakerLabel}
+          transcriptStyle={getTranscriptStyle(speech)}
           highlightPattern={highlightPattern}
         />
       </div>
