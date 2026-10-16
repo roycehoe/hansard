@@ -29,3 +29,13 @@ export enum TranscriptSegmentKind {
   BOLD = 'bold',
   ITALIC = 'italic',
 }
+
+export enum SpeechKind {
+  SPEECH = 'SPEECH',
+  PROCEDURAL = 'PROCEDURAL',
+  CHAMBER_EVENT = 'CHAMBER_EVENT',
+  EDITORIAL_NOTE = 'EDITORIAL_NOTE',
+  DOCUMENT_TEXT = 'DOCUMENT_TEXT',
+  HEADING = 'HEADING',
+  UNCLASSIFIED = 'UNCLASSIFIED',
+}
