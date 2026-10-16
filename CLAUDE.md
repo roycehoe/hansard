@@ -44,6 +44,7 @@ Runtimes: Node 24 and pnpm from asdf (`.tool-versions` at the root), Python 3.15
 - **The scraper owns the schema.** Every table and every Alembic migration lives in `roycehoe/handsard-scraper`. `api/` has no Alembic, connects through a read-only Postgres role, and declares its own SQLModel class for each table it reads. It does not import the scraper's models. See `docs/adr/0001-read-only-api.md`.
 - **No shared type generation.** Request and response shapes are declared twice: TypeScript interfaces in `app/`, Pydantic schemas in `api/`. Change an API contract, update both sides by hand.
 - **No government identity marks.** The palette borrows colours from Parliament House and national insignia, never the artwork, and the footer says the site is unofficial. See `docs/adr/0002-no-government-identity-marks.md`.
+- **Record what cleaning loses.** Any change that cleans data on the way out of the database (merging two party spellings, hiding rows, rewriting a name) adds a row to the scraper's `docs/data-loss-register.md`, as the scraper's own cleaning does.
 - **Keep a change scoped to one subsystem** unless the task genuinely spans both.
 
 ## Git
