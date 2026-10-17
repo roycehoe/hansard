@@ -30,7 +30,7 @@ Ruff config is `[tool.ruff.lint] select = ["I", "F"]`, so lint covers import ord
 
 **No test suite.** Do not write tests unless explicitly asked.
 
-**No auth and no pre-commit hooks.** Do not add either without being asked.
+**No pre-commit hooks.** Do not add any without being asked. The only auth is HTTP basic auth on the deployed site (`website.py`), added on 18 October 2026 for the private launch; the API in `main.py` has none.
 
 ## The database contract
 
@@ -50,8 +50,9 @@ What exists today:
 
 | Path | Contents |
 |---|---|
-| `main.py` | The `FastAPI` app. Every router is mounted here. |
-| `settings.py` | `pydantic-settings` configuration. Holds `DATABASE_URL`. |
+| `main.py` | The `FastAPI` app. Every router is mounted here. `uv run fastapi dev` serves it. |
+| `website.py` | The deployed site: `main.py`'s app under `/api`, the built frontend at `/`, both behind basic auth. The root `Dockerfile` runs it. |
+| `settings.py` | `pydantic-settings` configuration: `AppSettings` (`DATABASE_URL`) and `WebsiteSettings`, which only `website.py` reads. |
 | `enums.py` | `ReportType` (the 23 stored report type strings) and `SearchSort`. |
 | `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. |
 | `database/` | One SQLModel class per table the API reads: `Report`, `Speech`, `Sitting`, `Attendance`, `Speaker`, `Person`. Only the columns the API uses. |
@@ -60,6 +61,8 @@ What exists today:
 | `validators/` | `search.py`: `validate_can_search`, which a search router calls before the service. |
 | `crud/` | One read-only class per table (`CRUDReport`, `CRUDSpeech`, `CRUDSitting`, `CRUDAttendance`, `CRUDMembership`, `CRUDPerson`) and `text_search.py` with the shared full-text constants. See `crud/CLAUDE.md`. |
 | `middleware/membership.py` | `get_membership_id_to_person`, which composes `CRUDMembership` and `CRUDPerson` for every service that resolves linked rows to Persons. |
+| `middleware/basic_auth.py` | `BasicAuthMiddleware`: answers 401 unless the request carries the configured credentials; `/api/health` is open for the platform's health check. |
+| `middleware/frontend.py` | `FrontendFiles`: serves the built frontend and answers `index.html` for any other path, so client routes load. |
 | `schemas/` | Pydantic response models, one file per domain. No field defaults. |
 | `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage. |
 | `routers/` | One router per domain plus `health.py`. Each handler calls one service function. |
@@ -93,11 +96,13 @@ Notes on the layers that matter now:
 
 ## Environment variables
 
-`settings.py` is the authoritative inventory of every setting and its type. Settings are read with `pydantic-settings`. The only variable specified so far is:
+`settings.py` is the authoritative inventory of every setting and its type. Settings are read with `pydantic-settings`.
 
 | Variable | Purpose |
 |---|---|
 | `DATABASE_URL` | Postgres connection string for the read-only role. |
+| `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD` | `website.py` only. Required: the site does not start without them. |
+| `FRONTEND_DIST_PATH` | `website.py` only. The built frontend; the `Dockerfile` sets it. |
 
 Never put a secret in code or in an example env file.
 

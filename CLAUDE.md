@@ -35,7 +35,12 @@ uv sync
 uv run fastapi dev        # http://localhost:8000, needs DATABASE_URL (see api/.env.example)
 uv run ruff check .
 uv run ruff format .
+
+# The deployed site (from the repo root): one container, frontend and API behind basic auth
+docker build -t hansard-web .
 ```
+
+The App Platform spec is `.do/app.yaml`. The container serves the frontend at `/` and the API at `/api`; see `api/CLAUDE.md`.
 
 Runtimes: Node 24 and pnpm from asdf (`.tool-versions` at the root), Python 3.15 through uv (`api/.python-version`). Node 26 becomes LTS on 28 Oct 2026; move `.tool-versions` and `app/package.json` `engines` to it after that date.
 
