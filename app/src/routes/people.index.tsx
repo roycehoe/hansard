@@ -1,5 +1,4 @@
 import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
-import { useGetAllParties } from '@/api/people/getAllParties'
 import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
 import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -20,6 +19,7 @@ import {
   FILTER_ALL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
 } from '@/constants/constants'
+import { MEMBERSHIP_PARLIAMENT_NUMBERS } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
@@ -63,6 +63,39 @@ function filterPersonsByMembershipAndName(
   )
 }
 
+function getPartiesInParliament(
+  persons: PersonData[],
+  parliament: number | undefined,
+  party: string | undefined
+): string[] {
+  const parties = new Set(
+    persons.flatMap((person) =>
+      person.memberships
+        .filter((membership) =>
+          isMatchingMembership(membership, parliament, undefined)
+        )
+        .map((membership) => membership.party)
+    )
+  )
+  if (party !== undefined) parties.add(party)
+  return [...parties].sort()
+}
+
+function getParliamentNumbersWithParty(
+  persons: PersonData[],
+  parliament: number | undefined,
+  party: string | undefined
+): number[] {
+  const memberships = persons.flatMap((person) => person.memberships)
+  return MEMBERSHIP_PARLIAMENT_NUMBERS.filter(
+    (parliamentNumber) =>
+      parliamentNumber === parliament ||
+      memberships.some((membership) =>
+        isMatchingMembership(membership, parliamentNumber, party)
+      )
+  )
+}
+
 export const Route = createFileRoute('/people/')({
   validateSearch: peopleSearchSchema,
   component: function PagePeople() {
@@ -70,7 +103,6 @@ export const Route = createFileRoute('/people/')({
     const { parliament, party, name } = Route.useSearch()
     const navigate = useNavigate()
     const parliaments = useGetAllParliaments()
-    const parties = useGetAllParties()
     const persons = useGetAllPersons({})
     // The router commits a search change a microtask after navigate, too late
     // for a controlled input, so the typed name lives in state and is reset
@@ -81,15 +113,12 @@ export const Route = createFileRoute('/people/')({
       setLastUrlName(name)
       setTypedName(name ?? '')
     }
-    const isLoading =
-      parliaments.isLoading || parties.isLoading || persons.isLoading
-    const isError = parliaments.isError || parties.isError || persons.isError
-    const isRefetching =
-      parliaments.isRefetching || parties.isRefetching || persons.isRefetching
+    const isLoading = parliaments.isLoading || persons.isLoading
+    const isError = parliaments.isError || persons.isError
+    const isRefetching = parliaments.isRefetching || persons.isRefetching
 
     function retryPeople() {
       void parliaments.refetch()
-      void parties.refetch()
       void persons.refetch()
     }
 
@@ -110,7 +139,7 @@ export const Route = createFileRoute('/people/')({
 
     function renderBody() {
       if (isLoading) return <Skeleton className="h-96 w-full" />
-      if (isError || !parliaments.data || !parties.data || !persons.data) {
+      if (isError || !parliaments.data || !persons.data) {
         return (
           <NoticeErrorPersons onRetry={retryPeople} isRetrying={isRefetching} />
         )
@@ -125,7 +154,16 @@ export const Route = createFileRoute('/people/')({
               name: typedName,
             }}
             parliaments={parliaments.data.parliaments}
-            parties={parties.data.parties}
+            parliamentNumbers={getParliamentNumbersWithParty(
+              persons.data.persons,
+              parliament,
+              party
+            )}
+            parties={getPartiesInParliament(
+              persons.data.persons,
+              parliament,
+              party
+            )}
             onChange={applyFilters}
           />
           <ListPersons

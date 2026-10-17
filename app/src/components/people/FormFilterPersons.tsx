@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FILTER_ALL } from '@/constants/constants'
-import { MEMBERSHIP_PARLIAMENT_NUMBERS } from '@/constants/people/constants'
 import { formatParliament, formatParliamentOption } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
 import type { ChangeEvent } from 'react'
@@ -36,6 +35,7 @@ export interface FormFilterPersonsValues {
 interface FormFilterPersonsProps {
   values: FormFilterPersonsValues
   parliaments: ParliamentData[]
+  parliamentNumbers: number[]
   parties: string[]
   onChange: (values: FormFilterPersonsValues) => void
 }
@@ -43,6 +43,7 @@ interface FormFilterPersonsProps {
 export function FormFilterPersons({
   values,
   parliaments,
+  parliamentNumbers,
   parties,
   onChange,
 }: FormFilterPersonsProps) {
@@ -68,7 +69,7 @@ export function FormFilterPersons({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={FILTER_ALL}>All Parliaments</SelectItem>
-            {MEMBERSHIP_PARLIAMENT_NUMBERS.map((parliamentNumber) => (
+            {parliamentNumbers.map((parliamentNumber) => (
               <SelectItem
                 key={parliamentNumber}
                 value={String(parliamentNumber)}
