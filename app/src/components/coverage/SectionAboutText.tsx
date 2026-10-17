@@ -14,16 +14,19 @@ export function SectionAboutText() {
         About the text
       </h2>
       <p>
-        The text here is derived from the Official Report and can differ from
-        it. The Official Report is the authority. Before a court filing or
-        formal citation, check the passage in the Official Report.
+        The text here is a converted copy of the Official Report, split into
+        speeches. The Official Report is the authority, and the text here can
+        differ from it. Before quoting a passage in a court filing, an essay or
+        an article, check it in the Official Report.
       </p>
       <p>
         <LinkOfficialReportSearch />
       </p>
       <p>
-        A speech link (such as #s12) can lead to a different speech after the
-        archive is rebuilt. Report and sitting addresses do not change.
+        Report and sitting addresses do not change. A link to a paragraph (such
+        as #s12) can lead to a different paragraph after the archive is rebuilt,
+        and a person&apos;s address can change when the archive corrects who is
+        who.
       </p>
     </section>
   )

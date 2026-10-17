@@ -1,5 +1,11 @@
 import type { GetCoverageResponse } from '@/api/coverage/getCoverage'
-import { COVERAGE_LAST_UPDATED } from '@/constants/coverage/constants'
+import { NUMBER_LOCALE } from '@/constants/constants'
+import {
+  COVERAGE_LAST_UPDATED,
+  PARLIAMENT_FIFTEEN_FIRST_SITTING,
+  PARLIAMENT_FOURTEEN_DISSOLVED,
+  PARLIAMENT_FOURTEEN_LAST_SITTING,
+} from '@/constants/coverage/constants'
 import { formatSittingDate } from '@/lib/format'
 
 interface SectionSummaryProps {
@@ -14,14 +20,30 @@ export function SectionSummary({ coverage }: SectionSummaryProps) {
   return (
     <div className="space-y-2">
       <p>
-        The archive holds the debates of Singapore&apos;s Legislative Assembly
-        and Parliament from {formatSittingDate(firstSittingDate)} to{' '}
-        {formatSittingDate(lastSittingDate)}. Parliament 15, which first sat in
-        September 2025, is not included yet.
+        It covers the Legislative Assembly and Parliament from{' '}
+        {formatSittingDate(firstSittingDate)} to{' '}
+        {formatSittingDate(lastSittingDate)}.
+      </p>
+      <p>
+        The archive holds {coverage.report_count.toLocaleString(NUMBER_LOCALE)}{' '}
+        reports (one item of business each, such as an oral answer) from{' '}
+        {coverage.sitting_count.toLocaleString(NUMBER_LOCALE)} sittings (days
+        the House met), and{' '}
+        {coverage.person_count.toLocaleString(NUMBER_LOCALE)} people. The{' '}
+        {coverage.text_report_count.toLocaleString(NUMBER_LOCALE)} reports with
+        text hold {coverage.speech_count.toLocaleString(NUMBER_LOCALE)}{' '}
+        paragraphs.
       </p>
       <p className="text-muted-foreground text-sm">
-        Last updated {formatSittingDate(COVERAGE_LAST_UPDATED)}. Latest sitting:{' '}
-        {formatSittingDate(lastSittingDate)}.
+        Figures checked {formatSittingDate(COVERAGE_LAST_UPDATED)}. Latest
+        sitting in the archive: {formatSittingDate(lastSittingDate)}.
+      </p>
+      <p className="text-muted-foreground text-sm">
+        {formatSittingDate(PARLIAMENT_FOURTEEN_LAST_SITTING)} was the last
+        sitting of Parliament 14, which was dissolved on{' '}
+        {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}. Parliament 15 first
+        sat on {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)} and is not
+        in the archive yet.
       </p>
     </div>
   )

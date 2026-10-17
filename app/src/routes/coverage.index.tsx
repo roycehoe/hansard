@@ -1,13 +1,13 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
+import { NoticeCoverageMethods } from '@/components/coverage/NoticeCoverageMethods'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { SectionAboutText } from '@/components/coverage/SectionAboutText'
 import { SectionArchiveBuild } from '@/components/coverage/SectionArchiveBuild'
-import { SectionAttributionFigures } from '@/components/coverage/SectionAttributionFigures'
-import { SectionCitingRecordFull } from '@/components/coverage/SectionCitingRecordFull'
-import { SectionCounts } from '@/components/coverage/SectionCounts'
-import { SectionKnownGapsFull } from '@/components/coverage/SectionKnownGapsFull'
+import { SectionCitingRecord } from '@/components/coverage/SectionCitingRecord'
+import { SectionKnownGaps } from '@/components/coverage/SectionKnownGaps'
+import { SectionOpener } from '@/components/coverage/SectionOpener'
 import { SectionSummary } from '@/components/coverage/SectionSummary'
-import { SectionYears } from '@/components/coverage/SectionYears'
+import { SectionTrust } from '@/components/coverage/SectionTrust'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
   Breadcrumb,
@@ -43,17 +43,6 @@ export const Route = createFileRoute('/coverage/')({
       return <SectionSummary coverage={coverage.data} />
     }
 
-    function renderCountsAndYears() {
-      if (coverage.isLoading) return <Skeleton className="h-96 w-full" />
-      if (coverage.isError || !coverage.data) return null
-      return (
-        <>
-          <SectionCounts coverage={coverage.data} />
-          <SectionYears coverage={coverage.data} />
-        </>
-      )
-    }
-
     return (
       <div className="space-y-8">
         <PageHeader
@@ -74,13 +63,14 @@ export const Route = createFileRoute('/coverage/')({
             </Breadcrumb>
           }
         />
+        <SectionOpener />
         {renderSummary()}
         <SectionAboutText />
-        <SectionCitingRecordFull />
-        <SectionKnownGapsFull />
-        <SectionAttributionFigures />
-        {renderCountsAndYears()}
         <SectionArchiveBuild />
+        <SectionTrust />
+        <SectionKnownGaps />
+        <SectionCitingRecord />
+        <NoticeCoverageMethods />
       </div>
     )
   },
