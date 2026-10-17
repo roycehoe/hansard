@@ -12,7 +12,7 @@ export const Route = createFileRoute('/palette')({
       <div className="space-y-12">
         <PageHeader
           title="Palette"
-          description="Every colour is taken from Parliament House, the Speaker's gown, the former chamber or the national insignia. Derived colours are named for their parent plus OKLCH lightness times 100, so gown-red-80 is gown-red at a lightness of 0.80."
+          description="Every colour is taken from the debating chamber in Parliament House, the grounds outside it, the Speaker's gown or the national insignia. Derived colours are named for their parent plus OKLCH lightness times 100, so panelling-80 is panelling at a lightness of 0.80."
         />
         <SectionSourceColours />
         {FLAVOUR_SECTIONS.map((section) => (

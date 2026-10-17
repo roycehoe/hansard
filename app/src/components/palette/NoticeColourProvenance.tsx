@@ -3,6 +3,7 @@ import type { Colour, Source } from '@/palette/palette'
 import { SOURCES } from '@/palette/palette'
 import type {
   NoticeSourcePhotoProps,
+  NoticeSourceReferenceProps,
   NoticeSourceSpecProps,
 } from '@/types/palette/interfaces'
 
@@ -67,6 +68,26 @@ function NoticeSourceSpec({ source }: NoticeSourceSpecProps) {
   )
 }
 
+function NoticeSourceReference({
+  source,
+  note,
+  sampleBox,
+}: NoticeSourceReferenceProps) {
+  return (
+    <div className="text-muted-foreground space-y-1 text-xs wrap-anywhere whitespace-normal">
+      {note && <p>{note}</p>}
+      {sampleBox && <p>Sampled at box {sampleBox}.</p>}
+      <p>
+        <a href={source.url} className={LINK_CLASSES}>
+          {source.title}
+        </a>
+        , {source.publisher}. The photo has no open licence, so this page links
+        to it instead of showing it.
+      </p>
+    </div>
+  )
+}
+
 export function NoticeColourProvenance({
   colour,
 }: NoticeColourProvenanceProps) {
@@ -84,6 +105,15 @@ export function NoticeColourProvenance({
   if (source.kind === 'photo') {
     return (
       <NoticeSourcePhoto
+        source={source}
+        note={colour.sampled?.note}
+        sampleBox={colour.sampled?.box.join(',')}
+      />
+    )
+  }
+  if (source.kind === 'reference') {
+    return (
+      <NoticeSourceReference
         source={source}
         note={colour.sampled?.note}
         sampleBox={colour.sampled?.box.join(',')}
