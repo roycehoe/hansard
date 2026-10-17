@@ -12,16 +12,8 @@ import {
 import { FILTER_ALL } from '@/constants/constants'
 import { MEMBERSHIP_PARLIAMENT_NUMBERS } from '@/constants/people/constants'
 import { formatParliament, formatParliamentOption } from '@/lib/format'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from '@tanstack/react-router'
-import { Controller, useForm } from 'react-hook-form'
-import { z } from 'zod'
-
-const formSchema = z.object({
-  parliament: z.string(),
-  party: z.string(),
-  name: z.string(),
-})
+import type { ChangeEvent } from 'react'
 
 function getParliamentOptionLabel(
   parliaments: ParliamentData[],
@@ -35,100 +27,85 @@ function getParliamentOptionLabel(
     : formatParliamentOption(parliament)
 }
 
-export type FormFilterPersonsValues = z.infer<typeof formSchema>
+export interface FormFilterPersonsValues {
+  parliament: string
+  party: string
+  name: string
+}
 
 interface FormFilterPersonsProps {
-  defaultValues: FormFilterPersonsValues
+  values: FormFilterPersonsValues
   parliaments: ParliamentData[]
   parties: string[]
-  onSubmit: (values: FormFilterPersonsValues) => void
+  onChange: (values: FormFilterPersonsValues) => void
 }
 
 export function FormFilterPersons({
-  defaultValues,
+  values,
   parliaments,
   parties,
-  onSubmit,
+  onChange,
 }: FormFilterPersonsProps) {
-  const { register, control, handleSubmit } = useForm<FormFilterPersonsValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues,
-    values: defaultValues,
-  })
+  function changeParliament(parliament: string) {
+    onChange({ ...values, parliament })
+  }
+
+  function changeParty(party: string) {
+    onChange({ ...values, party })
+  }
+
+  function changeName(event: ChangeEvent<HTMLInputElement>) {
+    onChange({ ...values, name: event.target.value })
+  }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      noValidate
-      className="flex flex-wrap items-end gap-4"
-    >
+    <div className="flex flex-wrap items-end gap-4">
       <div className="flex w-full flex-col gap-2 sm:w-72">
         <Label htmlFor="filter-persons-parliament">Parliament</Label>
-        <Controller
-          control={control}
-          name="parliament"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger
-                ref={field.ref}
-                id="filter-persons-parliament"
-                className="w-full"
-                onBlur={field.onBlur}
+        <Select value={values.parliament} onValueChange={changeParliament}>
+          <SelectTrigger id="filter-persons-parliament" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={FILTER_ALL}>All Parliaments</SelectItem>
+            {MEMBERSHIP_PARLIAMENT_NUMBERS.map((parliamentNumber) => (
+              <SelectItem
+                key={parliamentNumber}
+                value={String(parliamentNumber)}
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={FILTER_ALL}>All Parliaments</SelectItem>
-                {MEMBERSHIP_PARLIAMENT_NUMBERS.map((parliamentNumber) => (
-                  <SelectItem
-                    key={parliamentNumber}
-                    value={String(parliamentNumber)}
-                  >
-                    {getParliamentOptionLabel(parliaments, parliamentNumber)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
+                {getParliamentOptionLabel(parliaments, parliamentNumber)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex w-full flex-col gap-2 sm:w-56">
         <Label htmlFor="filter-persons-party">Party</Label>
-        <Controller
-          control={control}
-          name="party"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger
-                ref={field.ref}
-                id="filter-persons-party"
-                className="w-full"
-                onBlur={field.onBlur}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={FILTER_ALL}>All parties</SelectItem>
-                {parties.map((party) => (
-                  <SelectItem key={party} value={party}>
-                    {party}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
+        <Select value={values.party} onValueChange={changeParty}>
+          <SelectTrigger id="filter-persons-party" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={FILTER_ALL}>All parties</SelectItem>
+            {parties.map((party) => (
+              <SelectItem key={party} value={party}>
+                {party}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex w-full flex-col gap-2 sm:w-56">
         <Label htmlFor="filter-persons-name">Name</Label>
-        <Input id="filter-persons-name" {...register('name')} />
+        <Input
+          id="filter-persons-name"
+          value={values.name}
+          onChange={changeName}
+        />
       </div>
-      <div className="flex items-center gap-2">
-        <Button type="submit">Filter</Button>
-        <Button variant="outline" asChild>
-          <Link to="/people">Clear</Link>
-        </Button>
-      </div>
-    </form>
+      <Button variant="outline" asChild>
+        <Link to="/people">Clear</Link>
+      </Button>
+    </div>
   )
 }
