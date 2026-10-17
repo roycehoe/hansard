@@ -1,17 +1,10 @@
 from typing import Optional
 
-from sqlalchemy import ColumnElement, func
+from sqlalchemy import func
 from sqlmodel import Session, select
 
 from database.speaker import Speaker
 from utils.like_pattern import escape_like_pattern
-
-_CURLY_APOSTROPHE = "\u2019"
-_STRAIGHT_APOSTROPHE = "'"
-
-
-def _get_party_with_straight_apostrophe() -> ColumnElement:
-    return func.replace(Speaker.party, _CURLY_APOSTROPHE, _STRAIGHT_APOSTROPHE)
 
 
 class CRUDMembership:
@@ -51,10 +44,7 @@ class CRUDMembership:
         if is_legislative_assembly is not None:
             filters.append(Speaker.is_legislative_assembly == is_legislative_assembly)
         if party is not None:
-            filters.append(
-                _get_party_with_straight_apostrophe()
-                == party.replace(_CURLY_APOSTROPHE, _STRAIGHT_APOSTROPHE)
-            )
+            filters.append(Speaker.party == party)
         if name is not None:
             filters.append(
                 Speaker.name.ilike(f"%{escape_like_pattern(name)}%", escape="\\")
@@ -63,8 +53,7 @@ class CRUDMembership:
         return list(self.session.exec(statement).all())
 
     def get_all_parties(self) -> list[str]:
-        party = _get_party_with_straight_apostrophe().label("party")
-        statement = select(party).distinct().order_by(party)
+        statement = select(Speaker.party).distinct().order_by(Speaker.party)
         return list(self.session.exec(statement).all())
 
     def get_count(self) -> int:
