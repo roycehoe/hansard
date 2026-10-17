@@ -24,7 +24,7 @@ export function TableAttributionParliaments() {
           <TableRow>
             <TableHead scope="col">Parliament</TableHead>
             <TableHead scope="col" className="whitespace-normal">
-              Hand check
+              Sample check
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
               With a speaker label, credited

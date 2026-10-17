@@ -22,7 +22,7 @@ export const REPAIR_DATE = '2026-10-14'
 
 export const REPAIR_PROCEDURAL_LINE_COUNT = 12_245
 
-export const NOT_HAND_CHECKED_LABEL = 'Not hand-checked'
+export const NOT_HAND_CHECKED_LABEL = 'Not checked'
 
 export const LINKED_SPEECH_COUNT = 554_900
 
