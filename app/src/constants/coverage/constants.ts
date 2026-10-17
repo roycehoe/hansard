@@ -8,6 +8,8 @@ export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
 export const COVERAGE_LAST_UPDATED = '2026-10-14'
 
+export const METHODS_LAST_REVISED = '2026-10-17'
+
 export const ATTRIBUTION_MEASURED_ON = '2026-10-14'
 
 export const HAND_CHECK_DATE = '2026-10-13'
@@ -32,7 +34,8 @@ export const SPEECH_WITH_SPEAKER_LABEL_COUNT = 567_756
 
 export const SPEECH_ROW_COUNT = 624_332
 
-export const PROCEDURAL_PASSAGE_COUNT = 60_877
+export const PARAGRAPH_DEFINITION =
+  'One paragraph of a report as the Official Report prints it. A speech is one or more paragraphs by one person. A report with one speaker and no printed name is kept as a single paragraph, and each line of a table is a paragraph of its own. Some paragraphs are procedural lines, notes or events in the chamber, with no speaker.'
 
 export const NON_MEMBER_PERSON_COUNT = 6
 
@@ -62,28 +65,32 @@ export const CITATION_EXAMPLE_SPEECH = {
 
 export const ATTRIBUTION_BY_PARLIAMENT = [
   {
-    parliament: `${LEGISLATIVE_ASSEMBLY_LABEL} to 11`,
+    parliament: `${LEGISLATIVE_ASSEMBLY_LABEL} to Parliament 11`,
+    years: '1955 to 2011',
     namedLinked: '97.74%',
     allLinked: '88.88%',
     textShare: '96.58%',
     handCheckDate: HAND_CHECK_DATE,
   },
   {
-    parliament: '12',
+    parliament: 'Parliament 12',
+    years: '2011 to 2015',
     namedLinked: '98.94%',
     allLinked: '96.93%',
     textShare: '98.71%',
     handCheckDate: null,
   },
   {
-    parliament: '13',
+    parliament: 'Parliament 13',
+    years: '2016 to 2020',
     namedLinked: '98.18%',
     allLinked: '96.31%',
     textShare: '99.06%',
     handCheckDate: null,
   },
   {
-    parliament: '14',
+    parliament: 'Parliament 14',
+    years: '2020 to 2025',
     namedLinked: '99.02%',
     allLinked: '97.61%',
     textShare: '99.13%',
@@ -93,23 +100,28 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
 
 export const ATTRIBUTION_FIGURES = [
   {
-    label: 'Speeches with a speaker label that are linked to a person',
+    label: 'Paragraphs with a speaker label credited to a named person',
+    question:
+      "Of the paragraphs that print a speaker's name, how many are credited to a person?",
     value: ATTRIBUTION_BY_PARLIAMENT[0].namedLinked,
   },
   {
-    label: 'All speeches that are linked to a person',
+    label: 'All paragraphs credited to a named person',
+    question:
+      'Of all paragraphs, procedural lines included, how many are credited to a person?',
     value: ATTRIBUTION_BY_PARLIAMENT[0].allLinked,
   },
   {
-    label: 'Share of the text in a linked speech',
+    label: 'Share of the text in a credited paragraph',
+    question: 'How much of the text sits in a paragraph credited to a person?',
     value: ATTRIBUTION_BY_PARLIAMENT[0].textShare,
   },
 ] as const
 
 export const ATTRIBUTION_MEASUREMENTS = [
-  `Speeches with a speaker label: ${LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of ${SPEECH_WITH_SPEAKER_LABEL_COUNT.toLocaleString(NUMBER_LOCALE)} speeches with a speaker label, leaving out collective "hon. Member" references and stage directions.`,
-  `All speeches: ${LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of ${SPEECH_ROW_COUNT.toLocaleString(NUMBER_LOCALE)} speeches, counting those with no speaker label.`,
-  'Text share: characters of text in a linked speech, out of all the text in reports, including reports with no speeches.',
+  `Paragraphs with a speaker label: ${LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of ${SPEECH_WITH_SPEAKER_LABEL_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs with a speaker label, leaving out collective "hon. Member" references and stage directions.`,
+  `All paragraphs: ${LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of ${SPEECH_ROW_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs, counting those with no speaker label.`,
+  'Text share: characters of text in a paragraph credited to a named person, out of all the text in reports, including reports with no paragraphs.',
   'Parliament 12 counts the whole Parliament, before and after 10 September 2012.',
 ] as const
 
@@ -120,8 +132,12 @@ export const COUNT_DEFINITIONS = [
       'One item of business in a sitting, such as an oral answer, a bill reading or a motion.',
   },
   {
-    term: 'Speech passage',
-    definition: `One turn by one speaker, which the rest of the site calls a speech. ${PROCEDURAL_PASSAGE_COUNT.toLocaleString(NUMBER_LOCALE)} are procedural lines with no speaker.`,
+    term: 'Sitting',
+    definition: 'One day the House met.',
+  },
+  {
+    term: 'Paragraph',
+    definition: PARAGRAPH_DEFINITION,
   },
   {
     term: 'Membership',
@@ -130,6 +146,10 @@ export const COUNT_DEFINITIONS = [
   {
     term: 'People',
     definition: `Each person counted once across every Parliament, including ${NON_MEMBER_PERSON_COUNT} Governors and Presidents who were never members.`,
+  },
+  {
+    term: 'Attendance record',
+    definition: "One entry in a sitting's attendance list.",
   },
 ] as const
 

@@ -18,17 +18,17 @@ export function TableCoverageCounts({ coverage }: TableCoverageCountsProps) {
   const counts = [
     { label: 'Reports', value: coverage.report_count },
     { label: 'Reports with text', value: coverage.text_report_count },
-    { label: 'Speech passages', value: coverage.speech_count },
+    { label: 'Paragraphs', value: coverage.speech_count },
     {
-      label: 'Speech passages linked to a person',
+      label: 'Paragraphs credited to a named person',
       value: coverage.linked_speech_count,
     },
     { label: 'People', value: coverage.person_count },
     { label: 'Memberships', value: coverage.membership_count },
     { label: 'Sittings', value: coverage.sitting_count },
-    { label: 'Attendance rows', value: coverage.attendance_count },
+    { label: 'Attendance records', value: coverage.attendance_count },
     {
-      label: 'Attendance rows linked to a person',
+      label: 'Attendance records credited to a named person',
       value: coverage.linked_attendance_count,
     },
   ]
