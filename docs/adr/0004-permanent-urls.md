@@ -4,4 +4,4 @@ Researchers and lawyers cite links, and a citation that stops resolving is worse
 
 ## Amendment, 14 Oct 2026
 
-The report page no longer carries the note about Speech links. Royce replaced the derived-text notice with an "Unofficial transcript" button by the title. Its popover links to the "About the text" section on /coverage, which says a speech link can lead to a different speech after the archive is rebuilt. The fact is still on the site, one click from every report.
+The report page no longer carries the note about Speech links. Royce replaced the derived-text notice with an "Unofficial transcript" button by the title. Its popover links to the "About the text" section on /coverage, which says a link to a paragraph (such as #s12) can lead to a different paragraph after the archive is rebuilt. The fact is still on the site, one click from every report.
