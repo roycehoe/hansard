@@ -1432,12 +1432,12 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 
 - **Leaking system internals** (also: developer voice, internal jargon). Words the reader never sees on screen: parse, re-parse, cache, payload, status codes. Fix: say what happened or what to do, or drop it. [NN/g heuristic 2](https://www.nngroup.com/articles/ten-usability-heuristics/).
   Before: `Link copied. Speech links are best-effort and may move after a re-parse.` After: `Link copied`.
-- **Hedging** (also: caveat creep, disclaimer stuffing). "May", "might", "best-effort", "typically", "in some cases". Fix: state the fact or the exact condition; if you can't, the caveat belongs on `/coverage`. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
+- **Hedging** (also: caveat creep, disclaimer stuffing). "May", "might", "best-effort", "typically", "in some cases". Fix: state the fact or the exact condition; if you can't, the caveat belongs on `/coverage/methods`. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
   Before: `Links to individual speeches are best-effort, because a re-parse can renumber them.` (`NoticeDerivedText`) After: `A speech link can lead to a different speech after the archive is rebuilt.`
 - **Over-explaining** (also: padding). A second sentence that adds a reason, history or mechanism nobody asked for. Fix: cut to the outcome; a confirmation is one short phrase. [Atlassian, success messages](https://atlassian.design/foundations/content/designing-messages/success-messages).
   Before: `Citation copied. The column number will be added once the archive has it.` (`ButtonCopyCitation`) After: `Citation copied`, with the column gap kept in the known gaps on `/coverage/methods`.
-- **Unrequested warning on a routine action, wrong surface** (also: toast overload). A caveat attached to a success, or lasting information in a toast that vanishes in seconds. Fix: confirm only; put the warning where the reader decides, or on `/coverage`. [NN/g, indicators, validations and notifications](https://www.nngroup.com/articles/indicators-validations-notifications/).
-  Before: the two toasts above carry data gaps that `/coverage` already lists. After: both toasts confirm and nothing else.
+- **Unrequested warning on a routine action, wrong surface** (also: toast overload). A caveat attached to a success, or lasting information in a toast that vanishes in seconds. Fix: confirm only; put the warning where the reader decides, or on `/coverage/methods`. [NN/g, indicators, validations and notifications](https://www.nngroup.com/articles/indicators-validations-notifications/).
+  Before: the two toasts above carry data gaps that `/coverage/methods` already lists. After: both toasts confirm and nothing else.
 - **Redundant confirmation and "successfully"** (also: success filler). "Successfully", "Success!", "Done", "You have copied the link to your clipboard". Fix: noun plus past participle that names the result. [Atlassian, success messages](https://atlassian.design/foundations/content/designing-messages/success-messages).
   Before (illustrative): `Citation was successfully copied to your clipboard!` After: `Citation copied`.
 - **Puffery and AI vocabulary** (also: promotional language). "Seamless", "powerful", "robust", "crucial", "serves as", "delve". Fix: delete the adjective and name the capability. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
@@ -1465,7 +1465,7 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 
 ### Rules for this codebase
 
-- **Shorten facts, don't delete them.** A fact cut from a toast or notice moves to `/coverage` as one plain line in the Known gaps list, or into About the text when it is about links. Its full wording goes in the Known gaps section of `/coverage/methods`. Both lists are written out in their route files, `app/src/routes/coverage.index.tsx` and `app/src/routes/coverage.methods.tsx`. For example, that a shared `#s12` link can lead to a different paragraph after a rebuild is now stated in About the text, so the toast reads "Link copied".
+- **Shorten facts, don't delete them.** A fact cut from a toast or notice moves to the Known gaps section of `/coverage/methods`, written out in `app/src/routes/coverage.methods.tsx`. `/coverage` is for lay readers and carries no caveat list.
 - **A confirmation toast is two to four words with no trailing full stop**, such as "Link copied". Info and warning toasts appear only as `/design` samples of the variants. The one error a toast may carry is the failure of the action that would have shown the confirmation, such as "Couldn't copy the link". Every other error uses the inline [Error Display](#error-display) or an [Error Notice](#error-notices).
 - **Use the canonical terms** from `plans/hansard-user-stories-brief.md`: Person, Membership, Speaker label, Presiding officer, Report, Sitting, Paragraph. A Paragraph is one stored row of a report, and a speech is one or more paragraphs by one person. Never write "Speaker" for a Membership, and never shorten Presiding officer to "Speaker".
 - **Accessibility text stays accurate.** An `aria-label` contains the visible label text, ideally at the start ([WCAG 2.5.3, Label in name](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html)). Shortening one must not lose what the control does. Icon-only controls are named for their function ("Close", not "X"). "(opens in a new tab)" stays in the accessible name of every link that opens a new tab, as visible text or in `sr-only` text.
@@ -1486,7 +1486,7 @@ Run on every diff that touches a string:
 - `git diff | rg -n '\.\.\.'` returns nothing in added strings (spread syntax is code, not copy).
 - `git diff | rg -ni 'please|sorry|oops|unfortunately|successfully|best-effort|re-parse|seamless'` returns nothing in added strings.
 - Every confirmation toast is two to four words, with no "may", no second sentence and no trailing full stop. Every error is inline or a notice, except a failed copy.
-- Each caveat cut from a toast or notice is still stated, in one plain sentence, on `/coverage`.
+- Each caveat cut from a toast or notice is still stated on `/coverage/methods`.
 - Each `aria-label` starts with its visible label text, or names the function of an icon-only control.
 - Headings, buttons and labels are in sentence case with no trailing period.
 - Terms match the canonical list: no "speaker" for a Membership, no "re-parse" or other pipeline word.
