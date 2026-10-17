@@ -1,7 +1,7 @@
 import { METHODS_LAST_REVISED } from '@/constants/coverage/constants'
 import { formatSittingDate } from '@/lib/format'
 
-export function SectionMethodsIntro() {
+export function NoticeMethodsIntro() {
   return (
     <div className="space-y-2">
       <p>
