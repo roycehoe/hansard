@@ -3,9 +3,9 @@ import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { SectionAboutText } from '@/components/coverage/SectionAboutText'
 import { SectionArchiveBuild } from '@/components/coverage/SectionArchiveBuild'
 import { SectionAttributionFigures } from '@/components/coverage/SectionAttributionFigures'
-import { SectionCitingRecord } from '@/components/coverage/SectionCitingRecord'
+import { SectionCitingRecordFull } from '@/components/coverage/SectionCitingRecordFull'
 import { SectionCounts } from '@/components/coverage/SectionCounts'
-import { SectionKnownGaps } from '@/components/coverage/SectionKnownGaps'
+import { SectionKnownGapsFull } from '@/components/coverage/SectionKnownGapsFull'
 import { SectionSummary } from '@/components/coverage/SectionSummary'
 import { SectionYears } from '@/components/coverage/SectionYears'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -76,8 +76,8 @@ export const Route = createFileRoute('/coverage/')({
         />
         {renderSummary()}
         <SectionAboutText />
-        <SectionCitingRecord />
-        <SectionKnownGaps />
+        <SectionCitingRecordFull />
+        <SectionKnownGapsFull />
         <SectionAttributionFigures />
         {renderCountsAndYears()}
         <SectionArchiveBuild />

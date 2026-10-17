@@ -6,7 +6,7 @@ import {
 } from '@/constants/coverage/constants'
 import { buildReportCitation, buildSpeechCitation } from '@/lib/citation'
 
-export function SectionCitingRecord() {
+export function SectionCitingRecordFull() {
   return (
     <section aria-labelledby="citing-heading" className="space-y-4">
       <h2 id="citing-heading" className="font-serif text-xl lg:text-2xl">
