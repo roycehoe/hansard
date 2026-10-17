@@ -49,9 +49,8 @@ def _get_query_filters(
     membership_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
     tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-    transcript_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Speech.transcript)
     filters = [
-        transcript_vector.op("@@")(tsquery),
+        Speech.transcript_tsv.op("@@")(tsquery),
         *_get_report_filters(parliament_number, date_from, date_to, report_type),
     ]
     if membership_ids is not None:
@@ -145,10 +144,7 @@ class CRUDSpeech:
         offset: int,
     ) -> list[Speech]:
         tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-        transcript_vector = func.to_tsvector(
-            TEXT_SEARCH_CONFIGURATION, Speech.transcript
-        )
-        rank = func.ts_rank(transcript_vector, tsquery)
+        rank = func.ts_rank(Speech.transcript_tsv, tsquery)
         filters = _get_query_filters(
             query,
             parliament_number,
