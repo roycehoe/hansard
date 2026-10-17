@@ -49,11 +49,11 @@ export function PopoverUnofficialTranscript({
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
           <Link
-            to="/coverage"
-            hash="about-the-text"
+            to="/coverage/methods"
+            hash="citing-and-linking"
             className={LINK_CLASS_NAME}
           >
-            About the text
+            Citing and linking
           </Link>
         </div>
       </PopoverContent>

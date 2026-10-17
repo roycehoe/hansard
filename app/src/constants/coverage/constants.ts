@@ -1,7 +1,4 @@
-import {
-  LEGISLATIVE_ASSEMBLY_LABEL,
-  LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
-} from '@/constants/constants'
+import { LEGISLATIVE_ASSEMBLY_LABEL } from '@/constants/constants'
 
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
@@ -52,20 +49,6 @@ export const PARLIAMENT_FOURTEEN_DISSOLVED = '2025-04-15'
 export const PARLIAMENT_FIFTEEN_FIRST_SITTING = '2025-09-05'
 
 export const SOURCE_CODE_URL = 'https://github.com/roycehoe/hansard'
-
-export const CITATION_EXAMPLE_REPORT = {
-  sittingDate: '2025-04-08',
-  volumeNumber: 95,
-  parliamentNumber: 14,
-} as const
-
-export const CITATION_EXAMPLE_SPEECH = {
-  sittingDate: '1955-04-22',
-  volumeNumber: 1,
-  parliamentNumber: LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
-  speakerLabel: 'The Chief Minister (Mr D. S. Marshall)',
-  personName: 'David Marshall',
-} as const
 
 export const ATTRIBUTION_BY_PARLIAMENT = [
   {
