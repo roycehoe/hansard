@@ -1,7 +1,6 @@
 import {
   LEGISLATIVE_ASSEMBLY_LABEL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
-  NUMBER_LOCALE,
 } from '@/constants/constants'
 
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
@@ -34,9 +33,6 @@ export const SPEECH_WITH_SPEAKER_LABEL_COUNT = 567_756
 
 export const SPEECH_ROW_COUNT = 624_332
 
-export const PARAGRAPH_DEFINITION =
-  'One paragraph of a report as the Official Report prints it. A speech is one or more paragraphs by one person. A report with one speaker and no printed name is kept as a single paragraph, and each line of a table is a paragraph of its own. Some paragraphs are procedural lines, notes or events in the chamber, with no speaker.'
-
 export const NON_MEMBER_PERSON_COUNT = 6
 
 export const NON_MEMBER_MEMBERSHIP_COUNT = 20
@@ -54,8 +50,6 @@ export const PARLIAMENT_FOURTEEN_LAST_SITTING = '2025-04-08'
 export const PARLIAMENT_FOURTEEN_DISSOLVED = '2025-04-15'
 
 export const PARLIAMENT_FIFTEEN_FIRST_SITTING = '2025-09-05'
-
-export const ARCHIVE_BUILDER_NAME = 'Royce Hoe'
 
 export const SOURCE_CODE_URL = 'https://github.com/roycehoe/hansard'
 
@@ -106,99 +100,4 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     textShare: '99.13%',
     handCheckDate: null,
   },
-] as const
-
-export const ATTRIBUTION_FIGURES = [
-  {
-    label: 'Paragraphs with a speaker label credited to a named person',
-    question:
-      "Of the paragraphs that print a speaker's name, how many are credited to a person?",
-    value: ATTRIBUTION_BY_PARLIAMENT[0].namedLinked,
-  },
-  {
-    label: 'All paragraphs credited to a named person',
-    question:
-      'Of all paragraphs, procedural lines included, how many are credited to a person?',
-    value: ATTRIBUTION_BY_PARLIAMENT[0].allLinked,
-  },
-  {
-    label: 'Share of the text in a credited paragraph',
-    question: 'How much of the text sits in a paragraph credited to a person?',
-    value: ATTRIBUTION_BY_PARLIAMENT[0].textShare,
-  },
-] as const
-
-export const ATTRIBUTION_MEASUREMENTS = [
-  `Paragraphs with a speaker label: ${LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of ${SPEECH_WITH_SPEAKER_LABEL_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs with a speaker label, leaving out collective "hon. Member" references and stage directions.`,
-  `All paragraphs: ${LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of ${SPEECH_ROW_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs, counting those with no speaker label.`,
-  'Text share: characters of text in a paragraph credited to a named person, out of all the text in reports, including reports with no paragraphs.',
-  'Parliament 12 counts the whole Parliament, before and after 10 September 2012.',
-] as const
-
-export const COUNT_DEFINITIONS = [
-  {
-    term: 'Report',
-    definition:
-      'One item of business in a sitting, such as an oral answer, a bill reading or a motion.',
-  },
-  {
-    term: 'Sitting',
-    definition: 'One day the House met.',
-  },
-  {
-    term: 'Paragraph',
-    definition: PARAGRAPH_DEFINITION,
-  },
-  {
-    term: 'Membership',
-    definition: `One person's seat in one Parliament. The count also includes ${NON_MEMBER_MEMBERSHIP_COUNT} entries for Governors and Presidents, who were not members.`,
-  },
-  {
-    term: 'People',
-    definition: `Each person counted once across every Parliament, including ${NON_MEMBER_PERSON_COUNT} Governors and Presidents who were never members.`,
-  },
-  {
-    term: 'Attendance record',
-    definition: "One entry in a sitting's attendance list.",
-  },
-] as const
-
-export const KNOWN_GAP_GROUPS = [
-  {
-    heading: 'What is missing',
-    gaps: [
-      'Parliament 15 is not in the archive yet.',
-      'Column numbers are not in the archive, so copied citations leave them out.',
-      'Text that is not part of any speech, such as headings and the lines before the first speaker, is not shown on report pages. It is about 1.2% of the text from before 10 September 2012.',
-    ],
-  },
-  {
-    heading: 'Who said what',
-    gaps: [
-      'About 15,000 paragraphs are labelled "The Chairman" without a name, so they can\'t be credited to a person.',
-      '2,078 reports from before 10 September 2012 have not had the latest speaker fixes applied.',
-      'A member who sat in both the Legislative Assembly (1955 to 1965) and Parliament 1 has one membership, listed as Parliament 1.',
-      'Party is recorded per membership, as on the ballot at the election that seated the member. A Nominated Member\'s party field holds the seat type, and one Speaker\'s holds "NA".',
-    ],
-  },
-  {
-    heading: 'Text and order',
-    gaps: [
-      'In about 18,000 reports from before 10 September 2012, a word can run into the one before it where the source had a special space character. In about 2,400 of these reports two words merge into one, so a search can miss them.',
-      'In 403 sittings before 10 September 2012, about 1,800 reports can be listed out of order within the sitting.',
-      'In 40 sittings from 16 August 2016 to 8 April 2025, 195 reports share their place in the order with another report, so their order within the sitting can be wrong.',
-      'Some budget and President\'s address titles show garbled characters such as "â€™".',
-    ],
-  },
-] as const
-
-export const KNOWN_GAP_SUMMARIES = [
-  'Many paragraphs spoken from the chair are labelled "The Chairman" with no name, so they are not credited to a person.',
-  'In older reports some words run together, so a search can miss them.',
-  'Some reports are listed out of order within their sitting.',
-  "Some budget and President's address titles show garbled characters.",
-  'Headings and the lines before the first speaker are not shown on report pages.',
-  'Some reports from before 10 September 2012 do not have the latest corrections to who said what.',
-  'A member who sat in both the Legislative Assembly and Parliament 1 is listed under Parliament 1 only.',
-  "Party is recorded for each membership (one person's seat in one Parliament) as it stood at the election. For a Nominated Member, the party field holds the seat type.",
 ] as const
