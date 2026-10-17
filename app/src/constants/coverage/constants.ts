@@ -147,8 +147,8 @@ export const KNOWN_GAP_GROUPS = [
     gaps: [
       'About 15,000 speeches are labelled "The Chairman" without a name, so they can\'t be credited to a person.',
       '2,078 reports from before 10 September 2012 have not had the latest speaker fixes applied.',
-      'Legislative Assembly memberships (1955 to 1965) are filed under Parliament 1. A person page counts Assembly speeches and attendance under the Legislative Assembly but lists the membership as Parliament 1.',
-      'Party names are shown as recorded, including two spellings of People\'s Action Party and placeholder values such as "Unknown".',
+      'A member who sat in both the Legislative Assembly (1955 to 1965) and Parliament 1 has one membership, listed as Parliament 1.',
+      'Party is recorded per membership, as on the ballot at the election that seated the member. A Nominated Member\'s party field holds the seat type, and one Speaker\'s holds "NA".',
     ],
   },
   {
