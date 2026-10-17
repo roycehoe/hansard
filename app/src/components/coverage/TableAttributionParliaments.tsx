@@ -18,7 +18,7 @@ export function TableAttributionParliaments() {
     <div className="max-w-3xl">
       <Table>
         <TableCaption className="sr-only">
-          Speeches linked to a person, by Parliament
+          Paragraphs credited to a person, by Parliament
         </TableCaption>
         <TableHeader>
           <TableRow>
@@ -27,10 +27,10 @@ export function TableAttributionParliaments() {
               Hand check
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
-              Named speeches linked
+              With a speaker label, credited
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
-              All speeches linked
+              All, credited
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
               Text share
@@ -48,6 +48,9 @@ export function TableAttributionParliaments() {
                 className="text-foreground whitespace-normal"
               >
                 {row.parliament}
+                <span className="text-muted-foreground block text-xs font-normal">
+                  {row.years}
+                </span>
               </TableHead>
               <TableCell className="whitespace-normal">
                 {row.handCheckDate === null

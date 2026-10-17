@@ -21,7 +21,7 @@ export function SectionCounts({ coverage }: SectionCountsProps) {
       <div className="text-muted-foreground space-y-1 text-sm">
         {textFirst !== null && textLast !== null && (
           <p>
-            Speech text covers {formatSittingDate(textFirst)} to{' '}
+            Text covers {formatSittingDate(textFirst)} to{' '}
             {formatSittingDate(textLast)}.
           </p>
         )}
