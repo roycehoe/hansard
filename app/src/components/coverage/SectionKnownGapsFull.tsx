@@ -1,6 +1,6 @@
 import { KNOWN_GAP_GROUPS } from '@/constants/coverage/constants'
 
-export function SectionKnownGaps() {
+export function SectionKnownGapsFull() {
   return (
     <section aria-labelledby="gaps-heading" className="space-y-4">
       <h2 id="gaps-heading" className="font-serif text-xl lg:text-2xl">

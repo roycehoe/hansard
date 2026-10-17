@@ -1,10 +1,10 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { SectionAttributionFigures } from '@/components/coverage/SectionAttributionFigures'
-import { SectionCitingRecord } from '@/components/coverage/SectionCitingRecord'
+import { SectionCitingRecordFull } from '@/components/coverage/SectionCitingRecordFull'
 import { SectionCounts } from '@/components/coverage/SectionCounts'
 import { SectionImportantPoints } from '@/components/coverage/SectionImportantPoints'
-import { SectionKnownGaps } from '@/components/coverage/SectionKnownGaps'
+import { SectionKnownGapsFull } from '@/components/coverage/SectionKnownGapsFull'
 import { SectionMethodsIntro } from '@/components/coverage/SectionMethodsIntro'
 import { SectionTextGathered } from '@/components/coverage/SectionTextGathered'
 import { SectionYears } from '@/components/coverage/SectionYears'
@@ -85,8 +85,8 @@ export const Route = createFileRoute('/coverage/methods')({
         {renderTextGathered()}
         <SectionAttributionFigures />
         {renderCountsAndYears()}
-        <SectionKnownGaps />
-        <SectionCitingRecord />
+        <SectionKnownGapsFull />
+        <SectionCitingRecordFull />
       </div>
     )
   },
