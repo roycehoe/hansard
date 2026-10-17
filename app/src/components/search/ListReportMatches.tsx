@@ -2,10 +2,8 @@ import type { ReportMatchData } from '@/api/search/getSearchReports'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { TextMatchCount } from '@/components/search/TextMatchCount'
-import { Button } from '@/components/ui/button'
 import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
 import {
-  CLEAR_FILTERS_LABEL,
   EMPTY_FILTERS_DESCRIPTION,
   EMPTY_WORDS_DESCRIPTION,
   REPORTS_HEADING,
@@ -26,7 +24,6 @@ interface ListReportMatchesProps {
   pageSize: number
   totalCount: number
   isTotalCapped: boolean
-  onClearFilters?: () => void
 }
 
 export function ListReportMatches({
@@ -37,7 +34,6 @@ export function ListReportMatches({
   pageSize,
   totalCount,
   isTotalCapped,
-  onClearFilters,
 }: ListReportMatchesProps) {
   return (
     <section aria-labelledby="title-matches-heading" className="space-y-4">
@@ -51,13 +47,6 @@ export function ListReportMatches({
             title={hasWords ? EMPTY_WORDS_TITLE : EMPTY_FILTERS_TITLE}
             description={
               hasWords ? EMPTY_WORDS_DESCRIPTION : EMPTY_FILTERS_DESCRIPTION
-            }
-            action={
-              onClearFilters && (
-                <Button variant="outline" onClick={onClearFilters}>
-                  {CLEAR_FILTERS_LABEL}
-                </Button>
-              )
             }
           />
         </div>

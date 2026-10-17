@@ -3,9 +3,7 @@ import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { ListSpeechMatchesInReport } from '@/components/search/ListSpeechMatchesInReport'
 import { TextMatchCount } from '@/components/search/TextMatchCount'
-import { Button } from '@/components/ui/button'
 import {
-  CLEAR_FILTERS_LABEL,
   EMPTY_FILTERS_DESCRIPTION,
   EMPTY_WORDS_DESCRIPTION,
 } from '@/constants/search/constants'
@@ -39,7 +37,6 @@ interface ListSpeechMatchesProps {
   pageSize: number
   totalCount: number
   isTotalCapped: boolean
-  onClearFilters?: () => void
 }
 
 export function ListSpeechMatches({
@@ -51,7 +48,6 @@ export function ListSpeechMatches({
   pageSize,
   totalCount,
   isTotalCapped,
-  onClearFilters,
 }: ListSpeechMatchesProps) {
   const reportGroups = useMemo(
     () => groupSpeechMatchesByReport(results),
@@ -73,13 +69,6 @@ export function ListSpeechMatches({
             title={hasWords ? EMPTY_WORDS_TITLE : EMPTY_FILTERS_TITLE}
             description={
               hasWords ? EMPTY_WORDS_DESCRIPTION : EMPTY_FILTERS_DESCRIPTION
-            }
-            action={
-              onClearFilters && (
-                <Button variant="outline" onClick={onClearFilters}>
-                  {CLEAR_FILTERS_LABEL}
-                </Button>
-              )
             }
           />
         </div>

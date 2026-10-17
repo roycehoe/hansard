@@ -1,4 +1,3 @@
-import { useGetCoverage } from '@/api/coverage/getCoverage'
 import type { ParliamentCountData } from '@/api/people/getPerson'
 import {
   Table,
@@ -10,7 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { NUMBER_LOCALE } from '@/constants/constants'
-import { formatParliament, formatSittingDate } from '@/lib/format'
+import { formatParliament } from '@/lib/format'
 
 interface TableParliamentCountsProps {
   parliamentCounts: ParliamentCountData[]
@@ -19,65 +18,51 @@ interface TableParliamentCountsProps {
 export function TableParliamentCounts({
   parliamentCounts,
 }: TableParliamentCountsProps) {
-  const { data } = useGetCoverage()
-  const attendanceLastSittingDate = data?.attendance_last_sitting_date
-  const endsOn = attendanceLastSittingDate
-    ? ` on ${formatSittingDate(attendanceLastSittingDate)}`
-    : ''
-
   return (
     <div className="space-y-4">
-      {parliamentCounts.length > 0 && (
-        <>
-          <Table>
-            <TableCaption className="sr-only">
-              Speeches and attendance by Parliament
-            </TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead scope="col" className="whitespace-normal">
-                  Parliament
-                </TableHead>
-                <TableHead scope="col" className="text-right whitespace-normal">
-                  Speeches
-                </TableHead>
-                <TableHead scope="col" className="text-right whitespace-normal">
-                  Present
-                </TableHead>
-                <TableHead scope="col" className="text-right whitespace-normal">
-                  Absent
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {parliamentCounts.map((count) => (
-                <TableRow key={count.parliament_number}>
-                  <TableCell className="whitespace-normal">
-                    {formatParliament(count.parliament_number)}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {count.speech_count.toLocaleString(NUMBER_LOCALE)}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {count.present_count.toLocaleString(NUMBER_LOCALE)}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {count.absent_count.toLocaleString(NUMBER_LOCALE)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <p className="text-muted-foreground text-sm">
-            Attendance is counted from the sitting lists. An absence can have
-            many causes, including leave and official duties, so these are
-            counts, not a score.
-          </p>
-        </>
-      )}
+      <Table>
+        <TableCaption className="sr-only">
+          Speeches and attendance by Parliament
+        </TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col" className="whitespace-normal">
+              Parliament
+            </TableHead>
+            <TableHead scope="col" className="text-right whitespace-normal">
+              Speeches
+            </TableHead>
+            <TableHead scope="col" className="text-right whitespace-normal">
+              Present
+            </TableHead>
+            <TableHead scope="col" className="text-right whitespace-normal">
+              Absent
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {parliamentCounts.map((count) => (
+            <TableRow key={count.parliament_number}>
+              <TableCell className="whitespace-normal">
+                {formatParliament(count.parliament_number)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {count.speech_count.toLocaleString(NUMBER_LOCALE)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {count.present_count.toLocaleString(NUMBER_LOCALE)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {count.absent_count.toLocaleString(NUMBER_LOCALE)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <p className="text-muted-foreground text-sm">
-        Speech text and attendance lists end{endsOn}, so later Parliaments show
-        no counts.
+        Attendance is counted from the sitting lists. An absence can have many
+        causes, including leave and official duties, so these are counts, not a
+        score.
       </p>
     </div>
   )

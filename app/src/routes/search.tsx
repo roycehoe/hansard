@@ -13,7 +13,6 @@ import { ListSpeechMatches } from '@/components/search/ListSpeechMatches'
 import { NoticeErrorParliaments } from '@/components/search/NoticeErrorParliaments'
 import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
-import { NoticeTextCoverage } from '@/components/search/NoticeTextCoverage'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -241,7 +240,6 @@ export const Route = createFileRoute('/search')({
             pageSize={speeches.data.page_size}
             totalCount={speeches.data.total_count}
             isTotalCapped={speeches.data.is_total_capped}
-            onClearFilters={hasFilter ? clearFilters : undefined}
           />
           <PaginationPrevNext
             page={page}
@@ -273,7 +271,6 @@ export const Route = createFileRoute('/search')({
             pageSize={reports.data.page_size}
             totalCount={reports.data.total_count}
             isTotalCapped={reports.data.is_total_capped}
-            onClearFilters={hasFilter ? clearFilters : undefined}
           />
           <PaginationPrevNext
             page={titlePage}
@@ -307,7 +304,6 @@ export const Route = createFileRoute('/search')({
         />
         {renderForm()}
         <ListActiveFilters onClearFilters={clearFilters} />
-        <NoticeTextCoverage />
         {isWordsTooLong && <NoticeSearchWordsTooLong />}
         {!isWordsTooLong && (
           <ListPersonMatches words={words} hasPerson={hasPerson} />

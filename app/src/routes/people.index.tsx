@@ -182,7 +182,6 @@ export const Route = createFileRoute('/people/')({
       <div className="space-y-8">
         <PageHeader
           title="People"
-          description="Everyone who appears in the Hansard record, with their memberships."
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>

@@ -25,10 +25,7 @@ export const Route = createFileRoute('/')({
     useDocumentTitle()
     return (
       <div className="space-y-8">
-        <PageHeader
-          title="Singapore's parliamentary debates since 1955"
-          description="Organised by person and by sitting, with citation-ready links."
-        />
+        <PageHeader title="Singapore's parliamentary debates since 1955" />
         <ul>
           {HOME_LINKS.map((item) => (
             <li

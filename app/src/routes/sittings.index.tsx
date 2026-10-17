@@ -59,7 +59,6 @@ export const Route = createFileRoute('/sittings/')({
       <div className="space-y-8">
         <PageHeader
           title="Sittings"
-          description="Browse by Parliament, then by session or volume, then by sitting date."
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>

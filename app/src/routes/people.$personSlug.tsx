@@ -164,12 +164,14 @@ export const Route = createFileRoute('/people/$personSlug')({
           </h2>
           <TableMemberships memberships={data.memberships} />
         </section>
-        <section aria-labelledby="counts-heading" className="space-y-2">
-          <h2 id="counts-heading" className="font-serif text-xl lg:text-2xl">
-            Speeches and attendance
-          </h2>
-          <TableParliamentCounts parliamentCounts={data.parliament_counts} />
-        </section>
+        {data.parliament_counts.length > 0 && (
+          <section aria-labelledby="counts-heading" className="space-y-2">
+            <h2 id="counts-heading" className="font-serif text-xl lg:text-2xl">
+              Speeches and attendance
+            </h2>
+            <TableParliamentCounts parliamentCounts={data.parliament_counts} />
+          </section>
+        )}
         <section aria-labelledby="reports-heading" className="space-y-4">
           <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
             Reports

@@ -5,7 +5,6 @@ interface PageHeaderProps {
   description?: string
   breadcrumb?: ReactNode
   actions?: ReactNode
-  titleAddon?: ReactNode
 }
 
 export function PageHeader({
@@ -13,7 +12,6 @@ export function PageHeader({
   description,
   breadcrumb,
   actions,
-  titleAddon,
 }: PageHeaderProps) {
   return (
     <div className="border-separator space-y-4 border-b pb-6">
@@ -28,7 +26,6 @@ export function PageHeader({
               {description}
             </p>
           )}
-          {titleAddon && <div className="order-first">{titleAddon}</div>}
         </div>
         {actions && (
           <div className="flex flex-wrap items-center gap-2">{actions}</div>

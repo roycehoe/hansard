@@ -8,7 +8,6 @@ import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
-import { PopoverUnofficialTranscript } from '@/components/reports/PopoverUnofficialTranscript'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,9 +32,7 @@ const reportSearchSchema = z.object({
 
 function renderBody(report: GetReportResponse, highlightTerms: string[]) {
   if (!report.is_text_available) {
-    return (
-      <NoticeTextUnavailable officialRecordUrl={report.official_record_url} />
-    )
+    return <NoticeTextUnavailable />
   }
   return <ListSpeeches report={report} highlightTerms={highlightTerms} />
 }
@@ -72,13 +69,6 @@ export const Route = createFileRoute('/reports/$reportSlug')({
         <PageHeader
           title={data.title}
           description={data.subtitle || undefined}
-          titleAddon={
-            data.speeches.length > 0 && (
-              <PopoverUnofficialTranscript
-                officialRecordUrl={data.official_record_url}
-              />
-            )
-          }
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
