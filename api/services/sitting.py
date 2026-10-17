@@ -68,6 +68,13 @@ def _get_attendance_data(
     )
 
 
+def _get_attendance_sort_key(attendance: AttendanceData) -> tuple[bool, str]:
+    return (
+        not attendance.is_present,
+        (attendance.person_name or attendance.name).casefold(),
+    )
+
+
 def get_sitting(sitting_date: date, session: Session) -> GetSittingResponse:
     sitting = _get_validated_sitting(sitting_date, session)
     reports = _get_validated_reports(sitting_date, session)
@@ -106,10 +113,13 @@ def get_sitting(sitting_date: date, session: Session) -> GetSittingResponse:
             for report in reports
         ],
         is_attendance_available=len(attendances) > 0,
-        attendance=[
-            _get_attendance_data(attendance, membership_id_to_person)
-            for attendance in attendances
-        ],
+        attendance=sorted(
+            (
+                _get_attendance_data(attendance, membership_id_to_person)
+                for attendance in attendances
+            ),
+            key=_get_attendance_sort_key,
+        ),
     )
 
 

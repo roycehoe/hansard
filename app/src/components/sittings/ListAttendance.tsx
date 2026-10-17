@@ -36,7 +36,7 @@ function ListAttendanceGroup({
                   }}
                   className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
-                  {member.name}
+                  {member.person_name}
                 </Link>
               ) : (
                 <span>{member.name}</span>
