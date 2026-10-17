@@ -1,11 +1,11 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
+import { NoticeCoverageIntro } from '@/components/coverage/NoticeCoverageIntro'
 import { NoticeCoverageMethods } from '@/components/coverage/NoticeCoverageMethods'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { SectionAboutText } from '@/components/coverage/SectionAboutText'
 import { SectionArchiveBuild } from '@/components/coverage/SectionArchiveBuild'
 import { SectionCitingRecord } from '@/components/coverage/SectionCitingRecord'
 import { SectionKnownGaps } from '@/components/coverage/SectionKnownGaps'
-import { SectionOpener } from '@/components/coverage/SectionOpener'
 import { SectionSummary } from '@/components/coverage/SectionSummary'
 import { SectionTrust } from '@/components/coverage/SectionTrust'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -63,7 +63,7 @@ export const Route = createFileRoute('/coverage/')({
             </Breadcrumb>
           }
         />
-        <SectionOpener />
+        <NoticeCoverageIntro />
         {renderSummary()}
         <SectionAboutText />
         <SectionArchiveBuild />

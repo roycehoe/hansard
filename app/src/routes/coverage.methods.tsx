@@ -1,11 +1,11 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
+import { NoticeMethodsIntro } from '@/components/coverage/NoticeMethodsIntro'
 import { SectionAttributionFigures } from '@/components/coverage/SectionAttributionFigures'
 import { SectionCitingRecordFull } from '@/components/coverage/SectionCitingRecordFull'
 import { SectionCounts } from '@/components/coverage/SectionCounts'
 import { SectionImportantPoints } from '@/components/coverage/SectionImportantPoints'
 import { SectionKnownGapsFull } from '@/components/coverage/SectionKnownGapsFull'
-import { SectionMethodsIntro } from '@/components/coverage/SectionMethodsIntro'
 import { SectionTextGathered } from '@/components/coverage/SectionTextGathered'
 import { SectionYears } from '@/components/coverage/SectionYears'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -80,7 +80,7 @@ export const Route = createFileRoute('/coverage/methods')({
             </Breadcrumb>
           }
         />
-        <SectionMethodsIntro />
+        <NoticeMethodsIntro />
         <SectionImportantPoints />
         {renderTextGathered()}
         <SectionAttributionFigures />
