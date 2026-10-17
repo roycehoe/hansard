@@ -65,3 +65,15 @@ Fetched from Wikimedia Commons and the files' own pages on 2026-10-13 for the wi
 | `civic-cavenagh-pylon.jpg` | https://commons.wikimedia.org/wiki/File:2016_Singapur,_Downtown_Core,_Most_Cavenagha_(03).jpg | Marcin Konsek | CC BY-SA 4.0 | Granite pylon face, shaded (granite-pylon, decision 26) and paving; red sign and plaque outside the crops |
 | `civic-padang-turf.jpg` | https://commons.wikimedia.org/wiki/File:Rugby_goal_and_markings_at_Padang.jpg | Orderinchaos | CC BY-SA 4.0 | Turf at the Padang, crop clear of the chalk lines |
 | `civic-elephant-statue.jpg` | https://commons.wikimedia.org/wiki/File:At_Singapore_2023_083_-_Elephant_statue_at_the_Old_Parliament_House,_Singapore.jpg | Mike Peel | CC BY-SA 4.0 | Elephant statue body, cream wall and white plinth |
+
+## Chamber palette photos (17 Oct 2026), not committed
+
+The current palette is sampled from photos of the debating chamber in Parliament House (ADR 0005). None has an open licence, so none is in this directory. Each is cited by URL in `docs/palette.md`, section "Sources", with its crop boxes.
+
+| Photo | Page | Publisher | What was sampled |
+|---|---|---|---|
+| `TheChamber.png`, 670 by 377 px | https://www.parliament.gov.sg/about-us/facilities | Parliament of Singapore | Speaker's wall panelling, seat leather, table of the House, floor carpet, stone wall. Every token colour from the chamber comes from this photo |
+| MDDI sitting broadcast frame, 1280 by 720 px | https://www.youtube.com/watch?v=vSzKCk0BCXk | Ministry of Digital Development and Information | Rechecks of the panelling, leather, table and carpet; side wall |
+| CNA frame of the Speaker, 2022, 1280 by 720 px | https://www.youtube.com/watch?v=hCueuqgesEg | CNA | Recheck of the side panelling and the chair canopy, clear of the crest |
+
+Since the switch, no token cites `parliament-house-2023-079.jpg`, `parliament-place-road.jpg`, `former-chamber-strangers-gallery.jpg`, `civic-chamber-benches.jpg` or `civic-cavenagh-pylon.jpg`. They stay here as the record behind the version 1 palette, and their `/palette` thumbnails were removed.

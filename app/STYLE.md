@@ -906,7 +906,7 @@ The early-return style is for multiple guard clauses (loading, error, enum branc
 
 ### Colours
 
-Always use the named semantic tokens generated into `src/palette.css` — never raw Tailwind palette names, arbitrary hex values, colour-named tokens like `text-crimson`, or the named source colours through arbitrary-value syntax (`bg-(--teak)`):
+Always use the named semantic tokens generated into `src/palette.css` — never raw Tailwind palette names, arbitrary hex values, colour-named tokens like `text-crimson`, or the named source colours through arbitrary-value syntax (`bg-(--panelling)`):
 
 ```tsx
 // Good
@@ -1068,7 +1068,7 @@ Most of this app is written by Claude, and Claude's defaults with shadcn and Tai
 These choices stay on purpose, even though one or more sources call them AI tells. Don't flag them in review.
 
 - **Inter for UI text.** Hallmark, anti-ai-slop and Impeccable list Inter as the most overused AI font. SGDS v3 sets `--sgds-font-family-brand` to Inter, and Royce kept it after the 14 Oct 2026 review, which compared it with Source Sans 3 (`docs/sgds-tokens.md`). It is paired with Source Serif 4, so it is not the only face.
-- **Serif headings and speech text.** Source Serif 4, for a reading product. The background isn't cream (#fcfaf7, chroma 0.004) and the accent is gown-red #8d0f14, not terracotta, so the site sits outside frontend-design's cream, serif and terracotta cluster.
+- **Serif headings and speech text.** Source Serif 4, for a reading product. Since 17 Oct 2026 the background is the chamber's floor-carpet cream (#f8f2dc, chroma 0.03), so the site has two of the three marks of frontend-design's cream, serif and terracotta cluster. The accent is the mahogany panelling #6d3e31, not terracotta. Royce picked it over an orange timber primary to stay out of that cluster (ADR 0005).
 - **Lucide icons.** Hallmark calls Lucide a SaaS default. Here Lucide marks functions only (search, copy, theme, retry) and the notice anatomy in [Error Notices](#error-notices), never decoration.
 - **shadcn primitives.** anti-ai-slop and Hallmark name the untouched shadcn card as an AI tell. The primitives here carry the overrides in `docs/sgds-tokens.md`, and new overrides are recorded there.
 - **The lilac search highlight.** Purple is the most cited AI colour. `--highlight` is a text highlight sampled from the national flower under the insignia palette (`docs/palette.md`), not a purple brand accent or a gradient.

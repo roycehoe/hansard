@@ -2,7 +2,356 @@
 
 The colour tokens for the app, where each one came from, and the contrast each one reaches. The values live in `app/src/palette/palette.ts` and are generated into `app/src/palette.css`. `docs/palette-preview.html` shows every token in both themes. Running `pnpm contrast` from `app/` checks every pair listed below and exits 1 on any failure.
 
+The current palette comes from the debating chamber in Parliament House and replaced the first palette on 17 Oct 2026 (ADR 0005). The first palette, taken from the building's exterior, the Speaker's gown and the former chamber, is kept below under "Version 1" with its sources, because the current palette still uses its state, highlight and flag colours.
+
 ## Method
+
+1. Commons has no openly licensed photo of the current chamber (see "Gaps" in `docs/palette/research.md`). A worker searched official and press sources instead and kept Parliament's photo of the empty chamber from its facilities page, plus frames from sitting broadcasts. None of these photos has an open licence, so none is committed; each is cited below by URL (ADR 0005).
+2. The sampling script runs k-means (k = 3) on a crop box around one object and records each cluster's hex, its share of the crop and its OKLCH value, as in v1. Before use it reproduced the v1 gown sample: #8d0f15 at 44.2% against the recorded #8d0f14 at 44%.
+3. The official photo is the main source: even interior light, no people, and no mark visible at its size. Broadcast frames are rechecks only. Studio grading moves the leather to a mauve (hue 16 against 26) and greys the panelling (C 0.042 against 0.067), so no token takes a broadcast value.
+4. Derived colours keep the parent's OKLCH hue and set the lightness, and usually the chroma. Where the result falls outside sRGB, chroma is lowered until it fits.
+5. The first draft kept the page and panels on the stone walls and changed only the primary and the tags. It was too close to v1 ("there is hardly any difference"), so three variants with chamber surfaces were drawn up, with a timber, a leather and a mahogany primary. Royce chose mahogany on 17 Oct 2026. Leather was turned down because its hue (26) is the gown red's and near the PSP and SDP reds, and timber because an orange-brown primary on a cream page is the cream, serif and terracotta look `app/STYLE.md` lists as an AI tell.
+
+Caveats:
+
+- The official photo is small (670 by 377 px) and undated. Every crop is a few dozen pixels across.
+- The floor carpet reads yellow in the photo (C 0.061). The page uses a paler tint of it (C 0.03), so the page is cream, not yellow.
+- The panelling sample is the wall behind the Speaker's chair. Its shade cluster (C3) is close to the side panelling in the CNA frame.
+
+## Sources
+
+Crop boxes are fractions of the image: left, top, right, bottom. Shares are the cluster's share of the crop.
+
+| Key | Colour | What it is | Source |
+|---|---|---|---|
+| C1 | #6d3e31 | Panelling on the wall behind the Speaker's chair, lit | `TheChamber.png`, box 0.43,0.20,0.60,0.40, 27.9% |
+| C2 | #5b2f24 | Same panelling, mid tone | Same crop, 37.9% |
+| C3 | #4a251b | Same panelling, in shade | Same crop, 34.1% |
+| C4 | #9a5751 | Leather seat back, left benches, lit | `TheChamber.png`, box 0.045,0.63,0.11,0.74, 49.8%. Right benches (0.90,0.64,0.97,0.74) gave #99514a, 42.6% |
+| C5 | #a64f17 | Front of the table of the House, lit | `TheChamber.png`, box 0.455,0.66,0.565,0.76, 40.5% |
+| C6 | #fff3c5 | Floor carpet, centre aisle | `TheChamber.png`, box 0.36,0.82,0.62,0.97, 54.5% |
+
+Photos, fetched 17 Oct 2026 and not committed:
+
+- `TheChamber.png`. Parliament of Singapore, "The Chamber" on https://www.parliament.gov.sg/about-us/facilities, image https://cms.parliament.gov.sg/assets/ba94e15b-d7b7-4733-932b-7822b13ea479/TheChamber.png, 670 by 377 px. The empty chamber, no people.
+- MDDI sitting broadcast, https://www.youtube.com/watch?v=vSzKCk0BCXk, frame https://i.ytimg.com/vi/vSzKCk0BCXk/maxresdefault.jpg, 1280 by 720 px. Members, the Mace and the channel's logo are in frame and outside every crop.
+- CNA clip of the Speaker, 2022, https://www.youtube.com/watch?v=hCueuqgesEg, frame https://i.ytimg.com/vi/hCueuqgesEg/maxresdefault.jpg. The Speaker and the State Crest above the chair are in frame; crops take only the panelling at the edges and the canopy timber above the crest.
+
+Rechecks (no token uses them):
+
+| What | Broadcast value | Source |
+|---|---|---|
+| Speaker's wall panelling | #4d312c (86.0%), #492e28 (73.0%) | MDDI frame, boxes 0.28,0.17,0.46,0.34 and 0.54,0.17,0.72,0.34 |
+| Side panelling beside the chair | #5b443a (48.3%), #5e463e (41.1%) | CNA frame, boxes 0,0,0.23,0.6 and 0.88,0.17,1,0.9 |
+| Seat leather | #69373b (50.2%), #765052 (43.4%) | MDDI frame, boxes 0.72,0.43,0.765,0.53 and 0.08,0.55,0.125,0.65 |
+| Table of the House | #704322 (52.9%) | MDDI frame, box 0.42,0.70,0.61,0.88 |
+| Floor carpet | #f5edc4 (37.0%), #ebe2ba (37.0%) | MDDI frame, box 0.33,0.84,0.39,0.93 |
+
+Sampled and not used: the stone beside the Speaker's wall (#d1b398, `TheChamber.png` box 0.36,0.10,0.41,0.45) and the side wall (#898278, MDDI frame box 0.735,0.08,0.81,0.26), which carried the page and panels in the first draft; the red stair carpet (#a65354), at the leather's hue; and the timber rail posts (#853c1c), within one step of C5.
+
+## Named colours
+
+Every hex is written once, in `app/src/palette/palette.ts`, as a named colour. Names describe the source, not the role (`panelling`, `seat-leather`, `table-timber`, `floor-carpet`, and from v1 `crest-red`, `lawn`, `gold-lace`, `sky-blue`, `orchid-lilac`, `flag-white`). A derived colour is named after its parent plus its OKLCH lightness times 100 (`panelling-80`, `table-timber-90`). The semantic tokens below point at named colours (`--primary: var(--panelling)`), and `pnpm palette` generates `app/src/palette.css` from the module; `pnpm contrast` refuses to run if that file is stale. Named colours are not registered in `@theme`, so no `bg-panelling` utility exists and components still use semantic tokens only. The public `/palette` route lists every named colour with its values, the tokens that use it and its source. A v1 photo source shows a thumbnail from `app/public/palette-photos/` with its credit and licence. The chamber source links to Parliament's page instead, because the photo has no open licence.
+
+## Tokens
+
+Roles: surface (a background something sits on), text, accent (brand colour and chart marks), border, state (success, warning, info, destructive). S keys refer to "Version 1, Sources" below.
+
+| Token | Role | Light | Dark | Named colour (light / dark) | Citation (light / dark) |
+|---|---|---|---|---|---|
+| background | surface | #f8f2dc | #22110c | floor-carpet-96 / panelling-20 | derived from C6 / derived from C1 |
+| foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| card | surface | #ffffff | #301b16 | flag-white / panelling-25 | S17 (v1) / derived from C1 |
+| card-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| popover | surface | #ffffff | #301b16 | flag-white / panelling-25 | S17 (v1) / derived from C1 |
+| popover-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| primary | accent | #6d3e31 | #e1b1a3 | panelling / panelling-80 | C1 / derived from C1 |
+| primary-foreground | text | #ffffff | #4a251b | flag-white / panelling-shade | S17 (v1) / C3 |
+| secondary | surface | #f3d8ca | #422922 | table-timber-90 / panelling-31 | derived from C5 / derived from C1 |
+| secondary-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| muted | surface | #f7e3da | #38231d | table-timber-93 / panelling-28 | derived from C5 / derived from C1 |
+| muted-foreground | text | #674837 | #b7b19c | table-timber-43 / floor-carpet-76 | derived from C5 / derived from C6 |
+| accent | surface (hover) | #efd0c1 | #4a2d1e | table-timber-88 / table-timber-33 | derived from C5 / derived from C5 |
+| accent-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| destructive | state | #c8102e | #ef6666 | crest-red / crest-red-68 | S18 (v1) / derived from S18 (v1) |
+| destructive-foreground | text | #ffffff | #22110c | flag-white / panelling-20 | S17 (v1) / derived from C1 |
+| success | state | #596d2c | #a5b961 | lawn / lawn-sunlit-75 | S13 (v1) / derived from S14 (v1) |
+| success-foreground | text | #ffffff | #22110c | flag-white / panelling-20 | S17 (v1) / derived from C1 |
+| warning | state | #7b5e2f | #d8a459 | gold-lace-50 / crest-gold | derived from S6 (v1) / S19 (v1) |
+| warning-foreground | text | #ffffff | #22110c | flag-white / panelling-20 | S17 (v1) / derived from C1 |
+| info | state | #0c4a7a | #8bb2d9 | sky-blue-40 / sky-blue-75 | derived from S22 (v1) / derived from S22 (v1) |
+| info-foreground | text | #ffffff | #22110c | flag-white / panelling-20 | S17 (v1) / derived from C1 |
+| reading | surface (transcript) | #ffffff | #2d1a10 | flag-white / table-timber-24 | S17 (v1) / derived from C5 |
+| reading-foreground | text | #281c19 | #ddd8c2 | panelling-24 / floor-carpet-88 | derived from C1 / derived from C6 |
+| separator | border (decorative) | #e1bfae | #4d332c | table-timber-83 / panelling-35 | derived from C5 / derived from C1 |
+| overlay | surface (scrim) | #22110c | #22110c | panelling-20 / panelling-20 | derived from C1 / derived from C1 |
+| primary-hover | accent (hover) | #5b2f24 | #ecc3b7 | panelling-mid / panelling-85 | C2 / derived from C1 |
+| primary-active | accent (active) | #4a251b | #f7d5cc | panelling-shade / panelling-90 | C3 / derived from C1 |
+| secondary-hover | surface (hover) | #ebcdbe | #4d332c | table-timber-87 / panelling-35 | derived from C5 / derived from C1 |
+| secondary-active | surface (active) | #e4c2b2 | #533831 | table-timber-84 / panelling-37 | derived from C5 / derived from C1 |
+| destructive-hover | state (hover) | #b00826 | #ff8481 | crest-red-48 / crest-red-75 | derived from S18 (v1) / derived from S18 (v1) |
+| destructive-active | state (active) | #97061f | #ff9b97 | crest-red-43 / crest-red-79 | derived from S18 (v1) / derived from S18 (v1) |
+| highlight | accent (search matches, tags) | #e8cbf9 | #513460 | orchid-lilac-88 / orchid-lilac-38 | derived from S20 (v1) / derived from S20 (v1) |
+| highlight-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| tag | surface (chip) | #fbd3cf | #552926 | seat-leather-90 / seat-leather-34 | derived from C4 / derived from C4 |
+| tag-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| tag-border | border (chip) | #9a5751 | #c5766f | seat-leather / seat-leather-65 | C4 / derived from C4 |
+| border | border | #9d6e56 | #8f6753 | table-timber-58 / table-timber-55 | derived from C5 / derived from C5 |
+| input | border | #9d6e56 | #a57c67 | table-timber-58 / table-timber-62 | derived from C5 / derived from C5 |
+| ring | border (focus) | #6d3e31 | #e1b1a3 | panelling / panelling-80 | C1 / derived from C1 |
+| chart-1 | accent (chart) | #6d3e31 | #dc795d | panelling / panelling-68 | C1 / derived from C1 |
+| chart-2 | accent (chart) | #596d2c | #7a8c34 | lawn / lawn-sunlit | S13 (v1) / S14 (v1) |
+| chart-3 | accent (chart) | #0c4a7a | #6194c4 | sky-blue-40 / sky-blue-65 | derived from S22 (v1) / derived from S22 (v1) |
+| chart-4 | accent (chart) | #a68758 | #a68758 | gold-lace / gold-lace | S6 (v1) / S6 (v1) |
+| chart-5 | accent (chart) | #a64f17 | #be6431 | table-timber / table-timber-60 | C5 / derived from C5 |
+| sidebar | surface | #f7e3da | #301b16 | table-timber-93 / panelling-25 | derived from C5 / derived from C1 |
+| sidebar-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| sidebar-primary | accent | #6d3e31 | #e1b1a3 | panelling / panelling-80 | C1 / derived from C1 |
+| sidebar-primary-foreground | text | #ffffff | #4a251b | flag-white / panelling-shade | S17 (v1) / C3 |
+| sidebar-accent | surface (hover) | #efd0c1 | #4a2d1e | table-timber-88 / table-timber-33 | derived from C5 / derived from C5 |
+| sidebar-accent-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
+| sidebar-border | border | #9d6e56 | #8f6753 | table-timber-58 / table-timber-55 | derived from C5 / derived from C5 |
+| sidebar-ring | border (focus) | #6d3e31 | #e1b1a3 | panelling / panelling-80 | C1 / derived from C1 |
+
+The light theme sets near-black panelling text on the floor carpet's cream, with white cards and a white reading column. Pale timber makes the panels, hover surfaces and lines, the mahogany panelling is the one brand colour, and pale leather marks the tags. The dark theme sets cream carpet text on a background derived from the panelling, with a timber cast on the reading column. The states, the search highlight and white keep their v1 sources.
+
+## Derived colours
+
+Each derived colour keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), C is chroma.
+
+| Name | Value | Parent | How | Tokens |
+|---|---|---|---|---|
+| floor-carpet-76 | #b7b19c | C6 floor-carpet | L 0.76, C 0.03 | muted-foreground (dark) |
+| floor-carpet-88 | #ddd8c2 | C6 floor-carpet | L 0.88, C 0.03 | reading-foreground (dark) |
+| floor-carpet-93 | #eee8d2 | C6 floor-carpet | L 0.93, C 0.03 | foreground (dark), card-foreground (dark), popover-foreground (dark), secondary-foreground (dark), accent-foreground (dark), highlight-foreground (dark), tag-foreground (dark), sidebar-foreground (dark), sidebar-accent-foreground (dark) |
+| floor-carpet-96 | #f8f2dc | C6 floor-carpet | L 0.96, C 0.03 | background (light) |
+| panelling-20 | #22110c | C1 panelling | L 0.20, C 0.03 | background (dark), destructive-foreground (dark), success-foreground (dark), warning-foreground (dark), info-foreground (dark), overlay (light), overlay (dark) |
+| panelling-24 | #281c19 | C1 panelling | L 0.24, C 0.02 | foreground (light), card-foreground (light), popover-foreground (light), secondary-foreground (light), accent-foreground (light), reading-foreground (light), highlight-foreground (light), tag-foreground (light), sidebar-foreground (light), sidebar-accent-foreground (light) |
+| panelling-25 | #301b16 | C1 panelling | L 0.25, C 0.035 | card (dark), popover (dark), sidebar (dark) |
+| panelling-28 | #38231d | C1 panelling | L 0.28, C 0.035 | muted (dark) |
+| panelling-31 | #422922 | C1 panelling | L 0.31, C 0.04 | secondary (dark) |
+| panelling-35 | #4d332c | C1 panelling | L 0.35, C 0.04 | separator (dark), secondary-hover (dark) |
+| panelling-37 | #533831 | C1 panelling | L 0.37, C 0.04 | secondary-active (dark) |
+| panelling-68 | #dc795d | C1 panelling | L 0.68, C 0.13 | chart-1 (dark) |
+| panelling-80 | #e1b1a3 | C1 panelling | L 0.80, C 0.06 | primary (dark), ring (dark), sidebar-primary (dark), sidebar-ring (dark) |
+| panelling-85 | #ecc3b7 | C1 panelling | L 0.85, C 0.05 | primary-hover (dark) |
+| panelling-90 | #f7d5cc | C1 panelling | L 0.90, C 0.04 | primary-active (dark) |
+| seat-leather-34 | #552926 | C4 seat-leather | L 0.34, C 0.065 | tag (dark) |
+| seat-leather-65 | #c5766f | C4 seat-leather | L 0.65, C 0.1 | tag-border (dark) |
+| seat-leather-90 | #fbd3cf | C4 seat-leather | L 0.90, C 0.045 | tag (light) |
+| table-timber-24 | #2d1a10 | C5 table-timber | L 0.24, C 0.035 | reading (dark) |
+| table-timber-33 | #4a2d1e | C5 table-timber | L 0.33, C 0.05 | accent (dark), sidebar-accent (dark) |
+| table-timber-43 | #674837 | C5 table-timber | L 0.43, C 0.05 | muted-foreground (light) |
+| table-timber-55 | #8f6753 | C5 table-timber | L 0.55, C 0.06 | border (dark), sidebar-border (dark) |
+| table-timber-58 | #9d6e56 | C5 table-timber | L 0.58, C 0.07 | border (light), input (light), sidebar-border (light) |
+| table-timber-60 | #be6431 | C5 table-timber | L 0.60, C as sampled | chart-5 (dark) |
+| table-timber-62 | #a57c67 | C5 table-timber | L 0.62, C 0.06 | input (dark) |
+| table-timber-83 | #e1bfae | C5 table-timber | L 0.83, C 0.045 | separator (light) |
+| table-timber-84 | #e4c2b2 | C5 table-timber | L 0.84, C 0.045 | secondary-active (light) |
+| table-timber-87 | #ebcdbe | C5 table-timber | L 0.87, C 0.04 | secondary-hover (light) |
+| table-timber-88 | #efd0c1 | C5 table-timber | L 0.88, C 0.04 | accent (light), sidebar-accent (light) |
+| table-timber-90 | #f3d8ca | C5 table-timber | L 0.90, C 0.035 | secondary (light) |
+| table-timber-93 | #f7e3da | C5 table-timber | L 0.93, C 0.025 | muted (light), sidebar (light) |
+
+Why the steps:
+
+- `floor-carpet-96` is the page. The sampled carpet is a strong yellow (C 0.061), so the page keeps the hue at half the chroma. The other carpet steps are text and hover colours for the dark theme.
+- The light timber steps (`table-timber-93` down to `table-timber-83`) are surfaces from quiet panel to pressed button to divider. `table-timber-58` is the control border, 3.23:1 on the panels at its tightest; `table-timber-43` is muted text, 4.5:1 on every light surface it meets.
+- The dark panelling steps (`panelling-20` to `panelling-37`) are the page, cards, panels and pressed states, with chroma raised to 0.03 to 0.04 so the dark theme reads as mahogany rather than black. `table-timber-62` is the dark input border, because the 0.55 step fell under 3:1 on the dark panels.
+- `panelling-80`, `-85` and `-90` are the dark primary and its hover and pressed steps. `panelling-68` (C 0.13) is dark `chart-1`; the 0.65 step at C 0.09 sat 0.060 (OKLab) from `chart-4`, closer than any v1 chart pair, and this one sits 0.085 and 0.097 from its nearest neighbours.
+- `table-timber-60` is dark `chart-5`: the sampled timber gives 3.00:1 on the dark card, just under the minimum.
+- `seat-leather-90` and `seat-leather-34` are the tag chips, `seat-leather-65` the dark chip border. The sampled leather is the light chip border.
+
+## Contrast
+
+Minimums: 4.5:1 for text (WCAG 2.2 AA, 1.4.3); 3:1 for the borders of controls (`border`, `input`), focus rings and chart marks (1.4.11). `separator` and `overlay` have no minimum: WCAG 2.2 AA sets no ratio for decorative lines, and the overlay is a scrim. The checker only requires that both exist in both themes. Output of `pnpm contrast` from `app/`, unedited:
+
+```
+light
+pass  separator #e1bfae (no minimum)
+pass  overlay #22110c (no minimum)
+pass  14.74  foreground on background  (#281c19 on #f8f2dc, min 4.5)
+pass  13.35  foreground on muted  (#281c19 on #f7e3da, min 4.5)
+pass  12.19  foreground on secondary  (#281c19 on #f3d8ca, min 4.5)
+pass  16.53  card-foreground on card  (#281c19 on #ffffff, min 4.5)
+pass  16.53  popover-foreground on popover  (#281c19 on #ffffff, min 4.5)
+pass   8.81  primary-foreground on primary  (#ffffff on #6d3e31, min 4.5)
+pass  11.19  primary-foreground on primary-hover  (#ffffff on #5b2f24, min 4.5)
+pass  13.36  primary-foreground on primary-active  (#ffffff on #4a251b, min 4.5)
+pass  12.19  secondary-foreground on secondary  (#281c19 on #f3d8ca, min 4.5)
+pass  11.03  secondary-foreground on secondary-hover  (#281c19 on #ebcdbe, min 4.5)
+pass   9.96  secondary-foreground on secondary-active  (#281c19 on #e4c2b2, min 4.5)
+pass  11.38  accent-foreground on accent  (#281c19 on #efd0c1, min 4.5)
+pass   5.88  destructive-foreground on destructive  (#ffffff on #c8102e, min 4.5)
+pass   7.22  destructive-foreground on destructive-hover  (#ffffff on #b00826, min 4.5)
+pass   8.89  destructive-foreground on destructive-active  (#ffffff on #97061f, min 4.5)
+pass   5.76  success-foreground on success  (#ffffff on #596d2c, min 4.5)
+pass   6.03  warning-foreground on warning  (#ffffff on #7b5e2f, min 4.5)
+pass   9.23  info-foreground on info  (#ffffff on #0c4a7a, min 4.5)
+pass  16.53  reading-foreground on reading  (#281c19 on #ffffff, min 4.5)
+pass  11.29  highlight-foreground on highlight  (#281c19 on #e8cbf9, min 4.5)
+pass  12.06  tag-foreground on tag  (#281c19 on #fbd3cf, min 4.5)
+pass  13.35  sidebar-foreground on sidebar  (#281c19 on #f7e3da, min 4.5)
+pass   8.81  sidebar-primary-foreground on sidebar-primary  (#ffffff on #6d3e31, min 4.5)
+pass  11.38  sidebar-accent-foreground on sidebar-accent  (#281c19 on #efd0c1, min 4.5)
+pass   7.32  muted-foreground on background  (#674837 on #f8f2dc, min 4.5)
+pass   8.21  muted-foreground on card  (#674837 on #ffffff, min 4.5)
+pass   6.63  muted-foreground on muted  (#674837 on #f7e3da, min 4.5)
+pass   6.05  muted-foreground on secondary  (#674837 on #f3d8ca, min 4.5)
+pass   5.47  muted-foreground on secondary-hover  (#674837 on #ebcdbe, min 4.5)
+pass   4.95  muted-foreground on secondary-active  (#674837 on #e4c2b2, min 4.5)
+pass   5.65  muted-foreground on accent  (#674837 on #efd0c1, min 4.5)
+pass   8.21  muted-foreground on reading  (#674837 on #ffffff, min 4.5)
+pass   5.60  muted-foreground on highlight  (#674837 on #e8cbf9, min 4.5)
+pass   7.86  primary on background  (#6d3e31 on #f8f2dc, min 4.5)
+pass   8.81  primary on card  (#6d3e31 on #ffffff, min 4.5)
+pass   8.81  primary on reading  (#6d3e31 on #ffffff, min 4.5)
+pass   6.02  primary on highlight  (#6d3e31 on #e8cbf9, min 4.5)
+pass   7.11  primary on muted  (#6d3e31 on #f7e3da, min 4.5)
+pass   8.81  primary on popover  (#6d3e31 on #ffffff, min 4.5)
+pass   9.98  primary-hover on background  (#5b2f24 on #f8f2dc, min 4.5)
+pass  11.19  primary-hover on card  (#5b2f24 on #ffffff, min 4.5)
+pass  11.19  primary-hover on reading  (#5b2f24 on #ffffff, min 4.5)
+pass   9.03  primary-hover on muted  (#5b2f24 on #f7e3da, min 4.5)
+pass  11.19  primary-hover on popover  (#5b2f24 on #ffffff, min 4.5)
+pass   5.25  destructive on background  (#c8102e on #f8f2dc, min 4.5)
+pass   5.88  destructive on card  (#c8102e on #ffffff, min 4.5)
+pass   5.13  success on background  (#596d2c on #f8f2dc, min 4.5)
+pass   5.76  success on card  (#596d2c on #ffffff, min 4.5)
+pass   5.37  warning on background  (#7b5e2f on #f8f2dc, min 4.5)
+pass   6.03  warning on card  (#7b5e2f on #ffffff, min 4.5)
+pass   8.23  info on background  (#0c4a7a on #f8f2dc, min 4.5)
+pass   9.23  info on card  (#0c4a7a on #ffffff, min 4.5)
+pass   3.90  border on background  (#9d6e56 on #f8f2dc, min 3)
+pass   4.38  border on card  (#9d6e56 on #ffffff, min 3)
+pass   3.97  tag-border on tag  (#9a5751 on #fbd3cf, min 3)
+pass   4.86  tag-border on background  (#9a5751 on #f8f2dc, min 3)
+pass   5.45  tag-border on card  (#9a5751 on #ffffff, min 3)
+pass   3.90  input on background  (#9d6e56 on #f8f2dc, min 3)
+pass   4.38  input on card  (#9d6e56 on #ffffff, min 3)
+pass   3.53  input on muted  (#9d6e56 on #f7e3da, min 3)
+pass   3.23  input on secondary  (#9d6e56 on #f3d8ca, min 3)
+pass   7.86  ring on background  (#6d3e31 on #f8f2dc, min 3)
+pass   8.81  ring on card  (#6d3e31 on #ffffff, min 3)
+pass   3.53  sidebar-border on sidebar  (#9d6e56 on #f7e3da, min 3)
+pass   7.11  sidebar-ring on sidebar  (#6d3e31 on #f7e3da, min 3)
+pass   7.86  chart-1 on background  (#6d3e31 on #f8f2dc, min 3)
+pass   8.81  chart-1 on card  (#6d3e31 on #ffffff, min 3)
+pass   5.13  chart-2 on background  (#596d2c on #f8f2dc, min 3)
+pass   5.76  chart-2 on card  (#596d2c on #ffffff, min 3)
+pass   8.23  chart-3 on background  (#0c4a7a on #f8f2dc, min 3)
+pass   9.23  chart-3 on card  (#0c4a7a on #ffffff, min 3)
+pass   3.01  chart-4 on background  (#a68758 on #f8f2dc, min 3)
+pass   3.37  chart-4 on card  (#a68758 on #ffffff, min 3)
+pass   4.99  chart-5 on background  (#a64f17 on #f8f2dc, min 3)
+pass   5.60  chart-5 on card  (#a64f17 on #ffffff, min 3)
+
+dark
+pass  separator #4d332c (no minimum)
+pass  overlay #22110c (no minimum)
+pass  14.83  foreground on background  (#eee8d2 on #22110c, min 4.5)
+pass  12.00  foreground on muted  (#eee8d2 on #38231d, min 4.5)
+pass  10.88  foreground on secondary  (#eee8d2 on #422922, min 4.5)
+pass  13.22  card-foreground on card  (#eee8d2 on #301b16, min 4.5)
+pass  13.22  popover-foreground on popover  (#eee8d2 on #301b16, min 4.5)
+pass   7.01  primary-foreground on primary  (#4a251b on #e1b1a3, min 4.5)
+pass   8.31  primary-foreground on primary-hover  (#4a251b on #ecc3b7, min 4.5)
+pass   9.76  primary-foreground on primary-active  (#4a251b on #f7d5cc, min 4.5)
+pass  10.88  secondary-foreground on secondary  (#eee8d2 on #422922, min 4.5)
+pass   9.37  secondary-foreground on secondary-hover  (#eee8d2 on #4d332c, min 4.5)
+pass   8.65  secondary-foreground on secondary-active  (#eee8d2 on #533831, min 4.5)
+pass  10.15  accent-foreground on accent  (#eee8d2 on #4a2d1e, min 4.5)
+pass   5.86  destructive-foreground on destructive  (#22110c on #ef6666, min 4.5)
+pass   7.69  destructive-foreground on destructive-hover  (#22110c on #ff8481, min 4.5)
+pass   9.01  destructive-foreground on destructive-active  (#22110c on #ff9b97, min 4.5)
+pass   8.42  success-foreground on success  (#22110c on #a5b961, min 4.5)
+pass   8.13  warning-foreground on warning  (#22110c on #d8a459, min 4.5)
+pass   8.21  info-foreground on info  (#22110c on #8bb2d9, min 4.5)
+pass  11.58  reading-foreground on reading  (#ddd8c2 on #2d1a10, min 4.5)
+pass   8.51  highlight-foreground on highlight  (#eee8d2 on #513460, min 4.5)
+pass   9.88  tag-foreground on tag  (#eee8d2 on #552926, min 4.5)
+pass  13.22  sidebar-foreground on sidebar  (#eee8d2 on #301b16, min 4.5)
+pass   7.01  sidebar-primary-foreground on sidebar-primary  (#4a251b on #e1b1a3, min 4.5)
+pass  10.15  sidebar-accent-foreground on sidebar-accent  (#eee8d2 on #4a2d1e, min 4.5)
+pass   8.48  muted-foreground on background  (#b7b19c on #22110c, min 4.5)
+pass   7.56  muted-foreground on card  (#b7b19c on #301b16, min 4.5)
+pass   6.86  muted-foreground on muted  (#b7b19c on #38231d, min 4.5)
+pass   6.22  muted-foreground on secondary  (#b7b19c on #422922, min 4.5)
+pass   5.36  muted-foreground on secondary-hover  (#b7b19c on #4d332c, min 4.5)
+pass   4.95  muted-foreground on secondary-active  (#b7b19c on #533831, min 4.5)
+pass   5.80  muted-foreground on accent  (#b7b19c on #4a2d1e, min 4.5)
+pass   7.72  muted-foreground on reading  (#b7b19c on #2d1a10, min 4.5)
+pass   4.87  muted-foreground on highlight  (#b7b19c on #513460, min 4.5)
+pass   9.55  primary on background  (#e1b1a3 on #22110c, min 4.5)
+pass   8.52  primary on card  (#e1b1a3 on #301b16, min 4.5)
+pass   8.70  primary on reading  (#e1b1a3 on #2d1a10, min 4.5)
+pass   5.48  primary on highlight  (#e1b1a3 on #513460, min 4.5)
+pass   7.73  primary on muted  (#e1b1a3 on #38231d, min 4.5)
+pass   8.52  primary on popover  (#e1b1a3 on #301b16, min 4.5)
+pass  11.32  primary-hover on background  (#ecc3b7 on #22110c, min 4.5)
+pass  10.09  primary-hover on card  (#ecc3b7 on #301b16, min 4.5)
+pass  10.31  primary-hover on reading  (#ecc3b7 on #2d1a10, min 4.5)
+pass   9.15  primary-hover on muted  (#ecc3b7 on #38231d, min 4.5)
+pass  10.09  primary-hover on popover  (#ecc3b7 on #301b16, min 4.5)
+pass   5.86  destructive on background  (#ef6666 on #22110c, min 4.5)
+pass   5.23  destructive on card  (#ef6666 on #301b16, min 4.5)
+pass   8.42  success on background  (#a5b961 on #22110c, min 4.5)
+pass   7.51  success on card  (#a5b961 on #301b16, min 4.5)
+pass   8.13  warning on background  (#d8a459 on #22110c, min 4.5)
+pass   7.24  warning on card  (#d8a459 on #301b16, min 4.5)
+pass   8.21  info on background  (#8bb2d9 on #22110c, min 4.5)
+pass   7.32  info on card  (#8bb2d9 on #301b16, min 4.5)
+pass   3.67  border on background  (#8f6753 on #22110c, min 3)
+pass   3.27  border on card  (#8f6753 on #301b16, min 3)
+pass   3.58  tag-border on tag  (#c5766f on #552926, min 3)
+pass   5.37  tag-border on background  (#c5766f on #22110c, min 3)
+pass   4.79  tag-border on card  (#c5766f on #301b16, min 3)
+pass   4.92  input on background  (#a57c67 on #22110c, min 3)
+pass   4.39  input on card  (#a57c67 on #301b16, min 3)
+pass   3.98  input on muted  (#a57c67 on #38231d, min 3)
+pass   3.61  input on secondary  (#a57c67 on #422922, min 3)
+pass   9.55  ring on background  (#e1b1a3 on #22110c, min 3)
+pass   8.52  ring on card  (#e1b1a3 on #301b16, min 3)
+pass   3.27  sidebar-border on sidebar  (#8f6753 on #301b16, min 3)
+pass   8.52  sidebar-ring on sidebar  (#e1b1a3 on #301b16, min 3)
+pass   6.01  chart-1 on background  (#dc795d on #22110c, min 3)
+pass   5.36  chart-1 on card  (#dc795d on #301b16, min 3)
+pass   4.88  chart-2 on background  (#7a8c34 on #22110c, min 3)
+pass   4.35  chart-2 on card  (#7a8c34 on #301b16, min 3)
+pass   5.67  chart-3 on background  (#6194c4 on #22110c, min 3)
+pass   5.06  chart-3 on card  (#6194c4 on #301b16, min 3)
+pass   5.40  chart-4 on background  (#a68758 on #22110c, min 3)
+pass   4.81  chart-4 on card  (#a68758 on #301b16, min 3)
+pass   4.38  chart-5 on background  (#be6431 on #22110c, min 3)
+pass   3.91  chart-5 on card  (#be6431 on #301b16, min 3)
+```
+
+## Serif
+
+**Source Serif 4** for headings and Hansard text, with Inter for the interface.
+
+- Body legibility. It is a transitional serif with an even texture, open counters and a moderate x-height. The optical size axis (8 to 60) gives a sturdier text cut at 16 to 18 px and a finer display cut for headings, from one family.
+- Italic. A true italic, served as its own file, not a slanted roman. Hansard sets procedural notes ("Question put, and agreed to.") in italic, so this matters.
+- Figures. Google Fonts serves it with tabular and proportional figures (`tnum`, `pnum`) and fractions. Old-style figures are not available: Google's served files strip `onum` for every candidate checked (Source Serif 4, Literata, Newsreader, Spectral, EB Garamond, Crimson Pro, Fraunces). Lining tabular figures suit column numbers, dates and vote counts anyway.
+- Weights. 200 to 900 on one variable axis. The app loads 400 to 700, roman and italic.
+- Pairing with Inter. Both are plain, modern designs with similar proportions, so a serif heading over Inter controls looks like one system, not two.
+- Tone. It looks like a printed official report without imitating one. Garamonds and Caslons lean towards old books; Fraunces is too expressive for a record.
+
+**Runner-up: Literata.** It was built for long-form screen reading and has the same axes, a true italic and tabular figures, so it would serve the transcript well. It lost on tone: its heavier wedge serifs and darker texture read as a novel more than a record, and its headings sit less quietly beside Inter.
+
+Newsreader came close, but Google serves it without fractions or `locl`, and its text sizes run tight. Crimson Pro and EB Garamond have small x-heights that make long transcripts harder at 16 px. Spectral has no optical size axis, so one cut has to serve both headings and body.
+
+Loaded in `app/index.html` with one Google Fonts stylesheet link (and preconnects). `--font-serif` is `'Source Serif 4', ui-serif, Georgia, serif`. `--font-sans` stays Inter.
+
+## Identity marks
+
+The palette takes colours only. The crest red and crest gold are hex values read from the crest's published SVG; the crest itself, the Lion Head symbol, the mace image, the Parliament logo and the "A Singapore Government Agency Website" masthead never appear in the app or in the preview. The header is a plain wordmark set in Source Serif 4. Every page footer reads "Not an official Parliament site." See `docs/adr/0002-no-government-identity-marks.md`.
+
+## Version 1: Parliament House palette (13 Oct 2026, superseded)
+
+The first palette, replaced on 17 Oct 2026 (ADR 0005). Its tokens and contrast output below are history. Its sources still back the colours the current palette keeps: S6 gold lace, S13 and S14 lawn, S17 flag white, S18 and S19 crest red and gold, S20 orchid lilac and S22 evening sky. Statements below that the gown red is the primary or is not to be re-opened describe v1.
+
+### Method
 
 1. Workers fetched openly licensed photos of Parliament House, the Speaker's ceremonial gown and the former chamber from Wikimedia Commons. The committed copies and their licences are in `docs/palette/sources/` and `docs/palette/sources/SOURCES.md`.
 2. Each worker ran PIL k-means on a crop around one object (gown satin, stone cladding, lawn and so on) and recorded the cluster hex, its share of the crop and the lighting.
@@ -16,7 +365,7 @@ Caveats:
 - The gown photos were taken under museum spotlights. The satin reads darker in shadow (#62090b) than under light (#8d0f14). The lit value is used.
 - Photo samples carry the light they were taken in. The cladding reads warm grey in direct sun and cooler under overcast skies.
 
-## Sources
+### Sources
 
 Crop boxes are fractions of the image: left, top, right, bottom. Shares are the cluster's share of the crop.
 
@@ -46,11 +395,11 @@ Crop boxes are fractions of the image: left, top, right, bottom. Shares are the 
 | S22 | #85a4c2 | Evening sky above Parliament House | `parliament-house-2010-08-03.jpg`, box 0.0,0.0,0.3,0.22, 42%, no building in the crop (decision 26) |
 | S23 | #655b51 | Granite pylon of Cavenagh Bridge, shaded face | `civic-cavenagh-pylon.jpg`, box 0.21,0.25,0.30,0.75, 59%, overcast (decision 26) |
 
-## Named colours
+### Named colours
 
 Every hex is written once, in `app/src/palette/palette.ts`, as a named colour. Names describe the source, not the role (`gown-red`, `teak`, `orchid-lilac`, `granite-plate`, `lawn`, `sky-blue`, `gold-lace`, `roof-terracotta`, `crest-red`, `flag-white`). A derived colour is named after its parent plus its OKLCH lightness times 100 (`gown-red-80`, `stone-cladding-93`). The semantic tokens below point at named colours (`--primary: var(--gown-red)`), and `pnpm palette` generates `app/src/palette.css` from the module; `pnpm contrast` refuses to run if that file is stale. Named colours are not registered in `@theme`, so no `bg-teak` utility exists and components still use semantic tokens only. The public `/palette` route lists every named colour with its values, the tokens that use it and its source with the credit line, the licence (linked) and the Commons title (linked); thumbnails live under `app/public/palette-photos/`, cropped to a mark-free part of the photo where the full frame shows the crest, a flag or the Mace (`SOURCES.md` lists them). The sign close-up was removed under decision 26.
 
-## Tokens
+### Tokens
 
 Roles: surface (a background something sits on), text, accent (brand colour and chart marks), border, state (success, warning, info, destructive).
 
@@ -114,7 +463,7 @@ Beyond the shadcn set and the three states, the palette adds `reading` and `read
 
 The light theme puts the gown's black cloth on a warm near-white. Stone greys make the surfaces and lines, the gown's red satin is the one brand colour, and gold lace covers hover and warning. The lawn gives success and the evening sky gives info. The dark theme sets cream lace on the black cloth and keeps the same colour families.
 
-## Derived tokens
+### Derived tokens
 
 Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), C is chroma.
 
@@ -160,7 +509,7 @@ Each derived value keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1), 
 
 Sampled colours that stay in a non-text role because they fail as text: S6 gold lace (3.24:1 on the light background, kept as chart-4), S15 terracotta (kept as chart-5; it passes 4.77:1 but reads orange next to the reds, so it is not used for text).
 
-## Contrast
+### Contrast
 
 Minimums: 4.5:1 for text (WCAG 2.2 AA, 1.4.3); 3:1 for the borders of controls (`border`, `input`), focus rings and chart marks (1.4.11). `separator` and `overlay` have no minimum: WCAG 2.2 AA sets no ratio for decorative lines, and the overlay is a scrim. The checker only requires that both exist in both themes. Output of `pnpm contrast` from `app/`, unedited:
 
@@ -315,24 +664,7 @@ pass   3.68  chart-5 on background  (#b65229 on #161512, min 3)
 pass   3.16  chart-5 on card  (#b65229 on #252320, min 3)
 ```
 
-## Serif
-
-**Source Serif 4** for headings and Hansard text, with Inter for the interface.
-
-- Body legibility. It is a transitional serif with an even texture, open counters and a moderate x-height. The optical size axis (8 to 60) gives a sturdier text cut at 16 to 18 px and a finer display cut for headings, from one family.
-- Italic. A true italic, served as its own file, not a slanted roman. Hansard sets procedural notes ("Question put, and agreed to.") in italic, so this matters.
-- Figures. Google Fonts serves it with tabular and proportional figures (`tnum`, `pnum`) and fractions. Old-style figures are not available: Google's served files strip `onum` for every candidate checked (Source Serif 4, Literata, Newsreader, Spectral, EB Garamond, Crimson Pro, Fraunces). Lining tabular figures suit column numbers, dates and vote counts anyway.
-- Weights. 200 to 900 on one variable axis. The app loads 400 to 700, roman and italic.
-- Pairing with Inter. Both are plain, modern designs with similar proportions, so a serif heading over Inter controls looks like one system, not two.
-- Tone. It looks like a printed official report without imitating one. Garamonds and Caslons lean towards old books; Fraunces is too expressive for a record.
-
-**Runner-up: Literata.** It was built for long-form screen reading and has the same axes, a true italic and tabular figures, so it would serve the transcript well. It lost on tone: its heavier wedge serifs and darker texture read as a novel more than a record, and its headings sit less quietly beside Inter.
-
-Newsreader came close, but Google serves it without fractions or `locl`, and its text sizes run tight. Crimson Pro and EB Garamond have small x-heights that make long transcripts harder at 16 px. Spectral has no optical size axis, so one cut has to serve both headings and body.
-
-Loaded in `app/index.html` with one Google Fonts stylesheet link (and preconnects). `--font-serif` is `'Source Serif 4', ui-serif, Georgia, serif`. `--font-sans` stays Inter.
-
-## parliament.gov.sg baseline
+### parliament.gov.sg baseline
 
 The parliament.gov.sg stylesheet was the starting palette. What happened to each part:
 
@@ -344,11 +676,7 @@ The parliament.gov.sg stylesheet was the starting palette. What happened to each
 - Near-black text on white (#323232 on #fff): kept as an approach, with the gown's black cloth and the painted railing white as the values.
 - Lato: dropped. Decision 14 sets Inter for the interface.
 
-## Identity marks
-
-The palette takes colours only. The crest red and crest gold are hex values read from the crest's published SVG; the crest itself, the Lion Head symbol, the mace image, the Parliament logo and the "A Singapore Government Agency Website" masthead never appear in the app or in the preview. The header is a plain wordmark set in Source Serif 4. Every page footer reads "Not an official Parliament site." See `docs/adr/0002-no-government-identity-marks.md`.
-
-## Gate decisions (2026-10-13)
+### Gate decisions (2026-10-13)
 
 Second gate, after the v2 review: proposals 2 and 3 adopted, 1, 4 and 5 deferred; the two Track B photos with people stay; dark `secondary-active` raised to #46423d so `muted-foreground` reaches 4.75:1; `info` and `chart-3` accepted as blues in status and chart roles only; SGDS v3 non-colour tokens adopted (see `docs/sgds-tokens.md`). Brief decisions 21 to 25.
 
@@ -358,7 +686,7 @@ Second gate, after the v2 review: proposals 2 and 3 adopted, 1, 4 and 5 deferred
 4. The unused former-chamber leather maroon (#863427) is dropped from consideration.
 5. Opacity tints from the shadcn template (`outline-ring/50`, `bg-primary/90` hovers and the like) are removed in component work. The hover and active tokens above replace them; the dialog scrim uses `bg-overlay/60`, the one case the colour rule allows.
 
-## Proposed v2 changes
+### Proposed v2 changes
 
 Status (decision 21, 2026-10-13): proposals 2 (`highlight`) and 3 (`tag`, `tag-border`) are adopted and now appear in the token table above and in `app/src/palette/palette.ts`. Proposals 1 (reading tint), 4 (heading band) and 5 (chart-6) are deferred until a screen needs them; their details stay below for that day. Nothing else above this heading changed. The research behind each proposal, with crop boxes and lighting, is in `docs/palette/research.md`. `docs/palette-v2-preview.html` shows each proposal beside its v1 value in both themes.
 
@@ -372,7 +700,7 @@ Rules used:
 
 There are five proposals. The candidates that did not earn a place are listed after them.
 
-### 1. `reading` from Gazette paper
+#### 1. `reading` from Gazette paper
 
 Changes: a better-sourced replacement for a derived token. Light theme only; the dark `reading` stays as v1.
 
@@ -397,7 +725,7 @@ Party note: a peach-cream neutral, not near any party colour.
 | `reading` on `background` `#fcfaf7` (light, for information) | 1.03 | 1.04 | none | n/a |
 | Dark pairs | unchanged | unchanged | 4.5 | pass (11.99, 8.22, 8.99, 10.64) |
 
-### 2. `highlight` for search matches
+#### 2. `highlight` for search matches
 
 Changes: a new accent, with a matching text token. Orchid lilac for search matches in the transcript and the result list.
 
@@ -426,7 +754,7 @@ Party note: the lilac is clear of the PAP, WP, PSP and SDP colours. Purple sits 
 | `primary` `#e8ada6` on `highlight` | dark | 6.37 | 5.45 | 4.5 | pass |
 | `primary-hover` `#f3bfb9` on `highlight` | dark | not checked | 6.45 | 4.5 | pass |
 
-### 3. `tag` (warm wood chip)
+#### 3. `tag` (warm wood chip)
 
 Changes: a new accent surface for tags and report-type chips, with a text token and a border token. A veneer-coloured chip with a thin border.
 
@@ -457,7 +785,7 @@ Party note: orange-brown at hue 48 and low chroma; none of the four parties uses
 
 For comparison, the stand-in `secondary` gives `foreground` 12.76 (light) and 10.54 (dark). The chip is told apart from `secondary` mainly by hue (OKLab distance 0.025 in light), so it is a subtle change. The sampled dark teak (`#843d17` on `#492a19`) is 1.63:1, which is why the dark border is derived.
 
-### 4. `heading-band` for report headers
+#### 4. `heading-band` for report headers
 
 Changes: a reading-view idea with a new token. A dark band with light text above each report, as on the ParlConnect panels. In light it is the gown black; in dark it is a lifted charcoal.
 
@@ -486,7 +814,7 @@ Party note: neutral charcoal. Not near any party colour.
 | `heading-band` against `background` (for information) | light, dark | 15.04, 1.83 | none | n/a (decorative surface) |
 | `heading-band` against `card` (for information) | light, dark | 15.67, 1.57 | none | n/a |
 
-### 5. `chart-6` from the Gazette binding
+#### 5. `chart-6` from the Gazette binding
 
 Changes: a new accent (chart) colour, for a sixth series only. v1 has five chart colours; this is needed only if a chart ever needs six.
 
@@ -509,7 +837,7 @@ Party note: green; none of the four parties uses it.
 | `chart-6` on `background` | dark | n/a | 6.54 | 3 | pass |
 | `chart-6` on `card` | dark | n/a | 5.61 | 3 | pass |
 
-### Considered and not proposed
+#### Considered and not proposed
 
 - A `reading` ink (text) colour. The darkest 0.2% of pixels on the 1871 text page is `#2c1a06` (L 0.24, C 0.043, h 66), at about the lightness of `#252320` but with the paper's cast, so it is the paper darkened, not an independent ink. The sampled body-text cluster (`#8a7864`) is an anti-aliased edge. The evidence is too weak to replace `reading-foreground`.
 - Padang or lawn as `success` or `chart-2`. The Padang turf (`#81a24e`, h 127.1) is the same hue family as the lawn (h 120 to 124). A light value at the same L as v1 `chart-2` (`#526e20`) differs by an OKLab distance of 0.017, which is not visible. In dark, the sampled turf passes 6.27:1 on the background and 5.38:1 on the card (v1: 4.89 and 4.20) but moves closer to dark `success` (0.084, against 0.144) and no further from `chart-4` (0.094, against 0.086). It is no better sourced than v1's S14, which is also a direct sample.
