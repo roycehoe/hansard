@@ -49,6 +49,16 @@ export const PARLIAMENT_ONE_FIRST_SITTING = '1965-12-08'
 
 export const CHANGEOVER_YEAR = 1965
 
+export const PARLIAMENT_FOURTEEN_LAST_SITTING = '2025-04-08'
+
+export const PARLIAMENT_FOURTEEN_DISSOLVED = '2025-04-15'
+
+export const PARLIAMENT_FIFTEEN_FIRST_SITTING = '2025-09-05'
+
+export const ARCHIVE_BUILDER_NAME = 'Royce Hoe'
+
+export const SOURCE_CODE_URL = 'https://github.com/roycehoe/hansard'
+
 export const CITATION_EXAMPLE_REPORT = {
   sittingDate: '2025-04-08',
   volumeNumber: 95,
@@ -165,7 +175,7 @@ export const KNOWN_GAP_GROUPS = [
   {
     heading: 'Who said what',
     gaps: [
-      'About 15,000 speeches are labelled "The Chairman" without a name, so they can\'t be credited to a person.',
+      'About 15,000 paragraphs are labelled "The Chairman" without a name, so they can\'t be credited to a person.',
       '2,078 reports from before 10 September 2012 have not had the latest speaker fixes applied.',
       'A member who sat in both the Legislative Assembly (1955 to 1965) and Parliament 1 has one membership, listed as Parliament 1.',
       'Party is recorded per membership, as on the ballot at the election that seated the member. A Nominated Member\'s party field holds the seat type, and one Speaker\'s holds "NA".',
@@ -180,11 +190,15 @@ export const KNOWN_GAP_GROUPS = [
       'Some budget and President\'s address titles show garbled characters such as "â€™".',
     ],
   },
-  {
-    heading: 'Links',
-    gaps: [
-      "A person's page address can change when the archive corrects who is who. Report and sitting addresses do not change.",
-      'A speech link (such as #s12) can lead to a different speech after the archive is rebuilt.',
-    ],
-  },
+] as const
+
+export const KNOWN_GAP_SUMMARIES = [
+  'Many paragraphs spoken from the chair are labelled "The Chairman" with no name, so they are not credited to a person.',
+  'In older reports some words run together, so a search can miss them.',
+  'Some reports are listed out of order within their sitting.',
+  "Some budget and President's address titles show garbled characters.",
+  'Headings and the lines before the first speaker are not shown on report pages.',
+  'Some reports from before 10 September 2012 do not have the latest corrections to who said what.',
+  'A member who sat in both the Legislative Assembly and Parliament 1 is listed under Parliament 1 only.',
+  "Party is recorded for each membership (one person's seat in one Parliament) as it stood at the election. For a Nominated Member, the party field holds the seat type.",
 ] as const
