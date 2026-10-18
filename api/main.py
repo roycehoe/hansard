@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
+from middleware.response_cache import ResponseCacheMiddleware
 from routers import (
     coverage,
     health,
@@ -16,6 +17,8 @@ from routers import (
 app = FastAPI(title="Hansard API")
 
 app.add_middleware(GZipMiddleware)
+
+app.add_middleware(ResponseCacheMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
