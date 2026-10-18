@@ -13,6 +13,7 @@ class ErrorCode(StrEnum):
     PERSON_NOT_FOUND = "person.not_found"
     SEARCH_TIMED_OUT = "search.timed_out"
     SEARCH_FILTER_REQUIRED = "search.filter_required"
+    SEARCH_BUSY = "search.busy"
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,6 +45,10 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ErrorCode.SEARCH_FILTER_REQUIRED: ErrorSpec(
         status.HTTP_422_UNPROCESSABLE_CONTENT,
         "The search has no words and no filter.",
+    ),
+    ErrorCode.SEARCH_BUSY: ErrorSpec(
+        status.HTTP_429_TOO_MANY_REQUESTS,
+        "Search is busy. Try again in a moment.",
     ),
 }
 
