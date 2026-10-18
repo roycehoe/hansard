@@ -7,13 +7,14 @@ from sqlmodel import Session, select
 
 from database.engine import engine
 from database.report import Report
-from middleware import response_cache
+from middleware import response_cache, takedown
 from middleware.takedown import is_report_id_taken_down
-from utils.report_slug import get_report_slug
+from utils.report_slug import get_normalised_report_slug, get_report_slug
 
 pytestmark = pytest.mark.database
 
 _REPORT_CANDIDATE_COUNT = 20
+_SEARCH_PAGE_SIZE = 20
 
 
 @pytest.fixture
@@ -88,3 +89,40 @@ def test_a_sitting_answers_200_with_public_cache_control(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.headers["cache-control"] == "public, max-age=3600"
+
+
+@pytest.mark.parametrize(
+    ("search_path", "query"),
+    [
+        ("/search/speeches", "disability prevalence census 2020"),
+        ("/search/reports", "Prevalence Physical Mental Intellectual Disabilities"),
+    ],
+)
+def test_search_counts_leave_out_a_hidden_report(
+    api_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    search_path: str,
+    query: str,
+) -> None:
+    params = {"q": query, "page_size": _SEARCH_PAGE_SIZE}
+    before = api_client.get(search_path, params=params).json()
+    assert 0 < before["total_count"] <= _SEARCH_PAGE_SIZE
+    hidden_report_slug = before["results"][0]["report_slug"]
+    hidden_match_count = sum(
+        result["report_slug"] == hidden_report_slug for result in before["results"]
+    )
+    monkeypatch.setattr(
+        takedown,
+        "_TAKEN_DOWN_REPORT_SLUGS",
+        frozenset({get_normalised_report_slug(hidden_report_slug)}),
+    )
+    monkeypatch.setattr(response_cache, "_cache_key_to_cached_response", {})
+
+    after = api_client.get(search_path, params=params).json()
+
+    assert hidden_report_slug not in [
+        result["report_slug"] for result in after["results"]
+    ]
+    assert after["total_count"] == before["total_count"] - hidden_match_count
+    assert after["total_count"] == len(after["results"])
+    assert after["has_next_page"] is False

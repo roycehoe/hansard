@@ -37,6 +37,7 @@ def _get_report_filters(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     is_text_available: Optional[bool],
+    excluded_report_ids: list[int],
 ) -> list[ColumnElement]:
     filters = []
     if parliament_number is not None:
@@ -51,6 +52,8 @@ def _get_report_filters(
         filters.append(_get_is_text_available())
     if is_text_available is False:
         filters.append(not_(_get_is_text_available()))
+    if excluded_report_ids:
+        filters.append(Report.id.not_in(excluded_report_ids))
     return filters
 
 
@@ -61,13 +64,19 @@ def _get_title_query_filters(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     is_text_available: Optional[bool],
+    excluded_report_ids: list[int],
 ) -> list[ColumnElement]:
     tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
     title_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Report.title)
     return [
         title_vector.op("@@")(tsquery),
         *_get_report_filters(
-            parliament_number, date_from, date_to, report_type, is_text_available
+            parliament_number,
+            date_from,
+            date_to,
+            report_type,
+            is_text_available,
+            excluded_report_ids,
         ),
     ]
 
@@ -95,6 +104,10 @@ class CRUDReport:
             .where(Report.sitting_date == sitting_date)
             .order_by(Report.speech_number)
         )
+        return list(self.session.exec(statement).all())
+
+    def get_all_ids_by_report_ids(self, report_ids: list[str]) -> list[int]:
+        statement = select(Report.id).where(Report.report_id.in_(report_ids))
         return list(self.session.exec(statement).all())
 
     def get_all_ids_with_text_by_ids(self, report_ids: list[int]) -> list[int]:
@@ -248,6 +261,7 @@ class CRUDReport:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         is_text_available: Optional[bool],
+        excluded_report_ids: list[int],
         sort: SearchSort,
         limit: int,
         offset: int,
@@ -262,6 +276,7 @@ class CRUDReport:
             date_to,
             report_type,
             is_text_available,
+            excluded_report_ids,
         )
         ordering = _get_report_ordering(sort, rank)
         statement = (
@@ -281,6 +296,7 @@ class CRUDReport:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         is_text_available: Optional[bool],
+        excluded_report_ids: list[int],
         sort: SearchSort,
         limit: int,
         offset: int,
@@ -295,6 +311,7 @@ class CRUDReport:
                     date_to,
                     report_type,
                     is_text_available,
+                    excluded_report_ids,
                 )
             )
             .order_by(*_get_browse_ordering(sort))
@@ -311,6 +328,7 @@ class CRUDReport:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         is_text_available: Optional[bool],
+        excluded_report_ids: list[int],
         limit: int,
     ) -> int:
         matching_ids = (
@@ -323,6 +341,7 @@ class CRUDReport:
                     date_to,
                     report_type,
                     is_text_available,
+                    excluded_report_ids,
                 )
             )
             .limit(limit)
@@ -337,6 +356,7 @@ class CRUDReport:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         is_text_available: Optional[bool],
+        excluded_report_ids: list[int],
         limit: int,
     ) -> int:
         matching_ids = (
@@ -348,6 +368,7 @@ class CRUDReport:
                     date_to,
                     report_type,
                     is_text_available,
+                    excluded_report_ids,
                 )
             )
             .limit(limit)

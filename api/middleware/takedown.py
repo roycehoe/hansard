@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.types import ASGIApp
 
-from utils.report_slug import get_normalised_report_slug
+from utils.report_slug import get_normalised_report_slug, get_report_id_candidates
 from utils.takedown_list import get_taken_down_report_slugs
 
 _TAKEDOWN_LIST_PATH = Path(__file__).resolve().parent.parent / "takedown-list.txt"
@@ -24,6 +24,14 @@ def is_report_slug_taken_down(report_slug: str) -> bool:
 
 def is_report_id_taken_down(report_id: str) -> bool:
     return is_report_slug_taken_down(report_id)
+
+
+def get_taken_down_report_id_candidates() -> list[str]:
+    return sorted(
+        report_id
+        for report_slug in _TAKEN_DOWN_REPORT_SLUGS
+        for report_id in get_report_id_candidates(report_slug)
+    )
 
 
 _INDEX_FILE = "index.html"

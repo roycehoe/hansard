@@ -17,7 +17,10 @@ from database.speech import Speech
 from enums import ReportType, SearchSort
 from exceptions.search import SearchBusyException, SearchTimedOutException
 from middleware.membership import get_membership_id_to_person
-from middleware.takedown import is_report_id_taken_down
+from middleware.takedown import (
+    get_taken_down_report_id_candidates,
+    is_report_id_taken_down,
+)
 from schemas.search import (
     ReportMatchData,
     SearchReportsResponse,
@@ -56,6 +59,13 @@ def _get_membership_ids(
     ]
 
 
+def _get_taken_down_report_ids(session: Session) -> list[int]:
+    report_id_candidates = get_taken_down_report_id_candidates()
+    if not report_id_candidates:
+        return []
+    return CRUDReport(session).get_all_ids_by_report_ids(report_id_candidates)
+
+
 def _get_validated_speeches(
     query: str,
     parliament_number: Optional[int],
@@ -63,6 +73,7 @@ def _get_validated_speeches(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
+    excluded_report_ids: list[int],
     sort: SearchSort,
     limit: int,
     offset: int,
@@ -76,6 +87,7 @@ def _get_validated_speeches(
                     date_from,
                     date_to,
                     report_type,
+                    excluded_report_ids,
                     sort,
                     limit,
                     offset,
@@ -86,6 +98,7 @@ def _get_validated_speeches(
                 date_from,
                 date_to,
                 report_type,
+                excluded_report_ids,
                 sort,
                 limit,
                 offset,
@@ -97,6 +110,7 @@ def _get_validated_speeches(
             date_to,
             report_type,
             membership_ids,
+            excluded_report_ids,
             sort,
             limit,
             offset,
@@ -114,6 +128,7 @@ def _get_validated_reports(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     is_text_available: Optional[bool],
+    excluded_report_ids: list[int],
     sort: SearchSort,
     limit: int,
     offset: int,
@@ -127,6 +142,7 @@ def _get_validated_reports(
                 date_to,
                 report_type,
                 is_text_available,
+                excluded_report_ids,
                 sort,
                 limit,
                 offset,
@@ -138,6 +154,7 @@ def _get_validated_reports(
             date_to,
             report_type,
             is_text_available,
+            excluded_report_ids,
             sort,
             limit,
             offset,
@@ -155,6 +172,7 @@ def _get_validated_speech_match_count(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
+    excluded_report_ids: list[int],
     session: Session,
 ) -> int:
     try:
@@ -165,6 +183,7 @@ def _get_validated_speech_match_count(
                     date_from,
                     date_to,
                     report_type,
+                    excluded_report_ids,
                     _MAX_COUNTED_MATCHES + 1,
                 )
             return CRUDSpeech(session).get_count_by_membership_ids_filtered(
@@ -173,6 +192,7 @@ def _get_validated_speech_match_count(
                 date_from,
                 date_to,
                 report_type,
+                excluded_report_ids,
                 _MAX_COUNTED_MATCHES + 1,
             )
         return CRUDSpeech(session).get_count_by_query_filtered(
@@ -182,6 +202,7 @@ def _get_validated_speech_match_count(
             date_to,
             report_type,
             membership_ids,
+            excluded_report_ids,
             _MAX_COUNTED_MATCHES + 1,
         )
     except OperationalError as error:
@@ -197,6 +218,7 @@ def _get_validated_report_match_count(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     is_text_available: Optional[bool],
+    excluded_report_ids: list[int],
     session: Session,
 ) -> int:
     try:
@@ -207,6 +229,7 @@ def _get_validated_report_match_count(
                 date_to,
                 report_type,
                 is_text_available,
+                excluded_report_ids,
                 _MAX_COUNTED_MATCHES + 1,
             )
         return CRUDReport(session).get_count_by_title_query_filtered(
@@ -216,6 +239,7 @@ def _get_validated_report_match_count(
             date_to,
             report_type,
             is_text_available,
+            excluded_report_ids,
             _MAX_COUNTED_MATCHES + 1,
         )
     except OperationalError as error:
@@ -262,6 +286,7 @@ def search_speeches(
 ) -> SearchSpeechesResponse:
     with _hold_search_slot():
         membership_ids = _get_membership_ids(person_id, session)
+        excluded_report_ids = _get_taken_down_report_ids(session)
         speeches = _get_validated_speeches(
             query,
             parliament_number,
@@ -269,6 +294,7 @@ def search_speeches(
             date_to,
             report_type,
             membership_ids,
+            excluded_report_ids,
             sort,
             page_size + 1,
             (page - 1) * page_size,
@@ -284,6 +310,7 @@ def search_speeches(
                 date_to,
                 report_type,
                 membership_ids,
+                excluded_report_ids,
                 session,
             )
         )
@@ -357,6 +384,7 @@ def search_reports(
     session: Session,
 ) -> SearchReportsResponse:
     with _hold_search_slot():
+        excluded_report_ids = _get_taken_down_report_ids(session)
         reports = _get_validated_reports(
             query,
             parliament_number,
@@ -364,6 +392,7 @@ def search_reports(
             date_to,
             report_type,
             is_text_available,
+            excluded_report_ids,
             sort,
             page_size + 1,
             (page - 1) * page_size,
@@ -379,6 +408,7 @@ def search_reports(
                 date_to,
                 report_type,
                 is_text_available,
+                excluded_report_ids,
                 session,
             )
         )
