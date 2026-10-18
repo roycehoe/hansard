@@ -22,5 +22,7 @@ RUN uv sync --frozen --no-dev
 COPY api/ ./
 COPY --from=frontend /app/dist /frontend
 ENV FRONTEND_DIST_PATH=/frontend
+RUN useradd --create-home --uid 10001 hansard
+USER hansard
 EXPOSE 8080
 CMD ["uv", "run", "--no-sync", "fastapi", "run", "website.py", "--port", "8080", "--proxy-headers"]
