@@ -24,7 +24,8 @@ _CACHE_TTL_SECONDS = 60 * 60
 _CACHE_MAX_ENTRIES = 500
 _EMPTY_ANCHOR = ""
 _EMPTY_LABEL = ""
-_NOT_OFFICIAL = "Not an official Parliament site."
+_NOT_OFFICIAL = "This is not an official Parliament site."
+_UNOFFICIAL_TRANSCRIPT = "Unofficial transcript"
 _DEFAULT_TITLE = "Hansard"
 _DEFAULT_DESCRIPTION = f"Singapore's parliamentary debates since 1955. {_NOT_OFFICIAL}"
 _PERSON_DESCRIPTION = f"Speeches in Singapore's parliamentary debates. {_NOT_OFFICIAL}"
@@ -152,8 +153,8 @@ def _get_speech_preview(
         }
     )
     return PreviewData(
-        title=_get_speech_title(linked_speech, report),
-        description=get_transcript_quote(linked_speech.transcript),
+        title=f"{_UNOFFICIAL_TRANSCRIPT}: {_get_speech_title(linked_speech, report)}",
+        description=f"{get_transcript_quote(linked_speech.transcript)} {_NOT_OFFICIAL}",
         preview_type=PreviewType.ARTICLE,
         path=f"{_get_report_path(report)}?{query}",
     )
