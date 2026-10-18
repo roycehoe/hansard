@@ -11,6 +11,7 @@ class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
     database_url: str
+    takedown_report_slugs: str = ""
 
 
 class WebsiteSettings(BaseSettings):

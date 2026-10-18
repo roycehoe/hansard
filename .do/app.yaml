@@ -27,6 +27,9 @@ services:
       - key: PUBLIC_MODE
         scope: RUN_TIME
         value: "false"
+      - key: TAKEDOWN_REPORT_SLUGS
+        scope: RUN_TIME
+        type: SECRET
       - key: VITE_CONTACT_EMAIL
         scope: BUILD_TIME
         value: hansard@fancybinary.sg
