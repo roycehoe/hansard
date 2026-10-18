@@ -35,6 +35,8 @@ uv sync
 uv run fastapi dev        # http://localhost:8000, needs DATABASE_URL (see api/.env.example)
 uv run ruff check .
 uv run ruff format .
+uv run pytest -m "not database"   # tests that need no database (what CI runs)
+uv run pytest                     # every test; the database ones need the scratch database, see api/CLAUDE.md
 
 # The deployed site (from the repo root): one container, frontend and API behind basic auth
 docker build -t hansard-web .
