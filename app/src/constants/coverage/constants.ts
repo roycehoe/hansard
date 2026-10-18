@@ -8,21 +8,21 @@ export const METHODS_LAST_REVISED = '2026-10-18'
 
 export const ATTRIBUTION_MEASURED_ON = '2026-10-14'
 
-export const HAND_CHECK_DATE = '2026-10-13'
+export const HAND_CHECK_DATE = '2026-10-17'
 
-export const HAND_CHECK_LINKED_SPEECH_COUNT = 80
+export const HAND_CHECK_LINKED_SPEECH_COUNT = 406
 
-export const HAND_CHECK_CORRECT_SPEECH_COUNT = 75
+export const HAND_CHECK_CORRECT_SPEECH_COUNT = 404
 
-export const HAND_CHECK_PROCEDURAL_SPEECH_COUNT = 5
+export const HAND_CHECK_PROCEDURAL_SPEECH_COUNT = 2
+
+export const UNLINKED_HAND_CHECK_DATE = '2026-10-13'
 
 export const HAND_CHECK_UNLINKED_SPEECH_COUNT = 20
 
 export const REPAIR_DATE = '2026-10-14'
 
 export const REPAIR_PROCEDURAL_LINE_COUNT = 12_245
-
-export const NOT_HAND_CHECKED_LABEL = 'Not checked'
 
 export const LINKED_SPEECH_COUNT = 554_900
 
@@ -65,7 +65,7 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     namedLinked: '98.94%',
     allLinked: '96.93%',
     textShare: '98.71%',
-    handCheckDate: null,
+    handCheckDate: HAND_CHECK_DATE,
   },
   {
     parliament: 'Parliament 13',
@@ -73,7 +73,7 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     namedLinked: '98.18%',
     allLinked: '96.31%',
     textShare: '99.06%',
-    handCheckDate: null,
+    handCheckDate: HAND_CHECK_DATE,
   },
   {
     parliament: 'Parliament 14',
@@ -81,6 +81,6 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     namedLinked: '99.02%',
     allLinked: '97.61%',
     textShare: '99.13%',
-    handCheckDate: null,
+    handCheckDate: HAND_CHECK_DATE,
   },
 ] as const

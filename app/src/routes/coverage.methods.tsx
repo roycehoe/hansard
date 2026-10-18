@@ -34,6 +34,7 @@ import {
   REPAIR_PROCEDURAL_LINE_COUNT,
   SPEECH_ROW_COUNT,
   SPEECH_WITH_SPEAKER_LABEL_COUNT,
+  UNLINKED_HAND_CHECK_DATE,
 } from '@/constants/coverage/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
@@ -271,23 +272,28 @@ export const Route = createFileRoute('/coverage/methods')({
           </h2>
           <p>
             On {formatSittingDate(HAND_CHECK_DATE)},{' '}
-            {HAND_CHECK_LINKED_SPEECH_COUNT} paragraphs from before 10 September
-            2012 that are credited to a person were checked against the source
-            text by an AI model. No person has read them yet. None was credited
-            to the wrong person. {HAND_CHECK_CORRECT_SPEECH_COUNT} were correct.
-            The other {HAND_CHECK_PROCEDURAL_SPEECH_COUNT} were procedural lines
-            or list items that should be credited to no one, but carried the
-            name of the person speaking. The same check read{' '}
-            {HAND_CHECK_UNLINKED_SPEECH_COUNT} paragraphs credited to no one,
-            and all {HAND_CHECK_UNLINKED_SPEECH_COUNT} were right to have no
-            name.
+            {HAND_CHECK_LINKED_SPEECH_COUNT} paragraphs from the Legislative
+            Assembly to Parliament 14 that are credited to a person were checked
+            against the source text by an AI model. No person has read them yet.
+            None was credited to the wrong person.{' '}
+            {HAND_CHECK_CORRECT_SPEECH_COUNT} were correct. The other{' '}
+            {HAND_CHECK_PROCEDURAL_SPEECH_COUNT} were a line from a printed
+            schedule and a section heading, which should be credited to no one,
+            but carried the name of the person speaking.
+          </p>
+          <p>
+            An earlier check by an AI model, on{' '}
+            {formatSittingDate(UNLINKED_HAND_CHECK_DATE)}, read{' '}
+            {HAND_CHECK_UNLINKED_SPEECH_COUNT} paragraphs from before 10
+            September 2012 that are credited to no one. All{' '}
+            {HAND_CHECK_UNLINKED_SPEECH_COUNT} were right to have no name.
           </p>
           <p>
             On {formatSittingDate(REPAIR_DATE)}, a repair took the name off{' '}
             {REPAIR_PROCEDURAL_LINE_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
-            procedural lines, editorial notes and stage directions. The repair
-            came after the sample check, so the check does not cover it. No
-            paragraph from 10 September 2012 on has been checked this way.
+            procedural lines, editorial notes and stage directions. The check on{' '}
+            {formatSittingDate(UNLINKED_HAND_CHECK_DATE)} came before the
+            repair, so it does not cover those lines.
           </p>
           <h3 className={SUBHEADING_CLASS_NAME}>
             How many paragraphs are credited to a person

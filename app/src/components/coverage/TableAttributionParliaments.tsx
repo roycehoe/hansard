@@ -7,10 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  ATTRIBUTION_BY_PARLIAMENT,
-  NOT_HAND_CHECKED_LABEL,
-} from '@/constants/coverage/constants'
+import { ATTRIBUTION_BY_PARLIAMENT } from '@/constants/coverage/constants'
 import { formatSittingDate } from '@/lib/format'
 
 export function TableAttributionParliaments() {
@@ -53,9 +50,7 @@ export function TableAttributionParliaments() {
                 </span>
               </TableHead>
               <TableCell className="whitespace-normal">
-                {row.handCheckDate === null
-                  ? NOT_HAND_CHECKED_LABEL
-                  : formatSittingDate(row.handCheckDate)}
+                {formatSittingDate(row.handCheckDate)}
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {row.namedLinked}
