@@ -1,5 +1,6 @@
 from typing import ClassVar, Optional
 
+from pydantic import NaiveDatetime
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import ENUM, TSVECTOR
 from sqlalchemy.orm import deferred
@@ -19,5 +20,6 @@ class Speech(SQLModel, table=True):
     )
     # NOTE: a deferred class attribute, so reading a Speech never loads the vector
     transcript_tsv: ClassVar = deferred(Column(TSVECTOR))
+    sitting_date: NaiveDatetime
     report_id: Optional[int] = None
     speaker_id: Optional[int] = None

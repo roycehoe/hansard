@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Optional
 
 from sqlalchemy import ColumnElement, Float, func
@@ -11,6 +11,8 @@ from database.speech import Speech
 from enums import ReportType, SearchSort
 
 _ONE_DAY = timedelta(days=1)
+_BEFORE_FIRST_SITTING = datetime(1900, 1, 1)
+_AFTER_LAST_SITTING = datetime(2100, 1, 1)
 
 
 def _get_sitting_date() -> ColumnElement:
@@ -40,6 +42,23 @@ def _get_report_filters(
     return filters
 
 
+def _get_parliament_sitting_date_filters(
+    parliament_number: int,
+) -> list[ColumnElement]:
+    parliament_report = aliased(Report)
+    parliament_filter = parliament_report.parliament_number == parliament_number
+    first_sitting_date = select(func.min(parliament_report.sitting_date)).where(
+        parliament_filter
+    )
+    last_sitting_date = select(func.max(parliament_report.sitting_date)).where(
+        parliament_filter
+    )
+    return [
+        Speech.sitting_date >= first_sitting_date.scalar_subquery(),
+        Speech.sitting_date <= last_sitting_date.scalar_subquery(),
+    ]
+
+
 def _get_query_filters(
     query: str,
     parliament_number: Optional[int],
@@ -49,10 +68,16 @@ def _get_query_filters(
     membership_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
     tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-    filters = [
-        Speech.transcript_tsv.op("@@")(tsquery),
-        *_get_report_filters(parliament_number, date_from, date_to, report_type),
-    ]
+    # NOTE: dates filter on the speech's own sitting date, so the rum index on transcript_tsv and sitting_date reads only the range
+    filters = [Speech.transcript_tsv.op("@@")(tsquery)]
+    if parliament_number is not None:
+        filters.append(Report.parliament_number == parliament_number)
+    if date_from is not None:
+        filters.append(Speech.sitting_date >= date_from)
+    if date_to is not None:
+        filters.append(Speech.sitting_date < date_to + _ONE_DAY)
+    if report_type is not None:
+        filters.append(Report.report_type == report_type)
     if membership_ids is not None:
         filters.append(Speech.speaker_id.in_(membership_ids))
     return filters
@@ -63,7 +88,7 @@ def _get_relevance_distance(
 ) -> ColumnElement:
     distance = Speech.transcript_tsv.op("<=>", return_type=Float)(tsquery)
     if is_date_filtered:
-        # NOTE: adding zero hides the order from the rum index, so a date range starts from the report date index
+        # NOTE: adding zero hides the order from the rum index, so a date range is read from the sitting date index first
         return distance + 0
     return distance
 
@@ -77,7 +102,10 @@ def _get_browse_ordering(
 
 
 def _get_speech_ordering(
-    sort: SearchSort, tsquery: ColumnElement, is_date_filtered: bool
+    sort: SearchSort,
+    tsquery: ColumnElement,
+    is_date_filtered: bool,
+    is_date_index_ordered: bool,
 ) -> list[ColumnElement]:
     if sort == SearchSort.RELEVANCE:
         return [
@@ -85,11 +113,19 @@ def _get_speech_ordering(
             _get_sitting_date().desc(),
             Speech.id,
         ]
+    if not is_date_index_ordered:
+        # NOTE: a member's matches are few, so sorting them beats walking the rum index until twenty of them turn up
+        return _get_browse_ordering(sort, Speech.sitting_date)
+    # NOTE: a distance from a fixed date, because the rum index on transcript_tsv and sitting_date returns matches in that order
     if sort == SearchSort.OLDEST:
-        # NOTE: sorting every match, because a word of recent decades would walk sixty years of reports before its first match
-        return [_get_sitting_date().asc(), Speech.id]
-    # NOTE: the joined date, so a common word walks the report date index from the newest report instead of sorting every match
-    return [Report.sitting_date.desc(), Speech.id]
+        return [
+            Speech.sitting_date.op("|=>", return_type=Float)(_BEFORE_FIRST_SITTING),
+            Speech.id,
+        ]
+    return [
+        Speech.sitting_date.op("<=|", return_type=Float)(_AFTER_LAST_SITTING),
+        Speech.id,
+    ]
 
 
 class CRUDSpeech:
@@ -161,6 +197,7 @@ class CRUDSpeech:
         offset: int,
     ) -> list[Speech]:
         tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
+        is_date_index_ordered = sort != SearchSort.RELEVANCE and membership_ids is None
         filters = _get_query_filters(
             query,
             parliament_number,
@@ -169,8 +206,13 @@ class CRUDSpeech:
             report_type,
             membership_ids,
         )
+        # NOTE: only a date-index order gets the Parliament's date range, because the rum index reads a range but not a Parliament, and the range made a relevance search read 25 times the buffers
+        if parliament_number is not None and is_date_index_ordered:
+            filters.extend(_get_parliament_sitting_date_filters(parliament_number))
         is_date_filtered = date_from is not None or date_to is not None
-        ordering = _get_speech_ordering(sort, tsquery, is_date_filtered)
+        ordering = _get_speech_ordering(
+            sort, tsquery, is_date_filtered, is_date_index_ordered
+        )
         statement = (
             select(Speech)
             .join(Report, Report.id == Speech.report_id)
