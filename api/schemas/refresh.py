@@ -1,7 +1,21 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel
+
+
+class RefreshRunGroupData(BaseModel):
+    group: str
+    linked_row_count: int
+    named_unlinked_row_count: int
+    row_count: int
+    linked_character_count: int
+    body_character_count: int
+
+
+class RefreshRunFiguresData(BaseModel):
+    measured_at: datetime
+    groups: list[RefreshRunGroupData]
 
 
 class ParliamentGroupFiguresData(BaseModel):

@@ -2,6 +2,7 @@ from datetime import date, datetime, timezone
 from typing import Optional
 
 from psycopg.errors import InsufficientPrivilege, UndefinedTable
+from pydantic import ValidationError
 from sqlalchemy.exc import ProgrammingError
 from sqlmodel import Session
 
@@ -12,6 +13,8 @@ from schemas.refresh import (
     GetRefreshResponse,
     ParliamentGroupFiguresData,
     RefreshFiguresData,
+    RefreshRunFiguresData,
+    RefreshRunGroupData,
 )
 from utils.parliament_group import (
     get_first_parliament_number,
@@ -28,65 +31,63 @@ def _get_empty_refresh_response() -> GetRefreshResponse:
     )
 
 
-def _get_measured_on(measured_at_text: object) -> date:
-    measured_at = datetime.fromisoformat(measured_at_text)
+def _get_measured_on(measured_at: datetime) -> date:
     if measured_at.tzinfo is None:
         return get_singapore_date(measured_at.replace(tzinfo=timezone.utc))
     return get_singapore_date(measured_at)
 
 
 def _get_group_data(
-    stored_group: dict[str, object],
+    stored_group: RefreshRunGroupData,
 ) -> Optional[ParliamentGroupFiguresData]:
-    group_name = stored_group["group"]
-    first_parliament_number = get_first_parliament_number(group_name)
+    first_parliament_number = get_first_parliament_number(stored_group.group)
     if first_parliament_number is None:
         return None
-    linked_row_count = int(stored_group["linked_row_count"])
-    speaker_label_row_count = linked_row_count + int(
-        stored_group["named_unlinked_row_count"]
+    speaker_label_row_count = (
+        stored_group.linked_row_count + stored_group.named_unlinked_row_count
     )
-    row_count = int(stored_group["row_count"])
-    linked_character_count = int(stored_group["linked_character_count"])
-    body_character_count = int(stored_group["body_character_count"])
-    if speaker_label_row_count == 0:
+    try:
+        return ParliamentGroupFiguresData(
+            first_parliament_number=first_parliament_number,
+            last_parliament_number=get_last_parliament_number(stored_group.group),
+            linked_row_count=stored_group.linked_row_count,
+            speaker_label_row_count=speaker_label_row_count,
+            row_count=stored_group.row_count,
+            named_linked_share=stored_group.linked_row_count / speaker_label_row_count,
+            all_linked_share=stored_group.linked_row_count / stored_group.row_count,
+            text_share=stored_group.linked_character_count
+            / stored_group.body_character_count,
+        )
+    except ZeroDivisionError:
         return None
-    if row_count == 0:
-        return None
-    if body_character_count == 0:
-        return None
-    return ParliamentGroupFiguresData(
-        first_parliament_number=first_parliament_number,
-        last_parliament_number=get_last_parliament_number(group_name),
-        linked_row_count=linked_row_count,
-        speaker_label_row_count=speaker_label_row_count,
-        row_count=row_count,
-        named_linked_share=linked_row_count / speaker_label_row_count,
-        all_linked_share=linked_row_count / row_count,
-        text_share=linked_character_count / body_character_count,
-    )
 
 
 # NOTE: bad figures from the scraper count as no figures, so the app falls back to its constants
+def _get_validated_stored_figures(
+    figures: Optional[dict[str, object]],
+) -> Optional[RefreshRunFiguresData]:
+    try:
+        return RefreshRunFiguresData.model_validate(figures)
+    except ValidationError:
+        return None
+
+
 def _get_figures_data(
     figures: Optional[dict[str, object]],
 ) -> Optional[RefreshFiguresData]:
-    try:
-        measured_on = _get_measured_on(figures["measured_at"])
-        groups = []
-        for stored_group in figures["groups"]:
-            group_data = _get_group_data(stored_group)
-            if group_data is not None:
-                groups.append(group_data)
-    except KeyError:
+    stored_figures = _get_validated_stored_figures(figures)
+    if stored_figures is None:
         return None
-    except TypeError:
-        return None
-    except ValueError:
-        return None
+    groups = [
+        group_data
+        for group_data in map(_get_group_data, stored_figures.groups)
+        if group_data is not None
+    ]
     if len(groups) == 0:
         return None
-    return RefreshFiguresData(measured_on=measured_on, groups=groups)
+    return RefreshFiguresData(
+        measured_on=_get_measured_on(stored_figures.measured_at), groups=groups
+    )
 
 
 def _get_refresh_response(
