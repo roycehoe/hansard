@@ -18,6 +18,9 @@ app.add_middleware(
 app.mount("/api", api_app)
 app.mount(
     "/",
-    FrontendFiles(directory=website_settings.frontend_dist_path, html=True),
+    FrontendFiles(
+        directory=website_settings.frontend_dist_path,
+        site_url=website_settings.site_url,
+    ),
     name="frontend",
 )

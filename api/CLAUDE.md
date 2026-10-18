@@ -53,18 +53,18 @@ What exists today:
 | `main.py` | The `FastAPI` app. Every router is mounted here. `uv run fastapi dev` serves it. |
 | `website.py` | The deployed site: `main.py`'s app under `/api`, the built frontend at `/`, both behind basic auth. The root `Dockerfile` runs it. |
 | `settings.py` | `pydantic-settings` configuration: `AppSettings` (`DATABASE_URL`) and `WebsiteSettings`, which only `website.py` reads. |
-| `enums.py` | `ReportType` (the 23 stored report type strings) and `SearchSort`. |
+| `enums.py` | `ReportType` (the 23 stored report type strings), `SearchSort`, `SpeechLinkStatus` and `PreviewType`. |
 | `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. |
 | `database/` | One SQLModel class per table the API reads: `Report`, `Speech`, `Sitting`, `Attendance`, `Speaker`, `Person`, `PartyAffiliation`. Only the columns the API uses. |
 | `exceptions/` | `base.py` (`ErrorCode`, `ErrorSpec`, `ERRORS`, `AppHttpExceptionBase`) and one no-argument exception class per domain file. |
-| `utils/` | Pure helpers: report slug, official record URL, person slug, sitting date text, `LIKE` escaping, transcript snippet. |
+| `utils/` | Pure helpers: report slug, official record URL, person slug, sitting date text, `LIKE` escaping, transcript snippet, speech link anchor and check, preview tags, transcript quote, sitting date label. |
 | `validators/` | `search.py`: `validate_can_search`, which a search router calls before the service. |
 | `crud/` | One read-only class per table (`CRUDReport`, `CRUDSpeech`, `CRUDSitting`, `CRUDAttendance`, `CRUDMembership`, `CRUDPerson`) and `text_search.py` with the shared full-text constants. See `crud/CLAUDE.md`. |
 | `middleware/membership.py` | `get_membership_id_to_person`, which composes `CRUDMembership` and `CRUDPerson` for every service that resolves linked rows to Persons. |
 | `middleware/basic_auth.py` | `BasicAuthMiddleware`: answers 401 unless the request carries the configured credentials; `/api/health` is open for the platform's health check. Every response it returns, the 401 and the health check included, carries `X-Robots-Tag: noindex`. |
-| `middleware/frontend.py` | `FrontendFiles`: serves the built frontend and answers `index.html` for any other path, so client routes load. |
+| `middleware/frontend.py` | `FrontendFiles`: serves the built frontend, answers `index.html` for any other path so client routes load, and writes each page's preview tags between the markers in `index.html` (`services/preview.py`, cached in process for an hour). |
 | `schemas/` | Pydantic response models, one file per domain. No field defaults. |
-| `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage. |
+| `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage, preview. |
 | `routers/` | One router per domain plus `health.py`. Each handler calls one service function. |
 
 The layer table below is the full design. `gateway/` is not added yet.
@@ -103,6 +103,7 @@ Notes on the layers that matter now:
 | `DATABASE_URL` | Postgres connection string for the read-only role. |
 | `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD` | `website.py` only. Required: the site does not start without them. |
 | `FRONTEND_DIST_PATH` | `website.py` only. The built frontend; the `Dockerfile` sets it. |
+| `SITE_URL` | `website.py` only. Optional. The site's origin, such as `https://example.sg`, for the `og:url` preview tag; left out while unset. |
 
 Never put a secret in code or in an example env file.
 

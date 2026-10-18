@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -15,6 +16,7 @@ class WebsiteSettings(BaseSettings):
     basic_auth_username: str
     basic_auth_password: str
     frontend_dist_path: Path
+    site_url: Optional[str] = None
 
 
 settings = AppSettings()
