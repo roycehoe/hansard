@@ -4,6 +4,7 @@ from sqlmodel import Session
 
 from crud.attendance import CRUDAttendance
 from crud.membership import CRUDMembership
+from crud.party_affiliation import CRUDPartyAffiliation
 from crud.person import CRUDPerson
 from crud.report import CRUDReport
 from crud.speech import CRUDSpeech
@@ -17,6 +18,7 @@ from schemas.person import (
     GetPersonResponse,
     MembershipData,
     ParliamentCountData,
+    PartyAffiliationData,
     PersonData,
     PersonMembershipData,
     PersonReportData,
@@ -32,6 +34,27 @@ def _get_validated_person(person_id: int, session: Session) -> Person:
     if person is None:
         raise PersonNotFoundException
     return person
+
+
+def _get_membership_id_to_party_affiliations(
+    membership_ids: list[int], session: Session
+) -> dict[int, list[PartyAffiliationData]]:
+    membership_id_to_party_affiliations: dict[int, list[PartyAffiliationData]] = {}
+    for party_affiliation in CRUDPartyAffiliation(session).get_all_by_membership_ids(
+        membership_ids
+    ):
+        membership_id_to_party_affiliations.setdefault(
+            party_affiliation.speaker_id, []
+        ).append(
+            PartyAffiliationData(
+                party=party_affiliation.party,
+                started_on=party_affiliation.started_on,
+                started_on_precision=party_affiliation.started_on_precision,
+                event=party_affiliation.event,
+                source_url=party_affiliation.source_url,
+            )
+        )
+    return membership_id_to_party_affiliations
 
 
 def _get_matching_memberships(
@@ -65,6 +88,9 @@ def get_all_persons(
     )
     persons = CRUDPerson(session).get_by_ids(person_ids)
     memberships = CRUDMembership(session).get_all_by_person_ids(person_ids)
+    membership_id_to_party_affiliations = _get_membership_id_to_party_affiliations(
+        [membership.id for membership in memberships], session
+    )
     person_id_to_memberships: dict[int, list[Speaker]] = {}
     for membership in memberships:
         person_id_to_memberships.setdefault(membership.person_id, []).append(membership)
@@ -78,6 +104,9 @@ def get_all_persons(
                     MembershipData(
                         parliament_number=membership.parliament_number,
                         party=membership.party,
+                        party_affiliations=membership_id_to_party_affiliations.get(
+                            membership.id, []
+                        ),
                         is_legislative_assembly=membership.is_legislative_assembly,
                         is_member=membership.is_member,
                     )
@@ -93,6 +122,9 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
     person = _get_validated_person(person_id, session)
     memberships = CRUDMembership(session).get_all_by_person_id(person_id)
     membership_ids = [membership.id for membership in memberships]
+    membership_id_to_party_affiliations = _get_membership_id_to_party_affiliations(
+        membership_ids, session
+    )
     membership_id_to_location_names = CRUDAttendance(
         session
     ).get_membership_id_to_location_names_by_membership_ids(membership_ids)
@@ -130,6 +162,9 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
             PersonMembershipData(
                 parliament_number=membership.parliament_number,
                 party=membership.party,
+                party_affiliations=membership_id_to_party_affiliations.get(
+                    membership.id, []
+                ),
                 is_legislative_assembly=membership.is_legislative_assembly,
                 is_member=membership.is_member,
                 constituencies=membership_id_to_location_names.get(membership.id, []),

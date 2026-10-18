@@ -41,3 +41,8 @@ class SpeechKind(StrEnum):
     DOCUMENT_TEXT = "DOCUMENT_TEXT"
     HEADING = "HEADING"
     UNCLASSIFIED = "UNCLASSIFIED"
+
+
+class DatePrecision(StrEnum):
+    DAY = "DAY"
+    MONTH = "MONTH"

@@ -2,10 +2,21 @@ from datetime import date
 
 from pydantic import BaseModel
 
+from enums import DatePrecision
+
+
+class PartyAffiliationData(BaseModel):
+    party: str
+    started_on: date
+    started_on_precision: DatePrecision
+    event: str
+    source_url: str
+
 
 class MembershipData(BaseModel):
     parliament_number: int
     party: str
+    party_affiliations: list[PartyAffiliationData]
     is_legislative_assembly: bool
     is_member: bool
 
@@ -24,6 +35,7 @@ class GetAllPersonsResponse(BaseModel):
 class PersonMembershipData(BaseModel):
     parliament_number: int
     party: str
+    party_affiliations: list[PartyAffiliationData]
     is_legislative_assembly: bool
     is_member: bool
     constituencies: list[str]
