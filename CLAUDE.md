@@ -4,7 +4,7 @@ Repo root. Thin by design: orientation plus the few facts that sit between the t
 
 ## What this is
 
-A web app for browsing Singapore Parliament Hansard records. The data comes from the Postgres database that `roycehoe/handsard-scraper` builds and owns. This repo reads it and never writes to it.
+A web app for browsing Singapore Parliament Hansard records. The data comes from the Postgres database that `roycehoe/hansard-scraper` builds and owns. This repo reads it and never writes to it.
 
 ## Layout
 
@@ -46,7 +46,7 @@ Runtimes: Node 24 and pnpm from asdf (`.tool-versions` at the root), Python 3.15
 
 ## Cross-subsystem facts
 
-- **The scraper owns the schema.** Every table and every Alembic migration lives in `roycehoe/handsard-scraper`. `api/` has no Alembic, connects through a read-only Postgres role, and declares its own SQLModel class for each table it reads. It does not import the scraper's models. See `docs/adr/0001-read-only-api.md`.
+- **The scraper owns the schema.** Every table and every Alembic migration lives in `roycehoe/hansard-scraper`. `api/` has no Alembic, connects through a read-only Postgres role, and declares its own SQLModel class for each table it reads. It does not import the scraper's models. See `docs/adr/0001-read-only-api.md`.
 - **No shared type generation.** Request and response shapes are declared twice: TypeScript interfaces in `app/`, Pydantic schemas in `api/`. Change an API contract, update both sides by hand.
 - **No government identity marks.** The palette borrows colours from Parliament House and national insignia, never the artwork, and the footer says the site is unofficial. See `docs/adr/0002-no-government-identity-marks.md`.
 - **Record what cleaning loses.** Any change that cleans data on the way out of the database (merging two party spellings, hiding rows, rewriting a name) adds a row to the scraper's `docs/data-loss-register.md`, as the scraper's own cleaning does.
