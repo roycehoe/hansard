@@ -30,3 +30,6 @@ services:
       - key: VITE_CONTACT_EMAIL
         scope: BUILD_TIME
         value: hansard@fancybinary.sg
+      - key: VITE_RESEARCHERS_FORM_URL
+        scope: BUILD_TIME
+        value: ""

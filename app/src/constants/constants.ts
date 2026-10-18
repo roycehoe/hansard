@@ -2,6 +2,9 @@ export const OFFICIAL_RECORD_SEARCH_URL = 'https://sprs.parl.gov.sg/search/'
 
 export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? ''
 
+export const RESEARCHERS_FORM_URL =
+  import.meta.env.VITE_RESEARCHERS_FORM_URL ?? ''
+
 export const HTTP_NOT_FOUND = 404
 
 export const HTTP_GONE = 410
