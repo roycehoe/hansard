@@ -1,3 +1,4 @@
+import re
 from urllib.parse import unquote
 
 from utils.report_slug import get_normalised_report_slug
@@ -5,6 +6,7 @@ from utils.report_slug import get_normalised_report_slug
 _ENTRY_SEPARATOR = ","
 _PATH_SEPARATOR = "/"
 _QUERY_SEPARATOR = "?"
+_REPORT_SLUG_PATTERN = re.compile(r"[A-Za-z0-9#._-]+")
 
 
 def _get_listed_report_slug(takedown_list_entry: str, entry_number: int) -> str:
@@ -20,6 +22,10 @@ def _get_listed_report_slug(takedown_list_entry: str, entry_number: int) -> str:
     if any(character.isspace() for character in report_slug):
         raise ValueError(
             f"TAKEDOWN_REPORT_SLUGS entry {entry_number} holds a space, not a report slug."
+        )
+    if _REPORT_SLUG_PATTERN.fullmatch(report_slug) is None:
+        raise ValueError(
+            f"TAKEDOWN_REPORT_SLUGS entry {entry_number} holds a character no report slug has."
         )
     return get_normalised_report_slug(report_slug)
 

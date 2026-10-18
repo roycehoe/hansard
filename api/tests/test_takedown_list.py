@@ -24,6 +24,9 @@ def test_an_empty_takedown_list_hides_nothing() -> None:
         "written-answer-11589,/reports/oral-answer-2041",
         "written-answer-11589?s=2",
         "written answer 11589",
+        '"written-answer-11589"',
+        "written-answer-11589;oral-answer-2041",
+        "written-answer-11589\u200b",
     ],
 )
 def test_a_malformed_takedown_entry_raises(takedown_report_slugs: str) -> None:
