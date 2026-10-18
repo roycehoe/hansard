@@ -8,6 +8,7 @@ from fastapi import HTTPException, status
 @unique
 class ErrorCode(StrEnum):
     REPORT_NOT_FOUND = "report.not_found"
+    REPORT_TAKEN_DOWN = "report.taken_down"
     SITTING_NOT_FOUND = "sitting.not_found"
     PERSON_NOT_FOUND = "person.not_found"
     SEARCH_TIMED_OUT = "search.timed_out"
@@ -29,6 +30,7 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ErrorCode.REPORT_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Report not found."
     ),
+    ErrorCode.REPORT_TAKEN_DOWN: ErrorSpec(status.HTTP_410_GONE, "Report taken down."),
     ErrorCode.SITTING_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Sitting not found."
     ),
