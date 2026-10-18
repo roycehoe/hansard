@@ -4,10 +4,15 @@ from sqlmodel import Session, create_engine
 
 from settings import settings
 
+_READ_ONLY_OPTION = "-c default_transaction_read_only=on"
 _STATEMENT_TIMEOUT_MILLISECONDS = 30_000
-_CONNECTION_OPTIONS = f"-c default_transaction_read_only=on -c statement_timeout={_STATEMENT_TIMEOUT_MILLISECONDS}"
+_CONNECTION_OPTIONS = (
+    f"{_READ_ONLY_OPTION} -c statement_timeout={_STATEMENT_TIMEOUT_MILLISECONDS}"
+)
 _SEARCH_STATEMENT_TIMEOUT_MILLISECONDS = 10_000
-_SEARCH_CONNECTION_OPTIONS = f"-c default_transaction_read_only=on -c statement_timeout={_SEARCH_STATEMENT_TIMEOUT_MILLISECONDS}"
+_SEARCH_CONNECTION_OPTIONS = (
+    f"{_READ_ONLY_OPTION} -c statement_timeout={_SEARCH_STATEMENT_TIMEOUT_MILLISECONDS}"
+)
 _SEARCH_POOL_SIZE = 3
 _SEARCH_MAX_OVERFLOW = 2
 
