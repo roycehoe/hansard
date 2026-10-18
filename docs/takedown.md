@@ -14,6 +14,8 @@ To go public:
 2. Commit and deploy.
 3. Check that `curl -I https://{domain}/` answers 200 with no `X-Robots-Tag` header.
 
+`/robots.txt` allows every crawler in both modes. While the password is on, a crawler gets 401 and the noindex header at every address, `/robots.txt` included, so nothing is indexed. A `Disallow` there would stop crawlers from fetching pages, so they would never see the noindex header.
+
 To put the site back behind the password, set the value to `"false"` and deploy. The two credentials must still be set as secrets.
 
 ## Taking a report down
