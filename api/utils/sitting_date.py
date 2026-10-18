@@ -10,3 +10,7 @@ def get_date_from_datetime(value: Optional[datetime]) -> Optional[date]:
     if value is None:
         return None
     return value.date()
+
+
+def get_sitting_date_label(sitting_date: date) -> str:
+    return f"{sitting_date.day} {sitting_date:%B} {sitting_date.year}"
