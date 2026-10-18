@@ -57,3 +57,10 @@ class SpeechLinkStatus(StrEnum):
 class PreviewType(StrEnum):
     ARTICLE = "article"
     WEBSITE = "website"
+
+
+class RefreshRunStatus(StrEnum):
+    RUNNING = "RUNNING"
+    SUCCEEDED = "SUCCEEDED"
+    HALTED = "HALTED"
+    FAILED = "FAILED"

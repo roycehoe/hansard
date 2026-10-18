@@ -10,6 +10,8 @@
 // Shape: 20 virtual users for 5 minutes.
 // Mix per iteration: 60% report and permalink pages, 10% browse pages
 // (home, coverage, sittings), 20% search, 10% people pages.
+// Every page view also asks for GET /api/refresh, because the footer on
+// every page does.
 //
 // Pass: p95 under 3 s for everything except search, zero 5xx, and search
 // that either answers or refuses fast. Also watch the database connection
@@ -70,8 +72,12 @@ function get(path, kind, name) {
   return res
 }
 
+// A page view loads the page and, because the footer is on every page,
+// the refresh figures it shows.
 function getPage(path, name) {
-  return get(path, 'page', name)
+  const res = get(path, 'page', name)
+  get('/api/refresh', 'api', '/api/refresh')
+  return res
 }
 
 // 40 common words and phrases people search, plus rare words that suit

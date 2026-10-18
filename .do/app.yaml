@@ -36,3 +36,29 @@ services:
       - key: VITE_ANALYTICS_URL
         scope: BUILD_TIME
         value: ""
+jobs:
+  - name: refresh
+    kind: SCHEDULED
+    github:
+      repo: roycehoe/hansard-scraper
+      branch: master
+      deploy_on_push: false
+    dockerfile_path: Dockerfile
+    run_command: python refresh.py
+    instance_size_slug: apps-s-1vcpu-2gb
+    schedule:
+      cron: "0 20 * * *"
+      time_zone: UTC
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: TELEGRAM_BOT_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+      - key: TELEGRAM_CHAT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: HEALTHCHECKS_PING_URL
+        scope: RUN_TIME
+        type: SECRET

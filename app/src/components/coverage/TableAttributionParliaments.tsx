@@ -7,10 +7,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ATTRIBUTION_BY_PARLIAMENT } from '@/constants/coverage/constants'
+import { NOT_CHECKED_LABEL } from '@/constants/coverage/constants'
 import { formatSittingDate } from '@/lib/format'
+import type { AttributionRow } from '@/types/coverage/interfaces'
 
-export function TableAttributionParliaments() {
+interface TableAttributionParliamentsProps {
+  rows: AttributionRow[]
+}
+
+export function TableAttributionParliaments({
+  rows,
+}: TableAttributionParliamentsProps) {
   return (
     <div className="max-w-3xl">
       <Table>
@@ -35,7 +42,7 @@ export function TableAttributionParliaments() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ATTRIBUTION_BY_PARLIAMENT.map((row) => (
+          {rows.map((row) => (
             <TableRow
               key={row.parliament}
               className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
@@ -45,12 +52,16 @@ export function TableAttributionParliaments() {
                 className="text-foreground whitespace-normal"
               >
                 {row.parliament}
-                <span className="text-muted-foreground block text-xs font-normal">
-                  {row.years}
-                </span>
+                {row.years !== '' && (
+                  <span className="text-muted-foreground block text-xs font-normal">
+                    {row.years}
+                  </span>
+                )}
               </TableHead>
               <TableCell className="whitespace-normal">
-                {formatSittingDate(row.handCheckDate)}
+                {row.handCheckDate === null
+                  ? NOT_CHECKED_LABEL
+                  : formatSittingDate(row.handCheckDate)}
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {row.namedLinked}

@@ -1,4 +1,7 @@
-import { LEGISLATIVE_ASSEMBLY_LABEL } from '@/constants/constants'
+import {
+  LEGISLATIVE_ASSEMBLY_LABEL,
+  LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+} from '@/constants/constants'
 
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
@@ -9,6 +12,8 @@ export const METHODS_LAST_REVISED = '2026-10-18'
 export const ATTRIBUTION_MEASURED_ON = '2026-10-14'
 
 export const HAND_CHECK_DATE = '2026-10-17'
+
+export const NOT_CHECKED_LABEL = 'Not checked'
 
 export const HAND_CHECK_LINKED_SPEECH_COUNT = 406
 
@@ -53,6 +58,8 @@ export const SOURCE_CODE_URL = 'https://github.com/roycehoe/hansard'
 export const ATTRIBUTION_BY_PARLIAMENT = [
   {
     parliament: `${LEGISLATIVE_ASSEMBLY_LABEL} to Parliament 11`,
+    firstParliamentNumber: LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+    lastParliamentNumber: 11,
     years: '1955 to 2011',
     namedLinked: '97.74%',
     allLinked: '88.88%',
@@ -61,6 +68,8 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
   },
   {
     parliament: 'Parliament 12',
+    firstParliamentNumber: 12,
+    lastParliamentNumber: 12,
     years: '2011 to 2015',
     namedLinked: '98.94%',
     allLinked: '96.93%',
@@ -69,6 +78,8 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
   },
   {
     parliament: 'Parliament 13',
+    firstParliamentNumber: 13,
+    lastParliamentNumber: 13,
     years: '2016 to 2020',
     namedLinked: '98.18%',
     allLinked: '96.31%',
@@ -77,6 +88,8 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
   },
   {
     parliament: 'Parliament 14',
+    firstParliamentNumber: 14,
+    lastParliamentNumber: 14,
     years: '2020 to 2025',
     namedLinked: '99.02%',
     allLinked: '97.61%',
