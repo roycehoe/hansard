@@ -1,3 +1,4 @@
+import { ApiError } from '@/api/client'
 import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetSearchReports } from '@/api/search/getSearchReports'
@@ -10,6 +11,7 @@ import { ListActiveFilters } from '@/components/search/ListActiveFilters'
 import { ListPersonMatches } from '@/components/search/ListPersonMatches'
 import { ListReportMatches } from '@/components/search/ListReportMatches'
 import { ListSpeechMatches } from '@/components/search/ListSpeechMatches'
+import { NoticeBusySearch } from '@/components/search/NoticeBusySearch'
 import { NoticeErrorParliaments } from '@/components/search/NoticeErrorParliaments'
 import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
@@ -22,7 +24,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
-import { FILTER_ALL } from '@/constants/constants'
+import { FILTER_ALL, HTTP_TOO_MANY_REQUESTS } from '@/constants/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
   SEARCH_WORDS_INPUT_ID,
@@ -45,6 +47,10 @@ function getSpeechesHeading(
   if (hasWords) return SPEECH_MATCHES_HEADING
   if (personName === undefined) return SPEECHES_HEADING
   return `${SPEECHES_HEADING} by ${personName}`
+}
+
+function isSearchBusyError(error: Error | null): boolean {
+  return error instanceof ApiError && error.status === HTTP_TOO_MANY_REQUESTS
 }
 
 const searchSearchSchema = z.object({
@@ -222,6 +228,14 @@ export const Route = createFileRoute('/search')({
     function renderSpeeches() {
       if (speeches.isLoading) return <Skeleton className="h-64 w-full" />
       if (speeches.isError || !speeches.data) {
+        if (isSearchBusyError(speeches.error)) {
+          return (
+            <NoticeBusySearch
+              onRetry={retrySpeeches}
+              isRetrying={speeches.isRefetching}
+            />
+          )
+        }
         return (
           <NoticeErrorSearch
             onRetry={retrySpeeches}
@@ -254,6 +268,14 @@ export const Route = createFileRoute('/search')({
     function renderReports() {
       if (reports.isLoading) return <Skeleton className="h-64 w-full" />
       if (reports.isError || !reports.data) {
+        if (isSearchBusyError(reports.error)) {
+          return (
+            <NoticeBusySearch
+              onRetry={retryReports}
+              isRetrying={reports.isRefetching}
+            />
+          )
+        }
         return (
           <NoticeErrorSearch
             onRetry={retryReports}
