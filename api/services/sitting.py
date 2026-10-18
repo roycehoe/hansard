@@ -11,6 +11,7 @@ from database.report import Report
 from database.sitting import Sitting
 from exceptions.sitting import SittingNotFoundException
 from middleware.membership import get_membership_id_to_person
+from middleware.takedown import is_report_id_taken_down
 from schemas.sitting import (
     AttendanceData,
     GetAllSittingsResponse,
@@ -111,6 +112,7 @@ def get_sitting(sitting_date: date, session: Session) -> GetSittingResponse:
                 is_text_available=report.id in report_ids_with_text,
             )
             for report in reports
+            if not is_report_id_taken_down(report.report_id)
         ],
         is_attendance_available=len(attendances) > 0,
         attendance=sorted(

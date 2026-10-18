@@ -12,6 +12,7 @@ from database.person import Person
 from database.report import Report
 from database.speaker import Speaker
 from exceptions.person import PersonNotFoundException
+from middleware.takedown import is_report_id_taken_down
 from schemas.person import (
     GetAllPartiesResponse,
     GetAllPersonsResponse,
@@ -232,7 +233,9 @@ def get_person_reports(
     )
     page_report_ids = list(report_id_to_speech_count)[:page_size]
     report_id_to_report = {
-        report.id: report for report in CRUDReport(session).get_by_ids(page_report_ids)
+        report.id: report
+        for report in CRUDReport(session).get_by_ids(page_report_ids)
+        if not is_report_id_taken_down(report.report_id)
     }
     return GetPersonReportsResponse(
         reports=[
@@ -246,6 +249,7 @@ def get_person_reports(
                 speech_count=report_id_to_speech_count[report_id],
             )
             for report_id in page_report_ids
+            if report_id in report_id_to_report
         ],
         page=page,
         page_size=page_size,
