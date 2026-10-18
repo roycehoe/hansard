@@ -11,6 +11,9 @@ _WWW_AUTHENTICATE_HEADER = "WWW-Authenticate"
 _AUTHENTICATE_HEADER = 'Basic realm="Hansard"'
 _ROBOTS_TAG_HEADER = "X-Robots-Tag"
 _NOINDEX = "noindex"
+_CACHE_CONTROL_HEADER = "Cache-Control"
+_PUBLIC_CACHE_CONTROL = "public"
+_PRIVATE_CACHE_CONTROL = "private"
 
 
 class BasicAuthMiddleware(BaseHTTPMiddleware):
@@ -37,4 +40,12 @@ class BasicAuthMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         response = await self._authenticate_request(request, call_next)
         response.headers[_ROBOTS_TAG_HEADER] = _NOINDEX
+        cache_control = response.headers.get(_CACHE_CONTROL_HEADER)
+        if cache_control is not None and cache_control.startswith(
+            _PUBLIC_CACHE_CONTROL
+        ):
+            response.headers[_CACHE_CONTROL_HEADER] = (
+                _PRIVATE_CACHE_CONTROL
+                + cache_control.removeprefix(_PUBLIC_CACHE_CONTROL)
+            )
         return response
