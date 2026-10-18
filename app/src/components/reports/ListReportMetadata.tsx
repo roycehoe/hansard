@@ -2,6 +2,7 @@ import type { GetReportResponse } from '@/api/reports/getReport'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { CONTACT_EMAIL } from '@/constants/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
+import { buildErrorEmailHref } from '@/lib/utils'
 
 interface ListReportMetadataProps {
   report: GetReportResponse
@@ -11,10 +12,10 @@ const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
 function buildReportProblemHref(title: string): string {
-  const reportUrl = `${window.location.origin}${window.location.pathname}`
-  const subject = encodeURIComponent(`Problem on ${title}`)
-  const body = encodeURIComponent(`${reportUrl}\n\nWhat is wrong:\n`)
-  return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`
+  return buildErrorEmailHref(
+    `Problem on ${title}`,
+    `${window.location.origin}${window.location.pathname}`
+  )
 }
 
 export function ListReportMetadata({ report }: ListReportMetadataProps) {

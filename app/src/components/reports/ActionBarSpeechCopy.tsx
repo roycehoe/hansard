@@ -4,32 +4,52 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { buildSpeechPermalink } from '@/lib/citation'
-import { copyTextWithToast } from '@/lib/utils'
-import { Link2, Quote } from 'lucide-react'
+import { AnalyticsEvent } from '@/constants/analytics/enums'
+import { CONTACT_EMAIL } from '@/constants/constants'
+import { countEvent } from '@/lib/analytics'
+import { buildSpeechCite, buildSpeechPermalink } from '@/lib/citation'
+import { formatCalendarDate } from '@/lib/format'
+import { buildErrorEmailHref, copyTextWithToast } from '@/lib/utils'
+import { Flag, Link2, Quote } from 'lucide-react'
 
 interface ActionBarSpeechCopyProps {
   reportSlug: string
+  reportTitle: string
   ordinal: number
+  anchor: string
+  officialRecordUrl: string
   citation?: string
 }
 
 export function ActionBarSpeechCopy({
   reportSlug,
+  reportTitle,
   ordinal,
+  anchor,
+  officialRecordUrl,
   citation,
 }: ActionBarSpeechCopyProps) {
+  const speechPermalink = buildSpeechPermalink(reportSlug, ordinal, anchor)
+
   function copySpeechLink() {
+    countEvent(AnalyticsEvent.COPY_LINK)
     return copyTextWithToast(
-      buildSpeechPermalink(reportSlug, ordinal),
+      speechPermalink,
       'Link copied',
       "Couldn't copy the link"
     )
   }
 
   function copySpeechCitation() {
+    countEvent(AnalyticsEvent.CITE)
     return copyTextWithToast(
-      citation ?? '',
+      buildSpeechCite(
+        citation ?? '',
+        reportTitle,
+        speechPermalink,
+        officialRecordUrl,
+        formatCalendarDate(new Date())
+      ),
       'Citation copied',
       "Couldn't copy the citation"
     )
@@ -59,12 +79,30 @@ export function ActionBarSpeechCopy({
               variant="quiet"
               size="icon-sm"
               onClick={copySpeechCitation}
-              aria-label={`Copy citation for speech ${ordinal}`}
+              aria-label={`Cite speech ${ordinal}`}
             >
               <Quote aria-hidden="true" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Copy citation</TooltipContent>
+          <TooltipContent>Cite</TooltipContent>
+        </Tooltip>
+      )}
+      {CONTACT_EMAIL && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button asChild variant="quiet" size="icon-sm">
+              <a
+                href={buildErrorEmailHref(
+                  `Error in ${reportTitle}`,
+                  speechPermalink
+                )}
+                aria-label={`Report an error in speech ${ordinal}`}
+              >
+                <Flag aria-hidden="true" />
+              </a>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Report an error</TooltipContent>
         </Tooltip>
       )}
     </div>

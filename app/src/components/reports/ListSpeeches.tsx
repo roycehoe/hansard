@@ -1,22 +1,41 @@
-import type { GetReportResponse, SpeechData } from '@/api/reports/getReport'
+import type {
+  GetReportResponse,
+  SpeechData,
+  SpeechLinkData,
+} from '@/api/reports/getReport'
 import { NoticeHighlighting } from '@/components/reports/NoticeHighlighting'
+import { NoticeSpeechLink } from '@/components/reports/NoticeSpeechLink'
 import { RowSpeech } from '@/components/reports/RowSpeech'
-import { SpeechKind } from '@/constants/reports/enums'
+import {
+  SPEECH_LINK_MISSING_NOTICE,
+  SPEECH_LINK_MOVED_NOTICE,
+  SPEECH_LINK_NOTICE_ID,
+} from '@/constants/reports/constants'
+import { SpeechKind, SpeechLinkStatus } from '@/constants/reports/enums'
 import { buildHighlightPattern } from '@/lib/highlight'
-import { useEffect } from 'react'
+import { Fragment, useEffect } from 'react'
 
 interface ListSpeechesProps {
   report: GetReportResponse
   highlightTerms: string[]
 }
 
-function scrollToSpeechAnchor() {
-  const anchorId = window.location.hash.slice(1)
-  if (anchorId === '') return
-  const speechElement = document.getElementById(anchorId)
+function getScrollTargetId(speechLink: SpeechLinkData | null): string {
+  if (speechLink !== null && speechLink.ordinal !== null) {
+    return `s${speechLink.ordinal}`
+  }
+  return window.location.hash.slice(1)
+}
+
+function scrollToLinkedSpeech(speechLink: SpeechLinkData | null) {
+  const targetId = getScrollTargetId(speechLink)
+  if (targetId === '') return
+  const speechElement = document.getElementById(targetId)
   if (!speechElement) return
-  speechElement.scrollIntoView()
-  speechElement.focus()
+  const noticeElement = document.getElementById(SPEECH_LINK_NOTICE_ID)
+  const scrollTargetElement = noticeElement ?? speechElement
+  scrollTargetElement.scrollIntoView()
+  speechElement.focus({ preventScroll: true })
 }
 
 function getPreviousSpeakerLabel(
@@ -36,7 +55,18 @@ function getPreviousSpeakerLabel(
 }
 
 export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
-  useEffect(scrollToSpeechAnchor, [])
+  useEffect(
+    function scrollToSpeechOnLoad() {
+      scrollToLinkedSpeech(report.speech_link)
+    },
+    [report.speech_link]
+  )
+  const isSpeechLinkMissing =
+    report.speech_link?.status === SpeechLinkStatus.MISSING
+  const movedSpeechOrdinal =
+    report.speech_link?.status === SpeechLinkStatus.MOVED
+      ? report.speech_link.ordinal
+      : null
   const highlightPattern = buildHighlightPattern(highlightTerms)
 
   return (
@@ -50,21 +80,30 @@ export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
           terms={highlightTerms}
         />
       )}
+      {isSpeechLinkMissing && (
+        <NoticeSpeechLink message={SPEECH_LINK_MISSING_NOTICE} />
+      )}
       {report.speeches.map((speech, index) => (
-        <RowSpeech
-          key={speech.ordinal}
-          speech={speech}
-          isContinuation={
-            speech.speaker_label !== '' &&
-            getPreviousSpeakerLabel(report.speeches, index) ===
-              speech.speaker_label
-          }
-          reportSlug={report.report_slug}
-          sittingDate={report.sitting_date}
-          volumeNumber={report.volume_number}
-          parliamentNumber={report.parliament_number}
-          highlightPattern={highlightPattern}
-        />
+        <Fragment key={speech.ordinal}>
+          {speech.ordinal === movedSpeechOrdinal && (
+            <NoticeSpeechLink message={SPEECH_LINK_MOVED_NOTICE} />
+          )}
+          <RowSpeech
+            speech={speech}
+            isContinuation={
+              speech.speaker_label !== '' &&
+              getPreviousSpeakerLabel(report.speeches, index) ===
+                speech.speaker_label
+            }
+            reportSlug={report.report_slug}
+            reportTitle={report.title}
+            sittingDate={report.sitting_date}
+            volumeNumber={report.volume_number}
+            parliamentNumber={report.parliament_number}
+            officialRecordUrl={report.official_record_url}
+            highlightPattern={highlightPattern}
+          />
+        </Fragment>
       ))}
     </section>
   )

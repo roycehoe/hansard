@@ -11,9 +11,11 @@ interface RowSpeechProps {
   speech: SpeechData
   isContinuation: boolean
   reportSlug: string
+  reportTitle: string
   sittingDate: string
   volumeNumber: number
   parliamentNumber: number
+  officialRecordUrl: string
   highlightPattern?: RegExp
 }
 
@@ -40,9 +42,11 @@ export function RowSpeech({
   speech,
   isContinuation,
   reportSlug,
+  reportTitle,
   sittingDate,
   volumeNumber,
   parliamentNumber,
+  officialRecordUrl,
   highlightPattern,
 }: RowSpeechProps) {
   const hasSpeakerLabel = speech.speaker_label !== ''
@@ -117,7 +121,10 @@ export function RowSpeech({
       </div>
       <ActionBarSpeechCopy
         reportSlug={reportSlug}
+        reportTitle={reportTitle}
         ordinal={speech.ordinal}
+        anchor={speech.anchor}
+        officialRecordUrl={officialRecordUrl}
         citation={citation}
       />
     </article>

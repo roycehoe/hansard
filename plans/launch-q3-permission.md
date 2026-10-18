@@ -115,7 +115,7 @@ I am a software engineer in Singapore. I have built a free, non-commercial websi
 What I am asking for
 
 1. To display the full text of the Official Reports (1955 to date) on a public website, with each page naming the date and report and linking to the original on SPRS.
-2. To fetch new Official Reports from SPRS once a week, so the site includes the 15th Parliament and later sittings.
+2. To fetch new Official Reports from SPRS once a day, so the site includes the 15th Parliament and later sittings.
 
 I am also asking whether linking to SPRS pages (clause 15) is allowed in the same permission.
 
@@ -130,7 +130,7 @@ What I offer
 - No crest, no gov.sg branding, and no wording that suggests endorsement.
 - Non-commercial use only: no advertising, no sale of data, no paid tier.
 - Corrections: a visible address for error reports. I will fix transcription or attribution errors I introduce within 7 days, and I will remove any item you ask me to within 2 working days, with no reason needed.
-- Crawl limits: one request at a time, at least 2 seconds apart, between 11 pm and 6 am Singapore time, about one run a week fetching only sittings I do not yet hold, a User-Agent that names the project and gives my email, and I will stop at once if SPRS returns errors or you ask me to. Tell me any limits you prefer and I will use them. Earlier, while building the first copy, my tool ran up to four requests at a time with no pause. I have changed that.
+- Crawl limits: one request at a time, at least 2 seconds apart, and one run a day at 4 am Singapore time. Each run fetches only sittings I do not yet hold, and re-reads the reports of the last 14 days so I see any you have corrected. The User-Agent names the project and gives my email, and I will stop at once if SPRS returns errors or you ask me to. Tell me any limits you prefer and I will use them. Earlier, while building the first copy, my tool ran up to four requests at a time with no pause. I have changed that.
 - A named contact: me, below. I am publishing under my own name and I accept responsibility for the site.
 
 I know the site duplicates some of what Pair Search does. Mine adds profiles for each MP and sitting, and attributes each speech to its speaker back to 1955. I am happy to describe it or to give you a login so you can look before you decide.

@@ -7,6 +7,7 @@ import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
+import { NoticeRemovedReport } from '@/components/reports/NoticeRemovedReport'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
 import {
   Breadcrumb,
@@ -17,7 +18,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
-import { HTTP_NOT_FOUND } from '@/constants/constants'
+import { HTTP_GONE, HTTP_NOT_FOUND } from '@/constants/constants'
+import { SPEECH_ANCHOR_MAX_LENGTH } from '@/constants/reports/constants'
 import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildReportCitation } from '@/lib/citation'
@@ -28,6 +30,13 @@ import { z } from 'zod'
 
 const reportSearchSchema = z.object({
   hl: z.string().max(SEARCH_WORDS_MAX_LENGTH).optional().catch(undefined),
+  s: z.coerce.number().int().min(0).optional().catch(undefined),
+  q: z
+    .union([z.string(), z.number()])
+    .transform(String)
+    .pipe(z.string().max(SPEECH_ANCHOR_MAX_LENGTH))
+    .optional()
+    .catch(undefined),
 })
 
 function renderBody(report: GetReportResponse, highlightTerms: string[]) {
@@ -41,9 +50,9 @@ export const Route = createFileRoute('/reports/$reportSlug')({
   validateSearch: reportSearchSchema,
   component: function PageReport() {
     const { reportSlug } = Route.useParams()
-    const { hl } = Route.useSearch()
+    const { hl, s, q } = Route.useSearch()
     const { data, isLoading, isError, error, refetch, isRefetching } =
-      useGetReport({ report_slug: reportSlug })
+      useGetReport({ report_slug: reportSlug, s, q })
     useDocumentTitle(data?.title ?? 'Report')
 
     function retryReport() {
@@ -57,6 +66,9 @@ export const Route = createFileRoute('/reports/$reportSlug')({
       error.status === HTTP_NOT_FOUND
     ) {
       return <NoticeNotFoundReport />
+    }
+    if (isError && error instanceof ApiError && error.status === HTTP_GONE) {
+      return <NoticeRemovedReport />
     }
     if (isError || !data) {
       return (

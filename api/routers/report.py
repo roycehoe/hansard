@@ -1,15 +1,26 @@
-from fastapi import APIRouter, Depends
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 
 from database.engine import get_session
 from schemas.report import GetReportResponse
 from services import report as report_service
 
+_MAX_SPEECH_ANCHOR_LENGTH = 200
+
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 
 @router.get("/{report_slug}", status_code=200)
 def get_report(
-    report_slug: str, session: Session = Depends(get_session)
+    report_slug: str,
+    speech_ordinal: Optional[int] = Query(default=None, alias="s", ge=0),
+    speech_anchor: Optional[str] = Query(
+        default=None, alias="q", max_length=_MAX_SPEECH_ANCHOR_LENGTH
+    ),
+    session: Session = Depends(get_session),
 ) -> GetReportResponse:
-    return report_service.get_report(report_slug, session)
+    return report_service.get_report(
+        report_slug, speech_ordinal, speech_anchor, session
+    )

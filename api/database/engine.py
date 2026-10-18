@@ -4,8 +4,17 @@ from sqlmodel import Session, create_engine
 
 from settings import settings
 
+_READ_ONLY_OPTION = "-c default_transaction_read_only=on"
 _STATEMENT_TIMEOUT_MILLISECONDS = 30_000
-_CONNECTION_OPTIONS = f"-c default_transaction_read_only=on -c statement_timeout={_STATEMENT_TIMEOUT_MILLISECONDS}"
+_CONNECTION_OPTIONS = (
+    f"{_READ_ONLY_OPTION} -c statement_timeout={_STATEMENT_TIMEOUT_MILLISECONDS}"
+)
+_SEARCH_STATEMENT_TIMEOUT_MILLISECONDS = 10_000
+_SEARCH_CONNECTION_OPTIONS = (
+    f"{_READ_ONLY_OPTION} -c statement_timeout={_SEARCH_STATEMENT_TIMEOUT_MILLISECONDS}"
+)
+_SEARCH_POOL_SIZE = 3
+_SEARCH_MAX_OVERFLOW = 2
 
 engine = create_engine(
     settings.database_url,
@@ -13,7 +22,20 @@ engine = create_engine(
     pool_pre_ping=True,
 )
 
+search_engine = create_engine(
+    settings.database_url,
+    connect_args={"options": _SEARCH_CONNECTION_OPTIONS},
+    pool_size=_SEARCH_POOL_SIZE,
+    max_overflow=_SEARCH_MAX_OVERFLOW,
+    pool_pre_ping=True,
+)
+
 
 def get_session() -> Generator[Session, None, None]:
     with Session(engine) as session:
+        yield session
+
+
+def get_search_session() -> Generator[Session, None, None]:
+    with Session(search_engine) as session:
         yield session

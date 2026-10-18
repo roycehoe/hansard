@@ -145,9 +145,13 @@ export function buildReportCitation(
 
 export function buildSpeechPermalink(
   reportSlug: string,
-  ordinal: number
+  ordinal: number,
+  anchor: string
 ): string {
-  return `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}#s${ordinal}`
+  const reportUrl = `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}`
+  if (anchor === '') return `${reportUrl}#s${ordinal}`
+  const searchParams = new URLSearchParams({ s: String(ordinal), q: anchor })
+  return `${reportUrl}?${searchParams.toString()}`
 }
 
 export function buildSpeechCitation(
@@ -160,4 +164,14 @@ export function buildSpeechCitation(
   const { name, office } = parseSpeakerLabel(speakerLabel, personName)
   const attribution = [name, office].filter((part) => part !== '').join(', ')
   return `${buildReportCitation(sittingDate, volumeNumber, parliamentNumber)} (${attribution})`
+}
+
+export function buildSpeechCite(
+  speechCitation: string,
+  reportTitle: string,
+  permalink: string,
+  officialRecordUrl: string,
+  retrievedOn: string
+): string {
+  return `"${reportTitle}", ${speechCitation}. Retrieved from ${permalink} on ${retrievedOn}. Original: ${officialRecordUrl}`
 }

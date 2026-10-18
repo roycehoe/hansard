@@ -458,10 +458,16 @@ export const Route = createFileRoute('/coverage/methods')({
             and add the column number from there.
           </p>
           <p>
-            Links to a report or a sitting do not change. A link to one
-            paragraph, such as one ending in #s12, can lead to a different
-            paragraph after the archive is updated. To cite a passage, link the
-            report and quote the passage.
+            Links to a report or a sitting do not change. A copied paragraph
+            link carries the paragraph&apos;s number and its first 8 words. Each
+            time the link opens, the site checks that the paragraph still starts
+            with those words. If the paragraph has moved within the report, the
+            link opens it in its new place and says so. If no paragraph in the
+            report starts with those words, the link opens the report and says
+            the paragraph is no longer there. Older links that end in #s12 carry
+            no words to check and can lead to a different paragraph after the
+            archive is updated. Cite on a paragraph copies its citation with the
+            checked link and a link to the Official Report.
           </p>
         </section>
 

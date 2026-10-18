@@ -46,3 +46,14 @@ class SpeechKind(StrEnum):
 class DatePrecision(StrEnum):
     DAY = "DAY"
     MONTH = "MONTH"
+
+
+class SpeechLinkStatus(StrEnum):
+    FOUND = "found"
+    MOVED = "moved"
+    MISSING = "missing"
+
+
+class PreviewType(StrEnum):
+    ARTICLE = "article"
+    WEBSITE = "website"

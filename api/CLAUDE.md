@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`api/` is a FastAPI backend for the hansard web app. It reads a Postgres database of Singapore Parliament Hansard records. That database is owned by a separate scraper repo at `roycehoe/handsard-scraper`, and the API is **read-only** against it.
+`api/` is a FastAPI backend for the hansard web app. It reads a Postgres database of Singapore Parliament Hansard records. That database is owned by a separate scraper repo at `roycehoe/hansard-scraper`, and the API is **read-only** against it.
 
 ## Setup and commands
 
@@ -28,9 +28,19 @@ Dependencies: `fastapi[standard]`, `sqlmodel`, `pydantic-settings`, `psycopg` (v
 
 Ruff config is `[tool.ruff.lint] select = ["I", "F"]`, so lint covers import order and unused names only. `ruff format` is the formatter and is enforced.
 
-**No test suite.** Do not write tests unless explicitly asked.
+**Tests.** `api/tests/` holds the pytest suite. Run it from `api/`:
 
-**No pre-commit hooks.** Do not add any without being asked. The only auth is HTTP basic auth on the deployed site (`website.py`), added on 18 October 2026 for the private launch; the API in `main.py` has none.
+```bash
+# Tests that need no database (what CI runs)
+uv run pytest -m "not database"
+
+# Every test, including those marked `database`
+uv run pytest
+```
+
+The tests marked `database` read real rows, so they need the scratch database: a copy of the scraper's schema and data at `postgresql+psycopg://user:password@localhost:5435/hansard_launch`. `tests/conftest.py` sets `DATABASE_URL` to it before any project import and stops the session if `settings.database_url` resolves anywhere else, so no test can reach the database in `api/.env`. Do not write new tests unless explicitly asked; the existing ones must pass.
+
+**No pre-commit hooks.** Do not add any without being asked. The only auth is HTTP basic auth on the deployed site (`website.py`), added on 18 October 2026 for the private launch; the API in `main.py` has none. It is on unless `PUBLIC_MODE` is `true`.
 
 ## The database contract
 
@@ -51,21 +61,23 @@ What exists today:
 | Path | Contents |
 |---|---|
 | `main.py` | The `FastAPI` app. Every router is mounted here. `uv run fastapi dev` serves it. |
-| `website.py` | The deployed site: `main.py`'s app under `/api`, the built frontend at `/`, both behind basic auth. The root `Dockerfile` runs it. |
+| `website.py` | The deployed site: `main.py`'s app under `/api`, the built frontend at `/`, both behind basic auth unless public mode is on, and the takedown middleware in front of both. The root `Dockerfile` runs it. |
 | `settings.py` | `pydantic-settings` configuration: `AppSettings` (`DATABASE_URL`) and `WebsiteSettings`, which only `website.py` reads. |
-| `enums.py` | `ReportType` (the 23 stored report type strings) and `SearchSort`. |
-| `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. |
+| `enums.py` | `ReportType` (the 23 stored report type strings), `SearchSort`, `SpeechLinkStatus` and `PreviewType`. |
+| `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. A second engine serves visitor searches: the same read-only option, a 10-second `statement_timeout` and a pool of 3 with an overflow of 2, behind the `get_search_session()` dependency. |
 | `database/` | One SQLModel class per table the API reads: `Report`, `Speech`, `Sitting`, `Attendance`, `Speaker`, `Person`, `PartyAffiliation`. Only the columns the API uses. |
 | `exceptions/` | `base.py` (`ErrorCode`, `ErrorSpec`, `ERRORS`, `AppHttpExceptionBase`) and one no-argument exception class per domain file. |
-| `utils/` | Pure helpers: report slug, official record URL, person slug, sitting date text, `LIKE` escaping, transcript snippet. |
+| `utils/` | Pure helpers: report slug, official record URL, person slug, sitting date text, `LIKE` escaping, transcript snippet, speech link anchor and check, preview tags, transcript quote, sitting date label, preview bot name from a user agent. |
 | `validators/` | `search.py`: `validate_can_search`, which a search router calls before the service. |
 | `crud/` | One read-only class per table (`CRUDReport`, `CRUDSpeech`, `CRUDSitting`, `CRUDAttendance`, `CRUDMembership`, `CRUDPerson`) and `text_search.py` with the shared full-text constants. See `crud/CLAUDE.md`. |
 | `middleware/membership.py` | `get_membership_id_to_person`, which composes `CRUDMembership` and `CRUDPerson` for every service that resolves linked rows to Persons. |
-| `middleware/basic_auth.py` | `BasicAuthMiddleware`: answers 401 unless the request carries the configured credentials; `/api/health` is open for the platform's health check. |
-| `middleware/frontend.py` | `FrontendFiles`: serves the built frontend and answers `index.html` for any other path, so client routes load. |
+| `middleware/basic_auth.py` | `BasicAuthMiddleware`: answers 401 unless the request carries the configured credentials; `/api/health` is open for the platform's health check. Every response it returns, the 401 and the health check included, carries `X-Robots-Tag: noindex`. A `public` `Cache-Control` on a response it lets through becomes `private`, so a shared cache cannot store an authorised answer. |
+| `middleware/response_cache.py` | `ResponseCacheMiddleware`, a pure ASGI middleware registered in `main.py` between CORS and GZip. It keeps GET answers with status 200 in process memory for an hour (500 entries and 32 MB, oldest dropped first), keyed by path, the query parameters the route declares (sorted by name; any other parameter is ignored) and whether the client accepts gzip, and sends them with `Cache-Control: public, max-age=3600`. A path that matches no declared GET route in the app's OpenAPI schema is not cached. `/health` and `/preview-fetches` are never cached and get no `Cache-Control`; errors, 429 and 410 get none. |
+| `middleware/frontend.py` | `FrontendFiles`: serves the built frontend, answers `index.html` for any other path so client routes load, and writes each page's preview tags between the markers in `index.html` (`services/preview.py`, cached in process for an hour). When the user agent names a preview bot (`utils/preview_bot.py`), it first counts the fetch with `services/preview_fetch.py`. |
+| `middleware/takedown.py` | The takedown list (`takedown-list.txt`, read at import; a missing or malformed list stops startup): `is_report_id_taken_down` for the services, `get_taken_down_report_id_candidates`, which search turns into report ids it excludes in SQL so its counts and pages leave hidden reports out, and `TakedownMiddleware`, which answers 410 for a listed report's page. It compares the `reports/` prefix and the slug case-insensitively and drops spaces and control characters from the slug first, because the frontend route matches any case. |
 | `schemas/` | Pydantic response models, one file per domain. No field defaults. |
-| `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage. |
-| `routers/` | One router per domain plus `health.py`. Each handler calls one service function. |
+| `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search (three searches at once across both search endpoints, the next answers 429 `search.busy`), coverage, preview, preview_fetch. |
+| `routers/` | One router per domain plus `health.py`. Each handler calls one service function. `preview_fetch.py` serves `GET /preview-fetches` and takes no session. |
 
 The layer table below is the full design. `gateway/` is not added yet.
 
@@ -90,8 +102,11 @@ Notes on the layers that matter now:
 - **Terminology.** A row of the `speaker` table is a Membership everywhere outside `database/`: `CRUDMembership`, `membership_ids`, `membership_id_to_person`. The raw name on a speech is `speaker_label`. See the brief's terminology table.
 - **Indexes are the launch gate.** `docs/required-indexes.md` lists every index the API's queries need, with the index definitions the scraper migrations build. All nine exist on production: six since 14 October 2026 (scraper commit `1f0d8ef`), `ix_speech_transcript_tsv` since 17 October and the rum index `ix_speech_transcript_tsv_rum` since 18 October (`aed4137`). A server that runs those migrations needs the `rum` extension installed (`postgresql-17-rum` on Debian). Without the indexes the queries are sequential scans, and the speech full-text search exceeds the statement timeout and answers `503 search.timed_out`. The ninth, `ix_speech_transcript_tsv_sitting_date_rum`, and the column `speech.sitting_date` came with scraper migration `c93f77e499cc`, on production since 18 October 2026. The `Speech` model reads that column and word search orders and filters by it, so this API cannot run against a database without that migration: every statement that selects a speech would fail.
 - **`/coverage` and `/parliaments` cache in-process for an hour**, as module state in `services/coverage.py` and `services/parliament.py`, filled on the first request. Restart the API after a scraper load to see new figures at once.
+- **Every GET answer with status 200 is cached for an hour** by `middleware/response_cache.py` and sent with `Cache-Control: public, max-age=3600`, so browsers keep a copy for up to an hour too. The cache is process memory: a restart or deploy empties it. Behind basic auth the header goes out as `private`. A report taken down after its answer was cached keeps serving until the next restart.
+- **Searches are limited to three at once across both search endpoints.** `GET /search/speeches` and `GET /search/reports` share one counter (`_MAX_RUNNING_SEARCHES`); the fourth search answers `429 search.busy` without touching the database. One search page sends a speech request and a report request, so two visitors searching at the same moment can see the report half refused. Visitor searches run on the second engine (pool of 3, overflow of 2) with a 10-second `statement_timeout`, and one that passes it answers `503 search.timed_out`.
+- **Preview-bot fetches are counted in process memory**, because the API cannot write to the database (`docs/adr/0001-read-only-api.md`). `services/preview_fetch.py` keys each count by Singapore date, bot name and request path (no query, IP or user agent). A path that is not one of the site's routes, or is longer than 300 bytes, counts as `other`. It keeps at most 10,000 keys and 1 MB of paths, and loses them on restart or deploy. `GET /preview-fetches` reads them; read it before each deploy. In private mode a bot gets 401 before the counter, so counting happens only in public mode.
 - **`crud/` is read-only here.** The rules in `STYLE.md` about CRUD writes stay in the guide, but this API has no write path.
-- **Raw SQL** is limited to the `SELECT 1` health check. Everything else goes through SQLModel.
+- **Raw SQL** is limited to the `SELECT 1` health check and the database tests (the read-only write checks and the `SHOW statement_timeout` check). Everything else goes through SQLModel.
 - **Do not run `mypy`.** Only `ruff` is used for static analysis.
 
 ## Environment variables
@@ -101,8 +116,10 @@ Notes on the layers that matter now:
 | Variable | Purpose |
 |---|---|
 | `DATABASE_URL` | Postgres connection string for the read-only role. |
-| `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD` | `website.py` only. Required: the site does not start without them. |
+| `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD` | `website.py` only. Required unless `PUBLIC_MODE` is true: the site does not start without them. |
+| `PUBLIC_MODE` | `website.py` only. Only `true` (any case) turns basic auth and the noindex header off; anything else, or unset, keeps them on. |
 | `FRONTEND_DIST_PATH` | `website.py` only. The built frontend; the `Dockerfile` sets it. |
+| `SITE_URL` | `website.py` only. Optional. The site's origin, such as `https://example.sg`, for the `og:url` preview tag; left out while unset. |
 
 Never put a secret in code or in an example env file.
 

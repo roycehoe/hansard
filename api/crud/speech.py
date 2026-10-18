@@ -29,6 +29,7 @@ def _get_report_filters(
     date_from: Optional[date],
     date_to: Optional[date],
     report_type: Optional[ReportType],
+    excluded_report_ids: list[int],
 ) -> list[ColumnElement]:
     filters = []
     if parliament_number is not None:
@@ -39,6 +40,8 @@ def _get_report_filters(
         filters.append(Report.sitting_date < date_to + _ONE_DAY)
     if report_type is not None:
         filters.append(Report.report_type == report_type)
+    if excluded_report_ids:
+        filters.append(Speech.report_id.not_in(excluded_report_ids))
     return filters
 
 
@@ -66,6 +69,7 @@ def _get_query_filters(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
+    excluded_report_ids: list[int],
 ) -> list[ColumnElement]:
     tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
     # NOTE: dates filter on the speech's own sitting date, so the rum index on transcript_tsv and sitting_date reads only the range
@@ -80,6 +84,8 @@ def _get_query_filters(
         filters.append(Report.report_type == report_type)
     if membership_ids is not None:
         filters.append(Speech.speaker_id.in_(membership_ids))
+    if excluded_report_ids:
+        filters.append(Speech.report_id.not_in(excluded_report_ids))
     return filters
 
 
@@ -192,6 +198,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
+        excluded_report_ids: list[int],
         sort: SearchSort,
         limit: int,
         offset: int,
@@ -205,6 +212,7 @@ class CRUDSpeech:
             date_to,
             report_type,
             membership_ids,
+            excluded_report_ids,
         )
         # NOTE: only a date-index order gets the Parliament's date range, because the rum index reads a range but not a Parliament, and the range made a relevance search read 25 times the buffers
         if parliament_number is not None and is_date_index_ordered:
@@ -229,6 +237,7 @@ class CRUDSpeech:
         date_from: Optional[date],
         date_to: Optional[date],
         report_type: Optional[ReportType],
+        excluded_report_ids: list[int],
         sort: SearchSort,
         limit: int,
         offset: int,
@@ -237,7 +246,13 @@ class CRUDSpeech:
             select(Speech)
             .join(Report, Report.id == Speech.report_id)
             .where(
-                *_get_report_filters(parliament_number, date_from, date_to, report_type)
+                *_get_report_filters(
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    excluded_report_ids,
+                )
             )
             .order_by(*_get_browse_ordering(sort, Report.sitting_date))
             .limit(limit)
@@ -252,6 +267,7 @@ class CRUDSpeech:
         date_from: Optional[date],
         date_to: Optional[date],
         report_type: Optional[ReportType],
+        excluded_report_ids: list[int],
         sort: SearchSort,
         limit: int,
         offset: int,
@@ -261,7 +277,13 @@ class CRUDSpeech:
             .join(Report, Report.id == Speech.report_id)
             .where(Speech.speaker_id.in_(membership_ids))
             .where(
-                *_get_report_filters(parliament_number, date_from, date_to, report_type)
+                *_get_report_filters(
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    excluded_report_ids,
+                )
             )
             .order_by(*_get_browse_ordering(sort, _get_sitting_date()))
             .limit(limit)
@@ -277,6 +299,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
+        excluded_report_ids: list[int],
         limit: int,
     ) -> int:
         matching_ids = (
@@ -290,6 +313,7 @@ class CRUDSpeech:
                     date_to,
                     report_type,
                     membership_ids,
+                    excluded_report_ids,
                 )
             )
             .limit(limit)
@@ -303,13 +327,20 @@ class CRUDSpeech:
         date_from: Optional[date],
         date_to: Optional[date],
         report_type: Optional[ReportType],
+        excluded_report_ids: list[int],
         limit: int,
     ) -> int:
         matching_ids = (
             select(Speech.id)
             .join(Report, Report.id == Speech.report_id)
             .where(
-                *_get_report_filters(parliament_number, date_from, date_to, report_type)
+                *_get_report_filters(
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    excluded_report_ids,
+                )
             )
             .limit(limit)
         )
@@ -323,6 +354,7 @@ class CRUDSpeech:
         date_from: Optional[date],
         date_to: Optional[date],
         report_type: Optional[ReportType],
+        excluded_report_ids: list[int],
         limit: int,
     ) -> int:
         matching_ids = (
@@ -330,7 +362,13 @@ class CRUDSpeech:
             .join(Report, Report.id == Speech.report_id)
             .where(Speech.speaker_id.in_(membership_ids))
             .where(
-                *_get_report_filters(parliament_number, date_from, date_to, report_type)
+                *_get_report_filters(
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    excluded_report_ids,
+                )
             )
             .limit(limit)
         )

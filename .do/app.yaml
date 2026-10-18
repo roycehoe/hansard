@@ -24,3 +24,15 @@ services:
       - key: BASIC_AUTH_PASSWORD
         scope: RUN_TIME
         type: SECRET
+      - key: PUBLIC_MODE
+        scope: RUN_TIME
+        value: "false"
+      - key: VITE_CONTACT_EMAIL
+        scope: BUILD_TIME
+        value: hansard@fancybinary.sg
+      - key: VITE_RESEARCHERS_FORM_URL
+        scope: BUILD_TIME
+        value: ""
+      - key: VITE_ANALYTICS_URL
+        scope: BUILD_TIME
+        value: ""

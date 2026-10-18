@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 
-from database.engine import get_session
+from database.engine import get_search_session
 from enums import ReportType, SearchSort
 from schemas.search import SearchReportsResponse, SearchSpeechesResponse
 from services import search as search_service
@@ -28,7 +28,7 @@ def search_speeches(
     sort: SearchSort = SearchSort.RELEVANCE,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_search_session),
 ) -> SearchSpeechesResponse:
     validate_can_search_speeches(
         query, parliament_number, date_from, date_to, report_type, person_id
@@ -58,7 +58,7 @@ def search_reports(
     sort: SearchSort = SearchSort.RELEVANCE,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_search_session),
 ) -> SearchReportsResponse:
     validate_can_search_reports(
         query, parliament_number, date_from, date_to, report_type, is_text_available

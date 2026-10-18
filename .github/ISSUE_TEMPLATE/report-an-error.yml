@@ -1,0 +1,34 @@
+name: Report an error
+description: A speech credited to the wrong person, text that is missing or differs from the Official Report, or a wrong date, party or other detail.
+title: "Error: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues here are public. To report an error in private, email hansard@fancybinary.sg.
+  - type: input
+    id: link
+    attributes:
+      label: Link to the speech or page
+      description: Copy it with "Copy link" beside the speech, or copy the page address.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is wrong
+      options:
+        - Credited to the wrong person
+        - Text is missing
+        - Text differs from the Official Report
+        - Wrong date, party or other detail
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What the site shows and what it should show
+      description: If you checked the Official Report, add its link.
+    validations:
+      required: true

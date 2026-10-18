@@ -1,12 +1,16 @@
 import {
   CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
+  RESEARCHERS_FORM_URL,
 } from '@/constants/constants'
 import { Link } from '@tanstack/react-router'
 
 const FOOTER_LINKS = [
   { label: 'Coverage', to: '/coverage' },
   { label: 'Data quality and methods', to: '/coverage/methods' },
+  ...(RESEARCHERS_FORM_URL
+    ? ([{ label: 'For researchers', to: '/researchers' }] as const)
+    : []),
 ] as const
 
 const LINK_CLASS_NAME =

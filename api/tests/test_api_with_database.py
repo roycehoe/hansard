@@ -1,0 +1,128 @@
+from urllib.parse import quote
+
+import pytest
+from fastapi import status
+from fastapi.testclient import TestClient
+from sqlmodel import Session, select
+
+from database.engine import engine
+from database.report import Report
+from middleware import response_cache, takedown
+from middleware.takedown import is_report_id_taken_down
+from utils.report_slug import get_normalised_report_slug, get_report_slug
+
+pytestmark = pytest.mark.database
+
+_REPORT_CANDIDATE_COUNT = 20
+_SEARCH_PAGE_SIZE = 20
+
+
+@pytest.fixture
+def report_slug() -> str:
+    with Session(engine) as session:
+        report_ids = session.exec(
+            select(Report.report_id).order_by(Report.id).limit(_REPORT_CANDIDATE_COUNT)
+        ).all()
+    return get_report_slug(
+        next(
+            report_id
+            for report_id in report_ids
+            if not is_report_id_taken_down(report_id)
+        )
+    )
+
+
+def test_health_answers_200_with_no_cache_control(api_client: TestClient) -> None:
+    response = api_client.get("/health")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"status": "ok"}
+    assert "cache-control" not in response.headers
+
+
+def test_a_report_answers_200_with_public_cache_control(
+    api_client: TestClient, report_slug: str
+) -> None:
+    url = f"/reports/{quote(report_slug, safe='')}"
+
+    first = api_client.get(url)
+    second = api_client.get(url)
+
+    assert first.status_code == status.HTTP_200_OK
+    assert first.headers["cache-control"] == "public, max-age=3600"
+    assert second.headers["cache-control"] == "public, max-age=3600"
+    assert second.content == first.content
+
+
+def test_an_unknown_report_answers_404_with_no_cache_control(
+    api_client: TestClient,
+) -> None:
+    first = api_client.get("/reports/no-such-report-slug")
+    second = api_client.get("/reports/no-such-report-slug")
+
+    assert first.status_code == status.HTTP_404_NOT_FOUND
+    assert second.status_code == status.HTTP_404_NOT_FOUND
+    assert "cache-control" not in first.headers
+    assert "cache-control" not in second.headers
+    assert len(response_cache._cache_key_to_cached_response) == 0
+
+
+def test_speech_search_answers_200(api_client: TestClient) -> None:
+    response = api_client.get("/search/speeches", params={"q": "housing"})
+
+    assert response.status_code == status.HTTP_200_OK
+    body = response.json()
+    assert body["page"] == 1
+    assert isinstance(body["results"], list)
+    assert response.headers["cache-control"] == "public, max-age=3600"
+
+
+def test_a_sitting_answers_200_with_public_cache_control(
+    api_client: TestClient,
+) -> None:
+    with Session(engine) as session:
+        sitting_date = session.exec(
+            select(Report.sitting_date).order_by(Report.sitting_date.desc()).limit(1)
+        ).one()
+
+    response = api_client.get(f"/sittings/{sitting_date.date().isoformat()}")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["cache-control"] == "public, max-age=3600"
+
+
+@pytest.mark.parametrize(
+    ("search_path", "query"),
+    [
+        ("/search/speeches", "disability prevalence census 2020"),
+        ("/search/reports", "Prevalence Physical Mental Intellectual Disabilities"),
+    ],
+)
+def test_search_counts_leave_out_a_hidden_report(
+    api_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    search_path: str,
+    query: str,
+) -> None:
+    params = {"q": query, "page_size": _SEARCH_PAGE_SIZE}
+    before = api_client.get(search_path, params=params).json()
+    assert 0 < before["total_count"] <= _SEARCH_PAGE_SIZE
+    hidden_report_slug = before["results"][0]["report_slug"]
+    hidden_match_count = sum(
+        result["report_slug"] == hidden_report_slug for result in before["results"]
+    )
+    monkeypatch.setattr(
+        takedown,
+        "_TAKEN_DOWN_REPORT_SLUGS",
+        frozenset({get_normalised_report_slug(hidden_report_slug)}),
+    )
+    monkeypatch.setattr(response_cache, "_cache_key_to_cached_response", {})
+
+    after = api_client.get(search_path, params=params).json()
+
+    assert hidden_report_slug not in [
+        result["report_slug"] for result in after["results"]
+    ]
+    assert after["total_count"] == before["total_count"] - hidden_match_count
+    assert after["total_count"] == len(after["results"])
+    assert after["has_next_page"] is False
