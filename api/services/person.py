@@ -44,6 +44,8 @@ def _get_source_report_data(
 ) -> Optional[PartyAffiliationSourceReportData]:
     if source_report_id is None:
         return None
+    if source_report_id not in report_id_to_report:
+        return None
     source_report = report_id_to_report[source_report_id]
     return PartyAffiliationSourceReportData(
         report_slug=get_report_slug(source_report.report_id),
@@ -65,6 +67,7 @@ def _get_membership_id_to_party_affiliations(
     report_id_to_report = {
         report.id: report
         for report in CRUDReport(session).get_by_ids(source_report_ids)
+        if not is_report_id_taken_down(report.report_id)
     }
     membership_id_to_party_affiliations: dict[int, list[PartyAffiliationData]] = {}
     for party_affiliation in party_affiliations:
