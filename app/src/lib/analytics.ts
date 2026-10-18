@@ -75,7 +75,7 @@ export function countEvent(name: AnalyticsEvent): void {
 }
 
 export function loadAnalytics(): void {
-  if (ANALYTICS_URL === '' || isAnalyticsScriptAdded) return
+  if (!URL.canParse(ANALYTICS_URL) || isAnalyticsScriptAdded) return
   isAnalyticsScriptAdded = true
   const script = document.createElement('script')
   script.async = true
