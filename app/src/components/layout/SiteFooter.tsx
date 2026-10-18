@@ -7,8 +7,6 @@ import { Link } from '@tanstack/react-router'
 const FOOTER_LINKS = [
   { label: 'Coverage', to: '/coverage' },
   { label: 'Data quality and methods', to: '/coverage/methods' },
-  { label: 'Design', to: '/design' },
-  { label: 'Palette', to: '/palette' },
 ] as const
 
 const LINK_CLASS_NAME =
