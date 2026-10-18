@@ -1,6 +1,7 @@
 import {
   CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
+  RESEARCHERS_FORM_URL,
 } from '@/constants/constants'
 import { Link } from '@tanstack/react-router'
 
@@ -28,6 +29,13 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
+            {RESEARCHERS_FORM_URL && (
+              <li>
+                <Link to="/researchers" className={LINK_CLASS_NAME}>
+                  For researchers
+                </Link>
+              </li>
+            )}
             <li>
               <a
                 href={OFFICIAL_RECORD_SEARCH_URL}
