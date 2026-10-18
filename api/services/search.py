@@ -1,3 +1,5 @@
+from collections.abc import Generator
+from contextlib import contextmanager
 from datetime import date
 from threading import BoundedSemaphore
 from typing import Optional
@@ -31,6 +33,16 @@ _MAX_COUNTED_MATCHES = 1_000
 _MAX_RUNNING_SEARCHES = 3
 
 _search_slots = BoundedSemaphore(_MAX_RUNNING_SEARCHES)
+
+
+@contextmanager
+def _hold_search_slot() -> Generator[None, None, None]:
+    if not _search_slots.acquire(blocking=False):
+        raise SearchBusyException
+    try:
+        yield
+    finally:
+        _search_slots.release()
 
 
 def _get_membership_ids(
@@ -248,9 +260,7 @@ def search_speeches(
     page_size: int,
     session: Session,
 ) -> SearchSpeechesResponse:
-    if not _search_slots.acquire(blocking=False):
-        raise SearchBusyException
-    try:
+    with _hold_search_slot():
         membership_ids = _get_membership_ids(person_id, session)
         speeches = _get_validated_speeches(
             query,
@@ -332,8 +342,6 @@ def search_speeches(
             total_count=min(match_count, _MAX_COUNTED_MATCHES),
             is_total_capped=match_count > _MAX_COUNTED_MATCHES,
         )
-    finally:
-        _search_slots.release()
 
 
 def search_reports(
@@ -348,9 +356,7 @@ def search_reports(
     page_size: int,
     session: Session,
 ) -> SearchReportsResponse:
-    if not _search_slots.acquire(blocking=False):
-        raise SearchBusyException
-    try:
+    with _hold_search_slot():
         reports = _get_validated_reports(
             query,
             parliament_number,
@@ -411,5 +417,3 @@ def search_reports(
             total_count=min(match_count, _MAX_COUNTED_MATCHES),
             is_total_capped=match_count > _MAX_COUNTED_MATCHES,
         )
-    finally:
-        _search_slots.release()
