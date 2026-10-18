@@ -37,6 +37,12 @@ def _get_sized(request: Request, size: int) -> Response:
     return Response(b"x" * size)
 
 
+@_stub_app.get("/unlisted", include_in_schema=False)
+def _get_unlisted(request: Request) -> Response:
+    _path_to_call_count[request.url.path] += 1
+    return JSONResponse({"ok": True})
+
+
 @_stub_app.get("/missing")
 def _get_missing(request: Request) -> Response:
     _path_to_call_count[request.url.path] += 1
@@ -187,8 +193,11 @@ def test_cache_keys_on_declared_parameters_in_any_order(
 def test_cache_does_not_store_a_path_with_no_declared_route(
     stub_client: TestClient,
 ) -> None:
-    stub_client.get("/no-such-route")
+    first = stub_client.get("/unlisted")
+    stub_client.get("/unlisted")
 
+    assert first.status_code == status.HTTP_200_OK
+    assert _path_to_call_count["/unlisted"] == 2
     assert len(response_cache._cache_key_to_cached_response) == 0
 
 
