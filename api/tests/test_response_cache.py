@@ -1,49 +1,60 @@
 from collections import Counter
+from typing import Optional
 
 import pytest
-from fastapi import status
+from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 from starlette.applications import Starlette
-from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
-from starlette.routing import Mount, Route
+from starlette.routing import Mount
 
 from middleware import response_cache
 
 _path_to_call_count: Counter[str] = Counter()
 
+_stub_app = FastAPI()
+_stub_app.add_middleware(response_cache.ResponseCacheMiddleware)
 
-async def _get_ok(request: Request) -> Response:
+
+@_stub_app.get("/ok")
+def _get_ok(
+    request: Request, page: Optional[int] = None, number: Optional[int] = None
+) -> Response:
     _path_to_call_count[request.url.path] += 1
     return JSONResponse({"ok": True})
 
 
-async def _get_missing(request: Request) -> Response:
-    _path_to_call_count[request.url.path] += 1
-    return JSONResponse({"detail": "missing"}, status_code=status.HTTP_404_NOT_FOUND)
-
-
-async def _get_excluded(request: Request) -> Response:
-    _path_to_call_count[request.url.path] += 1
-    return JSONResponse({"ok": True})
-
-
-async def _get_large(request: Request) -> Response:
+@_stub_app.get("/large")
+def _get_large(request: Request) -> Response:
     _path_to_call_count[request.url.path] += 1
     return Response(b"x" * (response_cache._CACHE_MAX_BODY_BYTES + 1))
 
 
-_stub_app = Starlette(
-    routes=[
-        Route("/ok", _get_ok),
-        Route("/large", _get_large),
-        Route("/missing", _get_missing),
-        Route("/health", _get_excluded),
-        Route("/preview-fetches", _get_excluded),
-    ],
-    middleware=[Middleware(response_cache.ResponseCacheMiddleware)],
-)
+@_stub_app.get("/sized/{size}")
+def _get_sized(request: Request, size: int) -> Response:
+    _path_to_call_count[request.url.path] += 1
+    return Response(b"x" * size)
+
+
+@_stub_app.get("/missing")
+def _get_missing(request: Request) -> Response:
+    _path_to_call_count[request.url.path] += 1
+    return JSONResponse({"detail": "missing"}, status_code=status.HTTP_404_NOT_FOUND)
+
+
+@_stub_app.get("/health")
+def _get_health(request: Request) -> Response:
+    _path_to_call_count[request.url.path] += 1
+    return JSONResponse({"ok": True})
+
+
+@_stub_app.get("/preview-fetches")
+def _get_preview_fetches(request: Request) -> Response:
+    _path_to_call_count[request.url.path] += 1
+    return JSONResponse({"ok": True})
+
+
 _parent_app = Starlette(
     routes=[Mount("/api", app=_stub_app), Mount("/", app=_stub_app)]
 )
@@ -151,3 +162,51 @@ def test_cache_does_not_store_a_body_over_the_size_cap(stub_client: TestClient) 
     assert first.headers["cache-control"] == "public, max-age=3600"
     assert _path_to_call_count["/large"] == 2
     assert len(response_cache._cache_key_to_cached_response) == 0
+
+
+def test_cache_ignores_query_parameters_the_route_does_not_declare(
+    stub_client: TestClient,
+) -> None:
+    for number in range(20):
+        stub_client.get("/ok", params={"page": 1, "junk": number})
+    stub_client.get("/ok?junk=x&page=1&other=y")
+
+    assert _path_to_call_count["/ok"] == 1
+    assert len(response_cache._cache_key_to_cached_response) == 1
+
+
+def test_cache_keys_on_declared_parameters_in_any_order(
+    stub_client: TestClient,
+) -> None:
+    stub_client.get("/ok?page=1&number=2")
+    stub_client.get("/ok?number=2&page=1")
+
+    assert _path_to_call_count["/ok"] == 1
+
+
+def test_cache_does_not_store_a_path_with_no_declared_route(
+    stub_client: TestClient,
+) -> None:
+    stub_client.get("/no-such-route")
+
+    assert len(response_cache._cache_key_to_cached_response) == 0
+
+
+def test_cache_drops_the_oldest_entries_past_the_byte_budget(
+    stub_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(response_cache, "_CACHE_MAX_TOTAL_BYTES", 1_000)
+    for size in [400, 401, 402, 403]:
+        stub_client.get(f"/sized/{size}", headers={"Accept-Encoding": "identity"})
+
+    cached_paths = [
+        route_path for route_path, _, _ in response_cache._cache_key_to_cached_response
+    ]
+    assert cached_paths == ["/sized/402", "/sized/403"]
+    assert (
+        sum(
+            cached_response.byte_count
+            for cached_response in response_cache._cache_key_to_cached_response.values()
+        )
+        <= 1_000
+    )
