@@ -9,7 +9,7 @@ This run fixes the confirmed findings in `plans/data-sanity-personas-findings.md
 | Group | Findings | Repo | Writes data |
 |---|---|---|---|
 | G1. Bugs in this repo | DS-01, DS-02, the one-line API merge for DS-17's party filter | `hansard` | No |
-| G2. Write #3 | Ship the scraper's write #3, plan v4. Then re-check DS-05, DS-06, DS-09, DS-15 and DS-18 and commits `ee80a9b` to `64e4128` on its data | `handsard-scraper` | Yes |
+| G2. Write #3 | Ship the scraper's write #3, plan v4. Then re-check DS-05, DS-06, DS-09, DS-15 and DS-18 and commits `a98387f` to `12e9cd1` on its data | `handsard-scraper` | Yes |
 | G3. Speech fidelity loop detectors | DS-05, DS-09 | `handsard-scraper` | No |
 | G4. Mechanical scraper rules | DS-04, DS-08, DS-11, DS-12 | `handsard-scraper` | Yes |
 | G5. Reference data | DS-03, DS-16, DS-17, DS-10, DS-13, DS-19 | `handsard-scraper` | Yes |

@@ -290,7 +290,7 @@ The speech statement measured the same way: report type `oral-answer` only 0.9 m
 CREATE INDEX ix_speech_transcript_fts ON speech USING gin (to_tsvector('english', transcript));
 ```
 
-Kept, and no API statement uses it. It indexes the same vector as `transcript_tsv`, so it duplicates `ix_speech_transcript_tsv`. Scraper commit `1f0d8ef` built it for `GET /search/speeches` (B1, B2). Since API commit `49ebfad` (17 October 2026) the speech statements filter the stored column `transcript_tsv` and never write `to_tsvector('english', transcript)`, so the planner cannot match this expression. The index takes 92 MB, and every insert, delete and update of `transcript` on `speech` still maintains it. The scraper still declares it on `Speech`.
+Kept, and no API statement uses it. It indexes the same vector as `transcript_tsv`, so it duplicates `ix_speech_transcript_tsv`. Scraper commit `1f0d8ef` built it for `GET /search/speeches` (B1, B2). Since API commit `1f8248d` (17 October 2026) the speech statements filter the stored column `transcript_tsv` and never write `to_tsvector('english', transcript)`, so the planner cannot match this expression. The index takes 92 MB, and every insert, delete and update of `transcript` on `speech` still maintains it. The scraper still declares it on `Speech`.
 
 ## ix_speech_transcript_tsv
 
@@ -300,7 +300,7 @@ ALTER TABLE speech ADD COLUMN transcript_tsv tsvector
 CREATE INDEX ix_speech_transcript_tsv ON speech USING gin (transcript_tsv);
 ```
 
-Needed by `GET /search/speeches` with search words, and by its match count. The statements filter `transcript_tsv @@ websearch_to_tsquery('english', ...)`. Scraper commit `e856c26`, revision `f2b8d4a6c913`. The API has read the column since commit `49ebfad`.
+Needed by `GET /search/speeches` with search words, and by its match count. The statements filter `transcript_tsv @@ websearch_to_tsquery('english', ...)`. Scraper commit `e856c26`, revision `f2b8d4a6c913`. The API has read the column since commit `1f8248d`.
 
 The column stores each vector once. A GIN expression index does not hold a vector Postgres can read back, so `ts_rank` recomputed `to_tsvector('english', transcript)` for every matched row, and a common word ranked every one of its matches. The column costs a table rewrite on creation and 94 MB of index (measured on the rehearsal copy, the same size as the expression index). The two rum indexes below serve the same `@@` predicate, so the planner chooses among the three for each statement. On a clone with the sitting-date index, hiding this one changed no plan in 61 search and count shapes: the two member-filtered shapes that read it in a bitmap read the relevance rum index instead, at 80 against 48 ms and 1.16 against 1.05 ms (the clone was under load from another job). Dropping it would save 94 MB and its upkeep on every write; that is Royce's call.
 
@@ -420,7 +420,7 @@ Limit  (cost=8.05..8.06 rows=1 width=194)
 
 Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
 
-Three commits changed that: the stored column (`49ebfad`, 17 October), the rum index with its `ANALYZE` (`aed4137`, 18 October) and the order clauses below (`90f8ba0`, 18 October). `ts_rank` is gone from speech search. Report title search still uses it, and the title plans above stand.
+Three commits changed that: the stored column (`1f8248d`, 17 October), the rum index with its `ANALYZE` (`aed4137`, 18 October) and the order clauses below (`11f0aa6`, 18 October). `ts_rank` is gone from speech search. Report title search still uses it, and the title plans above stand.
 
 The `ORDER BY` clauses of `GET /search/speeches` with search words, from `api/crud/speech.py`. The date orders need `ix_speech_transcript_tsv_sitting_date_rum`, on production since 18 October 2026. Before it, production matched the clauses of `613c795`, which are in the "Newest first" and "Oldest first" paragraphs below:
 

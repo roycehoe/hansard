@@ -56,9 +56,9 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 ### DS-01. Copied speech citation names an office fragment as the speaker
 
 - Severity: high. Owner: app. Status: confirmed.
-- Fix status, 16 Oct: fixed in code, commit `22c1255`. A linked speech cites `person_name`, except a stored "Surname, Given" name (DS-13), which falls back to the label. An unlinked label uses the last bracket that starts with a title. Checked on the replica with every DS-01 label; 781,774 of 884,819 speeches change citation text, mostly because the honorific goes with `person_name`. "Mr Speaker" labels now cite the person without the office. Heading labels (DS-05) still give a citation such as "(SECTION III - REVENUE AND TAX CHANGES)".
+- Fix status, 16 Oct: fixed in code, commit `a621af5`. A linked speech cites `person_name`, except a stored "Surname, Given" name (DS-13), which falls back to the label. An unlinked label uses the last bracket that starts with a title. Checked on the replica with every DS-01 label; 781,774 of 884,819 speeches change citation text, mostly because the honorific goes with `person_name`. "Mr Speaker" labels now cite the person without the office. Heading labels (DS-05) still give a citation such as "(SECTION III - REVENUE AND TAX CHANGES)".
 - Fix status, pass 2, 17 Oct 2026: Fixed
-- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged by cycle 4; the SQL gives 1,981 speeches in 33 labels on both copies. Commit `21f67be` redoes the citation under ruling 1: the name comes from the label (the last titled bracket of an office label), presiding-officer labels keep the office, and `person_name` is used only when a label has brackets and none of them names a person. 2,297 of 962,541 citations differ from the code before `22c1255`. A bare "Mr Speaker" or "The Prime Minister" cites as printed.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged by cycle 4; the SQL gives 1,981 speeches in 33 labels on both copies. Commit `7063311` redoes the citation under ruling 1: the name comes from the label (the last titled bracket of an office label), presiding-officer labels keep the office, and `person_name` is used only when a label has brackets and none of them names a person. 2,297 of 962,541 citations differ from the code before `a621af5`. A bare "Mr Speaker" or "The Prime Minister" cites as printed.
 - Personas: lawyer.
 - App URL: http://localhost:5174/reports/president-address-256#s1 (copy-citation button on speech 1).
 - API call: `GET /reports/president-address-256`, field `speeches[].speaker_label`.
@@ -95,9 +95,9 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 ### DS-02. Reports with header-only text are counted and labelled as having text
 
 - Severity: low. Owner: api, with a scraper note. Status: confirmed.
-- Fix status, 16 Oct: fixed in code, commit `8c69fd9`. A Report has text only when a Speech points at it, everywhere the API decides it (EXISTS on `speech.report_id`). The app drops the no-speeches notice. On the replica `text_report_count` goes from 41,683 to 41,029, and `/coverage` answers in 0.56 s cold.
+- Fix status, 16 Oct: fixed in code, commit `d3dc4de`. A Report has text only when a Speech points at it, everywhere the API decides it (EXISTS on `speech.report_id`). The app drops the no-speeches notice. On the replica `text_report_count` goes from 41,683 to 41,029, and `/coverage` answers in 0.56 s cold.
 - Fix status, pass 2, 17 Oct 2026: Fixed
-- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 654 Reports with markdown and no speech on both copies. Fixed in code by `8c69fd9`.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 654 Reports with markdown and no speech on both copies. Fixed in code by `d3dc4de`.
 - Personas: lawyer, journalist; the historian listed the same Reports as Explained.
 - App URL: http://localhost:5174/reports/00068872-ZZ.00047415-ZZ_1%23id043_19551123_S0003_T00431-budget
 - API call: `GET /reports/00068872-ZZ.00047415-ZZ_1%23id043_19551123_S0003_T00431-budget`
@@ -149,7 +149,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: medium. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared the rule: 10 Reports and 825 speech rows to delete, listed in `data/excluded_report_ids.json` with the Report kept, and stage 3 learns to skip them. On write #3 data every pair is still identical. The 16 Oct 2003 stubs 24909 and 42986 go; 24905 has no twin and stays. A hansard patch maps the 10 old slugs to the kept Reports (ADR 0004). Prepared as patches, dry-run counted on the replica; not committed, not written.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 8 `html_file_name` groups (16 Reports), every pair still identical by speech md5, and the 3 stubs of 16 Oct 2003. G4's rebased dry run: 10 Reports and 825 speeches to delete, as recorded.
-- Fix status, 17 Oct: committed as `7c3ad53`: 10 Reports and 825 speeches, rehearsed and rollback-rehearsed on hansard_fixes; hansard `c9de6a0` maps the 10 removed slugs to the kept Reports. Production write 1. The stopping rule's 9 sets of byte-identical reports were recomputed: every same-topic pair is one of these 10, so nothing else is excluded.
+- Fix status, 17 Oct: committed as `7c3ad53`: 10 Reports and 825 speeches, rehearsed and rollback-rehearsed on hansard_fixes; hansard `9847b45` maps the 10 removed slugs to the kept Reports. Production write 1. The stopping rule's 9 sets of byte-identical reports were recomputed: every same-topic pair is one of these 10, so nothing else is excluded.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: lawyer, journalist.
 - App URLs: http://localhost:5174/sittings/1963-04-09 (two "BUDGET, MINISTRY OF LABOUR"), http://localhost:5174/sittings/2011-11-21 (two "Central Provident Fund (Amendment) Bill"), http://localhost:5174/sittings/2003-10-16 (stubs).
@@ -429,14 +429,14 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 ### DS-15. `speech.kind` is NULL on every Speech
 
 - Status: explained. Owner: scraper. Personas: historian, lawyer, journalist, citizen. Three rated it high and the journalist medium.
-- Fix status, 16 Oct: applied to rehearsal. On the replica every row has a kind except 4,146 rows in the 162 held Reports, as ADR 0009 says. The loop session's production ship has written the kind of 1,004,419 rows (its pre-step, done at 14:40); the locked phase is still to come. G2 ran the app's kind logic (`ee80a9b` to `64e4128`) on write #3 data: styles and runs match ADR 0009. One defect: 488 SPEECH rows with no speaker, in 10 Reports, render as unlabelled body text, so they read as the previous speaker's. The search API has no kind filter.
-- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): partly fixed. Write #3 is on production, with kind NULL on 4,146 rows. After write #4, 2,275 rows stay NULL (the 121 held Reports, 22647 and 22650). Kinds: SPEECH 961,080, PROCEDURAL 49,841, UNCLASSIFIED 20,944, CHAMBER_EVENT 5,838, EDITORIAL_NOTE 3,187, DOCUMENT_TEXT 2,616, HEADING 2,570. The 488 SPEECH rows with no speaker are the same rows in the same 10 Reports; commit `556bbc4` labels them "Speaker not recorded" (ruling 2).
-- Fix status, 17 Oct: hansard `556bbc4` labels the 488 SPEECH rows with no speaker "Speaker not recorded".
+- Fix status, 16 Oct: applied to rehearsal. On the replica every row has a kind except 4,146 rows in the 162 held Reports, as ADR 0009 says. The loop session's production ship has written the kind of 1,004,419 rows (its pre-step, done at 14:40); the locked phase is still to come. G2 ran the app's kind logic (`a98387f` to `12e9cd1`) on write #3 data: styles and runs match ADR 0009. One defect: 488 SPEECH rows with no speaker, in 10 Reports, render as unlabelled body text, so they read as the previous speaker's. The search API has no kind filter.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): partly fixed. Write #3 is on production, with kind NULL on 4,146 rows. After write #4, 2,275 rows stay NULL (the 121 held Reports, 22647 and 22650). Kinds: SPEECH 961,080, PROCEDURAL 49,841, UNCLASSIFIED 20,944, CHAMBER_EVENT 5,838, EDITORIAL_NOTE 3,187, DOCUMENT_TEXT 2,616, HEADING 2,570. The 488 SPEECH rows with no speaker are the same rows in the same 10 Reports; commit `78534d2` labels them "Speaker not recorded" (ruling 2).
+- Fix status, 17 Oct: hansard `78534d2` labels the 488 SPEECH rows with no speaker "Speaker not recorded".
 - Fix status, pass 2, 17 Oct 2026: Fixed as designed: 2,275 held rows keep kind NULL
 - Actual: `select kind, count(*) from speech group by 1` returns one row, NULL 1,044,594.
 - Why: the scraper parser sets `kind` on every row since commit `0969500` (`services/speech.py:587-601`, stored at `populate/speeches.py:58`). Stored rows get a kind only when write #3 ships. `docs/adr/0009-speech-kind-column.md:3` says "Write #3 fills the column for stored rows, so stored rows have no kind yet", and `docs/vision.md:65` says write #3 is "rehearsed on a replica and not shipped". After it ships, 4,146 rows in 162 held Reports stay NULL by design.
-- Did ee80a9b to 64e4128 ship dead code? No. The code is inert until write #3 ships, and its NULL fallback reproduces the behaviour from before those commits exactly:
-  - `app/src/components/reports/RowSpeech.tsx:31-34`: with no kind, a row with no label is muted and a row with a label is body text. This is the old `isProcedural={!hasSpeakerLabel}` rule from before 8f7c514.
+- Did a98387f to 12e9cd1 ship dead code? No. The code is inert until write #3 ships, and its NULL fallback reproduces the behaviour from before those commits exactly:
+  - `app/src/components/reports/RowSpeech.tsx:31-34`: with no kind, a row with no label is muted and a row with a label is body text. This is the old `isProcedural={!hasSpeakerLabel}` rule from before 0d6e119.
   - `app/src/components/reports/ListSpeeches.tsx:22-36`: a NULL kind is neither CHAMBER_EVENT nor EDITORIAL_NOTE, so `getPreviousSpeakerLabel` returns the immediately previous label, the same as the old `report.speeches[index - 1]?.speaker_label` check.
   - The API passes `kind` through as `Optional[SpeechKind]` (`api/schemas/report.py:13`, `api/schemas/search.py:17`) and has no fallback of its own.
   - Nobody has seen the feature work on real data. Re-run one Report per era after write #3 ships.
@@ -457,7 +457,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 ### DS-17. The PAP has two party strings, so the party filter splits it
 
 - Status: explained. Owner: scraper, with an api option. Personas: historian, citizen.
-- Fix status, 16 Oct: in progress. The API stopgap is fixed in code, commit `47f59d7`: `/parties` lists one PAP string and either spelling returns 347 people on the replica. The stored strings still differ until G5's scraper normalisation ships.
+- Fix status, 16 Oct: in progress. The API stopgap is fixed in code, commit `85672d6`: `/parties` lists one PAP string and either spelling returns 347 people on the replica. The stored strings still differ until G5's scraper normalisation ships.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged in the data: 298 curly and 853 straight.
 - Fix status, 17 Oct: the data half is in `6b37993` with DS-03 (298 rows). Production write 6.
 - Fix status, pass 2, 17 Oct 2026: Fixed
@@ -468,9 +468,9 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 ### DS-18. Later speeches in a run cite the name without the office
 
 - Status: explained. Owner: scraper (source labels). Personas: lawyer.
-- Fix status, 16 Oct: open. Explained, no data fix. On write #3 data the shape covers 217,473 rows in 10,930 Reports. Since `22c1255` these citations use `person_name`, so the name form matches across a run; the office still shows only where the label prints it. G2 re-checks on write #3 data.
+- Fix status, 16 Oct: open. Explained, no data fix. On write #3 data the shape covers 217,473 rows in 10,930 Reports. Since `a621af5` these citations use `person_name`, so the name form matches across a run; the office still shows only where the label prints it. G2 re-checks on write #3 data.
 - Fix status, pass 2, 17 Oct 2026: Unchanged: explained
-- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): not re-counted; cycle 4 changed no label of this shape. Since `21f67be` a citation takes the name as the label prints it, so a later speech in a run cites "(Mr K Shanmugam)" as printed, without the office.
+- Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): not re-counted; cycle 4 changed no label of this shape. Since `7063311` a citation takes the name as the label prints it, so a later speech in a run cites "(Mr K Shanmugam)" as printed, without the office.
 - Actual: in http://localhost:5174/reports/bill-364 speech 2 is "The Minister for Law (Mr K Shanmugam)" and later speeches are "Mr K Shanmugam", so their citations read "(Mr K Shanmugam)" without the office.
 - Why: the Official Report prints the label that way; triage saw `<strong>Mr K Shanmugam</strong>:` in the SPRS JSON for 7 May 2019. The citation uses the label as printed. A fix in DS-01 that prefers `person_name` would at least make the name form match.
 
@@ -531,7 +531,7 @@ select extract(year from sitting_date)::int, count(*), count(*) filter (where oc
 from report where sitting_date >= '2011-01-01' group by 1 order by 1;
 ```
 
-The post-2012 load landed on 14 Oct 2026, and commit `14ce034` removed the gap from the app. `/coverage` reports text from 22 Apr 1955 to 8 Apr 2025, and attendance to the same date. Only 128 of 41,811 Reports have no text.
+The post-2012 load landed on 14 Oct 2026, and commit `d8b57f7` removed the gap from the app. `/coverage` reports text from 22 Apr 1955 to 8 Apr 2025, and attendance to the same date. Only 128 of 41,811 Reports have no text.
 
 Effects on this run:
 

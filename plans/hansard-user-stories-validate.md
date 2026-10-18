@@ -1,7 +1,7 @@
 # Execution Validate: Hansard user stories
 
 **Verdict:** PASS
-**Commit range:** fe664a4^..228a6b7 (the feature range 0e5eb32..HEAD, 27 feature commits plus one fix commit, 118b79a)
+**Commit range:** 48e34ba^..be7b517 (the feature range 4cb4690..HEAD, 27 feature commits plus one fix commit, 7a9e787)
 **22 covered · 0 partial · 0 missing**
 **Validated:** 2026-10-14T00:03:21+08:00
 
@@ -9,7 +9,7 @@
 
 ## How this was checked
 
-The requirements are the 22 numbered Implementation Steps in `plans/hansard-user-stories.md`: R-001 to R-011 are API steps 1 to 11, and R-012 to R-022 are app steps 12 to 22. The commit log lists steps out of plan order (17 to 20 first, then 1 to 16, then 21 to 27), and steps 5 and 7 share commit e8c02c1. Both are recorded in the log and in the execution plan's Amendments, so neither counts as a gap. The commits listed by `git log fe664a4^..HEAD` match the hashes in the log. Each requirement was checked against the diff and the tree by reading the named files and symbols.
+The requirements are the 22 numbered Implementation Steps in `plans/hansard-user-stories.md`: R-001 to R-011 are API steps 1 to 11, and R-012 to R-022 are app steps 12 to 22. The commit log lists steps out of plan order (17 to 20 first, then 1 to 16, then 21 to 27), and steps 5 and 7 share commit 35cbb9a. Both are recorded in the log and in the execution plan's Amendments, so neither counts as a gap. The commits listed by `git log 48e34ba^..HEAD` match the hashes in the log. Each requirement was checked against the diff and the tree by reading the named files and symbols.
 
 The 13 amendments in the execution plan were treated as recorded deviations. Two worth naming because they touch a requirement: the typed 503 `SearchTimedOutException` for a cancelled search (R-003, R-008), and `NaiveDatetime` for `Report.sitting_date` (R-001).
 
@@ -23,7 +23,7 @@ The 13 amendments in the execution plan were treated as recorded deviations. Two
 | R-002 | Enums | Covered | `ReportType` with 23 members and `SearchSort` (`relevance`, `date`) in `api/enums.py`. |
 | R-003 | Exceptions | Covered | `ErrorCode`, `ErrorSpec`, `ERRORS`, `AppHttpExceptionBase` in `exceptions/base.py`; no-argument `ReportNotFoundException`, `SittingNotFoundException`, `PersonNotFoundException` (404). The extra `SearchTimedOutException` is amendment-recorded. |
 | R-004 | Pure helpers in `utils/` | Covered | `get_report_slug`, `get_report_id_candidates`, `get_official_record_url`, `get_person_slug`, `get_sitting_date_text`, `escape_like_pattern`, each in its named file. |
-| R-005 | CRUD classes, one per table | Covered | Every method listed in the plan exists on `CRUDReport`, `CRUDSpeech`, `CRUDSitting`, `CRUDAttendance`, `CRUDMembership` and `CRUDPerson`. `api/crud/CLAUDE.md` is ported with no Kelix mentions (commit 0ab14f0). The private attendance helper and `session.get` are amendment-recorded. |
+| R-005 | CRUD classes, one per table | Covered | Every method listed in the plan exists on `CRUDReport`, `CRUDSpeech`, `CRUDSitting`, `CRUDAttendance`, `CRUDMembership` and `CRUDPerson`. `api/crud/CLAUDE.md` is ported with no Kelix mentions (commit 2375de5). The private attendance helper and `session.get` are amendment-recorded. |
 | R-006 | Membership to person middleware | Covered | `middleware/membership.py::get_membership_id_to_person(membership_ids, session)`; used by the report, sitting, and search services. |
 | R-007 | Response schemas | Covered | `report`, `sitting`, `parliament`, `person`, `search`, `coverage` modules with every named model; no defaults; `Optional` only on `sitting_number`, `session_number`, `person_id` and the coverage dates; `subtitle` maps `None` to `""` in the services. |
 | R-008 | Services | Covered | All listed functions exist, each with a `_get_validated_*` helper where a lookup can fail. Person reports and both searches fetch `page_size + 1` and set `has_next_page`. `is_attendance_available` is `len(attendances) > 0`. `get_person` builds per-Parliament counts from the three dict methods. Title search with a Person filter passes `is_text_available=False`, matching Decided without Royce 4. |

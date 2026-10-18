@@ -42,7 +42,7 @@ Terms from `plans/hansard-user-stories-brief.md` still hold: Report, Sitting, Sp
    - party strings may be uncleaned.
 
    Nobody knows yet whether the party strings have been cleaned. The personas check, and the findings file states the result.
-7. **Spread.** Each persona covers 1955 to 1965 Legislative Assembly, the 1970s and 80s, the 1990s, 2000 to 2012, and text-less Reports after 2012. Every persona also checks speech kind and how a speaker's run of speeches is grouped, since that code is the newest (commits `ee80a9b` to `64e4128`). Royce named no Person, bill or date.
+7. **Spread.** Each persona covers 1955 to 1965 Legislative Assembly, the 1970s and 80s, the 1990s, 2000 to 2012, and text-less Reports after 2012. Every persona also checks speech kind and how a speaker's run of speeches is grouped, since that code is the newest (commits `a98387f` to `12e9cd1`). Royce named no Person, bill or date.
 8. **Load on production.** Each persona sends one request at a time. A 503, a timeout or a response slower than 10 s makes the persona wait 60 s before trying again, and wait longer each time it repeats. After three failures in a row, the persona stops querying for 5 minutes. Each persona gets a budget of about 40 tool calls.
 9. **Models.** Personas run on Sonnet. Triage runs on Opus, because a false alarm in the findings file costs Royce more time than the triage pass does.
 10. **Finding format**, written for a future agent that fixes it:
