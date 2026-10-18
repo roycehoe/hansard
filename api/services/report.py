@@ -8,8 +8,9 @@ from database.person import Person
 from database.report import Report
 from database.speech import Speech
 from enums import SpeechLinkStatus
-from exceptions.report import ReportNotFoundException
+from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from middleware.membership import get_membership_id_to_person
+from middleware.takedown import is_report_id_taken_down
 from schemas.report import GetReportResponse, SpeechData, SpeechLinkData
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
@@ -85,6 +86,8 @@ def get_report(
     session: Session,
 ) -> GetReportResponse:
     report = _get_validated_report(report_slug, session)
+    if is_report_id_taken_down(report.report_id):
+        raise ReportTakenDownException
     speeches = CRUDSpeech(session).get_all_by_report_id(report.id)
     ordinal_to_anchor = {
         speech.ordinal: get_speech_anchor(speech.transcript) for speech in speeches
