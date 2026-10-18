@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlmodel import Field, SQLModel
@@ -14,5 +15,7 @@ class PartyAffiliation(SQLModel, table=True):
         sa_type=ENUM(DatePrecision, name="dateprecision", create_type=False)
     )
     event: str
-    source_url: str
+    source_url: Optional[str] = None
+    is_started_on_upper_bound: bool
     speaker_id: int
+    source_report_id: Optional[int] = None

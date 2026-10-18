@@ -1,16 +1,24 @@
 from datetime import date
+from typing import Optional
 
 from pydantic import BaseModel
 
 from enums import DatePrecision
 
 
+class PartyAffiliationSourceReportData(BaseModel):
+    report_slug: str
+    sitting_date: date
+
+
 class PartyAffiliationData(BaseModel):
     party: str
     started_on: date
     started_on_precision: DatePrecision
+    is_started_on_upper_bound: bool
     event: str
-    source_url: str
+    source_url: Optional[str]
+    source_report: Optional[PartyAffiliationSourceReportData]
 
 
 class MembershipData(BaseModel):

@@ -9,6 +9,7 @@ from crud.person import CRUDPerson
 from crud.report import CRUDReport
 from crud.speech import CRUDSpeech
 from database.person import Person
+from database.report import Report
 from database.speaker import Speaker
 from exceptions.person import PersonNotFoundException
 from schemas.person import (
@@ -19,6 +20,7 @@ from schemas.person import (
     MembershipData,
     ParliamentCountData,
     PartyAffiliationData,
+    PartyAffiliationSourceReportData,
     PersonData,
     PersonMembershipData,
     PersonReportData,
@@ -36,13 +38,35 @@ def _get_validated_person(person_id: int, session: Session) -> Person:
     return person
 
 
+def _get_source_report_data(
+    source_report_id: Optional[int], report_id_to_report: dict[int, Report]
+) -> Optional[PartyAffiliationSourceReportData]:
+    if source_report_id is None:
+        return None
+    source_report = report_id_to_report[source_report_id]
+    return PartyAffiliationSourceReportData(
+        report_slug=get_report_slug(source_report.report_id),
+        sitting_date=source_report.sitting_date.date(),
+    )
+
+
 def _get_membership_id_to_party_affiliations(
     membership_ids: list[int], session: Session
 ) -> dict[int, list[PartyAffiliationData]]:
-    membership_id_to_party_affiliations: dict[int, list[PartyAffiliationData]] = {}
-    for party_affiliation in CRUDPartyAffiliation(session).get_all_by_membership_ids(
+    party_affiliations = CRUDPartyAffiliation(session).get_all_by_membership_ids(
         membership_ids
-    ):
+    )
+    source_report_ids = [
+        party_affiliation.source_report_id
+        for party_affiliation in party_affiliations
+        if party_affiliation.source_report_id is not None
+    ]
+    report_id_to_report = {
+        report.id: report
+        for report in CRUDReport(session).get_by_ids(source_report_ids)
+    }
+    membership_id_to_party_affiliations: dict[int, list[PartyAffiliationData]] = {}
+    for party_affiliation in party_affiliations:
         membership_id_to_party_affiliations.setdefault(
             party_affiliation.speaker_id, []
         ).append(
@@ -50,8 +74,12 @@ def _get_membership_id_to_party_affiliations(
                 party=party_affiliation.party,
                 started_on=party_affiliation.started_on,
                 started_on_precision=party_affiliation.started_on_precision,
+                is_started_on_upper_bound=party_affiliation.is_started_on_upper_bound,
                 event=party_affiliation.event,
                 source_url=party_affiliation.source_url,
+                source_report=_get_source_report_data(
+                    party_affiliation.source_report_id, report_id_to_report
+                ),
             )
         )
     return membership_id_to_party_affiliations
