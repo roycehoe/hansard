@@ -13,6 +13,8 @@ export const ATTRIBUTION_MEASURED_ON = '2026-10-14'
 
 export const HAND_CHECK_DATE = '2026-10-17'
 
+export const NOT_CHECKED_LABEL = 'Not checked'
+
 export const HAND_CHECK_LINKED_SPEECH_COUNT = 406
 
 export const HAND_CHECK_CORRECT_SPEECH_COUNT = 404

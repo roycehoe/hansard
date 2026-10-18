@@ -1,4 +1,5 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
+import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { TableAttributionParliaments } from '@/components/coverage/TableAttributionParliaments'
 import { TableCoverageCounts } from '@/components/coverage/TableCoverageCounts'
@@ -18,25 +19,21 @@ import {
   OFFICIAL_RECORD_SEARCH_URL,
 } from '@/constants/constants'
 import {
-  ATTRIBUTION_BY_PARLIAMENT,
-  ATTRIBUTION_MEASURED_ON,
   HAND_CHECK_CORRECT_SPEECH_COUNT,
   HAND_CHECK_DATE,
   HAND_CHECK_LINKED_SPEECH_COUNT,
   HAND_CHECK_PROCEDURAL_SPEECH_COUNT,
   HAND_CHECK_UNLINKED_SPEECH_COUNT,
-  LINKED_SPEECH_COUNT,
   METHODS_LAST_REVISED,
   NO_TEXT_BY_DESIGN_REPORT_COUNT,
   NON_MEMBER_MEMBERSHIP_COUNT,
   NON_MEMBER_PERSON_COUNT,
   REPAIR_DATE,
   REPAIR_PROCEDURAL_LINE_COUNT,
-  SPEECH_ROW_COUNT,
-  SPEECH_WITH_SPEAKER_LABEL_COUNT,
   UNLINKED_HAND_CHECK_DATE,
 } from '@/constants/coverage/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { buildAttributionFigures } from '@/lib/attribution'
 import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
@@ -47,12 +44,14 @@ const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
 
 const SUBHEADING_CLASS_NAME = 'font-serif text-lg lg:text-xl'
 
-const ATTRIBUTION_TO_PARLIAMENT_ELEVEN = ATTRIBUTION_BY_PARLIAMENT[0]
-
 export const Route = createFileRoute('/coverage/methods')({
   component: function PageCoverageMethods() {
     useDocumentTitle('Data quality and methods')
     const coverage = useGetCoverage()
+    const refresh = useGetRefresh()
+    const { headline, rows: attributionRows } = buildAttributionFigures(
+      refresh.data
+    )
 
     function retryCoverage() {
       void coverage.refetch()
@@ -300,7 +299,7 @@ export const Route = createFileRoute('/coverage/methods')({
           </h3>
           <p className="text-muted-foreground text-sm">
             These figures cover the Legislative Assembly to Parliament 11 and
-            were measured on {formatSittingDate(ATTRIBUTION_MEASURED_ON)}.
+            were measured on {formatSittingDate(headline.measuredOn)}.
           </p>
           <p>
             These figures count paragraphs credited to a person. They do not
@@ -313,11 +312,11 @@ export const Route = createFileRoute('/coverage/methods')({
                 Paragraphs with a speaker label credited to a named person
               </dt>
               <dd className="text-lg font-semibold tabular-nums">
-                {ATTRIBUTION_TO_PARLIAMENT_ELEVEN.namedLinked}
+                {headline.namedLinked}
               </dd>
               <dd className="text-muted-foreground text-sm">
-                {LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of the{' '}
-                {SPEECH_WITH_SPEAKER_LABEL_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
+                {headline.linkedRowCount.toLocaleString(NUMBER_LOCALE)} of the{' '}
+                {headline.speakerLabelRowCount.toLocaleString(NUMBER_LOCALE)}{' '}
                 paragraphs that print a speaker&apos;s name. Labels for members
                 as a group, such as &quot;hon. Member&quot;, and stage
                 directions are left out.
@@ -328,11 +327,11 @@ export const Route = createFileRoute('/coverage/methods')({
                 All paragraphs credited to a named person
               </dt>
               <dd className="text-lg font-semibold tabular-nums">
-                {ATTRIBUTION_TO_PARLIAMENT_ELEVEN.allLinked}
+                {headline.allLinked}
               </dd>
               <dd className="text-muted-foreground text-sm">
-                {LINKED_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} of all{' '}
-                {SPEECH_ROW_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs,
+                {headline.linkedRowCount.toLocaleString(NUMBER_LOCALE)} of all{' '}
+                {headline.rowCount.toLocaleString(NUMBER_LOCALE)} paragraphs,
                 including procedural lines and others with no speaker label.
               </dd>
             </div>
@@ -341,7 +340,7 @@ export const Route = createFileRoute('/coverage/methods')({
                 Share of the text in a credited paragraph
               </dt>
               <dd className="text-lg font-semibold tabular-nums">
-                {ATTRIBUTION_TO_PARLIAMENT_ELEVEN.textShare}
+                {headline.textShare}
               </dd>
               <dd className="text-muted-foreground text-sm">
                 Characters of text in credited paragraphs, out of all the text
@@ -354,7 +353,7 @@ export const Route = createFileRoute('/coverage/methods')({
             The Parliament 12 row covers the whole Parliament, before and after
             10 September 2012.
           </p>
-          <TableAttributionParliaments />
+          <TableAttributionParliaments rows={attributionRows} />
         </section>
 
         {renderYears()}
