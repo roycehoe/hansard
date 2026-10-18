@@ -11,9 +11,9 @@ import { ListActiveFilters } from '@/components/search/ListActiveFilters'
 import { ListPersonMatches } from '@/components/search/ListPersonMatches'
 import { ListReportMatches } from '@/components/search/ListReportMatches'
 import { ListSpeechMatches } from '@/components/search/ListSpeechMatches'
-import { NoticeBusySearch } from '@/components/search/NoticeBusySearch'
 import { NoticeErrorParliaments } from '@/components/search/NoticeErrorParliaments'
 import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
+import { NoticeErrorSearchBusy } from '@/components/search/NoticeErrorSearchBusy'
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
 import {
   Breadcrumb,
@@ -230,7 +230,7 @@ export const Route = createFileRoute('/search')({
       if (speeches.isError || !speeches.data) {
         if (isSearchBusyError(speeches.error)) {
           return (
-            <NoticeBusySearch
+            <NoticeErrorSearchBusy
               onRetry={retrySpeeches}
               isRetrying={speeches.isRefetching}
             />
@@ -270,7 +270,7 @@ export const Route = createFileRoute('/search')({
       if (reports.isError || !reports.data) {
         if (isSearchBusyError(reports.error)) {
           return (
-            <NoticeBusySearch
+            <NoticeErrorSearchBusy
               onRetry={retryReports}
               isRetrying={reports.isRefetching}
             />

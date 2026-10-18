@@ -1,14 +1,14 @@
 import { NoticeError } from '@/components/layout/NoticeError'
 
-interface NoticeBusySearchProps {
+interface NoticeErrorSearchBusyProps {
   onRetry: () => void
   isRetrying: boolean
 }
 
-export function NoticeBusySearch({
+export function NoticeErrorSearchBusy({
   onRetry,
   isRetrying,
-}: NoticeBusySearchProps) {
+}: NoticeErrorSearchBusyProps) {
   return (
     <NoticeError
       title="Search is busy"
