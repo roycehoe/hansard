@@ -14,6 +14,7 @@ from database.speech import Speech
 from enums import ReportType, SearchSort
 from exceptions.search import SearchTimedOutException
 from middleware.membership import get_membership_id_to_person
+from middleware.takedown import is_report_id_taken_down
 from schemas.search import (
     ReportMatchData,
     SearchReportsResponse,
@@ -294,6 +295,7 @@ def search_speeches(
                 }
             )
         )
+        if not is_report_id_taken_down(report.report_id)
     }
     membership_id_to_person = get_membership_id_to_person(
         sorted(
@@ -362,7 +364,11 @@ def search_reports(
             session,
         )
     )
-    page_reports = reports[:page_size]
+    page_reports = [
+        report
+        for report in reports[:page_size]
+        if not is_report_id_taken_down(report.report_id)
+    ]
     report_ids = [report.id for report in page_reports]
     if query.strip() == "":
         report_id_to_headline = {}
