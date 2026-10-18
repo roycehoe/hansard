@@ -27,9 +27,11 @@ export function ActionBarSpeechCopy({
   officialRecordUrl,
   citation,
 }: ActionBarSpeechCopyProps) {
+  const speechPermalink = buildSpeechPermalink(reportSlug, ordinal, anchor)
+
   function copySpeechLink() {
     return copyTextWithToast(
-      buildSpeechPermalink(reportSlug, ordinal, anchor),
+      speechPermalink,
       'Link copied',
       "Couldn't copy the link"
     )
@@ -40,7 +42,7 @@ export function ActionBarSpeechCopy({
       buildSpeechCite(
         citation ?? '',
         reportTitle,
-        buildSpeechPermalink(reportSlug, ordinal, anchor),
+        speechPermalink,
         officialRecordUrl,
         formatCalendarDate(new Date())
       ),
@@ -88,7 +90,7 @@ export function ActionBarSpeechCopy({
               <a
                 href={buildErrorEmailHref(
                   `Error in ${reportTitle}`,
-                  buildSpeechPermalink(reportSlug, ordinal, anchor)
+                  speechPermalink
                 )}
                 aria-label={`Report an error in speech ${ordinal}`}
               >

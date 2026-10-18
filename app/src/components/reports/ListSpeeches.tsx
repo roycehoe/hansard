@@ -33,7 +33,8 @@ function scrollToLinkedSpeech(speechLink: SpeechLinkData | null) {
   const speechElement = document.getElementById(targetId)
   if (!speechElement) return
   const noticeElement = document.getElementById(SPEECH_LINK_NOTICE_ID)
-  ;(noticeElement ?? speechElement).scrollIntoView()
+  const scrollTargetElement = noticeElement ?? speechElement
+  scrollTargetElement.scrollIntoView()
   speechElement.focus({ preventScroll: true })
 }
 
