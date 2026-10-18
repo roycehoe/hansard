@@ -39,7 +39,7 @@ The scraper repo owns the schema and every Alembic migration. This API only read
 - **No Alembic here.** The API has no migrations and never changes the schema.
 - **Read-only role.** The API connects through a read-only Postgres role. Do not write code that inserts, updates or deletes rows.
 - **Own models.** The API declares its own SQLModel classes, one per table it reads, once endpoints exist. It does not import the scraper's models.
-- **Tables owned by the scraper:** `hansard_website_response`, `report`, `speech`, `hansard_sitting_date_response`, `sitting`, `attendance`, `speaker`, `person`. The scraper's `CLAUDE.md` describes them.
+- **Tables owned by the scraper:** `hansard_website_response`, `report`, `speech`, `hansard_sitting_date_response`, `sitting`, `attendance`, `speaker`, `person`, `partyaffiliation`. The scraper's `CLAUDE.md` describes them.
 - **A schema change is a scraper change.** If an endpoint needs a column that does not exist, make the change in the scraper repo, then update the matching model here.
 
 ## Architecture
@@ -55,7 +55,7 @@ What exists today:
 | `settings.py` | `pydantic-settings` configuration: `AppSettings` (`DATABASE_URL`) and `WebsiteSettings`, which only `website.py` reads. |
 | `enums.py` | `ReportType` (the 23 stored report type strings) and `SearchSort`. |
 | `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. |
-| `database/` | One SQLModel class per table the API reads: `Report`, `Speech`, `Sitting`, `Attendance`, `Speaker`, `Person`. Only the columns the API uses. |
+| `database/` | One SQLModel class per table the API reads: `Report`, `Speech`, `Sitting`, `Attendance`, `Speaker`, `Person`, `PartyAffiliation`. Only the columns the API uses. |
 | `exceptions/` | `base.py` (`ErrorCode`, `ErrorSpec`, `ERRORS`, `AppHttpExceptionBase`) and one no-argument exception class per domain file. |
 | `utils/` | Pure helpers: report slug, official record URL, person slug, sitting date text, `LIKE` escaping, transcript snippet. |
 | `validators/` | `search.py`: `validate_can_search`, which a search router calls before the service. |
