@@ -60,6 +60,7 @@ export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
               speech.speaker_label
           }
           reportSlug={report.report_slug}
+          reportTitle={report.title}
           sittingDate={report.sitting_date}
           volumeNumber={report.volume_number}
           parliamentNumber={report.parliament_number}

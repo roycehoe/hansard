@@ -11,6 +11,7 @@ interface RowSpeechProps {
   speech: SpeechData
   isContinuation: boolean
   reportSlug: string
+  reportTitle: string
   sittingDate: string
   volumeNumber: number
   parliamentNumber: number
@@ -40,6 +41,7 @@ export function RowSpeech({
   speech,
   isContinuation,
   reportSlug,
+  reportTitle,
   sittingDate,
   volumeNumber,
   parliamentNumber,
@@ -117,6 +119,7 @@ export function RowSpeech({
       </div>
       <ActionBarSpeechCopy
         reportSlug={reportSlug}
+        reportTitle={reportTitle}
         ordinal={speech.ordinal}
         citation={citation}
       />

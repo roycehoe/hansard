@@ -4,18 +4,21 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { CONTACT_EMAIL } from '@/constants/constants'
 import { buildSpeechPermalink } from '@/lib/citation'
-import { copyTextWithToast } from '@/lib/utils'
-import { Link2, Quote } from 'lucide-react'
+import { buildErrorEmailHref, copyTextWithToast } from '@/lib/utils'
+import { Flag, Link2, Quote } from 'lucide-react'
 
 interface ActionBarSpeechCopyProps {
   reportSlug: string
+  reportTitle: string
   ordinal: number
   citation?: string
 }
 
 export function ActionBarSpeechCopy({
   reportSlug,
+  reportTitle,
   ordinal,
   citation,
 }: ActionBarSpeechCopyProps) {
@@ -65,6 +68,24 @@ export function ActionBarSpeechCopy({
             </Button>
           </TooltipTrigger>
           <TooltipContent>Copy citation</TooltipContent>
+        </Tooltip>
+      )}
+      {CONTACT_EMAIL && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button asChild variant="quiet" size="icon-sm">
+              <a
+                href={buildErrorEmailHref(
+                  `Error in ${reportTitle}`,
+                  buildSpeechPermalink(reportSlug, ordinal)
+                )}
+                aria-label={`Report an error in speech ${ordinal}`}
+              >
+                <Flag aria-hidden="true" />
+              </a>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Report an error</TooltipContent>
         </Tooltip>
       )}
     </div>
