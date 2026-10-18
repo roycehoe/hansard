@@ -1,6 +1,7 @@
 import { ApiError } from '@/api/client'
 import { useGetSitting } from '@/api/sittings/getSitting'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { TextSource } from '@/components/layout/TextSource'
 import { ListAttendance } from '@/components/sittings/ListAttendance'
 import { ListSittingReports } from '@/components/sittings/ListSittingReports'
 import { NoticeAttendanceUnavailable } from '@/components/sittings/NoticeAttendanceUnavailable'
@@ -108,6 +109,7 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
             <NoticeAttendanceUnavailable />
           )}
         </section>
+        <TextSource sittingDate={data.sitting_date} officialRecordUrl={null} />
       </div>
     )
   },

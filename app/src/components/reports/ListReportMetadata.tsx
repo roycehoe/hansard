@@ -39,19 +39,6 @@ export function ListReportMetadata({ report }: ListReportMetadataProps) {
       <dd>
         <BadgeReportType reportType={report.report_type} />
       </dd>
-      <dt className="text-muted-foreground text-sm font-medium">
-        Official record
-      </dt>
-      <dd>
-        <a
-          href={report.official_record_url}
-          target="_blank"
-          rel="noreferrer"
-          className={LINK_CLASS_NAME}
-        >
-          Read on the official record (opens in a new tab)
-        </a>
-      </dd>
       {CONTACT_EMAIL && (
         <>
           <dt className="text-muted-foreground text-sm font-medium">

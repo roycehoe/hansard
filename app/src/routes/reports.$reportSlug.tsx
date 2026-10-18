@@ -2,6 +2,7 @@ import { ApiError } from '@/api/client'
 import type { GetReportResponse } from '@/api/reports/getReport'
 import { useGetReport } from '@/api/reports/getReport'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { TextSource } from '@/components/layout/TextSource'
 import { ButtonCopyCitation } from '@/components/reports/ButtonCopyCitation'
 import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
@@ -119,6 +120,10 @@ export const Route = createFileRoute('/reports/$reportSlug')({
         />
         <ListReportMetadata report={data} />
         {renderBody(data, parseHighlightTerms(hl ?? ''))}
+        <TextSource
+          sittingDate={data.sitting_date}
+          officialRecordUrl={data.official_record_url}
+        />
       </div>
     )
   },
