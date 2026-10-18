@@ -33,3 +33,6 @@ services:
       - key: VITE_RESEARCHERS_FORM_URL
         scope: BUILD_TIME
         value: ""
+      - key: VITE_ANALYTICS_URL
+        scope: BUILD_TIME
+        value: ""
