@@ -1,4 +1,5 @@
 import { ApiError } from '@/api/client'
+import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { useGetSitting } from '@/api/sittings/getSitting'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { TextSource } from '@/components/layout/TextSource'
@@ -26,6 +27,7 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
     const { sittingDate } = Route.useParams()
     const { data, isLoading, isError, error, refetch, isRefetching } =
       useGetSitting({ sitting_date: sittingDate })
+    const refresh = useGetRefresh()
     useDocumentTitle(
       data ? `Sitting of ${formatSittingDate(data.sitting_date)}` : 'Sitting'
     )
@@ -40,7 +42,12 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
       error instanceof ApiError &&
       error.status === HTTP_NOT_FOUND
     ) {
-      return <NoticeNotFoundSitting />
+      return (
+        <NoticeNotFoundSitting
+          sittingDate={sittingDate}
+          latestSittingDate={refresh.data?.latest_sitting_date ?? null}
+        />
+      )
     }
     if (isError || !data) {
       return (
