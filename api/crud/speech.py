@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from typing import Optional
 
-from sqlalchemy import ColumnElement, func
+from sqlalchemy import ColumnElement, Float, func
 from sqlalchemy.orm import aliased
 from sqlmodel import Session, select
 
@@ -58,13 +58,14 @@ def _get_query_filters(
     return filters
 
 
-def _get_speech_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
-    sitting_date = _get_sitting_date()
-    if sort == SearchSort.DATE:
-        return [sitting_date.desc(), rank.desc(), Speech.id]
-    if sort == SearchSort.OLDEST:
-        return [sitting_date.asc(), rank.desc(), Speech.id]
-    return [rank.desc(), sitting_date.desc(), Speech.id]
+def _get_relevance_distance(
+    tsquery: ColumnElement, is_date_filtered: bool
+) -> ColumnElement:
+    distance = Speech.transcript_tsv.op("<=>", return_type=Float)(tsquery)
+    if is_date_filtered:
+        # NOTE: adding zero hides the order from the rum index, so a date range starts from the report date index
+        return distance + 0
+    return distance
 
 
 def _get_browse_ordering(
@@ -73,6 +74,22 @@ def _get_browse_ordering(
     if sort == SearchSort.OLDEST:
         return [sitting_date.asc(), Speech.id]
     return [sitting_date.desc(), Speech.id]
+
+
+def _get_speech_ordering(
+    sort: SearchSort, tsquery: ColumnElement, is_date_filtered: bool
+) -> list[ColumnElement]:
+    if sort == SearchSort.RELEVANCE:
+        return [
+            _get_relevance_distance(tsquery, is_date_filtered),
+            _get_sitting_date().desc(),
+            Speech.id,
+        ]
+    if sort == SearchSort.OLDEST:
+        # NOTE: sorting every match, because a word of recent decades would walk sixty years of reports before its first match
+        return [_get_sitting_date().asc(), Speech.id]
+    # NOTE: the joined date, so a common word walks the report date index from the newest report instead of sorting every match
+    return [Report.sitting_date.desc(), Speech.id]
 
 
 class CRUDSpeech:
@@ -144,7 +161,6 @@ class CRUDSpeech:
         offset: int,
     ) -> list[Speech]:
         tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-        rank = func.ts_rank(Speech.transcript_tsv, tsquery)
         filters = _get_query_filters(
             query,
             parliament_number,
@@ -153,7 +169,8 @@ class CRUDSpeech:
             report_type,
             membership_ids,
         )
-        ordering = _get_speech_ordering(sort, rank)
+        is_date_filtered = date_from is not None or date_to is not None
+        ordering = _get_speech_ordering(sort, tsquery, is_date_filtered)
         statement = (
             select(Speech)
             .join(Report, Report.id == Speech.report_id)
