@@ -37,6 +37,15 @@ function getReferrerWithoutQuery(referrer: string): string | undefined {
   }
 }
 
+function isCountAddressValid(countAddress: string): boolean {
+  try {
+    new URL(countAddress)
+    return true
+  } catch {
+    return false
+  }
+}
+
 function sendCount(options: GoatCounterCountOptions): void {
   const goatcounter = window.goatcounter
   if (goatcounter === undefined || goatcounter.filter()) return
@@ -77,7 +86,7 @@ export function countEvent(name: AnalyticsEvent): void {
 }
 
 export function loadAnalytics(): void {
-  if (!URL.canParse(ANALYTICS_URL) || isAnalyticsScriptAdded) return
+  if (!isCountAddressValid(ANALYTICS_URL) || isAnalyticsScriptAdded) return
   isAnalyticsScriptAdded = true
   const script = document.createElement('script')
   script.async = true
