@@ -61,7 +61,7 @@ What exists today:
 | `validators/` | `search.py`: `validate_can_search`, which a search router calls before the service. |
 | `crud/` | One read-only class per table (`CRUDReport`, `CRUDSpeech`, `CRUDSitting`, `CRUDAttendance`, `CRUDMembership`, `CRUDPerson`) and `text_search.py` with the shared full-text constants. See `crud/CLAUDE.md`. |
 | `middleware/membership.py` | `get_membership_id_to_person`, which composes `CRUDMembership` and `CRUDPerson` for every service that resolves linked rows to Persons. |
-| `middleware/basic_auth.py` | `BasicAuthMiddleware`: answers 401 unless the request carries the configured credentials; `/api/health` is open for the platform's health check. |
+| `middleware/basic_auth.py` | `BasicAuthMiddleware`: answers 401 unless the request carries the configured credentials; `/api/health` is open for the platform's health check. Every response it returns, the 401 and the health check included, carries `X-Robots-Tag: noindex`. |
 | `middleware/frontend.py` | `FrontendFiles`: serves the built frontend and answers `index.html` for any other path, so client routes load. |
 | `schemas/` | Pydantic response models, one file per domain. No field defaults. |
 | `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage. |
