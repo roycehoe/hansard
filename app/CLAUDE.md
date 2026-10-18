@@ -43,6 +43,7 @@ Node 24 comes from asdf. The `.tool-versions` file is at the repo root, and `pac
 | `VITE_API_URL`              | `http://localhost:8000` | Base URL of the `api/` app                                                                                                                                                                                                               |
 | `VITE_CONTACT_EMAIL`        | empty                   | Contact address; the footer and `/coverage` lines and the report-an-error links are hidden while empty. The `Dockerfile` and `.do/app.yaml` set it to `hansard@fancybinary.sg` at build time. Read only in `src/constants/constants.ts`. |
 | `VITE_RESEARCHERS_FORM_URL` | empty                   | Address of the researchers' form; the footer link and `/researchers` are hidden while empty. Read only in `src/constants/constants.ts`.                                                                                                  |
+| `VITE_ANALYTICS_URL`        | empty                   | GoatCounter count address, such as `https://example.goatcounter.com/count`; no analytics script loads and nothing is counted while empty. Set at build time in `.do/app.yaml`. Read only in `src/constants/constants.ts`.                |
 
 Read `VITE_API_URL` through `import.meta.env.VITE_API_URL`. Only `src/api/client.ts` should read it.
 
