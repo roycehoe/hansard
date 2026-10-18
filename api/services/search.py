@@ -33,6 +33,7 @@ from utils.report_slug import get_report_slug
 from utils.transcript_snippet import get_transcript_snippet
 
 _MAX_COUNTED_MATCHES = 1_000
+MAX_SEARCH_PAGE = 50
 _MAX_RUNNING_SEARCHES = 3
 
 _search_slots = BoundedSemaphore(_MAX_RUNNING_SEARCHES)
@@ -365,7 +366,7 @@ def search_speeches(
             results=results,
             page=page,
             page_size=page_size,
-            has_next_page=len(speeches) > page_size,
+            has_next_page=len(speeches) > page_size and page < MAX_SEARCH_PAGE,
             total_count=min(match_count, _MAX_COUNTED_MATCHES),
             is_total_capped=match_count > _MAX_COUNTED_MATCHES,
         )
@@ -443,7 +444,7 @@ def search_reports(
             results=results,
             page=page,
             page_size=page_size,
-            has_next_page=len(reports) > page_size,
+            has_next_page=len(reports) > page_size and page < MAX_SEARCH_PAGE,
             total_count=min(match_count, _MAX_COUNTED_MATCHES),
             is_total_capped=match_count > _MAX_COUNTED_MATCHES,
         )
