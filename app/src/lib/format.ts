@@ -17,6 +17,10 @@ export function formatSittingDate(sittingDate: string): string {
   return format(parseISO(sittingDate), SITTING_DATE_FORMAT)
 }
 
+export function formatCalendarDate(date: Date): string {
+  return format(date, SITTING_DATE_FORMAT)
+}
+
 export function formatSittingDayMonth(sittingDate: string): string {
   return format(parseISO(sittingDate), SITTING_DAY_MONTH_FORMAT)
 }

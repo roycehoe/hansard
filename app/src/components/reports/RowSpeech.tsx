@@ -15,6 +15,7 @@ interface RowSpeechProps {
   sittingDate: string
   volumeNumber: number
   parliamentNumber: number
+  officialRecordUrl: string
   highlightPattern?: RegExp
 }
 
@@ -45,6 +46,7 @@ export function RowSpeech({
   sittingDate,
   volumeNumber,
   parliamentNumber,
+  officialRecordUrl,
   highlightPattern,
 }: RowSpeechProps) {
   const hasSpeakerLabel = speech.speaker_label !== ''
@@ -122,6 +124,7 @@ export function RowSpeech({
         reportTitle={reportTitle}
         ordinal={speech.ordinal}
         anchor={speech.anchor}
+        officialRecordUrl={officialRecordUrl}
         citation={citation}
       />
     </article>

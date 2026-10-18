@@ -5,7 +5,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { CONTACT_EMAIL } from '@/constants/constants'
-import { buildSpeechPermalink } from '@/lib/citation'
+import { buildSpeechCite, buildSpeechPermalink } from '@/lib/citation'
+import { formatCalendarDate } from '@/lib/format'
 import { buildErrorEmailHref, copyTextWithToast } from '@/lib/utils'
 import { Flag, Link2, Quote } from 'lucide-react'
 
@@ -14,6 +15,7 @@ interface ActionBarSpeechCopyProps {
   reportTitle: string
   ordinal: number
   anchor: string
+  officialRecordUrl: string
   citation?: string
 }
 
@@ -22,6 +24,7 @@ export function ActionBarSpeechCopy({
   reportTitle,
   ordinal,
   anchor,
+  officialRecordUrl,
   citation,
 }: ActionBarSpeechCopyProps) {
   function copySpeechLink() {
@@ -34,7 +37,13 @@ export function ActionBarSpeechCopy({
 
   function copySpeechCitation() {
     return copyTextWithToast(
-      citation ?? '',
+      buildSpeechCite(
+        citation ?? '',
+        reportTitle,
+        buildSpeechPermalink(reportSlug, ordinal, anchor),
+        officialRecordUrl,
+        formatCalendarDate(new Date())
+      ),
       'Citation copied',
       "Couldn't copy the citation"
     )
@@ -64,12 +73,12 @@ export function ActionBarSpeechCopy({
               variant="quiet"
               size="icon-sm"
               onClick={copySpeechCitation}
-              aria-label={`Copy citation for speech ${ordinal}`}
+              aria-label={`Cite speech ${ordinal}`}
             >
               <Quote aria-hidden="true" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Copy citation</TooltipContent>
+          <TooltipContent>Cite</TooltipContent>
         </Tooltip>
       )}
       {CONTACT_EMAIL && (

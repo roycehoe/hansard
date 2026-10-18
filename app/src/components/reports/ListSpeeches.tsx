@@ -99,6 +99,7 @@ export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
             sittingDate={report.sitting_date}
             volumeNumber={report.volume_number}
             parliamentNumber={report.parliament_number}
+            officialRecordUrl={report.official_record_url}
             highlightPattern={highlightPattern}
           />
         </Fragment>

@@ -165,3 +165,13 @@ export function buildSpeechCitation(
   const attribution = [name, office].filter((part) => part !== '').join(', ')
   return `${buildReportCitation(sittingDate, volumeNumber, parliamentNumber)} (${attribution})`
 }
+
+export function buildSpeechCite(
+  speechCitation: string,
+  reportTitle: string,
+  permalink: string,
+  officialRecordUrl: string,
+  retrievedOn: string
+): string {
+  return `"${reportTitle}", ${speechCitation}. Retrieved from ${permalink} on ${retrievedOn}. Original: ${officialRecordUrl}`
+}
