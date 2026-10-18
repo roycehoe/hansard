@@ -1,4 +1,5 @@
 from datetime import date
+from threading import BoundedSemaphore
 from typing import Optional
 
 from psycopg.errors import QueryCanceled
@@ -12,7 +13,7 @@ from database.person import Person
 from database.report import Report
 from database.speech import Speech
 from enums import ReportType, SearchSort
-from exceptions.search import SearchTimedOutException
+from exceptions.search import SearchBusyException, SearchTimedOutException
 from middleware.membership import get_membership_id_to_person
 from middleware.takedown import is_report_id_taken_down
 from schemas.search import (
@@ -27,6 +28,9 @@ from utils.report_slug import get_report_slug
 from utils.transcript_snippet import get_transcript_snippet
 
 _MAX_COUNTED_MATCHES = 1_000
+_MAX_RUNNING_SEARCHES = 3
+
+_search_slots = BoundedSemaphore(_MAX_RUNNING_SEARCHES)
 
 
 def _get_membership_ids(
@@ -244,87 +248,92 @@ def search_speeches(
     page_size: int,
     session: Session,
 ) -> SearchSpeechesResponse:
-    membership_ids = _get_membership_ids(person_id, session)
-    speeches = _get_validated_speeches(
-        query,
-        parliament_number,
-        date_from,
-        date_to,
-        report_type,
-        membership_ids,
-        sort,
-        page_size + 1,
-        (page - 1) * page_size,
-        session,
-    )
-    match_count = (
-        len(speeches)
-        if page == 1 and len(speeches) <= page_size
-        else _get_validated_speech_match_count(
+    if not _search_slots.acquire(blocking=False):
+        raise SearchBusyException
+    try:
+        membership_ids = _get_membership_ids(person_id, session)
+        speeches = _get_validated_speeches(
             query,
             parliament_number,
             date_from,
             date_to,
             report_type,
             membership_ids,
+            sort,
+            page_size + 1,
+            (page - 1) * page_size,
             session,
         )
-    )
-    page_speeches = speeches[:page_size]
-    if query.strip() == "":
-        speech_id_to_snippet = {
-            speech.id: get_transcript_snippet(strip_markdown(speech.transcript))
-            for speech in page_speeches
-        }
-    else:
-        speech_id_to_headline = CRUDSpeech(session).get_id_to_headline_by_ids(
-            [speech.id for speech in page_speeches], query
-        )
-        speech_id_to_snippet = {
-            speech_id: strip_markdown(headline)
-            for speech_id, headline in speech_id_to_headline.items()
-        }
-    report_id_to_report = {
-        report.id: report
-        for report in CRUDReport(session).get_by_ids(
-            sorted(
-                {
-                    speech.report_id
-                    for speech in page_speeches
-                    if speech.report_id is not None
-                }
+        match_count = (
+            len(speeches)
+            if page == 1 and len(speeches) <= page_size
+            else _get_validated_speech_match_count(
+                query,
+                parliament_number,
+                date_from,
+                date_to,
+                report_type,
+                membership_ids,
+                session,
             )
         )
-        if not is_report_id_taken_down(report.report_id)
-    }
-    membership_id_to_person = get_membership_id_to_person(
-        sorted(
-            {
-                speech.speaker_id
+        page_speeches = speeches[:page_size]
+        if query.strip() == "":
+            speech_id_to_snippet = {
+                speech.id: get_transcript_snippet(strip_markdown(speech.transcript))
                 for speech in page_speeches
-                if speech.speaker_id is not None
             }
-        ),
-        session,
-    )
-    results = [
-        _get_speech_match_data(
-            speech,
-            report_id_to_report[speech.report_id],
-            membership_id_to_person.get(speech.speaker_id),
-            speech_id_to_snippet.get(speech.id, ""),
+        else:
+            speech_id_to_headline = CRUDSpeech(session).get_id_to_headline_by_ids(
+                [speech.id for speech in page_speeches], query
+            )
+            speech_id_to_snippet = {
+                speech_id: strip_markdown(headline)
+                for speech_id, headline in speech_id_to_headline.items()
+            }
+        report_id_to_report = {
+            report.id: report
+            for report in CRUDReport(session).get_by_ids(
+                sorted(
+                    {
+                        speech.report_id
+                        for speech in page_speeches
+                        if speech.report_id is not None
+                    }
+                )
+            )
+            if not is_report_id_taken_down(report.report_id)
+        }
+        membership_id_to_person = get_membership_id_to_person(
+            sorted(
+                {
+                    speech.speaker_id
+                    for speech in page_speeches
+                    if speech.speaker_id is not None
+                }
+            ),
+            session,
         )
-        for speech in page_speeches
-        if speech.report_id in report_id_to_report
-    ]
-    return SearchSpeechesResponse(
-        results=results,
-        page=page,
-        page_size=page_size,
-        has_next_page=len(speeches) > page_size,
-        total_count=min(match_count, _MAX_COUNTED_MATCHES),
-        is_total_capped=match_count > _MAX_COUNTED_MATCHES,
-    )
+        results = [
+            _get_speech_match_data(
+                speech,
+                report_id_to_report[speech.report_id],
+                membership_id_to_person.get(speech.speaker_id),
+                speech_id_to_snippet.get(speech.id, ""),
+            )
+            for speech in page_speeches
+            if speech.report_id in report_id_to_report
+        ]
+        return SearchSpeechesResponse(
+            results=results,
+            page=page,
+            page_size=page_size,
+            has_next_page=len(speeches) > page_size,
+            total_count=min(match_count, _MAX_COUNTED_MATCHES),
+            is_total_capped=match_count > _MAX_COUNTED_MATCHES,
+        )
+    finally:
+        _search_slots.release()
 
 
 def search_reports(
@@ -339,63 +348,68 @@ def search_reports(
     page_size: int,
     session: Session,
 ) -> SearchReportsResponse:
-    reports = _get_validated_reports(
-        query,
-        parliament_number,
-        date_from,
-        date_to,
-        report_type,
-        is_text_available,
-        sort,
-        page_size + 1,
-        (page - 1) * page_size,
-        session,
-    )
-    match_count = (
-        len(reports)
-        if page == 1 and len(reports) <= page_size
-        else _get_validated_report_match_count(
+    if not _search_slots.acquire(blocking=False):
+        raise SearchBusyException
+    try:
+        reports = _get_validated_reports(
             query,
             parliament_number,
             date_from,
             date_to,
             report_type,
             is_text_available,
+            sort,
+            page_size + 1,
+            (page - 1) * page_size,
             session,
         )
-    )
-    page_reports = [
-        report
-        for report in reports[:page_size]
-        if not is_report_id_taken_down(report.report_id)
-    ]
-    report_ids = [report.id for report in page_reports]
-    if query.strip() == "":
-        report_id_to_headline = {}
-    else:
-        report_id_to_headline = CRUDReport(session).get_id_to_title_headline_by_ids(
-            report_ids, query
+        match_count = (
+            len(reports)
+            if page == 1 and len(reports) <= page_size
+            else _get_validated_report_match_count(
+                query,
+                parliament_number,
+                date_from,
+                date_to,
+                report_type,
+                is_text_available,
+                session,
+            )
         )
-    report_ids_with_text = set(
-        CRUDReport(session).get_all_ids_with_text_by_ids(report_ids)
-    )
-    results = [
-        ReportMatchData(
-            report_slug=get_report_slug(report.report_id),
-            title=report.title,
-            report_type=report.report_type,
-            sitting_date=report.sitting_date.date(),
-            parliament_number=report.parliament_number,
-            is_text_available=report.id in report_ids_with_text,
-            snippet=report_id_to_headline.get(report.id, ""),
+        page_reports = [
+            report
+            for report in reports[:page_size]
+            if not is_report_id_taken_down(report.report_id)
+        ]
+        report_ids = [report.id for report in page_reports]
+        if query.strip() == "":
+            report_id_to_headline = {}
+        else:
+            report_id_to_headline = CRUDReport(session).get_id_to_title_headline_by_ids(
+                report_ids, query
+            )
+        report_ids_with_text = set(
+            CRUDReport(session).get_all_ids_with_text_by_ids(report_ids)
         )
-        for report in page_reports
-    ]
-    return SearchReportsResponse(
-        results=results,
-        page=page,
-        page_size=page_size,
-        has_next_page=len(reports) > page_size,
-        total_count=min(match_count, _MAX_COUNTED_MATCHES),
-        is_total_capped=match_count > _MAX_COUNTED_MATCHES,
-    )
+        results = [
+            ReportMatchData(
+                report_slug=get_report_slug(report.report_id),
+                title=report.title,
+                report_type=report.report_type,
+                sitting_date=report.sitting_date.date(),
+                parliament_number=report.parliament_number,
+                is_text_available=report.id in report_ids_with_text,
+                snippet=report_id_to_headline.get(report.id, ""),
+            )
+            for report in page_reports
+        ]
+        return SearchReportsResponse(
+            results=results,
+            page=page,
+            page_size=page_size,
+            has_next_page=len(reports) > page_size,
+            total_count=min(match_count, _MAX_COUNTED_MATCHES),
+            is_total_capped=match_count > _MAX_COUNTED_MATCHES,
+        )
+    finally:
+        _search_slots.release()
