@@ -155,7 +155,7 @@ The models in `database/` declare no relationships today. Services join by ids w
 
 ## Full-text search constants
 
-`crud/text_search.py` holds `TEXT_SEARCH_CONFIGURATION` (`literal_column("'english'")`) and `HEADLINE_OPTIONS`. Both `CRUDSpeech` and `CRUDReport` import them, so the two full-text expressions are byte for byte the ones in `docs/required-indexes.md`. The configuration is a SQL literal, never a bound parameter, because the planner matches an expression index only when the expression is identical. The module holds constants only; it is not a CRUD class and must not grow a session or a statement.
+`crud/text_search.py` holds `TEXT_SEARCH_CONFIGURATION` (`literal_column("'english'")`) and `HEADLINE_OPTIONS`. Both `CRUDSpeech` and `CRUDReport` import them. The report title expression is byte for byte the one in `docs/required-indexes.md`, and speech search reads the stored `transcript_tsv` column and builds only the query side. The configuration is a SQL literal, never a bound parameter, because the planner matches an expression index only when the expression is identical. The module holds constants only; it is not a CRUD class and must not grow a session or a statement.
 
 ## A missing record is the caller's decision, not CRUD's
 

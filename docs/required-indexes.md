@@ -1,8 +1,12 @@
 # Required indexes
 
-The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: seven indexes, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. Every plan is a plain `EXPLAIN` taken read-only on 14 October 2026, after the indexes were built, so no query was executed.
+The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: eight indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. A ninth index, `ix_speech_transcript_fts`, still exists, but no API statement uses it. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026; "Ranking cost" holds its order clauses and timings.
 
-All seven indexes exist and are valid on production. The scraper's commit `b15908a` (`feat: add the indexes the read API relies on`, Alembic revision `e5a9c3b7d216`) created them on 14 October 2026, from 11:01 to 11:07 SGT (392 seconds in total), and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes.
+All nine indexes exist and are valid on production, and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes. Three migrations built them:
+
+- Scraper commit `b15908a` (`feat: add the indexes the read API relies on`, Alembic revision `e5a9c3b7d216`) created seven on 14 October 2026, from 11:01 to 11:07 SGT (392 seconds in total).
+- Commit `c4b6aa2` (revision `f2b8d4a6c913`) added the stored column `speech.transcript_tsv` and `ix_speech_transcript_tsv`. Production took the upgrade on 17 October from 13:44 to 14:00 SGT, together with the attendance constraint (23 minutes; the column rewrites `speech`).
+- Commit `489882e` (revision `50505c58da5d`, after `641870b78b3f`) created the `rum` extension and `ix_speech_transcript_tsv_rum`, then ran `ANALYZE speech`. Production took it on 18 October 2026 from 08:00:34 to 08:04:26 SGT (3 minutes 52 seconds). The index is valid at 222 MB, on `rum` 1.3 (DigitalOcean Postgres 17).
 
 | Index | Table | Size on production |
 |---|---|---|
@@ -12,17 +16,19 @@ All seven indexes exist and are valid on production. The scraper's commit `b1590
 | `ix_attendance_speaker_id` | `attendance` | 952 kB |
 | `ix_report_sitting_date_parliament_number` | `report` | 352 kB |
 | `ix_report_title_fts` | `report` | 1768 kB |
-| `ix_speech_transcript_fts` | `speech` | 92 MB |
+| `ix_speech_transcript_fts` (not used by the API) | `speech` | 92 MB |
+| `ix_speech_transcript_tsv` | `speech` | 94 MB on the rehearsal copy, not read on production |
+| `ix_speech_transcript_tsv_rum` | `speech` | 222 MB |
 
-The API no longer waits on any listed index. B1 and B2 are verified: on 14 October 2026 `GET /search/speeches` answered 200 with results against production for "housing estate" and for "housing" filtered to person 149. Two limits remain, both in the "Ranking cost" section: a common term such as "government" still answers `503 search.timed_out`, and several speech searches take more than 300 ms.
+The API no longer waits on any listed index. B1 and B2 are verified: on 14 October 2026 `GET /search/speeches` answered 200 with results against production for "housing estate" and for "housing" filtered to person 149. Two limits remain, both in the "Ranking cost" section. Relevance search takes 0.1 to 6.3 s on production in every shape tested, against the 300 ms target. Oldest-first search on one of the ten most common words can pass the 30-second timeout and answer `503 search.timed_out`.
 
 Facts that apply to every plan below:
 
-- Besides the seven indexes, the tables keep their primary keys, `report.report_id` (unique) and `speaker.person_id`.
+- Besides these indexes, the tables keep their primary keys, `report.report_id` (unique) and `speaker.person_id`.
 - `speech` holds about 1.07 million rows and `report` 41,809 on 14 October 2026.
-- The database default text search configuration is `simple`. The API names `english` explicitly as a SQL literal (`literal_column("'english'")` in `api/crud/text_search.py`), so the query compiles to `to_tsvector('english', transcript)`. The index names `english` too, or the planner would not match the expression.
+- The database default text search configuration is `simple`. The API names `english` explicitly as a SQL literal (`literal_column("'english'")` in `api/crud/text_search.py`). A report title query compiles to `to_tsvector('english', title)`, and `ix_report_title_fts` names `english` too, or the planner would not match the expression. Speech search no longer builds the vector. It reads the stored column `speech.transcript_tsv`, which holds `to_tsvector('english'::regconfig, transcript)`, so only the query side, `websearch_to_tsquery('english', ...)`, names `english`.
 - The API sets a 30-second statement timeout. Before the GIN index existed, the speech full-text query exceeded it on the shared database, so `GET /search/speeches` answered `503 search.timed_out`. Run once through psql with no timeout on 13 October 2026, the relevance-sorted speech query for "housing estate" in Parliament 8 took 394 seconds.
-- Production has not analysed `speech` or `report` since the indexes were built, so the planner has no statistics for the two GIN expressions. Its row estimates for full-text predicates are far too low (27 estimated against 4,822 matches for "housing estate"). The plans below show those estimates.
+- Production analysed `speech` on 18 October 2026, as the last step of the rum migration. Until then `transcript_tsv` had no statistics: production held no `pg_stats` row for it, and the last autoanalyse ran on 16 October, before the column existed. The plans dated 14 October were taken earlier still, and their full-text row estimates are far too low (27 estimated against 4,822 matches for "housing estate").
 
 ## ix_speech_report_id
 
@@ -202,11 +208,11 @@ HashAggregate  (cost=1288.94..1290.94 rows=200 width=12)
 CREATE INDEX ix_report_sitting_date_parliament_number ON report (sitting_date, parliament_number);
 ```
 
-Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters on `GET /search/speeches` and `GET /search/reports`, and the newest-first order of both when no search words are given.
+Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters on `GET /search/speeches` and `GET /search/reports`, and the newest-first order of both, with or without search words. A relevance search under a date range also starts from this index.
 
 The first version of this list named a single-column index on `report (sitting_date)`. The scraper builds this composite instead. On the rehearsal copy it served every statement the single column served. It also turned the per-Parliament statements (the Parliament list, the sittings list, the `DISTINCT sitting_date, parliament_number` subquery under the attendance counts) into index-only scans of 44 pages instead of 6,309 heap pages. On production a heap scan of `report` costs 0.4 to 1.4 seconds per statement, so that is the larger gain. A `(parliament_number, sitting_date)` index served fewer statements and was no better on any of them. The composite is 352 kB.
 
-The two date-filtered search statements are repeated under the GIN index sections, because the text predicate decides their plan. With no statistics for the GIN expressions on production, the planner still applies the date filter as a per-row filter after the primary-key lookup.
+The date-filtered title search is repeated under `ix_report_title_fts`, because the text predicate decides its plan. The speech word search under a date range is in "Ranking cost".
 
 ```sql
 -- report_by_sitting_date (GET /sittings/{sitting_date})
@@ -219,29 +225,6 @@ Sort  (cost=19.37..19.41 rows=19 width=190)
   Sort Key: speech_number
   ->  Index Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..18.96 rows=19 width=190)
         Index Cond: (sitting_date = '1993-10-12 00:00:00'::timestamp without time zone)
-```
-
-```sql
--- speech_search_date (GET /search/speeches)
-SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.report_id, speech.speaker_id  FROM speech JOIN report ON report.id = speech.report_id  WHERE (to_tsvector('english', speech.transcript) @@ websearch_to_tsquery('english', 'housing estate')) AND report.sitting_date >= '1993-01-01' ORDER BY (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, ts_rank(to_tsvector('english', speech.transcript), websearch_to_tsquery('english', 'housing estate')) DESC, speech.id   LIMIT 21 OFFSET 0;
-```
-
-```text
--- speech_search_date (GET /search/speeches)
-Limit  (cost=153.70..153.75 rows=19 width=417)
-  ->  Sort  (cost=153.70..153.75 rows=19 width=417)
-        Sort Key: ((SubPlan 1)) DESC, (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, speech.id
-        ->  Nested Loop  (cost=9.49..153.30 rows=19 width=417)
-              ->  Bitmap Heap Scan on speech  (cost=9.20..43.29 rows=27 width=405)
-                    Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-                    ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..9.19 rows=27 width=0)
-                          Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-              ->  Index Scan using report_pkey on report  (cost=0.29..2.27 rows=1 width=4)
-                    Index Cond: (id = speech.report_id)
-                    Filter: (sitting_date >= '1993-01-01 00:00:00'::timestamp without time zone)
-              SubPlan 1
-                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
-                      Index Cond: (id = speech.report_id)
 ```
 
 ```sql
@@ -306,65 +289,21 @@ The speech statement measured the same way: report type `oral-answer` only 0.9 m
 CREATE INDEX ix_speech_transcript_fts ON speech USING gin (to_tsvector('english', transcript));
 ```
 
-Needed by `GET /search/speeches` (B1, B2).
+Kept, and no API statement uses it. Scraper commit `b15908a` built it for `GET /search/speeches` (B1, B2). Since API commit `49ebfad` (17 October 2026) the speech statements filter the stored column `transcript_tsv` and never write `to_tsvector('english', transcript)`, so the planner cannot match this expression. The index takes 92 MB, and every insert, delete and update of `transcript` on `speech` still maintains it. The scraper still declares it on `Speech`.
 
-The expression in the index must match the API's expression exactly: `to_tsvector('english', transcript)` with `english` as a literal.
-
-The API orders speech results by a scalar subquery on `report.sitting_date`, so Postgres does not sort every report first. The plans show it as `SubPlan 1`, one primary-key lookup on `report` per matched speech:
-
-```text
-               SubPlan 1
-                 ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
-                       Index Cond: (id = speech.report_id)
-```
-
-The plans below are production's current plans. Each uses the GIN index through a bitmap scan. `speech_headlines` reads at most one page of rows by primary key and needs no index of its own, but it only runs after a search has returned ids.
+## ix_speech_transcript_tsv
 
 ```sql
--- speech_search_relevance (GET /search/speeches)
-SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.report_id, speech.speaker_id  FROM speech JOIN report ON report.id = speech.report_id  WHERE (to_tsvector('english', speech.transcript) @@ websearch_to_tsquery('english', 'housing estate')) AND report.parliament_number = 8 ORDER BY ts_rank(to_tsvector('english', speech.transcript), websearch_to_tsquery('english', 'housing estate')) DESC, (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, speech.id   LIMIT 21 OFFSET 0;
+ALTER TABLE speech ADD COLUMN transcript_tsv tsvector
+    GENERATED ALWAYS AS (to_tsvector('english'::regconfig, transcript)) STORED;
+CREATE INDEX ix_speech_transcript_tsv ON speech USING gin (transcript_tsv);
 ```
 
-```text
--- speech_search_relevance (GET /search/speeches)
-Limit  (cost=107.23..107.23 rows=1 width=417)
-  ->  Sort  (cost=107.23..107.23 rows=1 width=417)
-        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
-        ->  Nested Loop  (cost=9.49..107.22 rows=1 width=417)
-              ->  Bitmap Heap Scan on speech  (cost=9.20..43.29 rows=27 width=405)
-                    Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-                    ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..9.19 rows=27 width=0)
-                          Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-              ->  Index Scan using report_pkey on report  (cost=0.29..2.27 rows=1 width=4)
-                    Index Cond: (id = speech.report_id)
-                    Filter: (parliament_number = 8)
-              SubPlan 1
-                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
-                      Index Cond: (id = speech.report_id)
-```
+Needed by `GET /search/speeches` with search words, and by its match count. The statements filter `transcript_tsv @@ websearch_to_tsquery('english', ...)`. Scraper commit `c4b6aa2`, revision `f2b8d4a6c913`. The API has read the column since commit `49ebfad`.
 
-```sql
--- speech_search_date (GET /search/speeches)
-SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.report_id, speech.speaker_id  FROM speech JOIN report ON report.id = speech.report_id  WHERE (to_tsvector('english', speech.transcript) @@ websearch_to_tsquery('english', 'housing estate')) AND report.sitting_date >= '1993-01-01' ORDER BY (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, ts_rank(to_tsvector('english', speech.transcript), websearch_to_tsquery('english', 'housing estate')) DESC, speech.id   LIMIT 21 OFFSET 0;
-```
+The column stores each vector once. A GIN expression index does not hold a vector Postgres can read back, so `ts_rank` recomputed `to_tsvector('english', transcript)` for every matched row, and a common word ranked every one of its matches. The column costs a table rewrite on creation and 94 MB of index (measured on the rehearsal copy, the same size as the expression index). The rum index below serves the same `@@` predicate, so the planner chooses between the two for each statement.
 
-```text
--- speech_search_date (GET /search/speeches)
-Limit  (cost=153.70..153.75 rows=19 width=417)
-  ->  Sort  (cost=153.70..153.75 rows=19 width=417)
-        Sort Key: ((SubPlan 1)) DESC, (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, speech.id
-        ->  Nested Loop  (cost=9.49..153.30 rows=19 width=417)
-              ->  Bitmap Heap Scan on speech  (cost=9.20..43.29 rows=27 width=405)
-                    Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-                    ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..9.19 rows=27 width=0)
-                          Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-              ->  Index Scan using report_pkey on report  (cost=0.29..2.27 rows=1 width=4)
-                    Index Cond: (id = speech.report_id)
-                    Filter: (sitting_date >= '1993-01-01 00:00:00'::timestamp without time zone)
-              SubPlan 1
-                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
-                      Index Cond: (id = speech.report_id)
-```
+`speech_headlines` reads at most one page of rows by primary key and needs no index of its own, but it only runs after a search has returned ids.
 
 ```sql
 -- speech_headlines (GET /search/speeches)
@@ -376,6 +315,22 @@ SELECT speech.id, ts_headline('english', speech.transcript, websearch_to_tsquery
 Index Scan using speech_pkey on speech  (cost=0.43..7.08 rows=3 width=36)
   Index Cond: (id = ANY ('{1,2,3}'::integer[]))
 ```
+
+## ix_speech_transcript_tsv_rum
+
+```sql
+CREATE EXTENSION IF NOT EXISTS rum;
+CREATE INDEX CONCURRENTLY ix_speech_transcript_tsv_rum ON speech USING rum (transcript_tsv rum_tsvector_ops);
+ANALYZE speech;
+```
+
+Needed by `GET /search/speeches` with search words, sorted by relevance. The statement orders by `transcript_tsv <=> websearch_to_tsquery('english', ...)`. A rum index returns matches in that distance order, so the first page reads a few hundred buffers and the planner never ranks the rest. On a clone set like production, "government" read 136,400 buffers with `ts_rank` and about 410 with the rum index (0.24 to 0.34 s warm against 0.09 s). Production timings are in "Ranking cost". Scraper commit `489882e`, revision `50505c58da5d`.
+
+The index needs the `rum` extension, which DigitalOcean's Postgres 17 offers as version 1.3. Any other server that runs the migration needs the package first (`postgresql-17-rum` on Debian). The local replica container needed it installed with apt; its index is 200 MB.
+
+The distance order is not the `ts_rank` order. In a clone test the top 20 matched `ts_rank` on 20 results for "government", "housing" and "CPF", on 18 for "Lee Kuan Yew", on 10 for "water agreement Malaysia" and on 6 for "national service". On a phrase, rum puts speeches whose words sit close together first.
+
+The migration ends with `ANALYZE speech`. `transcript_tsv` had no statistics since it was added, so the planner took every word for a rare one: 5,258 matches estimated for "government" against 137,788 real. Under a 1975 date range it then scanned the rum index once per report, 222 rescans, and the statement took 23 to 50 s on the clone. After `ANALYZE` it read 4,531 buffers and took 90 ms, and `pg_stats` holds the 1,000 most common lexemes of `transcript_tsv`. A migration that adds a column or an index to `speech` should analyse the table in the same step.
 
 ## ix_report_title_fts
 
@@ -422,129 +377,70 @@ Limit  (cost=8.05..8.06 rows=1 width=194)
 
 ## Ranking cost
 
-`ts_rank` needs a `tsvector`, and an expression index stores none. Postgres therefore recomputes `to_tsvector('english', transcript)` for every matched row to rank it, and both sort orders use `ts_rank` as a sort key. The GIN index finds the matches quickly; ranking them is what costs time. A common word such as "government" matches 137,785 speeches, so a broad query ranks all of them before the `LIMIT 21` applies.
+Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
 
-The brief's speed target is 300 ms warm. On 14 October 2026, with all seven indexes in place, timed through a local API against production, every endpoint met it except these:
+Three commits changed that: the stored column (`49ebfad`, 17 October), the rum index with its `ANALYZE` (`489882e`, 18 October) and the order clauses below (`90f8ba0`, 18 October). `ts_rank` is gone from speech search. Report title search still uses it, and the title plans above stand.
 
-| Request | Matches | Time | Cause |
-|---|---|---|---|
-| `GET /search/speeches?q=housing estate` | 4,822 | 1.5 to 1.8 s | `ts_rank` recomputes 4,822 transcript vectors (1.57 s of 1.60 s in `EXPLAIN ANALYZE`) |
-| `GET /search/speeches?q=housing estate&sort=date` | 4,822 | 0.73 to 0.84 s | same ranking cost, as the second sort key |
-| `GET /search/speeches?q=housing&person_id=149` | 608 of 67,059 | 2.1 to 2.4 s | lossy bitmap at `work_mem` 2MB; the recheck recomputes vectors for 12,089 rows |
-| `GET /search/speeches?q=government` | 137,785 | `503 search.timed_out` after 30 s | ranking 137,785 transcripts plus a lossy bitmap |
-| `GET /people/29` | | 0.30 to 0.64 s | one statement, `speech_counts_by_parliament`, plans a sequential scan of `report` |
-
-For comparison, the same "housing estate" plan takes 300 to 480 ms on the rehearsal copy, which has the whole working set in memory. A rehearsal run of "government" at production's `work_mem` of 2MB took 6 to 8 s by relevance and 8 to 11 s by date. At 32MB the relevance query took 2.6 s, and the date sort stayed slow because it also runs the `SubPlan 1` date lookup 137,785 times. No workaround is applied, per the brief.
-
-Missing statistics make the person-filtered search worse. Production has not analysed `speech` or `report` since the indexes were built, so the planner estimates 27 matches for "housing estate" (4,822 real) and 5,343 for "government" (137,785 real). In the person-filtered search that puts the large "housing" bitmap into the `BitmapAnd`; at 2MB it turns lossy (681 of 885 heap blocks), and the recheck recomputes `to_tsvector` for rows the speaker filter then discards. On rehearsal the same statement took 146 ms with statistics and about 480 ms without. Production takes longer than rehearsal on every ranking step, and the cause was not isolated. An `ANALYZE speech; ANALYZE report;` on production (a scraper-side action outside this run's write permission), or the next automatic analyse, should correct the row estimates.
-
-`EXPLAIN (ANALYZE, BUFFERS)` on production, `GET /search/speeches?q=housing estate`:
-
-```text
-Limit  (cost=148.35..148.40 rows=21 width=417) (actual time=1603.404..1603.432 rows=21 loops=1)
-  Buffers: shared hit=27970
-  ->  Sort  (cost=148.35..148.42 rows=27 width=417) (actual time=1603.401..1603.424 rows=21 loops=1)
-        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'' & ''estat'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
-        Sort Method: top-N heapsort  Memory: 71kB
-        Buffers: shared hit=27970
-        ->  Nested Loop  (cost=9.49..147.71 rows=27 width=417) (actual time=5.263..1593.445 rows=4822 loops=1)
-              Buffers: shared hit=27970
-              ->  Bitmap Heap Scan on speech  (cost=9.20..43.29 rows=27 width=405) (actual time=4.930..23.829 rows=4822 loops=1)
-                    Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-                    Heap Blocks: exact=3667
-                    Buffers: shared hit=3705
-                    ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..9.19 rows=27 width=0) (actual time=3.985..3.986 rows=4822 loops=1)
-                          Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'' & ''estat'''::tsquery)
-                          Buffers: shared hit=38
-              ->  Index Only Scan using report_pkey on report  (cost=0.29..1.31 rows=1 width=4) (actual time=0.004..0.004 rows=1 loops=4822)
-                    Index Cond: (id = speech.report_id)
-                    Heap Fetches: 0
-                    Buffers: shared hit=9645
-              SubPlan 1
-                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8) (actual time=0.007..0.007 rows=1 loops=4822)
-                      Index Cond: (id = speech.report_id)
-                      Buffers: shared hit=14466
-Planning:
-  Buffers: shared hit=18
-Planning Time: 0.731 ms
-Execution Time: 1603.736 ms
-```
-
-`EXPLAIN (ANALYZE, BUFFERS)` on production, `GET /search/speeches?q=housing&person_id=149`:
-
-```text
-Limit  (cost=402.86..402.91 rows=21 width=417) (actual time=4196.406..4196.420 rows=21 loops=1)
-  Buffers: shared hit=4041
-  ->  Sort  (cost=402.86..402.99 rows=54 width=417) (actual time=4196.403..4196.411 rows=21 loops=1)
-        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''hous'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
-        Sort Method: top-N heapsort  Memory: 63kB
-        Buffers: shared hit=4041
-        ->  Nested Loop  (cost=129.40..401.40 rows=54 width=417) (actual time=30.475..4186.007 rows=608 loops=1)
-              Buffers: shared hit=4041
-              ->  Bitmap Heap Scan on speech  (cost=129.11..197.56 rows=54 width=405) (actual time=29.983..3814.507 rows=608 loops=1)
-                    Recheck Cond: ((to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'''::tsquery) AND (speaker_id = ANY ('{385,466,556,647,746,849,959,1074,1181,1304}'::integer[])))
-                    Rows Removed by Index Recheck: 11481
-                    Heap Blocks: exact=204 lossy=681
-                    Buffers: shared hit=988
-                    ->  BitmapAnd  (cost=129.09..129.09 rows=54 width=0) (actual time=29.235..29.238 rows=0 loops=1)
-                          Buffers: shared hit=60
-                          ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..32.93 rows=5343 width=0) (actual time=26.124..26.125 rows=67059 loops=1)
-                                Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''hous'''::tsquery)
-                                Buffers: shared hit=19
-                          ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..95.88 rows=10875 width=0) (actual time=0.919..0.919 rows=11985 loops=1)
-                                Index Cond: (speaker_id = ANY ('{385,466,556,647,746,849,959,1074,1181,1304}'::integer[]))
-                                Buffers: shared hit=41
-              ->  Index Only Scan using report_pkey on report  (cost=0.29..1.21 rows=1 width=4) (actual time=0.035..0.035 rows=1 loops=608)
-                    Index Cond: (id = speech.report_id)
-                    Heap Fetches: 0
-                    Buffers: shared hit=1217
-              SubPlan 1
-                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8) (actual time=0.031..0.032 rows=1 loops=608)
-                      Index Cond: (id = speech.report_id)
-                      Buffers: shared hit=1824
-Planning:
-  Buffers: shared hit=18
-Planning Time: 0.851 ms
-Execution Time: 4196.582 ms
-```
-
-Plain `EXPLAIN` on production, `GET /search/speeches?q=government` (the query runs past 30 s, so it is not executed here):
-
-```text
-Limit  (cost=6917.87..6983.76 rows=21 width=417)
-  ->  Incremental Sort  (cost=6917.87..23681.39 rows=5343 width=417)
-        Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''govern'''::tsquery)) DESC, ((SubPlan 1)) DESC, speech.id
-        Presorted Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''govern'''::tsquery))
-        ->  Nested Loop  (cost=6914.75..23442.04 rows=5343 width=417)
-              ->  Gather Merge  (cost=6914.45..7536.73 rows=5343 width=405)
-                    Workers Planned: 2
-                    ->  Sort  (cost=5914.43..5919.99 rows=2226 width=405)
-                          Sort Key: (ts_rank(to_tsvector('english'::regconfig, (speech.transcript)::text), '''govern'''::tsquery)) DESC
-                          ->  Parallel Bitmap Heap Scan on speech  (cost=34.27..5790.66 rows=2226 width=405)
-                                Recheck Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''govern'''::tsquery)
-                                ->  Bitmap Index Scan on ix_speech_transcript_fts  (cost=0.00..32.93 rows=5343 width=0)
-                                      Index Cond: (to_tsvector('english'::regconfig, (transcript)::text) @@ '''govern'''::tsquery)
-              ->  Memoize  (cost=0.30..0.50 rows=1 width=4)
-                    Cache Key: speech.report_id
-                    Cache Mode: logical
-                    ->  Index Only Scan using report_pkey on report  (cost=0.29..0.49 rows=1 width=4)
-                          Index Cond: (id = speech.report_id)
-              SubPlan 1
-                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8)
-                      Index Cond: (id = speech.report_id)
-```
-
-One alternative, out of scope for this run (the polish brief rules out a stored tsvector column), is a stored generated column with its own GIN index:
+The `ORDER BY` clauses of `GET /search/speeches` with search words, from `api/crud/speech.py`:
 
 ```sql
-ALTER TABLE speech ADD COLUMN transcript_tsv tsvector
-    GENERATED ALWAYS AS (to_tsvector('english', transcript)) STORED;
-create index ix_speech_transcript_fts on speech using gin (transcript_tsv);
+-- relevance
+ORDER BY speech.transcript_tsv <=> websearch_to_tsquery('english', 'government'), (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, speech.id
+
+-- relevance, with a date range
+ORDER BY (speech.transcript_tsv <=> websearch_to_tsquery('english', 'government')) + 0, (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, speech.id
+
+-- newest first
+ORDER BY report.sitting_date DESC, speech.id
+
+-- oldest first
+ORDER BY (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) ASC, speech.id
 ```
 
-The same applies to `report.title`. This stores the vector once, so ranking reads it instead of recomputing it. It also adds table size and rewrites every row on creation. The API's expression would change from `to_tsvector('english', transcript)` to the column name, so adopting it means a matching API change. The expression indexes above are what the API is built against today.
+Relevance. The rum index returns matches in `<=>` order, so the planner stops after the first page. Under a date range that scan would walk matches in rank order until 20 pass the filter: 3.88 s and 35,400 buffers for "government" in 1975 on the clone, against 0.03 s and 3,000 buffers from the report date index. Adding zero hides the order from the rum index, so the planner starts from `ix_report_sitting_date_parliament_number`.
 
-The statement behind `GET /people/29` that takes the time is `speech_counts_by_parliament`. `EXPLAIN (ANALYZE, BUFFERS)` on production, with the 12 memberships of person 29:
+Newest first. The key is the joined `report.sitting_date`, so a common word walks the report date index from the newest report and stops after the first page. With the subquery date the planner sorted every match: 34.7 to 38.5 s for "government" once the rum index existed, and one cold run passed 120 s.
+
+Oldest first. The key stays the subquery date and Postgres sorts every match. The alternative, walking the report date index forward, answers "government" in 0.01 s. But a word of recent decades walks sixty years of reports before its first match, and that takes 15 to 58 s or more.
+
+`EXPLAIN ANALYZE` of the SQL the API emits, on production, read-only, 18 October 2026, first page. The API's statement timeout is 30 s. Relevance was run three times, seconds per run:
+
+| Relevance | Run 1 | Run 2 | Run 3 |
+|---|---|---|---|
+| "government" | 0.58 | 3.30 | 0.60 |
+| "government", Parliament 3 | 1.82 | 4.82 | 2.38 |
+| "government", Parliament 14 | 0.56 | 2.35 | 0.41 |
+| "government", 1975 only | 1.81 | 2.58 | 0.69 |
+| phrase "national service" | 0.54 | 0.54 | 0.31 |
+| "government", one member (five Memberships) | 0.15 | 0.29 | 0.15 |
+| "government", written answers only | 3.51 | 6.28 | 1.68 |
+| "housing estate", Parliament 8 | 0.14 | 0.22 | 0.12 |
+| "government", page 6 | 0.35 | 0.49 | 0.50 |
+| "minister" | 0.51 | 1.21 | 0.51 |
+| "housing" | 0.26 | 0.20 | 0.18 |
+
+Run 2 was the slowest in 8 of 11 shapes, and the cause was not isolated. The slowest single run is 6.28 s. The brief's speed target is 300 ms warm, which only the narrow shapes meet. The launch test is an answer inside the 30-second timeout at full data size, and every relevance shape passes it.
+
+Newest first and oldest first, one run each, seconds:
+
+| Newest first | Time | Oldest first | Time |
+|---|---|---|---|
+| "government" | 0.13 | "covid" | 4.3 |
+| "government", 1975 only | 0.15 | "online" | 2.2 |
+| "covid" | 0.25 | "cpf" | 4.1 |
+| "housing estate" | 2.6 | "digital" | 2.5 |
+| "durian" | 0.06 | phrase "national service" | 0.90 |
+| "barisan" | 0.42 | "government", Parliament 3 | 1.25 |
+| "minister", written answers only | 0.03 | "government", 1975 only | 0.25 |
+| "government", one member (twelve Memberships) | 0.93 | one member (twelve Memberships) | 0.85 |
+| "federation" | 0.70 | "housing" | 18.7 |
+| "colonial" | 0.54 | "government" | 34.7 |
+| "unemployment" | 1.23 | | |
+| phrase "chief minister" | 0.50 | | |
+
+Residual. Oldest first on one of the ten or so lexemes found in more than 11% of speeches (sir, also, singapor, mr, would, minist, govern, year, time, member, from the production statistics) can pass the 30-second timeout. "government" took 34.7 s, and the API answers such a search with its timed-out message (`503 search.timed_out`). The change picked the shape that fails on the rarer case. A fix for both needs the sitting date on the `speech` row and a rum index that carries it. That is a schema change and a write to production, and it has not been done.
+
+`GET /people/29` is the one endpoint outside speech word search that missed the target on 14 October 2026, at 0.30 to 0.64 s. The statement behind it that takes the time is `speech_counts_by_parliament`, which plans a sequential scan of `report`. Not retimed since the `ANALYZE speech` of 18 October. `EXPLAIN (ANALYZE, BUFFERS)` on production, with the 12 memberships of person 29:
 
 ```text
 HashAggregate  (cost=18568.61..18568.76 rows=15 width=12) (actual time=248.854..248.866 rows=12 loops=1)
@@ -572,7 +468,7 @@ The planner expected 16,993 speeches for these memberships (13,345 real), so it 
 
 ## Match counts
 
-Every search page also carries `total_count` and `is_total_capped`. The count is its own statement per table, built from the same filter helpers as the page query, in the shape `SELECT count(*) FROM (SELECT id ... LIMIT 1001) AS capped`. `total_count` is the number of matches up to 1,000 and `is_total_capped` is true when there are more. An exact `count(*)` was measured first. `EXPLAIN (ANALYZE, BUFFERS)`, warm, best of three, read-only, on production on 14 October 2026 (speeches joined to `report`, as the page query is):
+Every search page also carries `total_count` and `is_total_capped`. The count is its own statement per table, built from the same filter helpers as the page query, in the shape `SELECT count(*) FROM (SELECT id ... LIMIT 1001) AS capped`. `total_count` is the number of matches up to 1,000 and `is_total_capped` is true when there are more. An exact `count(*)` was measured first. `EXPLAIN (ANALYZE, BUFFERS)`, warm, best of three, read-only, on production on 14 October 2026, before the stored column (speeches joined to `report`, as the page query is):
 
 | Count | Matches | Exact | Capped at 1,000 | Capped at 10,000 |
 |---|---|---|---|---|
@@ -586,7 +482,9 @@ Every search page also carries `total_count` and `is_total_capped`. The count is
 | reports, "government" | 1,024 | 30 ms | 3 to 15 ms | 28 ms |
 | reports, Parliament 13 | | 11 ms | | |
 
-Exact counts fail: "government" times out, and `oral-answer` alone takes 2.2 s. A cap of 1,000 keeps every search without words under 25 ms, against up to 245 ms at 10,000. No cap meets 300 ms for a broad word, because the cost there is `to_tsvector` recomputed for every row the filter tests, and the planner picks a sequential scan or a lossy bitmap whatever the limit: "government" costs 0.95 s at a cap of 100, 3 to 6 s at 1,000 and 7 to 10 s at 10,000, and "government" with person 29 adds 0.65 to 2.4 s at 1,000 against 6.7 s at 10,000. The API uses 1,000, the cap that adds least to a broad word search while still giving an exact figure for every narrow one. The fix for the broad word cost is the stored `tsvector` column described in "Ranking cost", not a smaller cap.
+Exact counts fail: "government" times out, and `oral-answer` alone takes 2.2 s. A cap of 1,000 keeps every search without words under 25 ms, against up to 245 ms at 10,000. With the expression index, no cap met 300 ms for a broad word, because `to_tsvector` was recomputed for every row the filter tested: "government" cost 0.95 s at a cap of 100, 3 to 6 s at 1,000 and 7 to 10 s at 10,000. The API uses 1,000, the cap that adds least to a broad word search while still giving an exact figure for every narrow one.
+
+The stored column fixed the broad word cost, not a smaller cap. On 18 October 2026, with `transcript_tsv` and the rum index, the count capped at 1,001 took 0.23 to 1.47 s in every shape tested on production, "government" included.
 
 ## Queries the GIN index cannot serve
 
