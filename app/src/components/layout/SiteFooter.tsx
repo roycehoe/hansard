@@ -8,6 +8,9 @@ import { Link } from '@tanstack/react-router'
 const FOOTER_LINKS = [
   { label: 'Coverage', to: '/coverage' },
   { label: 'Data quality and methods', to: '/coverage/methods' },
+  ...(RESEARCHERS_FORM_URL
+    ? ([{ label: 'For researchers', to: '/researchers' }] as const)
+    : []),
 ] as const
 
 const LINK_CLASS_NAME =
@@ -29,13 +32,6 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
-            {RESEARCHERS_FORM_URL && (
-              <li>
-                <Link to="/researchers" className={LINK_CLASS_NAME}>
-                  For researchers
-                </Link>
-              </li>
-            )}
             <li>
               <a
                 href={OFFICIAL_RECORD_SEARCH_URL}

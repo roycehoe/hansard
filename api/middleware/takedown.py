@@ -10,10 +10,11 @@ from utils.report_slug import get_normalised_report_slug
 from utils.takedown_list import get_taken_down_report_slugs
 
 _TAKEDOWN_LIST_PATH = Path(__file__).resolve().parent.parent / "takedown-list.txt"
+_TAKEDOWN_LIST_ENCODING = "utf-8-sig"
 
 # NOTE: read at import so a missing or malformed list stops startup instead of showing a listed report.
 _TAKEN_DOWN_REPORT_SLUGS = get_taken_down_report_slugs(
-    _TAKEDOWN_LIST_PATH.read_text(encoding="utf-8-sig")
+    _TAKEDOWN_LIST_PATH.read_text(encoding=_TAKEDOWN_LIST_ENCODING)
 )
 
 
@@ -26,12 +27,14 @@ def is_report_id_taken_down(report_id: str) -> bool:
 
 
 _INDEX_FILE = "index.html"
+_PATH_KEY = "path"
 _REPORT_PATH_PREFIX = "reports/"
+_URL_SEPARATOR = "/"
 
 
 def _is_report_page_taken_down(request_path: str) -> bool:
     # NOTE: normalised as StaticFiles.get_path does, so every spelling the frontend mount serves is caught.
-    frontend_path = os.path.normpath(os.path.join(*request_path.split("/")))
+    frontend_path = os.path.normpath(os.path.join(*request_path.split(_URL_SEPARATOR)))
     if not frontend_path.startswith(_REPORT_PATH_PREFIX):
         return False
     return is_report_slug_taken_down(frontend_path.removeprefix(_REPORT_PATH_PREFIX))
@@ -45,6 +48,6 @@ class TakedownMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self, request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
-        if _is_report_page_taken_down(request.scope["path"]):
+        if _is_report_page_taken_down(request.scope[_PATH_KEY]):
             return FileResponse(self.index_path, status_code=status.HTTP_410_GONE)
         return await call_next(request)
