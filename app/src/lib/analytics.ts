@@ -1,4 +1,6 @@
 import {
+  ANALYTICS_SCRIPT_CROSS_ORIGIN,
+  ANALYTICS_SCRIPT_INTEGRITY,
   ANALYTICS_SCRIPT_SETTINGS,
   ANALYTICS_SCRIPT_URL,
   COUNT_QUERY_FIELD,
@@ -80,6 +82,8 @@ export function loadAnalytics(): void {
   const script = document.createElement('script')
   script.async = true
   script.src = ANALYTICS_SCRIPT_URL
+  script.integrity = ANALYTICS_SCRIPT_INTEGRITY
+  script.crossOrigin = ANALYTICS_SCRIPT_CROSS_ORIGIN
   script.dataset.goatcounter = ANALYTICS_URL
   script.dataset.goatcounterSettings = ANALYTICS_SCRIPT_SETTINGS
   script.addEventListener('load', () => {
