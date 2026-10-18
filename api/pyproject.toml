@@ -11,6 +11,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pytest==9.1.1",
     "ruff==0.17.0",
 ]
 
@@ -22,3 +23,9 @@ extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
 select = ["I", "F"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = [
+    "database: needs the scratch database",
+]
