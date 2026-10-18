@@ -1,8 +1,8 @@
 # Required indexes
 
-The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: eight indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. A ninth index, `ix_speech_transcript_fts`, still exists, but no API statement uses it. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026; "Ranking cost" holds its order clauses and timings.
+The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: nine indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. A tenth index, `ix_speech_transcript_fts`, still exists, but no API statement uses it. The ninth, `ix_speech_transcript_tsv_sitting_date_rum`, reads the column `speech.sitting_date`. Scraper migration `c93f77e499cc` adds both, and neither is on production yet; see its section below. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026, and its date order changes again with the sitting-date index; "Ranking cost" holds its order clauses and timings.
 
-All nine indexes exist and are valid on production, and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes. Three migrations built them:
+Every index here except `ix_speech_transcript_tsv_sitting_date_rum` exists and is valid on production, and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes. Three migrations built them:
 
 - Scraper commit `b15908a` (`feat: add the indexes the read API relies on`, Alembic revision `e5a9c3b7d216`) created seven on 14 October 2026, from 11:01 to 11:07 SGT (392 seconds in total).
 - Commit `c4b6aa2` (revision `f2b8d4a6c913`) added the stored column `speech.transcript_tsv` and `ix_speech_transcript_tsv`. Production took the upgrade on 17 October from 13:44 to 14:00 SGT, together with the attendance constraint (23 minutes; the column rewrites `speech`).
@@ -19,8 +19,9 @@ All nine indexes exist and are valid on production, and `alembic check` is clean
 | `ix_speech_transcript_fts` (not used by the API) | `speech` | 92 MB |
 | `ix_speech_transcript_tsv` | `speech` | 94 MB on the rehearsal copy, not read on production |
 | `ix_speech_transcript_tsv_rum` | `speech` | 222 MB |
+| `ix_speech_transcript_tsv_sitting_date_rum` | `speech` | 411 MB on a clone, not on production yet |
 
-The API no longer waits on any listed index. B1 and B2 are verified: on 14 October 2026 `GET /search/speeches` answered 200 with results against production for "housing estate" and for "housing" filtered to person 149. Two limits remain, both in the "Ranking cost" section. Relevance search takes 0.1 to 6.3 s on production in every shape tested, against the 300 ms target. Oldest-first search on one of the ten most common words can pass the 30-second timeout and answer `503 search.timed_out`.
+The API no longer waits on any listed index. B1 and B2 are verified: on 14 October 2026 `GET /search/speeches` answered 200 with results against production for "housing estate" and for "housing" filtered to person 149. Two limits remain, both in the "Ranking cost" section. Relevance search takes 0.1 to 6.3 s on production in every shape tested, against the 300 ms target. Oldest-first search on one of the ten most common words can pass the 30-second timeout and answer `503 search.timed_out`, until the sitting-date index ships.
 
 Facts that apply to every plan below:
 
@@ -208,7 +209,7 @@ HashAggregate  (cost=1288.94..1290.94 rows=200 width=12)
 CREATE INDEX ix_report_sitting_date_parliament_number ON report (sitting_date, parliament_number);
 ```
 
-Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters on `GET /search/speeches` and `GET /search/reports`, and the newest-first order of both, with or without search words. A relevance search under a date range also starts from this index.
+Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters and newest-first order of `GET /search/reports`, and of `GET /search/speeches` without search words. With search words, a date-ordered speech search reads it only for a Parliament's first and last sitting dates; the dates themselves filter `speech.sitting_date` (see `ix_speech_transcript_tsv_sitting_date_rum`).
 
 The first version of this list named a single-column index on `report (sitting_date)`. The scraper builds this composite instead. On the rehearsal copy it served every statement the single column served. It also turned the per-Parliament statements (the Parliament list, the sittings list, the `DISTINCT sitting_date, parliament_number` subquery under the attendance counts) into index-only scans of 44 pages instead of 6,309 heap pages. On production a heap scan of `report` costs 0.4 to 1.4 seconds per statement, so that is the larger gain. A `(parliament_number, sitting_date)` index served fewer statements and was no better on any of them. The composite is 352 kB.
 
@@ -289,7 +290,7 @@ The speech statement measured the same way: report type `oral-answer` only 0.9 m
 CREATE INDEX ix_speech_transcript_fts ON speech USING gin (to_tsvector('english', transcript));
 ```
 
-Kept, and no API statement uses it. Scraper commit `b15908a` built it for `GET /search/speeches` (B1, B2). Since API commit `49ebfad` (17 October 2026) the speech statements filter the stored column `transcript_tsv` and never write `to_tsvector('english', transcript)`, so the planner cannot match this expression. The index takes 92 MB, and every insert, delete and update of `transcript` on `speech` still maintains it. The scraper still declares it on `Speech`.
+Kept, and no API statement uses it. It indexes the same vector as `transcript_tsv`, so it duplicates `ix_speech_transcript_tsv`. Scraper commit `b15908a` built it for `GET /search/speeches` (B1, B2). Since API commit `49ebfad` (17 October 2026) the speech statements filter the stored column `transcript_tsv` and never write `to_tsvector('english', transcript)`, so the planner cannot match this expression. The index takes 92 MB, and every insert, delete and update of `transcript` on `speech` still maintains it. The scraper still declares it on `Speech`.
 
 ## ix_speech_transcript_tsv
 
@@ -301,7 +302,7 @@ CREATE INDEX ix_speech_transcript_tsv ON speech USING gin (transcript_tsv);
 
 Needed by `GET /search/speeches` with search words, and by its match count. The statements filter `transcript_tsv @@ websearch_to_tsquery('english', ...)`. Scraper commit `c4b6aa2`, revision `f2b8d4a6c913`. The API has read the column since commit `49ebfad`.
 
-The column stores each vector once. A GIN expression index does not hold a vector Postgres can read back, so `ts_rank` recomputed `to_tsvector('english', transcript)` for every matched row, and a common word ranked every one of its matches. The column costs a table rewrite on creation and 94 MB of index (measured on the rehearsal copy, the same size as the expression index). The rum index below serves the same `@@` predicate, so the planner chooses between the two for each statement.
+The column stores each vector once. A GIN expression index does not hold a vector Postgres can read back, so `ts_rank` recomputed `to_tsvector('english', transcript)` for every matched row, and a common word ranked every one of its matches. The column costs a table rewrite on creation and 94 MB of index (measured on the rehearsal copy, the same size as the expression index). The two rum indexes below serve the same `@@` predicate, so the planner chooses among the three for each statement. On a clone with the sitting-date index, hiding this one changed no plan in 61 search and count shapes: the two member-filtered shapes that read it in a bitmap read the relevance rum index instead, at 80 against 48 ms and 1.16 against 1.05 ms (the clone was under load from another job). Dropping it would save 94 MB and its upkeep on every write; that is Royce's call.
 
 `speech_headlines` reads at most one page of rows by primary key and needs no index of its own, but it only runs after a search has returned ids.
 
@@ -331,6 +332,44 @@ The index needs the `rum` extension, which DigitalOcean's Postgres 17 offers as 
 The distance order is not the `ts_rank` order. In a clone test the top 20 matched `ts_rank` on 20 results for "government", "housing" and "CPF", on 18 for "Lee Kuan Yew", on 10 for "water agreement Malaysia" and on 6 for "national service". On a phrase, rum puts speeches whose words sit close together first.
 
 The migration ends with `ANALYZE speech`. `transcript_tsv` had no statistics since it was added, so the planner took every word for a rare one: 5,258 matches estimated for "government" against 137,788 real. Under a 1975 date range it then scanned the rum index once per report, 222 rescans, and the statement took 23 to 50 s on the clone. After `ANALYZE` it read 4,531 buffers and took 90 ms, and `pg_stats` holds the 1,000 most common lexemes of `transcript_tsv`. A migration that adds a column or an index to `speech` should analyse the table in the same step.
+
+## ix_speech_transcript_tsv_sitting_date_rum
+
+```sql
+-- inside scraper migration c93f77e499cc, which copies speech with its report's sitting date and swaps the copy in
+ALTER TABLE speech_new ADD COLUMN sitting_date timestamp without time zone NOT NULL;
+CREATE INDEX ix_speech_new_transcript_tsv_sitting_date_rum ON speech_new
+    USING rum (transcript_tsv rum_tsvector_addon_ops, sitting_date) WITH (attach = 'sitting_date', to = 'transcript_tsv');
+-- the copy is analysed before the swap, which renames this index to ix_speech_transcript_tsv_sitting_date_rum
+```
+
+Not on production yet. Needed by `GET /search/speeches` with search words, sorted oldest first or newest first, and by its match count under a date range. The index stores each match's sitting date in place of the word positions, so it returns the matches of a query in order of distance from a date. The API orders oldest first by `speech.sitting_date |=> '1900-01-01'` and newest first by `speech.sitting_date <=| '2100-01-01'`, then by `speech.id`, so the first page reads a few hundred buffers however common the word is. Date filters on word search read `speech.sitting_date`. In date order a Parliament filter also adds that Parliament's first and last sitting dates as a range on it, so the index reads only that span, and the exact Parliament filter on `report` stays. Relevance and the count do not get the range: with it, relevance in Parliament 14 read 159,000 buffers against 6,500. A member filter keeps a plain sort on `speech.sitting_date`, because a member's matches are few: walking the index until 20 of theirs turn up read 57,000 buffers for person 29 against 4,400 for the sort.
+
+The index cannot order by relevance: it holds no word positions, so `<=>` against the query is not an index order. Relevance keeps `ix_speech_transcript_tsv_rum`. The scraper's ADR 0010 records why the date is a copy on `speech` and how the copy is kept in step.
+
+The API's `Speech` model reads `speech.sitting_date`, so the API must not deploy before migration `c93f77e499cc` has run on production: every statement that selects a speech would fail on the missing column.
+
+`EXPLAIN (ANALYZE, BUFFERS)` on a clone of the replica with production's planner settings (`random_page_cost` 1, `work_mem` 2MB, `effective_cache_size` 568MB), second run, 18 October 2026. Before is the API at `613c795` on the same clone with this index hidden; after is the API with the index. The clone was under load from another job for some runs, so the buffer counts compare better than the times:
+
+| Shape | Before | After |
+|---|---|---|
+| "government", oldest first | 43.5 s, 508,000 buffers | 0.16 s, 262 |
+| "singapore", oldest first | 39.7 s, 603,000 buffers | 0.13 s, 416 |
+| "minister", oldest first | 17.8 s, 544,000 buffers | 0.11 s, 392 |
+| "housing", oldest first | 5.8 s, 259,000 buffers | 0.06 s, 261 |
+| "covid", oldest first | 0.31 s | 0.007 s |
+| "government", newest first | 0.002 s | 0.14 to 0.18 s |
+| "government", Parliament 3, newest first | 0.001 s | 0.02 to 0.03 s |
+| "government", Parliament 14, oldest first | 26.8 s | 0.04 to 0.06 s |
+| "government", 1975, newest first | 0.001 s | 0.01 s |
+| "government", 2020, oldest first | 0.03 s | 0.02 to 0.03 s |
+| "government", person 29, newest first | 0.10 s | 0.05 s |
+| "government", count capped at 1,001 | 0.09 s | 0.17 to 0.34 s |
+| "government", relevance | 0.19 s | 0.26 to 0.36 s |
+
+Relevance and the count still use `ix_speech_transcript_tsv_rum`; their times moved with the load, not the plan.
+
+The same statements on a server with production's memory and WAL settings as well (`shared_buffers` 189MB, `maintenance_work_mem` 89MB, `max_wal_size` 481MB), after the whole migration had run there, first run with a cold cache: "government" oldest first 0.13 s, newest first 0.10 s, relevance 0.15 s, count 0.11 s, Parliament 14 oldest first 0.03 s, Parliament 3 newest first 0.02 s, 1975 newest first 0.01 s, 2020 oldest first 0.02 s; "singapore" 0.14 s, "minister" 0.12 s, "housing" 0.06 s, "covid" 0.01 s and "online" 0.04 s oldest first. For "government" with each Parliament filter from 0 to 15 and with the years 1975 and 2020, oldest and newest first, page 1 and the page at offset 1,000 (offset 200 for 1975, which has fewer matches), the API before and after returned the same ids in the same order. So did person 29, alone, in Parliament 9 and in 1990, at offsets 0 and 200.
 
 ## ix_report_title_fts
 
@@ -381,7 +420,7 @@ Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('
 
 Three commits changed that: the stored column (`49ebfad`, 17 October), the rum index with its `ANALYZE` (`489882e`, 18 October) and the order clauses below (`90f8ba0`, 18 October). `ts_rank` is gone from speech search. Report title search still uses it, and the title plans above stand.
 
-The `ORDER BY` clauses of `GET /search/speeches` with search words, from `api/crud/speech.py`:
+The `ORDER BY` clauses of `GET /search/speeches` with search words, from `api/crud/speech.py`. The date orders need `ix_speech_transcript_tsv_sitting_date_rum`. Until it ships, production matches the clauses of `613c795`, which are in the "Newest first" and "Oldest first" paragraphs below:
 
 ```sql
 -- relevance
@@ -391,19 +430,22 @@ ORDER BY speech.transcript_tsv <=> websearch_to_tsquery('english', 'government')
 ORDER BY (speech.transcript_tsv <=> websearch_to_tsquery('english', 'government')) + 0, (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, speech.id
 
 -- newest first
-ORDER BY report.sitting_date DESC, speech.id
+ORDER BY speech.sitting_date <=| '2100-01-01 00:00:00', speech.id
 
 -- oldest first
-ORDER BY (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) ASC, speech.id
+ORDER BY speech.sitting_date |=> '1900-01-01 00:00:00', speech.id
+
+-- newest first with a member filter (ASC for oldest first)
+ORDER BY speech.sitting_date DESC, speech.id
 ```
 
-Relevance. The rum index returns matches in `<=>` order, so the planner stops after the first page. Under a date range that scan would walk matches in rank order until 20 pass the filter: 3.88 s and 35,400 buffers for "government" in 1975 on the clone, against 0.03 s and 3,000 buffers from the report date index. Adding zero hides the order from the rum index, so the planner starts from `ix_report_sitting_date_parliament_number`.
+Relevance. The rum index returns matches in `<=>` order, so the planner stops after the first page. Under a date range that scan would walk matches in rank order until 20 pass the filter: 3.88 s and 35,400 buffers for "government" in 1975 on the clone, against 0.03 s and 3,000 buffers from the report date index. Adding zero hides the order from the rum index. At `613c795` the planner then started from `ix_report_sitting_date_parliament_number`; with the date filter on `speech.sitting_date` it reads the range from `ix_speech_transcript_tsv_sitting_date_rum` and ranks only the matches in it: 4,022 buffers and 0.03 s on the clone.
 
-Newest first. The key is the joined `report.sitting_date`, so a common word walks the report date index from the newest report and stops after the first page. With the subquery date the planner sorted every match: 34.7 to 38.5 s for "government" once the rum index existed, and one cold run passed 120 s.
+Newest first, at `613c795`. The key is the joined `report.sitting_date`, so a common word walks the report date index from the newest report and stops after the first page. With the subquery date the planner sorted every match: 34.7 to 38.5 s for "government" once the rum index existed, and one cold run passed 120 s.
 
-Oldest first. The key stays the subquery date and Postgres sorts every match. The alternative, walking the report date index forward, answers "government" in 0.01 s. But a word of recent decades walks sixty years of reports before its first match, and that takes 15 to 58 s or more.
+Oldest first, at `613c795`. The key stays the subquery date and Postgres sorts every match. The alternative, walking the report date index forward, answers "government" in 0.01 s. But a word of recent decades walks sixty years of reports before its first match, and that takes 15 to 58 s or more.
 
-`EXPLAIN ANALYZE` of the SQL the API emits, on production, read-only, 18 October 2026, first page. The API's statement timeout is 30 s. Relevance was run three times, seconds per run:
+`EXPLAIN ANALYZE` of the SQL the API at `613c795` emits, on production, read-only, 18 October 2026, first page. The API's statement timeout is 30 s. Relevance was run three times, seconds per run:
 
 | Relevance | Run 1 | Run 2 | Run 3 |
 |---|---|---|---|
@@ -438,7 +480,7 @@ Newest first and oldest first, one run each, seconds:
 | "unemployment" | 1.23 | | |
 | phrase "chief minister" | 0.50 | | |
 
-Residual. Oldest first on one of the ten or so lexemes found in more than 11% of speeches (sir, also, singapor, mr, would, minist, govern, year, time, member, from the production statistics) can pass the 30-second timeout. "government" took 34.7 s, and the API answers such a search with its timed-out message (`503 search.timed_out`). The change picked the shape that fails on the rarer case. A fix for both needs the sitting date on the `speech` row and a rum index that carries it. That is a schema change and a write to production, and it has not been done.
+Residual. Oldest first on one of the ten or so lexemes found in more than 11% of speeches (sir, also, singapor, mr, would, minist, govern, year, time, member, from the production statistics) can pass the 30-second timeout. "government" took 34.7 s, and the API answers such a search with its timed-out message (`503 search.timed_out`). The change picked the shape that fails on the rarer case. The fix for both is the sitting date on the `speech` row and `ix_speech_transcript_tsv_sitting_date_rum`, with the order clauses above. On a clone it took "government" oldest first from 43.5 s to 0.16 s. It is a schema change and a write to production, and it has not shipped yet.
 
 `GET /people/29` is the one endpoint outside speech word search that missed the target on 14 October 2026, at 0.30 to 0.64 s. The statement behind it that takes the time is `speech_counts_by_parliament`, which plans a sequential scan of `report`. Not retimed since the `ANALYZE speech` of 18 October. `EXPLAIN (ANALYZE, BUFFERS)` on production, with the 12 memberships of person 29:
 
