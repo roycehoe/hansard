@@ -39,3 +39,7 @@ def get_report_id_candidates(report_slug: str) -> list[str]:
         kept_report_slug + _REPORT_ID_SUFFIX,
         kept_report_slug + _REPORT_ID_SUFFIX * 2,
     ]
+
+
+def get_normalised_report_slug(report_slug: str) -> str:
+    return _get_kept_report_slug(get_report_slug(report_slug))
