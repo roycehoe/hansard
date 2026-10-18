@@ -63,7 +63,7 @@ What exists today:
 | `middleware/membership.py` | `get_membership_id_to_person`, which composes `CRUDMembership` and `CRUDPerson` for every service that resolves linked rows to Persons. |
 | `middleware/basic_auth.py` | `BasicAuthMiddleware`: answers 401 unless the request carries the configured credentials; `/api/health` is open for the platform's health check. Every response it returns, the 401 and the health check included, carries `X-Robots-Tag: noindex`. |
 | `middleware/frontend.py` | `FrontendFiles`: serves the built frontend, answers `index.html` for any other path so client routes load, and writes each page's preview tags between the markers in `index.html` (`services/preview.py`, cached in process for an hour). |
-| `middleware/takedown.py` | The takedown list (`takedown-list.txt`, read at import; a missing or malformed list stops startup): `is_report_slug_taken_down` and `is_report_id_taken_down` for the services, and `TakedownMiddleware`, which answers 410 for a listed report's page. |
+| `middleware/takedown.py` | The takedown list (`takedown-list.txt`, read at import; a missing or malformed list stops startup): `is_report_id_taken_down` for the services, and `is_report_slug_taken_down`, which `TakedownMiddleware` uses to answer 410 for a listed report's page. |
 | `schemas/` | Pydantic response models, one file per domain. No field defaults. |
 | `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage, preview. |
 | `routers/` | One router per domain plus `health.py`. Each handler calls one service function. |
