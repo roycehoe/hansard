@@ -30,7 +30,7 @@ Ruff config is `[tool.ruff.lint] select = ["I", "F"]`, so lint covers import ord
 
 **No test suite.** Do not write tests unless explicitly asked.
 
-**No pre-commit hooks.** Do not add any without being asked. The only auth is HTTP basic auth on the deployed site (`website.py`), added on 18 October 2026 for the private launch; the API in `main.py` has none.
+**No pre-commit hooks.** Do not add any without being asked. The only auth is HTTP basic auth on the deployed site (`website.py`), added on 18 October 2026 for the private launch; the API in `main.py` has none. It is on unless `PUBLIC_MODE` is `true`.
 
 ## The database contract
 
@@ -51,7 +51,7 @@ What exists today:
 | Path | Contents |
 |---|---|
 | `main.py` | The `FastAPI` app. Every router is mounted here. `uv run fastapi dev` serves it. |
-| `website.py` | The deployed site: `main.py`'s app under `/api`, the built frontend at `/`, both behind basic auth. The root `Dockerfile` runs it. |
+| `website.py` | The deployed site: `main.py`'s app under `/api`, the built frontend at `/`, both behind basic auth unless public mode is on, and the takedown middleware in front of both. The root `Dockerfile` runs it. |
 | `settings.py` | `pydantic-settings` configuration: `AppSettings` (`DATABASE_URL`) and `WebsiteSettings`, which only `website.py` reads. |
 | `enums.py` | `ReportType` (the 23 stored report type strings), `SearchSort`, `SpeechLinkStatus` and `PreviewType`. |
 | `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. |
@@ -63,6 +63,7 @@ What exists today:
 | `middleware/membership.py` | `get_membership_id_to_person`, which composes `CRUDMembership` and `CRUDPerson` for every service that resolves linked rows to Persons. |
 | `middleware/basic_auth.py` | `BasicAuthMiddleware`: answers 401 unless the request carries the configured credentials; `/api/health` is open for the platform's health check. Every response it returns, the 401 and the health check included, carries `X-Robots-Tag: noindex`. |
 | `middleware/frontend.py` | `FrontendFiles`: serves the built frontend, answers `index.html` for any other path so client routes load, and writes each page's preview tags between the markers in `index.html` (`services/preview.py`, cached in process for an hour). |
+| `middleware/takedown.py` | The takedown list (`takedown-list.txt`, read at import; a missing or malformed list stops startup): `is_report_slug_taken_down` and `is_report_id_taken_down` for the services, and `TakedownMiddleware`, which answers 410 for a listed report's page. |
 | `schemas/` | Pydantic response models, one file per domain. No field defaults. |
 | `services/` | Module-level functions, one file per domain: report, sitting, parliament, person, search, coverage, preview. |
 | `routers/` | One router per domain plus `health.py`. Each handler calls one service function. |
@@ -101,7 +102,8 @@ Notes on the layers that matter now:
 | Variable | Purpose |
 |---|---|
 | `DATABASE_URL` | Postgres connection string for the read-only role. |
-| `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD` | `website.py` only. Required: the site does not start without them. |
+| `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD` | `website.py` only. Required unless `PUBLIC_MODE` is true: the site does not start without them. |
+| `PUBLIC_MODE` | `website.py` only. Only `true` (any case) turns basic auth and the noindex header off; anything else, or unset, keeps them on. |
 | `FRONTEND_DIST_PATH` | `website.py` only. The built frontend; the `Dockerfile` sets it. |
 | `SITE_URL` | `website.py` only. Optional. The site's origin, such as `https://example.sg`, for the `og:url` preview tag; left out while unset. |
 
