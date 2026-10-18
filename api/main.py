@@ -10,6 +10,7 @@ from routers import (
     party,
     person,
     preview_fetch,
+    refresh,
     report,
     search,
     sitting,
@@ -36,4 +37,5 @@ app.include_router(person.router)
 app.include_router(party.router)
 app.include_router(search.router)
 app.include_router(coverage.router)
+app.include_router(refresh.router)
 app.include_router(preview_fetch.router)
