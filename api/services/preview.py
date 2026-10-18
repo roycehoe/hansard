@@ -37,6 +37,11 @@ _METHODS_PATH = "/coverage/methods"
 _SEARCH_PATH = "/search"
 _PEOPLE_PATH = "/people"
 _SITTINGS_PATH = "/sittings"
+_COVERAGE_TITLE = "What the archive covers"
+_METHODS_TITLE = "Data quality and methods"
+_SEARCH_TITLE = "Search"
+_PEOPLE_TITLE = "People"
+_SITTINGS_TITLE = "Sittings"
 _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
 _REPORT_WORD = "report"
@@ -64,15 +69,15 @@ def get_default_preview() -> PreviewData:
 
 def _get_fixed_page_title(path: str) -> Optional[str]:
     if path == _COVERAGE_PATH:
-        return "What the archive covers"
+        return _COVERAGE_TITLE
     if path == _METHODS_PATH:
-        return "Data quality and methods"
+        return _METHODS_TITLE
     if path == _SEARCH_PATH:
-        return "Search"
+        return _SEARCH_TITLE
     if path == _PEOPLE_PATH:
-        return "People"
+        return _PEOPLE_TITLE
     if path == _SITTINGS_PATH:
-        return "Sittings"
+        return _SITTINGS_TITLE
     return None
 
 

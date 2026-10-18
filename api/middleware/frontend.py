@@ -35,7 +35,9 @@ def _get_page_preview(
             return preview_service.get_preview(
                 path, speech_ordinal_text, speech_anchor_text, session
             )
-    except SQLAlchemyError, ValueError:
+    except SQLAlchemyError:
+        return preview_service.get_default_preview()
+    except ValueError:
         return preview_service.get_default_preview()
 
 
