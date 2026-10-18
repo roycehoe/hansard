@@ -40,6 +40,12 @@ export enum SpeechKind {
   UNCLASSIFIED = 'UNCLASSIFIED',
 }
 
+export enum SpeechLinkStatus {
+  FOUND = 'found',
+  MOVED = 'moved',
+  MISSING = 'missing',
+}
+
 export enum TranscriptStyle {
   BODY = 'body',
   MUTED = 'muted',

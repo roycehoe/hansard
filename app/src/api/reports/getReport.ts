@@ -1,9 +1,16 @@
 import { apiGet } from '@/api/client'
-import type { ReportType, SpeechKind } from '@/constants/reports/enums'
+import type {
+  ReportType,
+  SpeechKind,
+  SpeechLinkStatus,
+} from '@/constants/reports/enums'
+import { buildQueryString } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 
 export interface GetReportRequest {
   report_slug: string
+  s?: number
+  q?: string
 }
 
 export interface SpeechData {
@@ -14,6 +21,12 @@ export interface SpeechData {
   person_id: number | null
   person_slug: string
   person_name: string
+  anchor: string
+}
+
+export interface SpeechLinkData {
+  status: SpeechLinkStatus
+  ordinal: number | null
 }
 
 export interface GetReportResponse {
@@ -28,19 +41,20 @@ export interface GetReportResponse {
   official_record_url: string
   is_text_available: boolean
   speeches: SpeechData[]
+  speech_link: SpeechLinkData | null
 }
 
 async function getReportResponse(
   request: GetReportRequest
 ): Promise<GetReportResponse> {
   return apiGet<GetReportResponse>(
-    `/reports/${encodeURIComponent(request.report_slug)}`
+    `/reports/${encodeURIComponent(request.report_slug)}${buildQueryString({ s: request.s, q: request.q })}`
   )
 }
 
 export function useGetReport(request: GetReportRequest) {
   return useQuery({
-    queryKey: ['reports', request.report_slug],
+    queryKey: ['reports', request.report_slug, request.s, request.q],
     queryFn: () => getReportResponse(request),
   })
 }

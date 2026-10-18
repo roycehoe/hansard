@@ -161,3 +161,9 @@ export const HIGHLIGHT_STOP_WORDS: ReadonlySet<string> = new Set([
 ])
 
 export const SPEAKER_NOT_RECORDED_LABEL = 'Speaker not recorded'
+
+export const SPEECH_ANCHOR_MAX_LENGTH = 200
+export const SPEECH_LINK_NOTICE_ID = 'speech-link-notice'
+export const SPEECH_LINK_MOVED_NOTICE = 'This paragraph moved after an update.'
+export const SPEECH_LINK_MISSING_NOTICE =
+  'The paragraph this link pointed to is no longer in this report.'
