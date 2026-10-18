@@ -121,6 +121,7 @@ export function RowSpeech({
         reportSlug={reportSlug}
         reportTitle={reportTitle}
         ordinal={speech.ordinal}
+        anchor={speech.anchor}
         citation={citation}
       />
     </article>

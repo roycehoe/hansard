@@ -145,9 +145,13 @@ export function buildReportCitation(
 
 export function buildSpeechPermalink(
   reportSlug: string,
-  ordinal: number
+  ordinal: number,
+  anchor: string
 ): string {
-  return `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}#s${ordinal}`
+  const reportUrl = `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}`
+  if (anchor === '') return `${reportUrl}#s${ordinal}`
+  const searchParams = new URLSearchParams({ s: String(ordinal), q: anchor })
+  return `${reportUrl}?${searchParams.toString()}`
 }
 
 export function buildSpeechCitation(

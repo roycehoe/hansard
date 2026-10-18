@@ -13,6 +13,7 @@ interface ActionBarSpeechCopyProps {
   reportSlug: string
   reportTitle: string
   ordinal: number
+  anchor: string
   citation?: string
 }
 
@@ -20,11 +21,12 @@ export function ActionBarSpeechCopy({
   reportSlug,
   reportTitle,
   ordinal,
+  anchor,
   citation,
 }: ActionBarSpeechCopyProps) {
   function copySpeechLink() {
     return copyTextWithToast(
-      buildSpeechPermalink(reportSlug, ordinal),
+      buildSpeechPermalink(reportSlug, ordinal, anchor),
       'Link copied',
       "Couldn't copy the link"
     )
@@ -77,7 +79,7 @@ export function ActionBarSpeechCopy({
               <a
                 href={buildErrorEmailHref(
                   `Error in ${reportTitle}`,
-                  buildSpeechPermalink(reportSlug, ordinal)
+                  buildSpeechPermalink(reportSlug, ordinal, anchor)
                 )}
                 aria-label={`Report an error in speech ${ordinal}`}
               >
