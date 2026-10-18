@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`api/` is a FastAPI backend for the hansard web app. It reads a Postgres database of Singapore Parliament Hansard records. That database is owned by a separate scraper repo at `roycehoe/handsard-scraper`, and the API is **read-only** against it.
+`api/` is a FastAPI backend for the hansard web app. It reads a Postgres database of Singapore Parliament Hansard records. That database is owned by a separate scraper repo at `roycehoe/hansard-scraper`, and the API is **read-only** against it.
 
 ## Setup and commands
 
