@@ -1,5 +1,5 @@
 import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
-import { FILTER_ALL } from '@/constants/constants'
+import { CONTACT_EMAIL, FILTER_ALL } from '@/constants/constants'
 import { SearchSort } from '@/constants/search/enums'
 import { formatParliament } from '@/lib/format'
 import type { PartyAffiliationData, PartyNote } from '@/types/people/interfaces'
@@ -90,4 +90,9 @@ export async function copyTextWithToast(
   } catch {
     toast.error(failureMessage)
   }
+}
+
+export function buildErrorEmailHref(subject: string, pageUrl: string): string {
+  const body = `${pageUrl}\n\nWhat is wrong:\n`
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }
