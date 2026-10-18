@@ -1,4 +1,5 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
+import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
@@ -37,6 +38,9 @@ export const Route = createFileRoute('/coverage/')({
   component: function PageCoverage() {
     useDocumentTitle('Coverage')
     const coverage = useGetCoverage()
+    const refresh = useGetRefresh()
+    const lastCheckedDate =
+      refresh.data?.last_checked_date ?? COVERAGE_LAST_UPDATED
 
     function retryCoverage() {
       void coverage.refetch()
@@ -80,9 +84,8 @@ export const Route = createFileRoute('/coverage/')({
             paragraphs.
           </p>
           <p className="text-muted-foreground text-sm">
-            Figures checked {formatSittingDate(COVERAGE_LAST_UPDATED)}. Latest
-            sitting in the archive:{' '}
-            {formatSittingDate(coverageData.last_sitting_date)}.
+            Figures checked {formatSittingDate(lastCheckedDate)}. Latest sitting
+            in the archive: {formatSittingDate(coverageData.last_sitting_date)}.
           </p>
         </div>
       )
