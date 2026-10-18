@@ -1,5 +1,6 @@
 import { apiGet } from '@/api/client'
 import { buildQueryString } from '@/lib/utils'
+import type { PartyAffiliationData } from '@/types/people/interfaces'
 import { useQuery } from '@tanstack/react-query'
 
 export interface GetAllPersonsRequest {
@@ -11,6 +12,7 @@ export interface GetAllPersonsRequest {
 export interface MembershipData {
   parliament_number: number
   party: string
+  party_affiliations: PartyAffiliationData[]
   is_legislative_assembly: boolean
   is_member: boolean
 }

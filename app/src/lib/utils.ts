@@ -1,5 +1,8 @@
+import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
 import { FILTER_ALL } from '@/constants/constants'
 import { SearchSort } from '@/constants/search/enums'
+import { formatParliament } from '@/lib/format'
+import type { PartyAffiliationData, PartyNote } from '@/types/people/interfaces'
 import { clsx, type ClassValue } from 'clsx'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
@@ -28,6 +31,40 @@ export function parsePersonSlug(personSlug: string): {
   const match = personSlug.match(PERSON_SLUG)
   if (!match) return { personId: NaN, slug: '' }
   return { personId: Number(match[1]), slug: match[2] ?? '' }
+}
+
+export function getPartyNoteId(noteNumber: number): string {
+  return `party-note-${noteNumber}`
+}
+
+export function getMembershipToPartyNote<
+  Membership extends { party_affiliations: PartyAffiliationData[] },
+>(
+  entries: { label: string; membership: Membership }[]
+): Map<Membership, PartyNote> {
+  const membershipToPartyNote = new Map<Membership, PartyNote>()
+  for (const { label, membership } of entries) {
+    if (membership.party_affiliations.length === 0) continue
+    membershipToPartyNote.set(membership, {
+      number: membershipToPartyNote.size + 1,
+      label,
+      partyAffiliations: membership.party_affiliations,
+    })
+  }
+  return membershipToPartyNote
+}
+
+export function getPersonsMembershipToPartyNote(
+  persons: PersonData[]
+): Map<MembershipData, PartyNote> {
+  return getMembershipToPartyNote(
+    persons.flatMap((person) =>
+      person.memberships.map((membership) => ({
+        label: `${person.canonical_name}, ${formatParliament(membership.parliament_number)}`,
+        membership,
+      }))
+    )
+  )
 }
 
 export function mapFilterToSearchValue(value: string): string | undefined {

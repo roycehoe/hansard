@@ -1,7 +1,10 @@
 import { useGetAllPersons } from '@/api/people/getAllPersons'
-import { formatMembershipSummary } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import { ListPartyNotes } from '@/components/people/ListPartyNotes'
+import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
+import { formatMembershipParliaments, getMembershipParties } from '@/lib/format'
+import { cn, getPersonsMembershipToPartyNote } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
+import { Fragment } from 'react'
 
 const PERSON_MATCHES_HEADING = 'People'
 
@@ -40,6 +43,8 @@ export function ListPersonMatches({
   const matches = persons.data.persons
   if (matches.length === 0) return null
 
+  const membershipToPartyNote = getPersonsMembershipToPartyNote(matches)
+
   return (
     <section aria-labelledby="person-matches-heading" className="space-y-4">
       <h2
@@ -59,36 +64,52 @@ export function ListPersonMatches({
           </Link>
         </p>
       ) : (
-        <ul>
-          {matches.map((person) => (
-            <li
-              key={person.person_id}
-              className="border-separator space-y-1 border-b py-3 last:border-b-0"
-            >
-              <Link
-                to="/people/$personSlug"
-                params={{
-                  personSlug: `${person.person_id}-${person.person_slug}`,
-                }}
-                className={cn(LINK_CLASS_NAME, 'font-semibold')}
+        <>
+          <ul>
+            {matches.map((person) => (
+              <li
+                key={person.person_id}
+                className="border-separator space-y-1 border-b py-3 last:border-b-0"
               >
-                {person.canonical_name}
-              </Link>
-              <p className="text-muted-foreground text-sm">
-                {formatMembershipSummary(person.memberships)}
-              </p>
-              <p>
                 <Link
-                  to="/search"
-                  search={{ person: person.person_id }}
-                  className={LINK_CLASS_NAME}
+                  to="/people/$personSlug"
+                  params={{
+                    personSlug: `${person.person_id}-${person.person_slug}`,
+                  }}
+                  className={cn(LINK_CLASS_NAME, 'font-semibold')}
                 >
-                  Speeches by {person.canonical_name}
+                  {person.canonical_name}
                 </Link>
-              </p>
-            </li>
-          ))}
-        </ul>
+                <p className="text-muted-foreground text-sm">
+                  {formatMembershipParliaments(person.memberships)}
+                  {getMembershipParties(person.memberships).map((party) => (
+                    <Fragment key={party}>
+                      {`, ${party}`}
+                      {person.memberships
+                        .filter((membership) => membership.party === party)
+                        .map((membership) => (
+                          <TextPartyNoteMarker
+                            key={membership.parliament_number}
+                            partyNote={membershipToPartyNote.get(membership)}
+                          />
+                        ))}
+                    </Fragment>
+                  ))}
+                </p>
+                <p>
+                  <Link
+                    to="/search"
+                    search={{ person: person.person_id }}
+                    className={LINK_CLASS_NAME}
+                  >
+                    Speeches by {person.canonical_name}
+                  </Link>
+                </p>
+              </li>
+            ))}
+          </ul>
+          <ListPartyNotes notes={[...membershipToPartyNote.values()]} />
+        </>
       )}
     </section>
   )

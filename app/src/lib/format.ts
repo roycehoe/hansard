@@ -4,10 +4,14 @@ import {
   LEGISLATIVE_ASSEMBLY_LABEL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
 } from '@/constants/constants'
+import { DatePrecision } from '@/constants/people/enums'
+import type { PartyAffiliationData } from '@/types/people/interfaces'
 import { format, parseISO } from 'date-fns'
 
 const SITTING_DATE_FORMAT = 'd MMMM yyyy'
 const SITTING_DAY_MONTH_FORMAT = 'd MMMM'
+const MONTH_YEAR_FORMAT = 'MMMM yyyy'
+const WWW_PREFIX = /^www\./
 
 export function formatSittingDate(sittingDate: string): string {
   return format(parseISO(sittingDate), SITTING_DATE_FORMAT)
@@ -31,18 +35,47 @@ export function formatParliamentOption(parliament: ParliamentData): string {
   return `${formatParliament(parliament.parliament_number)} (${years})`
 }
 
-export function formatMembershipSummary(memberships: MembershipData[]): string {
-  if (memberships.length === 0) return ''
+export function formatMembershipParliaments(
+  memberships: MembershipData[]
+): string {
   const parliamentNumbers = memberships.map(
     (membership) => membership.parliament_number
   )
   const first = formatParliament(Math.min(...parliamentNumbers))
   const last = formatParliament(Math.max(...parliamentNumbers))
-  const parliaments = first === last ? first : `${first} to ${last}`
-  const parties = new Set(
-    memberships
-      .map((membership) => membership.party)
-      .filter((party) => party !== '')
-  )
-  return [parliaments, ...parties].join(', ')
+  return first === last ? first : `${first} to ${last}`
+}
+
+export function getMembershipParties(memberships: MembershipData[]): string[] {
+  return [
+    ...new Set(
+      memberships
+        .map((membership) => membership.party)
+        .filter((party) => party !== '')
+    ),
+  ]
+}
+
+export function formatMembershipSummary(memberships: MembershipData[]): string {
+  if (memberships.length === 0) return ''
+  return [
+    formatMembershipParliaments(memberships),
+    ...getMembershipParties(memberships),
+  ].join(', ')
+}
+
+export function formatPartyAffiliationStart(
+  partyAffiliation: PartyAffiliationData
+): string {
+  const startedOn =
+    partyAffiliation.started_on_precision === DatePrecision.DAY
+      ? formatSittingDate(partyAffiliation.started_on)
+      : format(parseISO(partyAffiliation.started_on), MONTH_YEAR_FORMAT)
+  return partyAffiliation.is_started_on_upper_bound
+    ? `By ${startedOn}`
+    : startedOn
+}
+
+export function formatSourceUrlHost(sourceUrl: string): string {
+  return new URL(sourceUrl).hostname.replace(WWW_PREFIX, '')
 }

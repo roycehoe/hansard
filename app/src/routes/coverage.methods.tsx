@@ -391,9 +391,10 @@ export const Route = createFileRoute('/coverage/methods')({
               </li>
               <li>
                 Party is the one a member stood for at the election that seated
-                them. A later change of party does not show. A Nominated Member
-                shows the seat type in place of a party, and two show
-                &quot;NA&quot;.
+                them. A change of party during a membership shows as a note
+                beside the party, with the date, what happened and a source. A
+                change with no note does not show. A Nominated Member shows the
+                seat type in place of a party, and two show &quot;NA&quot;.
               </li>
             </ul>
           </div>
