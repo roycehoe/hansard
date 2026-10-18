@@ -121,7 +121,7 @@ Notes on the layers that matter now:
 | `PUBLIC_MODE` | `website.py` only. Only `true` (any case) turns basic auth and the noindex header off; anything else, or unset, keeps them on. |
 | `FRONTEND_DIST_PATH` | `website.py` only. The built frontend; the `Dockerfile` sets it. |
 | `TAKEDOWN_REPORT_SLUGS` | Optional. Report slugs separated by commas; each listed report answers 410 and drops out of every list. A secret, because the repo is public. See `docs/takedown.md`. |
-| `SITE_URL` | `website.py` only. Optional. The site's origin, such as `https://example.sg`, for the `og:url` preview tag; left out while unset. |
+| `SITE_URL` | `website.py` only. Optional. The site's origin, such as `https://example.sg`, for the `og:url` preview tag and the canonical link, which drops the query; both are left out while unset. |
 
 Never put a secret in code or in an example env file.
 
