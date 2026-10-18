@@ -1,6 +1,9 @@
 import {
   ANALYTICS_SCRIPT_SETTINGS,
   ANALYTICS_SCRIPT_URL,
+  COUNT_QUERY_FIELD,
+  COUNT_REFERRER_FIELD,
+  COUNT_TITLE_FIELD,
   COUNTED_REPORT_QUERY_KEYS,
   QUERY_COUNTED_PATH_PREFIX,
 } from '@/constants/analytics/constants'
@@ -23,13 +26,31 @@ declare global {
 
 let isAnalyticsScriptAdded = false
 
+function getReferrerWithoutQuery(referrer: string): string | undefined {
+  try {
+    const { origin, pathname } = new URL(referrer)
+    return `${origin}${pathname}`
+  } catch {
+    return undefined
+  }
+}
+
 function sendCount(options: GoatCounterCountOptions): void {
   const goatcounter = window.goatcounter
   if (goatcounter === undefined || goatcounter.filter()) return
   const url = goatcounter.url(options)
   if (!url) return
   const countUrl = new URL(url)
-  countUrl.searchParams.delete('q')
+  countUrl.searchParams.delete(COUNT_QUERY_FIELD)
+  countUrl.searchParams.delete(COUNT_TITLE_FIELD)
+  const referrer = getReferrerWithoutQuery(
+    countUrl.searchParams.get(COUNT_REFERRER_FIELD) ?? ''
+  )
+  if (referrer === undefined) {
+    countUrl.searchParams.delete(COUNT_REFERRER_FIELD)
+  } else {
+    countUrl.searchParams.set(COUNT_REFERRER_FIELD, referrer)
+  }
   navigator.sendBeacon(countUrl.toString())
 }
 
