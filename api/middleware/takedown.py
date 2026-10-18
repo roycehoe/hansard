@@ -1,4 +1,10 @@
+import os
 from pathlib import Path
+
+from fastapi import Request, Response, status
+from fastapi.responses import FileResponse
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.types import ASGIApp
 
 from utils.report_slug import get_normalised_report_slug
 from utils.takedown_list import get_taken_down_report_slugs
@@ -17,3 +23,28 @@ def is_report_slug_taken_down(report_slug: str) -> bool:
 
 def is_report_id_taken_down(report_id: str) -> bool:
     return is_report_slug_taken_down(report_id)
+
+
+_INDEX_FILE = "index.html"
+_REPORT_PATH_PREFIX = "reports/"
+
+
+def _is_report_page_taken_down(request_path: str) -> bool:
+    # NOTE: normalised as StaticFiles.get_path does, so every spelling the frontend mount serves is caught.
+    frontend_path = os.path.normpath(os.path.join(*request_path.split("/")))
+    if not frontend_path.startswith(_REPORT_PATH_PREFIX):
+        return False
+    return is_report_slug_taken_down(frontend_path.removeprefix(_REPORT_PATH_PREFIX))
+
+
+class TakedownMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app: ASGIApp, frontend_dist_path: Path):
+        super().__init__(app)
+        self.index_path = frontend_dist_path / _INDEX_FILE
+
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        if _is_report_page_taken_down(request.scope["path"]):
+            return FileResponse(self.index_path, status_code=status.HTTP_410_GONE)
+        return await call_next(request)

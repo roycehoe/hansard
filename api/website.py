@@ -3,11 +3,17 @@ from fastapi import FastAPI
 from main import app as api_app
 from middleware.basic_auth import BasicAuthMiddleware
 from middleware.frontend import FrontendFiles
+from middleware.takedown import TakedownMiddleware
 from settings import WebsiteSettings
 
 website_settings = WebsiteSettings()
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+
+app.add_middleware(
+    TakedownMiddleware,
+    frontend_dist_path=website_settings.frontend_dist_path,
+)
 
 if not website_settings.is_public_mode:
     app.add_middleware(
