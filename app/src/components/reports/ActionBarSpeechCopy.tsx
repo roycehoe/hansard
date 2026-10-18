@@ -4,7 +4,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { AnalyticsEvent } from '@/constants/analytics/enums'
 import { CONTACT_EMAIL } from '@/constants/constants'
+import { countEvent } from '@/lib/analytics'
 import { buildSpeechCite, buildSpeechPermalink } from '@/lib/citation'
 import { formatCalendarDate } from '@/lib/format'
 import { buildErrorEmailHref, copyTextWithToast } from '@/lib/utils'
@@ -30,6 +32,7 @@ export function ActionBarSpeechCopy({
   const speechPermalink = buildSpeechPermalink(reportSlug, ordinal, anchor)
 
   function copySpeechLink() {
+    countEvent(AnalyticsEvent.COPY_LINK)
     return copyTextWithToast(
       speechPermalink,
       'Link copied',
@@ -38,6 +41,7 @@ export function ActionBarSpeechCopy({
   }
 
   function copySpeechCitation() {
+    countEvent(AnalyticsEvent.CITE)
     return copyTextWithToast(
       buildSpeechCite(
         citation ?? '',
