@@ -9,11 +9,12 @@ website_settings = WebsiteSettings()
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
-app.add_middleware(
-    BasicAuthMiddleware,
-    username=website_settings.basic_auth_username,
-    password=website_settings.basic_auth_password,
-)
+if not website_settings.is_public_mode:
+    app.add_middleware(
+        BasicAuthMiddleware,
+        username=website_settings.basic_auth_username,
+        password=website_settings.basic_auth_password,
+    )
 
 app.mount("/api", api_app)
 app.mount(
