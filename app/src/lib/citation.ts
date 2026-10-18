@@ -143,6 +143,13 @@ export function buildReportCitation(
   return `${getCitationTitle(parliamentNumber)} (${formatSittingDate(sittingDate)}) vol ${volumeNumber}`
 }
 
+export function buildSpeechPermalink(
+  reportSlug: string,
+  ordinal: number
+): string {
+  return `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}#s${ordinal}`
+}
+
 export function buildSpeechCitation(
   sittingDate: string,
   volumeNumber: number,

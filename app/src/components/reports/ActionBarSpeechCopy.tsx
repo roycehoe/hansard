@@ -4,6 +4,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { buildSpeechPermalink } from '@/lib/citation'
 import { copyTextWithToast } from '@/lib/utils'
 import { Link2, Quote } from 'lucide-react'
 
@@ -20,7 +21,7 @@ export function ActionBarSpeechCopy({
 }: ActionBarSpeechCopyProps) {
   function copySpeechLink() {
     return copyTextWithToast(
-      `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}#s${ordinal}`,
+      buildSpeechPermalink(reportSlug, ordinal),
       'Link copied',
       "Couldn't copy the link"
     )
