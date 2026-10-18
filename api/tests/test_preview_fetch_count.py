@@ -27,6 +27,17 @@ _SINGAPORE_TIME_ZONE = timezone(timedelta(hours=8))
 @pytest.fixture(autouse=True)
 def reset_fetch_counter(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(preview_fetch_service, "_fetch_key_to_count", Counter())
+    monkeypatch.setattr(preview_fetch_service, "_counted_path_bytes", 0)
+
+
+@pytest.fixture
+def frontend_client(tmp_path: Path) -> TestClient:
+    (tmp_path / "index.html").write_text(_INDEX_HTML)
+    return TestClient(
+        Starlette(
+            routes=[Mount("/", app=FrontendFiles(directory=tmp_path, site_url=None))]
+        )
+    )
 
 
 def test_a_bot_fetch_is_counted_by_date_bot_and_path(tmp_path: Path) -> None:
@@ -55,3 +66,42 @@ def test_a_bot_fetch_is_counted_by_date_bot_and_path(tmp_path: Path) -> None:
         ("Telegram", "/coverage", 1),
     ]
     assert all(before <= fetch.fetched_on <= after for fetch in fetches)
+
+
+def test_a_path_that_is_no_site_route_or_too_long_is_counted_as_other(
+    frontend_client: TestClient,
+) -> None:
+    long_report_path = "/reports/" + "a" * 300
+    for index in range(50):
+        frontend_client.get(
+            f"/{'a' * 8000}{index}", headers={"User-Agent": _SLACK_USER_AGENT}
+        )
+    frontend_client.get(long_report_path, headers={"User-Agent": _SLACK_USER_AGENT})
+    frontend_client.get(
+        "/reports/written-answer-11590", headers={"User-Agent": _SLACK_USER_AGENT}
+    )
+    frontend_client.get("/people/12-lee", headers={"User-Agent": _SLACK_USER_AGENT})
+
+    fetches = preview_fetch_service.get_preview_fetches().fetches
+    assert [(fetch.path, fetch.fetch_count) for fetch in fetches] == [
+        ("/people/12-lee", 1),
+        ("/reports/written-answer-11590", 1),
+        ("other", 51),
+    ]
+
+
+def test_new_paths_stop_being_counted_past_the_byte_budget(
+    frontend_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(preview_fetch_service, "_MAX_COUNTED_PATH_BYTES", 40)
+    for number in range(10):
+        frontend_client.get(
+            f"/reports/report-{number}", headers={"User-Agent": _SLACK_USER_AGENT}
+        )
+    frontend_client.get("/reports/report-0", headers={"User-Agent": _SLACK_USER_AGENT})
+
+    fetches = preview_fetch_service.get_preview_fetches().fetches
+    assert [(fetch.path, fetch.fetch_count) for fetch in fetches] == [
+        ("/reports/report-0", 2),
+        ("/reports/report-1", 1),
+    ]
