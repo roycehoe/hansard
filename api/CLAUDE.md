@@ -62,7 +62,7 @@ What exists today:
 |---|---|
 | `main.py` | The `FastAPI` app. Every router is mounted here. `uv run fastapi dev` serves it. |
 | `website.py` | The deployed site: `main.py`'s app under `/api`, the built frontend at `/`, both behind basic auth unless public mode is on, and the takedown middleware in front of both. The root `Dockerfile` runs it. |
-| `settings.py` | `pydantic-settings` configuration: `AppSettings` (`DATABASE_URL`, `TAKEDOWN_REPORT_SLUGS`) and `WebsiteSettings`, which only `website.py` reads. |
+| `settings.py` | `pydantic-settings` configuration: `AppSettings` (`DATABASE_URL`, `TAKEDOWN_REPORT_SLUGS`, `PUBLIC_MODE`) and `WebsiteSettings`, which only `website.py` reads. |
 | `enums.py` | `ReportType` (the 23 stored report type strings), `SearchSort`, `SpeechLinkStatus`, `PreviewType` and `RefreshRunStatus` (the four values the scraper writes to `refresh_run.status`). |
 | `database/engine.py` | The SQLModel engine, with `default_transaction_read_only=on` and a 30-second `statement_timeout` set as connection options, and the `get_session()` dependency. A second engine serves visitor searches: the same read-only option, a 10-second `statement_timeout` and a pool of 3 with an overflow of 2, behind the `get_search_session()` dependency. |
 | `database/` | One SQLModel class per table the API reads: `Report`, `Speech`, `Sitting`, `Attendance`, `Speaker`, `Person`, `PartyAffiliation`, `RefreshRun`. Only the columns the API uses. `RefreshRun` leaves out `halt_reason` and `failure_reason`, which the API role's column grant does not cover. |
@@ -118,7 +118,7 @@ Notes on the layers that matter now:
 |---|---|
 | `DATABASE_URL` | Postgres connection string for the read-only role. |
 | `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD` | `website.py` only. Required unless `PUBLIC_MODE` is true: the site does not start without them. |
-| `PUBLIC_MODE` | `website.py` only. Only `true` (any case) turns basic auth and the noindex header off; anything else, or unset, keeps them on. |
+| `PUBLIC_MODE` | Only `true` (any case) turns basic auth and the noindex header off in `website.py`, and turns off the API's `/docs`, `/redoc` and `/openapi.json` in `main.py`; anything else, or unset, keeps them on. |
 | `FRONTEND_DIST_PATH` | `website.py` only. The built frontend; the `Dockerfile` sets it. |
 | `TAKEDOWN_REPORT_SLUGS` | Optional. Report slugs separated by commas; each listed report answers 410 and drops out of every list. A secret, because the repo is public. See `docs/takedown.md`. |
 | `SITE_URL` | `website.py` only. Optional. The site's origin, such as `https://example.sg`, for the `og:url` preview tag and the canonical link, which drops the query; both are left out while unset. |

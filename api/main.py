@@ -15,8 +15,14 @@ from routers import (
     search,
     sitting,
 )
+from settings import settings
 
-app = FastAPI(title="Hansard API")
+_OPENAPI_URL = "/openapi.json"
+
+app = FastAPI(
+    title="Hansard API",
+    openapi_url=None if settings.is_public_mode else _OPENAPI_URL,
+)
 
 app.add_middleware(GZipMiddleware)
 
