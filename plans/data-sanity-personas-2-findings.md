@@ -9,12 +9,12 @@ No high-severity regression. Every DS finding that was meant to ship is fixed on
 - Remote database at Alembic `7c1d4e9a2b60`. The replica `hansard_replica` equals it; triage re-read the row counts on both: 1,050,712 speeches, 41,801 Reports, 135,083 attendance rows, 573 Persons, 1,438 Speakers.
 - Figures from `scripts/attribution_text_share.py`, P0-11: ADR 0001 rate 98.09% (513,398 / 523,414), all-rows rate 84.20% (513,398 / 609,701), text share 97.15%.
 - Shipped: writes #3, #4, #5 and #6, the fix run's G4, G5 and G6 writes (DS-03, DS-04, DS-07, DS-08, DS-10, DS-11, DS-12, DS-13, DS-16, DS-17) and DS-06.
-- Not shipped: DS-14, the spelling write in scraper `75d193f` (Seet Ai Mee, Mohamad Maidin), the `transcript_tsv` migration (scraper `c4b6aa2`) and the attendance unique constraint (scraper `75c8719`, committed during this run). G3 (DS-05 and DS-09 census docs) did not ship.
+- Not shipped: DS-14, the spelling write in scraper `49eaf6e` (Seet Ai Mee, Mohamad Maidin), the `transcript_tsv` migration (scraper `e856c26`) and the attendance unique constraint (scraper `0bb411f`, committed during this run). G3 (DS-05 and DS-09 census docs) did not ship.
 - 120 Reports are held and keep kind NULL on 2,275 rows.
 
 ## How the run worked
 
-Four Sonnet personas, a historian who also called the API as a data user, a Section 9A legal researcher, a journalist and a citizen, used the API on port 8001 and the app on 5174, both from a frozen copy of this repo at `da95cce`. They checked against read-only SQL and against SPRS through the JSON endpoints. Their condensed reports are in the run's scratchpad (`persona2/REPORTS.md`, notes per persona). Triage, on Opus, re-ran every DS repro and every persona finding against the replica and the API, read the cause in the scraper at `75c8719` (`services/speech.py` is unchanged since `5515de4`, the write #6 parser) and in this repo at `da95cce`, and counted the records with SQL. Triage made no SPRS request of its own. For the SPRS checks it read the raw HTML stored in `hansardwebsiteresponse` and the SPRS JSON the lawyer fetched today, and both agree.
+Four Sonnet personas, a historian who also called the API as a data user, a Section 9A legal researcher, a journalist and a citizen, used the API on port 8001 and the app on 5174, both from a frozen copy of this repo at `da95cce`. They checked against read-only SQL and against SPRS through the JSON endpoints. Their condensed reports are in the run's scratchpad (`persona2/REPORTS.md`, notes per persona). Triage, on Opus, re-ran every DS repro and every persona finding against the replica and the API, read the cause in the scraper at `0bb411f` (`services/speech.py` is unchanged since `204dbff`, the write #6 parser) and in this repo at `da95cce`, and counted the records with SQL. Triage made no SPRS request of its own. For the SPRS checks it read the raw HTML stored in `hansardwebsiteresponse` and the SPRS JSON the lawyer fetched today, and both agree.
 
 Environment, not findings:
 - The frozen copy's API allowed only the 5173 origin until about 11:42 (`api/main.py:22`, `allow_origins=["http://localhost:5173"]`), so pages on 5174 showed "Couldn't load". CORS for 5174 was added in the frozen copy only. Nothing is deployed, so this is not a production finding.
@@ -65,7 +65,7 @@ No DS finding that was meant to ship is still present.
 
 ## Residual classes, brief decision 6
 
-Counts are the cycle 4 counts (master `1220161`) and the stored counts now.
+Counts are the cycle 4 counts (master `2b74a2b`) and the stored counts now.
 
 | Class | Count then | Count now | Verdict | Task and evidence | Severity if it hurts, fix direction |
 |---|---|---|---|---|---|
@@ -98,7 +98,7 @@ The cause in `services/speech.py`:
 The count. 44 label rows in 19 Reports, 1961 to 2003. 26 of them are in 1962 alone.
 - 38 are bare-name labels in 13 Reports, none held.
 - 2 are office labels the role regex cannot read: "The Prime Minister (In Mandarin):" in 38500, and a stray bracket in 30903.
-- 4 are office labels in held Reports 30421, 26909, 26696 and 26471. The P2 fix `971676b` already reads that shape, so a rebuild of those Reports would fix them.
+- 4 are office labels in held Reports 30421, 26909, 26696 and 26471. The P2 fix `551ff24` already reads that shape, so a rebuild of those Reports would fix them.
 - 39 of the 44 label rows are linked to the wrong member, 20 of them to Mr Speaker. The other 5 sit under "The Chairman", "An hon. Member" or no speaker.
 - The turns they open run on in the markdown for about 165 more paragraphs, about 120,000 characters across the 19 Reports, and those paragraphs carry the same wrong credit. Example, Report 38830, 19 Mar 1962: ordinals 361 to 374 hold speeches by Chan Sun Wing and Tan Cheng Tong of the Barisan Sosialis, all credited to Mr Speaker (George Oehlers).
 

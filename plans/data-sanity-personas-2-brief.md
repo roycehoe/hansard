@@ -46,7 +46,7 @@ Terms from the first brief hold: Report, Sitting, Speech, Person, Membership, Sp
    - Citizen: DS-01, DS-02, DS-06, DS-07, DS-08, DS-10, DS-15, DS-16.
 
    The persona that did not hit a finding in pass one still plays its user, and reports only what the task shows. The repro runs as a check of the fix, not as the whole task.
-6. **Residual classes.** Each class listed in cycle 4 `REPORT.md` section 4 that write #5 did not fix gets a task check, so the personas can say whether it hurts. The classes, with the counts to hold them to (counted on master `1220161`, write #5 may have moved some):
+6. **Residual classes.** Each class listed in cycle 4 `REPORT.md` section 4 that write #5 did not fix gets a task check, so the personas can say whether it hurts. The classes, with the counts to hold them to (counted on master `2b74a2b`, write #5 may have moved some):
    - italic titles stored as SPEECH rows (9,782 rows, 1,094 Reports; 2,281 close a member's run): lawyer and journalist, by counting a member's speeches and reading a run that ends in a title;
    - `<pre>` tables stored one row per line (18,591 rows, 863 Reports) and prose cut inside `<pre>` blocks (1,021 rows): historian, by reading a budget or statistics table the way a data user would, and asking whether a number can be recovered;
    - footnote digits glued to a word (1,462 hits, 185 change a number): journalist, by quoting a figure from a Report that has footnotes and comparing with SPRS. If write #5 shipped the marker fix, this becomes a regression check on the marker format and on whether a figure now reads correctly;

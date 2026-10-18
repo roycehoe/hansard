@@ -47,9 +47,9 @@ All SQL below runs through the read-only wrapper: `cd api && uv run python <scra
 
 ## Reconciled after cycle 4
 
-Cycle 4 of the scraper's speech fidelity loop ended on 16 Oct with parser commits `2ec5fe8` (page-reference footnotes and division records), `73ed1d6` (procedural lines in variant spellings) and `1220161` (older-system first readings), all in `services/speech.py` and test fixtures, and docs commits `5bc317a` and `ae17e46`. Its data writes: write #3 (plan v4) shipped to production at 16:03; write #4 (2,923 Reports, 42 held Reports released) is rehearsed and waits for Royce. A bounded read of production at 23:13 found 1,048,728 speeches, kind NULL on 4,146 and the DS-06 query unchanged, and the replica equals production. Every finding's SQL was re-run on the replica and on `hansard_w4`, the replica with write #4 applied (`/Users/user/hansard-fixrun-2026-10-16/recon/`). The note under each finding gives the result against hansard_w4; the counts are re-checked on production after write #4 ships.
+Cycle 4 of the scraper's speech fidelity loop ended on 16 Oct with parser commits `b33a028` (page-reference footnotes and division records), `acd8707` (procedural lines in variant spellings) and `2b74a2b` (older-system first readings), all in `services/speech.py` and test fixtures, and docs commits `a31c29a` and `b133e7c`. Its data writes: write #3 (plan v4) shipped to production at 16:03; write #4 (2,923 Reports, 42 held Reports released) is rehearsed and waits for Royce. A bounded read of production at 23:13 found 1,048,728 speeches, kind NULL on 4,146 and the DS-06 query unchanged, and the replica equals production. Every finding's SQL was re-run on the replica and on `hansard_w4`, the replica with write #4 applied (`/Users/user/hansard-fixrun-2026-10-16/recon/`). The note under each finding gives the result against hansard_w4; the counts are re-checked on production after write #4 ships.
 
-Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 code commit touches; only `docs/data-loss-register.md` needed a merge. G2's register and vision patch for report 22149 is dropped, because write #4 rebuilds 22149 and `ae17e46` registers it. G3's census moved by more than 5% (DS-05 1,069 to 431 rows), so its doc patch is held.
+Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 code commit touches; only `docs/data-loss-register.md` needed a merge. G2's register and vision patch for report 22149 is dropped, because write #4 rebuilds 22149 and `b133e7c` registers it. G3's census moved by more than 5% (DS-05 1,069 to 431 rows), so its doc patch is held.
 
 ## App
 
@@ -125,7 +125,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: high. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G5 checked 178 Memberships against the Elections Department results. Outside Parliament 1 only Chiam's rows 359, 437 and 522 (to SDP) and 615 (to SPP) are wrong. Parliament 1 has 3 source errors and many errors in the hand-typed `data/colonial_la_members.json`: 61 rows change under the ballot-party rule. The cause: the parliament.gov.sg list holds one party per person, which the scraper copies onto every Parliament. Waiting on Royce's rulings, the commit lock and a rehearsal clone.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: Chiam's six rows still say Singapore Democratic Alliance. G5 goes ahead under ruling 7.
-- Fix status, 17 Oct: committed on scraper master as `f2ecdde` with DS-17: 61 party values under the ballot-party rule (9 scraped rows through `data/speaker_overrides.json`, 52 hand-typed rows) and 298 PAP spellings, 359 speaker rows. Rehearsed on hansard_fixes; production write 6 in `/Users/user/hansard-fixrun-2026-10-16/APPROVALS.md`.
+- Fix status, 17 Oct: committed on scraper master as `6b37993` with DS-17: 61 party values under the ballot-party rule (9 scraped rows through `data/speaker_overrides.json`, 52 hand-typed rows) and 298 PAP spellings, 359 speaker rows. Rehearsed on hansard_fixes; production write 6 in `/Users/user/hansard-fixrun-2026-10-16/APPROVALS.md`.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: historian, lawyer.
 - App URL: http://localhost:5174/people/140-chiam-see-tong
@@ -149,7 +149,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: medium. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared the rule: 10 Reports and 825 speech rows to delete, listed in `data/excluded_report_ids.json` with the Report kept, and stage 3 learns to skip them. On write #3 data every pair is still identical. The 16 Oct 2003 stubs 24909 and 42986 go; 24905 has no twin and stays. A hansard patch maps the 10 old slugs to the kept Reports (ADR 0004). Prepared as patches, dry-run counted on the replica; not committed, not written.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 8 `html_file_name` groups (16 Reports), every pair still identical by speech md5, and the 3 stubs of 16 Oct 2003. G4's rebased dry run: 10 Reports and 825 speeches to delete, as recorded.
-- Fix status, 17 Oct: committed as `27663bb`: 10 Reports and 825 speeches, rehearsed and rollback-rehearsed on hansard_fixes; hansard `c9de6a0` maps the 10 removed slugs to the kept Reports. Production write 1. The stopping rule's 9 sets of byte-identical reports were recomputed: every same-topic pair is one of these 10, so nothing else is excluded.
+- Fix status, 17 Oct: committed as `7c3ad53`: 10 Reports and 825 speeches, rehearsed and rollback-rehearsed on hansard_fixes; hansard `c9de6a0` maps the 10 removed slugs to the kept Reports. Production write 1. The stopping rule's 9 sets of byte-identical reports were recomputed: every same-topic pair is one of these 10, so nothing else is excluded.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: lawyer, journalist.
 - App URLs: http://localhost:5174/sittings/1963-04-09 (two "BUDGET, MINISTRY OF LABOUR"), http://localhost:5174/sittings/2011-11-21 (two "Central Provident Fund (Amendment) Bill"), http://localhost:5174/sittings/2003-10-16 (stubs).
@@ -208,7 +208,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: medium. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: open. Write #3 removes none of the 10 pairs or 8 junk rows: its 45 attendance deletes are office-title fragments in 37 other Sittings. A re-parse at scraper HEAD keeps them too. A parser fix and a dedupe are still needed, and DS-06 is in no group of this run.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged on production (10 duplicated pairs and 8 junk rows, read 16 Oct 23:15) and on hansard_w4. Ruling 10 gives it its own group, which also takes decision memo 04 (111 unmatched attendance names).
-- Fix status, 17 Oct: committed as `0659d48` with decision memo 04: a stop rule ends each attendance list at the first line that is not a name; 94 rows deleted (74 not a name, 12 wrapped office titles, 8 repeats), 24 corrected and linked (10 Speaker role rows, 6 OCR aliases, rows 94346 and 40062, Lee Li Lian's 6 rows on a new Parliament 13 row). Duplicated pairs and junk rows go to 0; unlinked attendance from 111 to 3. Rehearsed and rollback-rehearsed; production write 10. No unique constraint yet (it needs a migration).
+- Fix status, 17 Oct: committed as `d252e70` with decision memo 04: a stop rule ends each attendance list at the first line that is not a name; 94 rows deleted (74 not a name, 12 wrapped office titles, 8 repeats), 24 corrected and linked (10 Speaker role rows, 6 OCR aliases, rows 94346 and 40062, Lee Li Lian's 6 rows on a new Parliament 13 row). Duplicated pairs and junk rows go to 0; unlinked attendance from 111 to 3. Rehearsed and rollback-rehearsed; production write 10. No unique constraint yet (it needs a migration).
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: citizen.
 - App URLs: http://localhost:5174/sittings/1958-04-23, http://localhost:5174/sittings/1959-12-10
@@ -237,7 +237,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: medium. Owner: scraper, with an api note. Status: confirmed.
 - Fix status, 16 Oct: in progress. G6 found the cause: SPRS and the stored raw HTML hold the full list (76 present, 3 absent), and today's parser reads all 79. The 5 stored rows are the first 5 of the parse, left by an interrupted first run of stage 7 that committed one row at a time. Sittings 5941 (2 Dec 1996, 53 of 85) and 6009 (20 Jul 2005, 50 of 94) are truncated the same way. The fix is an insert-only completion of 150 rows, all linked, dry-run counted on the replica. No write and no commit yet.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: Sittings 5941, 5988 and 6009 hold 53, 5 and 50 rows. G6's dry run: insert 150 rows (32, 74 and 44), all linked, as recorded. A parse of all 1,719 Sittings finds no other truncated list.
-- Fix status, 17 Oct: committed as `89c1e13`: 150 rows inserted in Sittings 5941, 5988 and 6009 inside one transaction that checks the counts before it commits. Rehearsed; production write 5.
+- Fix status, 17 Oct: committed as `5c9cb1d`: 150 rows inserted in Sittings 5941, 5988 and 6009 inside one transaction that checks the counts before it commits. Rehearsed; production write 5.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: citizen.
 - App URL: http://localhost:5174/sittings/1986-03-25
@@ -264,7 +264,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: medium. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared a backfill from the stored header tables: 3,942 Report sitting numbers, 204 Sitting sitting numbers and 1,332 session numbers. A rebuild from the raw tables with the patched code gives the same values with 0 mismatches. The 18 Mar 1986 session number stays NULL, and 16 Oct 2003 stays as stored (4; its header says 22). Not committed, not written.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 3,942 Reports and 204 Sittings without a sitting number, 1,333 Sittings without a session number. G4's dry run: 3,942 (3,938 after DS-04), 204 and 1,332, as recorded; a rebuild from the raw tables gives the same values.
-- Fix status, 17 Oct: committed as `8ee88ab`: 3,938 Report sitting numbers, 204 Sitting sitting numbers and 1,332 session numbers from the header tables. Rehearsed; production write 2.
+- Fix status, 17 Oct: committed as `a16b9fc`: 3,938 Report sitting numbers, 204 Sitting sitting numbers and 1,332 session numbers from the header tables. Rehearsed; production write 2.
 - Fix status, pass 2, 17 Oct 2026: Fixed: 1 Sitting still lacks a session number
 - Personas: lawyer, citizen.
 - App URLs: http://localhost:5174/reports/00075611-WA.00072393-ZZ_1 (no "Sitting number" in the header), http://localhost:5174/sittings/2007-10-22
@@ -313,7 +313,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: low. Owner: scraper; the API could normalise as a stopgap. Status: confirmed.
 - Fix status, 16 Oct: in progress. G5 mapped all 257 strings against the Elections Department division lists: 656 attendance rows and 128 Memberships change, and Memberships with more than one name drop from 133 to 11, all real seat moves. Waiting on Royce's rulings, the commit lock and a rehearsal clone.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 257 names, 100 used three times or fewer, 133 Memberships with more than one name.
-- Fix status, 17 Oct: committed as `e32d9e7`: 632 attendance rows in 114 spellings, 128 Memberships; Memberships with more than one name 133 to 11. Rehearsed; production write 8.
+- Fix status, 17 Oct: committed as `b79e63d`: 632 attendance rows in 114 spellings, 128 Memberships; Memberships with more than one name 133 to 11. Rehearsed; production write 8.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: historian, lawyer, citizen.
 - App URL: http://localhost:5174/people/29-lee-kuan-yew
@@ -341,7 +341,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: low. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared the rule: trim, replace tags, collapse equal comma-joined parts. 416 titles change (340 trims, 41 repeats, 15 grouped titles, 16 with a bracket split into the subtitle); `original_title` keeps the raw value. A re-parse of all 416 Reports gives identical rows for 413, and 3 recover 81 rows of question groups. Not committed, not written.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 55 repeated, 362 untrimmed, 2 with HTML. G4's dry run: 416 titles (412 after DS-04), as recorded. With cycle 4's parser, a re-parse gives the stored rows for 413 of the 416 Reports; 22789, 23760 and 43147 would gain 81 rows, because the collapsed title lets the parser find the start. The title write alone does not re-parse them.
-- Fix status, 17 Oct: committed as `faa6caa`: 412 titles (340 trimmed, 17 trimmed with a subtitle split off, 41 repeats, 14 grouped titles collapsed). Rehearsed; production write 3. Reports 22789, 23760 and 43147 gain 81 rows only when they are re-parsed.
+- Fix status, 17 Oct: committed as `42fb8b1`: 412 titles (340 trimmed, 17 trimmed with a subtitle split off, 41 repeats, 14 grouped titles collapsed). Rehearsed; production write 3. Reports 22789, 23760 and 43147 gain 81 rows only when they are re-parsed.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: historian, lawyer, journalist.
 - App URL: http://localhost:5174/reports/00075611-WA.00072393-ZZ_1
@@ -366,7 +366,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: low. Owner: scraper; the API passes it through. Status: confirmed.
 - Fix status, 16 Oct: in progress. G4 prepared an override file shared with G5's DS-03 work: 96 flag changes (68 cleared in Parliaments 2 to 12, Ho Kah Leong cleared, 27 members elected in 1963 set), or the minimal 68. Stage 9 gives the same 573 clusters under both, and stage 8 does not read the flag. Not committed, not written.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 68 Memberships in Parliaments 2 to 12. G4's dry run with the full override set: 96 flags, as recorded.
-- Fix status, 17 Oct: committed as `bc48155`: 96 flags. Rehearsed; production write 4.
+- Fix status, 17 Oct: committed as `07499bf`: 96 flags. Rehearsed; production write 4.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: historian, lawyer, citizen, journalist.
 - App URL: none; the app does not render the flag.
@@ -387,7 +387,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Severity: low. Owner: scraper. Status: confirmed.
 - Fix status, 16 Oct: in progress. G5 proposes a stage 9 rule (`invert_to_natural` plus a decoration strip) and 4 hand decisions: 90 `canonical_name` values change, person ids stay, old slugs redirect by id. `name_variants` from speech labels is a feature, left out. Waiting on Royce's rulings.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: 88 comma-form names, 2 Persons with a variant.
-- Fix status, 17 Oct: committed as `78fa191`: 90 names in Given Surname order by a stage 9 rule and four decisions; person ids stay. Rehearsed; production write 7.
+- Fix status, 17 Oct: committed as `482e7d2`: 90 names in Given Surname order by a stage 9 rule and four decisions; person ids stay. Rehearsed; production write 7.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Personas: historian, lawyer.
 - App URL: http://localhost:5174/people/47-rajaratnam-s, http://localhost:5174/people
@@ -434,7 +434,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Fix status, 17 Oct: hansard `556bbc4` labels the 488 SPEECH rows with no speaker "Speaker not recorded".
 - Fix status, pass 2, 17 Oct 2026: Fixed as designed: 2,275 held rows keep kind NULL
 - Actual: `select kind, count(*) from speech group by 1` returns one row, NULL 1,044,594.
-- Why: the scraper parser sets `kind` on every row since commit `2eef141` (`services/speech.py:587-601`, stored at `populate/speeches.py:58`). Stored rows get a kind only when write #3 ships. `docs/adr/0009-speech-kind-column.md:3` says "Write #3 fills the column for stored rows, so stored rows have no kind yet", and `docs/vision.md:65` says write #3 is "rehearsed on a replica and not shipped". After it ships, 4,146 rows in 162 held Reports stay NULL by design.
+- Why: the scraper parser sets `kind` on every row since commit `0969500` (`services/speech.py:587-601`, stored at `populate/speeches.py:58`). Stored rows get a kind only when write #3 ships. `docs/adr/0009-speech-kind-column.md:3` says "Write #3 fills the column for stored rows, so stored rows have no kind yet", and `docs/vision.md:65` says write #3 is "rehearsed on a replica and not shipped". After it ships, 4,146 rows in 162 held Reports stay NULL by design.
 - Did ee80a9b to 64e4128 ship dead code? No. The code is inert until write #3 ships, and its NULL fallback reproduces the behaviour from before those commits exactly:
   - `app/src/components/reports/RowSpeech.tsx:31-34`: with no kind, a row with no label is muted and a row with a label is body text. This is the old `isProcedural={!hasSpeakerLabel}` rule from before 8f7c514.
   - `app/src/components/reports/ListSpeeches.tsx:22-36`: a NULL kind is neither CHAMBER_EVENT nor EDITORIAL_NOTE, so `getPreviousSpeakerLabel` returns the immediately previous label, the same as the old `report.speeches[index - 1]?.speaker_label` check.
@@ -448,7 +448,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Status: explained. Owner: scraper. Personas: historian, lawyer, citizen, journalist.
 - Fix status, 16 Oct: in progress. G5 recommends moving the 71 Assembly-only rows to Parliament 0, with two stage 8 constant changes in the same change, which keeps 0 speech and attendance links moving in simulation. The code and data must land together, so after write #4. Waiting on Royce's rulings.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged: no Parliament 0 row, 97 Assembly rows in Parliament 1.
-- Fix status, 17 Oct: committed as `d289eb1`: 71 Assembly-only rows to Parliament 0 with the stage 8 constants, and "The Chief Minister" of 7 June 1956 linked to David Marshall (82 speeches; the sitting's PRESENT list and the reports' MP_Speak headers name him). Rehearsed; production write 9.
+- Fix status, 17 Oct: committed as `0dbaaab`: 71 Assembly-only rows to Parliament 0 with the stage 8 constants, and "The Chief Minister" of 7 June 1956 linked to David Marshall (82 speeches; the sitting's PRESENT list and the reports' MP_Speak headers name him). Rehearsed; production write 9.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Actual: no `speaker` row has `parliament_number = 0`. 97 Assembly Memberships are stored as Parliament 1. `GET /people?parliament_number=1` returns 136 people, 73 of whom never sat in a Parliament 1 Report (David Marshall 499, Lim Ching Siong 513, Ong Eng Guan 511). Lee Kuan Yew's one Parliament 1 row covers both the Assembly and 1965 to 1968.
 - Why: the `/coverage` known gaps say so (`app/src/constants/coverage/constants.ts:149`). The scraper's `scripts/load_colonial_la_speakers.py:12-26` loads the Assembly members as Parliament 1, and `gateway/speakers_by_parliament.py:14` has no page for Parliament 0. The scraper's own `docs/data-dictionary.md:38,204` says "Parliament 0 is the colonial LA", which contradicts the data.
@@ -459,7 +459,7 @@ Prepared work against cycle 4: no G4 patch edits a file or function a cycle 4 co
 - Status: explained. Owner: scraper, with an api option. Personas: historian, citizen.
 - Fix status, 16 Oct: in progress. The API stopgap is fixed in code, commit `47f59d7`: `/parties` lists one PAP string and either spelling returns 347 people on the replica. The stored strings still differ until G5's scraper normalisation ships.
 - Reconciled after cycle 4, 17 Oct, against hansard_w4 (write #4 rehearsed, not yet on production): unchanged in the data: 298 curly and 853 straight.
-- Fix status, 17 Oct: the data half is in `f2ecdde` with DS-03 (298 rows). Production write 6.
+- Fix status, 17 Oct: the data half is in `6b37993` with DS-03 (298 rows). Production write 6.
 - Fix status, pass 2, 17 Oct 2026: Fixed
 - Actual: `/parties` lists "People's Action Party" (straight apostrophe, 853 Memberships, 262 people) and "People’s Action Party" (curly, 298 Memberships, 85 people). `GET /people?party=` with either returns only its own set.
 - Why: `/coverage` discloses "two spellings of People's Action Party" (`app/src/constants/coverage/constants.ts:150`). The source site changed apostrophes between scrape eras (`gateway/speakers_by_parliament.py:42,54`; scraper `plans/person-identity.md:73-74`).
