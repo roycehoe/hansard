@@ -7,6 +7,7 @@ import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
+import { NoticeRemovedReport } from '@/components/reports/NoticeRemovedReport'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
 import {
   Breadcrumb,
@@ -17,7 +18,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
-import { HTTP_NOT_FOUND } from '@/constants/constants'
+import { HTTP_GONE, HTTP_NOT_FOUND } from '@/constants/constants'
 import { SPEECH_ANCHOR_MAX_LENGTH } from '@/constants/reports/constants'
 import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -65,6 +66,9 @@ export const Route = createFileRoute('/reports/$reportSlug')({
       error.status === HTTP_NOT_FOUND
     ) {
       return <NoticeNotFoundReport />
+    }
+    if (isError && error instanceof ApiError && error.status === HTTP_GONE) {
+      return <NoticeRemovedReport />
     }
     if (isError || !data) {
       return (

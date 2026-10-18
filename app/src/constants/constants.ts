@@ -4,6 +4,8 @@ export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? ''
 
 export const HTTP_NOT_FOUND = 404
 
+export const HTTP_GONE = 410
+
 export const HTTP_SERVER_ERROR_MIN = 500
 
 export const NUMBER_LOCALE = 'en-SG'
