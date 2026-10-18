@@ -26,7 +26,7 @@ def search_speeches(
     report_type: Optional[ReportType] = None,
     person_id: Optional[int] = Query(default=None, ge=1),
     sort: SearchSort = SearchSort.RELEVANCE,
-    page: int = Query(default=1, ge=1),
+    page: int = Query(default=1, ge=1, le=search_service.MAX_SEARCH_PAGE),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
     session: Session = Depends(get_search_session),
 ) -> SearchSpeechesResponse:
@@ -56,7 +56,7 @@ def search_reports(
     report_type: Optional[ReportType] = None,
     is_text_available: Optional[bool] = None,
     sort: SearchSort = SearchSort.RELEVANCE,
-    page: int = Query(default=1, ge=1),
+    page: int = Query(default=1, ge=1, le=search_service.MAX_SEARCH_PAGE),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
     session: Session = Depends(get_search_session),
 ) -> SearchReportsResponse:

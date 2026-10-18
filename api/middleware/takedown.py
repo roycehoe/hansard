@@ -6,16 +6,12 @@ from fastapi.responses import FileResponse
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.types import ASGIApp
 
+from settings import settings
 from utils.report_slug import get_normalised_report_slug, get_report_id_candidates
 from utils.takedown_list import get_taken_down_report_slugs
 
-_TAKEDOWN_LIST_PATH = Path(__file__).resolve().parent.parent / "takedown-list.txt"
-_TAKEDOWN_LIST_ENCODING = "utf-8-sig"
-
-# NOTE: read at import so a missing or malformed list stops startup instead of showing a listed report.
-_TAKEN_DOWN_REPORT_SLUGS = get_taken_down_report_slugs(
-    _TAKEDOWN_LIST_PATH.read_text(encoding=_TAKEDOWN_LIST_ENCODING)
-)
+# NOTE: read at import so a malformed list stops startup instead of showing a listed report.
+_TAKEN_DOWN_REPORT_SLUGS = get_taken_down_report_slugs(settings.takedown_report_slugs)
 
 
 def is_report_slug_taken_down(report_slug: str) -> bool:

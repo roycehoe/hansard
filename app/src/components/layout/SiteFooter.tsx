@@ -28,7 +28,8 @@ export function SiteFooter() {
       <div className="max-w-page-xl mx-auto flex w-full flex-col gap-2 px-5 py-5 text-sm sm:px-6 md:flex-row md:items-center md:justify-between md:px-7 md:py-7">
         <div className="space-y-1">
           <p className="text-foreground font-medium">
-            Not an official Parliament site.
+            This is not an official Parliament site. The Official Report on SPRS
+            is the authoritative record.
           </p>
           {latestSittingDate !== null && lastCheckedDate !== null && (
             <p className="text-muted-foreground">

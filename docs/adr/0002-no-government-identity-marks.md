@@ -5,3 +5,7 @@ The site should look like it belongs with modern Singapore Government websites, 
 ## Amendment, 14 Oct 2026
 
 The footer line changed from "Unofficial. Independent of the Parliament of Singapore." to "Not an official Parliament site." Royce found the old line wordy. The short line still tells a reader the site is not the official record, which is what this decision needs the footer to do. It no longer states independence from Parliament on purpose: saying the site is not official is enough to stop it passing for the official record.
+
+## Amendment, 19 Oct 2026
+
+The footer now reads "This is not an official Parliament site. The Official Report on SPRS is the authoritative record." That is the footer offered, word for word, in the letter asking the Clerk of Parliament for permission, and the letter takes precedence over the shorter line. Report, sitting and person pages also carry the letter's attribution line, "Source: Parliament of Singapore, Official Report", with the sitting date where the page has one. A speech's preview card puts "Unofficial transcript" before its title and the footer's first sentence after its quote, because a card shared in a chat app shows no footer.

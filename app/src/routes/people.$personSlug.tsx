@@ -3,6 +3,7 @@ import { useGetPerson } from '@/api/people/getPerson'
 import { useGetPersonReports } from '@/api/people/getPersonReports'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationPrevNext } from '@/components/layout/PaginationPrevNext'
+import { TextSource } from '@/components/layout/TextSource'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
 import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
@@ -178,6 +179,7 @@ export const Route = createFileRoute('/people/$personSlug')({
           </h2>
           {renderReports()}
         </section>
+        <TextSource sittingDate={null} officialRecordUrl={null} />
       </div>
     )
   },

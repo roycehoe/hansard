@@ -8,6 +8,7 @@ _TAG_SEPARATOR = "\n    "
 _PREVIEW_TAGS_START = "<!--preview-tags-->"
 _PREVIEW_TAGS_END = "<!--/preview-tags-->"
 _NO_MARKER = ""
+_QUERY_SEPARATOR = "?"
 
 
 def _get_page_title(title: str) -> str:
@@ -29,7 +30,12 @@ def get_preview_tags_html(
         f'<meta name="twitter:card" content="{_TWITTER_CARD}" />',
     ]
     url_tags = (
-        [] if url is None else [f'<meta property="og:url" content="{escape(url)}" />']
+        []
+        if url is None
+        else [
+            f'<meta property="og:url" content="{escape(url)}" />',
+            f'<link rel="canonical" href="{escape(url.partition(_QUERY_SEPARATOR)[0])}" />',
+        ]
     )
     return _TAG_SEPARATOR.join([*tags, *url_tags])
 
