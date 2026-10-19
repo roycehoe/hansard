@@ -385,7 +385,7 @@ export const Route = createFileRoute('/coverage/methods')({
             </h3>
             <ul className="list-disc space-y-2 pl-5 text-sm">
               <li>
-                About 15,000 paragraphs are labelled &quot;The Chairman&quot;
+                About 13,000 paragraphs are labelled &quot;The Chairman&quot;
                 without a name, so they can&apos;t be credited to a person.
               </li>
               <li>
@@ -420,9 +420,9 @@ export const Route = createFileRoute('/coverage/methods')({
                 1,800 reports within the sitting is not known.
               </li>
               <li>
-                In 40 sittings from 16 August 2016 to 8 April 2025, 195 reports
-                share their place in the order with another report, so the
-                archive cannot tell which comes first.
+                In 78 sittings from 16 August 2016 to 7 October 2026, 1,997
+                reports share their place in the order with another report, so
+                the archive cannot tell which comes first.
               </li>
               <li>
                 Some budget and President&apos;s address titles show garbled

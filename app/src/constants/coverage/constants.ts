@@ -5,11 +5,11 @@ import {
 
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
-export const COVERAGE_LAST_UPDATED = '2026-10-14'
+export const COVERAGE_LAST_UPDATED = '2026-10-19'
 
-export const METHODS_LAST_REVISED = '2026-10-18'
+export const METHODS_LAST_REVISED = '2026-10-19'
 
-export const ATTRIBUTION_MEASURED_ON = '2026-10-14'
+export const ATTRIBUTION_MEASURED_ON = '2026-10-19'
 
 export const HAND_CHECK_DATE = '2026-10-17'
 
@@ -29,17 +29,17 @@ export const REPAIR_DATE = '2026-10-14'
 
 export const REPAIR_PROCEDURAL_LINE_COUNT = 12_245
 
-export const LINKED_SPEECH_COUNT = 554_900
+export const LINKED_SPEECH_COUNT = 513_578
 
-export const SPEECH_WITH_SPEAKER_LABEL_COUNT = 567_756
+export const SPEECH_WITH_SPEAKER_LABEL_COUNT = 523_437
 
-export const SPEECH_ROW_COUNT = 624_332
+export const SPEECH_ROW_COUNT = 609_933
 
 export const NON_MEMBER_PERSON_COUNT = 6
 
-export const NON_MEMBER_MEMBERSHIP_COUNT = 20
+export const NON_MEMBER_MEMBERSHIP_COUNT = 21
 
-export const NO_TEXT_BY_DESIGN_REPORT_COUNT = 106
+export const NO_TEXT_BY_DESIGN_REPORT_COUNT = 114
 
 export const LEGISLATIVE_ASSEMBLY_LAST_SITTING = '1965-06-16'
 
@@ -61,9 +61,9 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     firstParliamentNumber: LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
     lastParliamentNumber: 11,
     years: '1955 to 2011',
-    namedLinked: '97.74%',
-    allLinked: '88.88%',
-    textShare: '96.58%',
+    namedLinked: '98.12%',
+    allLinked: '84.20%',
+    textShare: '97.16%',
     handCheckDate: HAND_CHECK_DATE,
   },
   {
@@ -71,9 +71,9 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     firstParliamentNumber: 12,
     lastParliamentNumber: 12,
     years: '2011 to 2015',
-    namedLinked: '98.94%',
-    allLinked: '96.93%',
-    textShare: '98.71%',
+    namedLinked: '99.28%',
+    allLinked: '95.10%',
+    textShare: '98.69%',
     handCheckDate: HAND_CHECK_DATE,
   },
   {
@@ -81,9 +81,9 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     firstParliamentNumber: 13,
     lastParliamentNumber: 13,
     years: '2016 to 2020',
-    namedLinked: '98.18%',
-    allLinked: '96.31%',
-    textShare: '99.06%',
+    namedLinked: '98.91%',
+    allLinked: '95.30%',
+    textShare: '98.88%',
     handCheckDate: HAND_CHECK_DATE,
   },
   {
@@ -91,9 +91,19 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     firstParliamentNumber: 14,
     lastParliamentNumber: 14,
     years: '2020 to 2025',
-    namedLinked: '99.02%',
-    allLinked: '97.61%',
-    textShare: '99.13%',
+    namedLinked: '99.31%',
+    allLinked: '96.42%',
+    textShare: '98.97%',
     handCheckDate: HAND_CHECK_DATE,
+  },
+  {
+    parliament: 'Parliament 15',
+    firstParliamentNumber: 15,
+    lastParliamentNumber: 15,
+    years: 'From 2025',
+    namedLinked: '99.61%',
+    allLinked: '97.09%',
+    textShare: '99.24%',
+    handCheckDate: null,
   },
 ] as const
