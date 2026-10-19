@@ -368,7 +368,9 @@ export const Route = createFileRoute('/coverage/methods')({
               <span className="sr-only">: known gaps</span>
             </h3>
             <ul className="list-disc space-y-2 pl-5 text-sm">
-              <li>Parliament 15 is not in the archive yet.</li>
+              <li>
+                No speech from Parliament 15 has been checked by hand yet.
+              </li>
               <li>
                 Text that is not part of any speech, such as headings and the
                 lines before the first speaker, is not shown on report pages. It

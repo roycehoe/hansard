@@ -8,7 +8,7 @@ The site only reads. Its data comes from the Postgres database that [roycehoe/ha
 
 Private beta. The site is behind a password and open to a small test group.
 
-The archive covers 22 April 1955 to 8 April 2025. The 15th Parliament is not loaded yet. How often the site credits a speech to the wrong person, and what else is missing, is on the site's "Data quality and methods" page at `/coverage/methods`.
+The archive covers 22 April 1955 to 7 October 2026, including the 15th Parliament. How often the site credits a speech to the wrong person, and what else is missing, is on the site's "Data quality and methods" page at `/coverage/methods`.
 
 ## How it was built
 

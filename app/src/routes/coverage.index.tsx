@@ -179,8 +179,7 @@ export const Route = createFileRoute('/coverage/')({
             {formatSittingDate(PARLIAMENT_FOURTEEN_LAST_SITTING)} was the last
             sitting of Parliament 14, which was dissolved on{' '}
             {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}. Parliament 15
-            first sat on {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}{' '}
-            and is not in the archive yet.
+            first sat on {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}.
           </p>
           <p>
             Built and maintained by Royce Hoe.{' '}
