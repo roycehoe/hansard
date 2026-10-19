@@ -41,8 +41,8 @@ export const options = {
     'http_req_duration{kind:page}': ['p(95)<3000'],
     'http_req_duration{kind:api}': ['p(95)<3000'],
     // Search has its own, looser limit. On the 1 GiB database a relevance
-    // search took up to 6.3 s and oldest-first up to 18.7 s (launch-q1,
-    // section 6). The build caps visitor searches at a 10 s statement
+    // search took up to 6.3 s and oldest-first up to 18.7 s, measured
+    // before launch. The build caps visitor searches at a 10 s statement
     // timeout and refuses a fourth concurrent search at once, so a real
     // answer should land under 10 s. 12 s leaves 2 s for queueing. If this
     // fails, search is the weak point. Do not tighten it to 3 s: that would

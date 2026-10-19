@@ -14,7 +14,7 @@ A web app for browsing Singapore Parliament Hansard records. The data comes from
 | `api/` | Backend: Python 3.15, FastAPI, SQLModel, read-only against the scraper database | `api/CLAUDE.md`, `api/STYLE.md`, `api/STYLE-RULINGS.md` |
 | `docs/` | Palette (`docs/palette.md`, `docs/palette-preview.html`, source photos under `docs/palette/sources/`) | |
 | `docs/adr/` | Architecture decision records. Read these before changing how the API touches the database or how the site is branded. | |
-| `plans/` | Feature briefs and pipeline state | |
+| `plans/` | Local feature briefs and pipeline state. Gitignored, so not in the repository. | |
 
 Defer to the most specific `CLAUDE.md` for the code you are touching.
 
