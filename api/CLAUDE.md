@@ -129,7 +129,6 @@ Never put a secret in code or in an example env file.
 
 - **`STYLE.md`** is the resident summary of the coding rules. Follow it when writing or reviewing code. It covers naming, layers, control flow and failure, types and data, the HTTP surface, and comments.
 - **`STYLE-RULINGS.md`** is the append-only log of numbered rulings (R1 onward) behind `STYLE.md`. Where the two disagree, the ruling governs. A new convention is recorded there first and propagated to `STYLE.md` in the same commit.
-- The rationale and review history behind both live in kelix-audit and are not ported.
 
 Rules that bite most often:
 

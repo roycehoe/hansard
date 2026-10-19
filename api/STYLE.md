@@ -2,15 +2,13 @@
 
 Personal coding idioms for this codebase — only the things a reader would get wrong without being told. Follow them when writing or reviewing code.
 
-The rationale and review history behind these rules live in kelix-audit (`STYLE-REFERENCE.md` and `CONTEXT.md` are not ported).
-
-**The authority behind this file is `api/STYLE-RULINGS.md`** — the append-only log of numbered rulings (R1–R47) — human decisions by the tech lead, plus R20–R25 and R30–R35/R37 ruled by delegation and reversible as such. Where this file and a ruling disagree, the ruling governs and this file is what needs fixing. A new convention is recorded there first, then propagated here in the same commit.
+**The authority behind this file is `api/STYLE-RULINGS.md`** — the append-only log of numbered rulings (R1–R47). Most were ruled directly; R20–R25 and R30–R35/R37 were ruled by delegation and are reversible as such. Where this file and a ruling disagree, the ruling governs and this file is what needs fixing. A new convention is recorded there first, then propagated here in the same commit.
 
 **Enforcement.** `ruff` owns exactly two things here — import order and unused names (`select = ["I", "F"]`) — so everything below is enforced by review. `ruff format` is the formatter and is enforced; run it before every commit. Seven rules are queued to move to tooling once their existing violations are cleaned: annotation presence (`ANN*` minus `ANN204`, which reverses the `__init__` carve-out), `else` after an exit (`RET505`–`508`), the bare variable before a `return` (`RET504`), blind `except` (`BLE001`), magic-number comparisons (`PLR2004`), `print()` (`T201`/`T203`), naive `datetime` (`DTZ003`/`DTZ005`).
 
 **Grades.** `blocking` — a reviewer blocks the PR on it. `expected` — the default; deviating needs a reason stated in the PR. `expected†` — `expected`, with one recorded blocking carve-out in the reference. `taste` — a suggestion; the author decides. **Preference** — team default where a technical alternative exists. A rule yields only to a demonstrated technical cost, never to a style preference, and a yield is recorded as conscious new precedent. Never flatten a `taste` into a "must".
 
-**Where a rule already has live counter-sites, they are accepted** (R38). Consistency outranks correctness at the level of style: a defect that is uniform across the codebase stays uniform until a deliberate sweep changes it everywhere, and a review finding whose construct is codebase-wide is an observation about that pending sweep rather than a finding. *"Our STYLE.md is the platonic ideal, but we live in a world of matter, not forms."* This governs existing sites only. New code never joins a divergence.
+**Where a rule already has live counter-sites, they are accepted** (R38). Consistency outranks correctness at the level of style: a defect that is uniform across the codebase stays uniform until a deliberate sweep changes it everywhere, and a review finding whose construct is codebase-wide is an observation about that pending sweep rather than a finding. This governs existing sites only. New code never joins a divergence.
 
 ---
 
@@ -41,7 +39,7 @@ The affix carries type, purity, state and intended use, so the reader never open
 | `noun_to_verb` | an object held in order to act on it | `speeches_to_search`, `speaker_to_load` |
 | `error` | the variable bound by `except ... as` | `error`, `error_to_record`, `unexpected_failure` |
 
-When naming the variable that holds a call's result, strip only `get_` from the function name: `get_trigger_export_job_response` holds a `trigger_export_job_response`.
+When naming the variable that holds a call's result, strip only `get_` from the function name: `get_fetch_sitting_report_response` holds a `fetch_sitting_report_response`.
 
 **Deprecated: the `validated_` / `unvalidated_` variable prefix.** Do not add it, in any layer. Name the variable for what it is and validate it — reassigning the same value to a second name to record that a check happened is noise the reader has to track. This does *not* affect the `get_validated_*` **function** naming convention, which stands. The same defect recurs whenever a qualifier only restates what the context already implies — a field on a search request named `requested_page_size` gains nothing over `page_size` (R24).
 
@@ -304,4 +302,4 @@ When naming the variable that holds a call's result, strip only `get_` from the 
           if status_code in (401, 403):
   ```
 
-- **Preference** — **`Optional[T]`, never `T | None`.** Chosen for consistency with the codebase this guide was ported from; ruff's `UP007` is not enabled here and stays that way. Do not write new `T | None`.
+- **Preference** — **`Optional[T]`, never `T | None`.** Chosen for consistency across the codebase; ruff's `UP007` is not enabled here and stays that way. Do not write new `T | None`.
