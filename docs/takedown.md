@@ -20,7 +20,7 @@ To put the site back behind the password, set the value to `"false"` and deploy.
 
 ## Taking a report down
 
-Royce decides what comes down. The letter to Parliament promises removal within 2 working days of a request.
+Royce decides what comes down. When Parliament asks for a report to be removed, the site commits to taking it down within 2 working days of the request.
 
 The list lives in the `TAKEDOWN_REPORT_SLUGS` environment variable of the `web` component, encrypted, so it never appears in the public repo. It holds report slugs separated by commas, such as `written-answer-11589,oral-answer-2041`. Spaces around a comma don't matter. Each change works from a phone, in a mobile browser:
 

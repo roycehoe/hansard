@@ -1,6 +1,6 @@
 # Palette source photos
 
-One row per file in this directory. Every file was resized so its long edge is at most 1600 px. Only images with a known open licence are here. The repo is private; if it is ever made public, recheck each licence on its source page first. All files were fetched on 2026-10-13 from Wikimedia Commons.
+One row per file in this directory. Every file was resized so its long edge is at most 1600 px. Only images with a known open licence are here. Recheck a file's licence on its source page before reusing it. All files were fetched on 2026-10-13 from Wikimedia Commons.
 
 Not committed: the State Crest, the Parliament logo and the national flag. Their colours come from published specifications and are cited in `docs/palette.md`. No openly licensed photo of the Serjeant-at-Arms, Parliament staff uniforms, the Mace, the Clerks' robes or a government official portrait was found, so those categories have no source photo.
 

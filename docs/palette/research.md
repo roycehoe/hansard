@@ -6,7 +6,7 @@ Three rules applied throughout.
 
 1. Political neutrality. No proposed colour sits near a party colour in a primary role. The party table below lists what to stay clear of, and every candidate says whether it is near one. The v1 primary, the gown red `#8d0f14`, is Royce's decision and is not re-opened here.
 2. ADR 0002 (`docs/adr/0002-no-government-identity-marks.md`). Colours and patterns only. No crest, lion head, Merlion, Parliament logo or Mace image was committed or sampled. Whole-building photos that show the facade are accepted, as in v1. Some committed photos show a crest, logo, flag, sign or people incidentally (noted per photo below). None of those were cropped or sampled.
-3. Licence and traceability. Every photo cited here has a row in `docs/palette/sources/SOURCES.md` under "Track B research photos (2026-10-13)". Only images with a known open licence (CC BY, CC BY-SA, public domain) were kept. Photos that no finding cites were removed. The repo is private; recheck each licence on its source page before it is ever made public.
+3. Licence and traceability. Every photo cited here has a row in `docs/palette/sources/SOURCES.md` under "Track B research photos (2026-10-13)". Only images with a known open licence (CC BY, CC BY-SA, public domain) were kept. Photos that no finding cites were removed. Recheck a photo's licence on its source page before reusing it.
 
 Method as in v1: PIL k-means on a crop box (fractions of the image: left, top, right, bottom), recording hex, share of the crop and lighting. The fetch workers' values are listed as reported. Where a value looked wrong or was needed for a proposal, it was re-sampled during writing and the new value is marked "resample". All photos were viewed before being cited.
 
