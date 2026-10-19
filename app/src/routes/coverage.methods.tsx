@@ -367,11 +367,6 @@ export const Route = createFileRoute('/coverage/methods')({
             </h3>
             <ul className="list-disc space-y-2 pl-5 text-sm">
               <li>
-                Parliament 15&apos;s reports have not been read in full against
-                the source for lost or misplaced text. The sample check above
-                covers only who each paragraph is credited to.
-              </li>
-              <li>
                 Text that is not part of any speech, such as headings and the
                 lines before the first speaker, is not shown on report pages. It
                 is about 1.2% of the text from before 10 September 2012.
