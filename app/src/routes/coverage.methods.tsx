@@ -22,7 +22,6 @@ import {
   HAND_CHECK_CORRECT_SPEECH_COUNT,
   HAND_CHECK_DATE,
   HAND_CHECK_LINKED_SPEECH_COUNT,
-  HAND_CHECK_PROCEDURAL_SPEECH_COUNT,
   HAND_CHECK_UNLINKED_SPEECH_COUNT,
   METHODS_LAST_REVISED,
   NO_TEXT_BY_DESIGN_REPORT_COUNT,
@@ -272,13 +271,12 @@ export const Route = createFileRoute('/coverage/methods')({
           <p>
             On {formatSittingDate(HAND_CHECK_DATE)},{' '}
             {HAND_CHECK_LINKED_SPEECH_COUNT} paragraphs from the Legislative
-            Assembly to Parliament 14 that are credited to a person were checked
+            Assembly to Parliament 15 that are credited to a person were checked
             against the source text by an AI model. No person has read them yet.
             None was credited to the wrong person.{' '}
-            {HAND_CHECK_CORRECT_SPEECH_COUNT} were correct. The other{' '}
-            {HAND_CHECK_PROCEDURAL_SPEECH_COUNT} were a line from a printed
-            schedule and a section heading, which should be credited to no one,
-            but carried the name of the person speaking.
+            {HAND_CHECK_CORRECT_SPEECH_COUNT} were correct. The other one was a
+            caption from a tabled list, which should be credited to no one, but
+            carried the name of the member whose written answer it follows.
           </p>
           <p>
             An earlier check by an AI model, on{' '}
@@ -369,7 +367,9 @@ export const Route = createFileRoute('/coverage/methods')({
             </h3>
             <ul className="list-disc space-y-2 pl-5 text-sm">
               <li>
-                No speech from Parliament 15 has been checked by hand yet.
+                Parliament 15&apos;s reports have not been read in full against
+                the source for lost or misplaced text. The sample check above
+                covers only who each paragraph is credited to.
               </li>
               <li>
                 Text that is not part of any speech, such as headings and the
@@ -423,10 +423,6 @@ export const Route = createFileRoute('/coverage/methods')({
                 In 78 sittings from 16 August 2016 to 7 October 2026, 1,997
                 reports share their place in the order with another report, so
                 the archive cannot tell which comes first.
-              </li>
-              <li>
-                Some budget and President&apos;s address titles show garbled
-                characters such as &quot;â€™&quot;.
               </li>
             </ul>
           </div>

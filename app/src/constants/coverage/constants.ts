@@ -11,15 +11,13 @@ export const METHODS_LAST_REVISED = '2026-10-19'
 
 export const ATTRIBUTION_MEASURED_ON = '2026-10-19'
 
-export const HAND_CHECK_DATE = '2026-10-17'
+export const HAND_CHECK_DATE = '2026-10-19'
 
 export const NOT_CHECKED_LABEL = 'Not checked'
 
-export const HAND_CHECK_LINKED_SPEECH_COUNT = 406
+export const HAND_CHECK_LINKED_SPEECH_COUNT = 464
 
-export const HAND_CHECK_CORRECT_SPEECH_COUNT = 404
-
-export const HAND_CHECK_PROCEDURAL_SPEECH_COUNT = 2
+export const HAND_CHECK_CORRECT_SPEECH_COUNT = 463
 
 export const UNLINKED_HAND_CHECK_DATE = '2026-10-13'
 
@@ -104,6 +102,6 @@ export const ATTRIBUTION_BY_PARLIAMENT = [
     namedLinked: '99.61%',
     allLinked: '97.09%',
     textShare: '99.24%',
-    handCheckDate: null,
+    handCheckDate: HAND_CHECK_DATE,
   },
 ] as const
