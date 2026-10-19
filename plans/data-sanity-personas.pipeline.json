@@ -1,6 +1,0 @@
-{
-  "feature": "data-sanity-personas",
-  "pipeline": {
-    "grill-with-docs": { "status": "completed", "output": "plans/data-sanity-personas-brief.md", "timestamp": "2026-10-16T00:00:00+08:00" }
-  }
-}
