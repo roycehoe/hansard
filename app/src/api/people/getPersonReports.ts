@@ -1,11 +1,10 @@
 import { apiGet } from '@/api/client'
 import type { ReportType } from '@/constants/reports/enums'
 import { buildQueryString } from '@/lib/utils'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 
 export interface GetPersonReportsRequest {
   person_id: number
-  page?: number
 }
 
 export interface PersonReportData {
@@ -25,19 +24,24 @@ export interface GetPersonReportsResponse {
   has_next_page: boolean
 }
 
+const FIRST_PAGE = 1
+
 async function getPersonReportsResponse(
-  request: GetPersonReportsRequest
+  request: GetPersonReportsRequest,
+  page: number
 ): Promise<GetPersonReportsResponse> {
   return apiGet<GetPersonReportsResponse>(
-    `/people/${request.person_id}/reports${buildQueryString({ page: request.page })}`
+    `/people/${request.person_id}/reports${buildQueryString({ page })}`
   )
 }
 
 export function useGetPersonReports(request: GetPersonReportsRequest) {
-  return useQuery({
-    queryKey: ['people', request.person_id, 'reports', request.page],
-    placeholderData: keepPreviousData,
-    queryFn: () => getPersonReportsResponse(request),
+  return useInfiniteQuery({
+    queryKey: ['people', request.person_id, 'reports'],
+    queryFn: ({ pageParam }) => getPersonReportsResponse(request, pageParam),
+    initialPageParam: FIRST_PAGE,
+    getNextPageParam: (lastPage) =>
+      lastPage.has_next_page ? lastPage.page + 1 : undefined,
     enabled: !!request.person_id,
   })
 }

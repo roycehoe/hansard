@@ -280,7 +280,7 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `List`            | A list of records rendered as `ul` or `ol`     | `ListSpeeches.tsx`, `ListAttendance.tsx` |
 | `Text`            | A text renderer with inline markup             | `TextTranscript.tsx`                     |
 | `Snippet`         | A short excerpt with matches marked            | `SnippetHighlighted.tsx`                 |
-| `Pagination`      | A shared pager (lives in `components/layout/`) | `PaginationPrevNext.tsx`                 |
+| `Pagination`      | A shared pager (lives in `components/layout/`) | `PaginationInfiniteScroll.tsx`           |
 
 When the category alone is self-explanatory within the folder, the context suffix can be omitted — e.g. `ActionBar.tsx` in a folder that only has one action bar. Add context when disambiguation is needed — e.g. `ActionBarSpeechCopy.tsx` when multiple action bars exist in the same folder.
 

@@ -2,7 +2,7 @@ import { ApiError } from '@/api/client'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetPersonReports } from '@/api/people/getPersonReports'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { PaginationPrevNext } from '@/components/layout/PaginationPrevNext'
+import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import { TextSource } from '@/components/layout/TextSource'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
@@ -26,23 +26,14 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { z } from 'zod'
-
-const FIRST_PAGE = 1
-
-const personSearchSchema = z.object({
-  page: z.coerce.number().int().min(FIRST_PAGE).optional(),
-})
 
 export const Route = createFileRoute('/people/$personSlug')({
-  validateSearch: personSearchSchema,
   component: function PagePerson() {
     const { personSlug } = Route.useParams()
-    const { page = FIRST_PAGE } = Route.useSearch()
     const navigate = useNavigate()
     const { personId, slug } = parsePersonSlug(personSlug)
     const person = useGetPerson({ person_id: personId })
-    const reports = useGetPersonReports({ person_id: personId, page })
+    const reports = useGetPersonReports({ person_id: personId })
     const canonicalSlug = person.data?.person_slug
     useDocumentTitle(person.data?.canonical_name ?? 'Person')
 
@@ -52,11 +43,10 @@ export const Route = createFileRoute('/people/$personSlug')({
         void navigate({
           to: '/people/$personSlug',
           params: { personSlug: `${personId}-${canonicalSlug}` },
-          search: { page: page === FIRST_PAGE ? undefined : page },
           replace: true,
         })
       },
-      [canonicalSlug, slug, personId, page, navigate]
+      [canonicalSlug, slug, personId, navigate]
     )
 
     function retryPerson() {
@@ -67,17 +57,13 @@ export const Route = createFileRoute('/people/$personSlug')({
       void reports.refetch()
     }
 
-    function changePage(nextPage: number) {
-      void navigate({
-        to: '/people/$personSlug',
-        params: { personSlug },
-        search: { page: nextPage === FIRST_PAGE ? undefined : nextPage },
-      })
+    function loadMoreReports() {
+      void reports.fetchNextPage()
     }
 
     function renderReports() {
       if (reports.isLoading) return <SkeletonReportRows />
-      if (reports.isError || !reports.data) {
+      if (reports.isLoadingError || !reports.data) {
         return (
           <NoticeErrorPersonReports
             onRetry={retryReports}
@@ -85,16 +71,19 @@ export const Route = createFileRoute('/people/$personSlug')({
           />
         )
       }
+      const personReports = reports.data.pages.flatMap((page) => page.reports)
       return (
-        <>
-          <ListPersonReports reports={reports.data.reports} />
-          <PaginationPrevNext
-            page={page}
-            hasNextPage={reports.data.has_next_page}
-            onPageChange={changePage}
-            ariaLabel="Reports pages"
+        <div className="space-y-4">
+          <ListPersonReports reports={personReports} />
+          <PaginationInfiniteScroll
+            hasNextPage={reports.hasNextPage}
+            isFetchingNextPage={reports.isFetchingNextPage}
+            isFetchNextPageError={reports.isFetchNextPageError}
+            onLoadMore={loadMoreReports}
+            loadingRows={<SkeletonReportRows />}
+            shownCount={personReports.length}
           />
-        </>
+        </div>
       )
     }
 

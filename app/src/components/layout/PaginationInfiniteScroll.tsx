@@ -1,20 +1,19 @@
-import { SkeletonSearchResults } from '@/components/search/SkeletonSearchResults'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { useLoadMoreOnScroll } from '@/hooks/useLoadMoreOnScroll'
 import { RotateCw, TriangleAlert } from 'lucide-react'
-
-const LOADING_ROW_COUNT = 3
+import type { ReactNode } from 'react'
 
 interface PaginationInfiniteScrollProps {
   hasNextPage: boolean
   isFetchingNextPage: boolean
   isFetchNextPageError: boolean
   onLoadMore: () => void
+  loadingRows: ReactNode
   shownCount: number
-  totalCount: number
-  isTotalCapped: boolean
+  totalCount?: number
+  isTotalCapped?: boolean
 }
 
 export function PaginationInfiniteScroll({
@@ -22,15 +21,17 @@ export function PaginationInfiniteScroll({
   isFetchingNextPage,
   isFetchNextPageError,
   onLoadMore,
+  loadingRows,
   shownCount,
   totalCount,
-  isTotalCapped,
+  isTotalCapped = false,
 }: PaginationInfiniteScrollProps) {
   const { sentinelRef } = useLoadMoreOnScroll({
     canLoadMore: hasNextPage && !isFetchingNextPage && !isFetchNextPageError,
     onLoadMore,
   })
-  const hasMoreThanShown = isTotalCapped || shownCount < totalCount
+  const hasMoreThanShown =
+    isTotalCapped || (totalCount !== undefined && shownCount < totalCount)
 
   if (isFetchNextPageError) {
     return (
@@ -60,7 +61,7 @@ export function PaginationInfiniteScroll({
     )
   }
   if (isFetchingNextPage) {
-    return <SkeletonSearchResults rowCount={LOADING_ROW_COUNT} />
+    return loadingRows
   }
   if (hasNextPage) return <div ref={sentinelRef} />
   if (!hasMoreThanShown) return null

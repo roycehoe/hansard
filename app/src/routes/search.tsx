@@ -73,6 +73,8 @@ const searchSearchSchema = z.object({
 
 const SEARCH_SKELETON_ROW_COUNT = 5
 
+const NEXT_PAGE_SKELETON_ROW_COUNT = 3
+
 export const Route = createFileRoute('/search')({
   validateSearch: searchSearchSchema,
   component: function PageSearch() {
@@ -256,6 +258,9 @@ export const Route = createFileRoute('/search')({
             isFetchingNextPage={speeches.isFetchingNextPage}
             isFetchNextPageError={speeches.isFetchNextPageError}
             onLoadMore={loadMoreSpeeches}
+            loadingRows={
+              <SkeletonSearchResults rowCount={NEXT_PAGE_SKELETON_ROW_COUNT} />
+            }
             shownCount={results.length}
             totalCount={firstPage.total_count}
             isTotalCapped={firstPage.is_total_capped}
@@ -299,6 +304,9 @@ export const Route = createFileRoute('/search')({
             isFetchingNextPage={reports.isFetchingNextPage}
             isFetchNextPageError={reports.isFetchNextPageError}
             onLoadMore={loadMoreReports}
+            loadingRows={
+              <SkeletonSearchResults rowCount={NEXT_PAGE_SKELETON_ROW_COUNT} />
+            }
             shownCount={results.length}
             totalCount={firstPage.total_count}
             isTotalCapped={firstPage.is_total_capped}
