@@ -10,6 +10,7 @@ import { Link } from '@tanstack/react-router'
 const FOOTER_LINKS = [
   { label: 'Coverage', to: '/coverage' },
   { label: 'Data quality and methods', to: '/coverage/methods' },
+  { label: 'Palette', to: '/palette' },
   ...(RESEARCHERS_FORM_URL
     ? ([{ label: 'For researchers', to: '/researchers' }] as const)
     : []),
