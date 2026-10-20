@@ -9,6 +9,7 @@ import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
 import { NoticeRemovedReport } from '@/components/reports/NoticeRemovedReport'
+import { NoticeTextNotPublished } from '@/components/reports/NoticeTextNotPublished'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
 import { SkeletonReport } from '@/components/reports/SkeletonReport'
 import {
@@ -26,6 +27,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildReportCitation } from '@/lib/citation'
 import { formatSittingDate } from '@/lib/format'
 import { parseHighlightTerms } from '@/lib/highlight'
+import { isTextPublished } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 
@@ -42,6 +44,9 @@ const reportSearchSchema = z.object({
 
 function renderBody(report: GetReportResponse, highlightTerms: string[]) {
   if (!report.is_text_available) {
+    if (!isTextPublished(report.report_type, report.sitting_date)) {
+      return <NoticeTextNotPublished />
+    }
     return <NoticeTextUnavailable />
   }
   return <ListSpeeches report={report} highlightTerms={highlightTerms} />

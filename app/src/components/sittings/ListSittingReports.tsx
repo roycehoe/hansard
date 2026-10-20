@@ -2,13 +2,18 @@ import type { SittingReportData } from '@/api/sittings/getSitting'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { Badge } from '@/components/ui/badge'
 import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
+import { isTextPublished } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
 interface ListSittingReportsProps {
   reports: SittingReportData[]
+  sittingDate: string
 }
 
-export function ListSittingReports({ reports }: ListSittingReportsProps) {
+export function ListSittingReports({
+  reports,
+  sittingDate,
+}: ListSittingReportsProps) {
   return (
     <ol>
       {reports.map((report) => (
@@ -29,9 +34,10 @@ export function ListSittingReports({ reports }: ListSittingReportsProps) {
             </span>
           )}
           <BadgeReportType reportType={report.report_type} />
-          {!report.is_text_available && (
-            <Badge variant="outline">{TEXT_NOT_IN_ARCHIVE_LABEL}</Badge>
-          )}
+          {!report.is_text_available &&
+            isTextPublished(report.report_type, sittingDate) && (
+              <Badge variant="outline">{TEXT_NOT_IN_ARCHIVE_LABEL}</Badge>
+            )}
         </li>
       ))}
     </ol>

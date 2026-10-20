@@ -119,6 +119,8 @@ export const REPORT_TYPE_GROUPS: {
   },
 ]
 
+export const TEXTLESS_ASSENT_FIRST_SITTING = '2012-09-10'
+
 export const REPORT_TYPES_LINK_LABEL = 'What the types mean'
 
 export const REPORT_TYPE_DROPDOWN_OPTIONS = Object.values(ReportType).map(

@@ -101,7 +101,10 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
           <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
             Reports
           </h2>
-          <ListSittingReports reports={data.reports} />
+          <ListSittingReports
+            reports={data.reports}
+            sittingDate={data.sitting_date}
+          />
         </section>
         <section aria-labelledby="attendance-heading" className="space-y-4">
           <h2

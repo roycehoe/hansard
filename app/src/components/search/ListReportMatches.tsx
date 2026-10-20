@@ -8,6 +8,7 @@ import {
   EMPTY_WORDS_DESCRIPTION,
 } from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
+import { isTextPublished } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 
@@ -70,9 +71,11 @@ export function ListReportMatches({
                   <span>{formatSittingDate(result.sitting_date)}</span>
                   <span>{formatParliament(result.parliament_number)}</span>
                   <BadgeReportType reportType={result.report_type} />
-                  {!result.is_text_available && (
-                    <span>{TEXT_NOT_IN_ARCHIVE_LABEL}</span>
-                  )}
+                  {!result.is_text_available &&
+                    isTextPublished(
+                      result.report_type,
+                      result.sitting_date
+                    ) && <span>{TEXT_NOT_IN_ARCHIVE_LABEL}</span>}
                 </div>
               </li>
             ))}

@@ -1,5 +1,7 @@
 import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
 import { CONTACT_EMAIL, FILTER_ALL } from '@/constants/constants'
+import { TEXTLESS_ASSENT_FIRST_SITTING } from '@/constants/reports/constants'
+import { ReportType } from '@/constants/reports/enums'
 import { SearchSort } from '@/constants/search/enums'
 import { formatParliament } from '@/lib/format'
 import type { PartyAffiliationData, PartyNote } from '@/types/people/interfaces'
@@ -90,6 +92,18 @@ export async function copyTextWithToast(
   } catch {
     toast.error(failureMessage)
   }
+}
+
+// The Parliament website's newer system publishes assent records with no
+// text, so their text is not missing from the archive.
+export function isTextPublished(
+  reportType: string,
+  sittingDate: string
+): boolean {
+  return !(
+    reportType === ReportType.ATBP &&
+    sittingDate >= TEXTLESS_ASSENT_FIRST_SITTING
+  )
 }
 
 export function buildErrorEmailHref(subject: string, pageUrl: string): string {
