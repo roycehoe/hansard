@@ -1,1 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#6d3e31"/><path fill="#ffffff" d="M9 7h4v7h6V7h4v18h-4v-7h-6v7H9z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .seat { fill: #9a5751 }
+    .pale { fill: #d0a29c }
+    .line { fill: none; stroke: #9a5751; stroke-width: 1 }
+    @media (prefers-color-scheme: dark) {
+      .seat { fill: #c98a7f }
+      .pale { fill: #ecc3b7 }
+      .line { stroke: #c98a7f }
+    }
+  </style>
+  <path class="seat" d="M3 14h4v4H3zM10 3h4v4h-4zM15 3h4v4h-4zM10 8h4v4h-4zM15 8h4v4h-4zM10 20h4v4h-4zM15 20h4v4h-4zM20 20h4v4h-4zM25 20h4v4h-4zM10 25h4v4h-4zM15 25h4v4h-4zM20 25h4v4h-4zM25 25h4v4h-4z"/>
+  <path class="pale" d="M20 3h4v4h-4zM20 8h4v4h-4z"/>
+  <path class="line" d="M25.5 3.5h3v3h-3zM25.5 8.5h3v3h-3zM13.5 14.5h13v3h-13z"/>
+</svg>
