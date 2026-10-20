@@ -43,10 +43,10 @@ export const SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS = [
 ]
 
 export const EMPTY_WORDS_DESCRIPTION =
-  'Nothing matches these words. Common words such as "the" are ignored. Try different words or a wider date range.'
+  'Common words such as "the" are ignored. Try different words or a wider date range.'
 
 export const EMPTY_FILTERS_DESCRIPTION =
-  'Nothing matches these filters. Try a wider date range or another Parliament.'
+  'Try a wider date range or another Parliament.'
 
 export const VISIBLE_SPEECH_MATCHES_PER_REPORT = 3
 
