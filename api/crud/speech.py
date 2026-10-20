@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 from typing import Optional
 
-from sqlalchemy import ColumnElement, Float, func
+from sqlalchemy import ColumnElement, Float, Integer, cast, func
 from sqlalchemy.orm import aliased
 from sqlmodel import Session, select
 
@@ -147,11 +147,20 @@ class CRUDSpeech:
     def get_parliament_number_to_speech_count_by_membership_ids(
         self, membership_ids: list[int]
     ) -> dict[int, int]:
-        statement = (
-            select(Report.parliament_number, func.count())
-            .select_from(Speech)
-            .join(Report, Report.id == Speech.report_id)
+        # NOTE: counted per report first, so the join reads each report once instead of once per speech
+        report_speech_counts = (
+            select(Speech.report_id, func.count().label("speech_count"))
             .where(Speech.speaker_id.in_(membership_ids))
+            .group_by(Speech.report_id)
+            .subquery()
+        )
+        statement = (
+            select(
+                Report.parliament_number,
+                cast(func.sum(report_speech_counts.c.speech_count), Integer),
+            )
+            .select_from(report_speech_counts)
+            .join(Report, Report.id == report_speech_counts.c.report_id)
             .group_by(Report.parliament_number)
         )
         rows = self.session.exec(statement).all()

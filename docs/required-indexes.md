@@ -85,26 +85,26 @@ Both statements filter `speech.speaker_id`. Before the index existed each scanne
 
 ```sql
 -- speech_counts_by_parliament (GET /people/{person_id})
-SELECT report.parliament_number, count(*) AS count_1  FROM speech JOIN report ON report.id = speech.report_id  WHERE speech.speaker_id IN (1349) GROUP BY report.parliament_number;
+SELECT report.parliament_number, CAST(sum(anon_1.speech_count) AS INTEGER) AS sum_1  FROM (SELECT speech.report_id AS report_id, count(*) AS speech_count  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id) AS anon_1 JOIN report ON report.id = anon_1.report_id GROUP BY report.parliament_number;
 ```
 
+On 20 October 2026 this statement changed to count speeches per report before joining `report`, so the join reads each report once instead of once per speech. Before, it joined every speech to `report`: 4,412 primary-key lookups and two parallel workers for person 383, 112 ms on production. The plan below is a plain `EXPLAIN` on the scratch copy, not yet captured on production. For a member with many speeches the planner overestimates the reports (4,463 expected for 1349) and hashes a sequential scan of `report`, as the old statement did for person 29 (see "Ranking cost"). Every person's counts were identical before and after the change.
+
 ```text
--- speech_counts_by_parliament (GET /people/{person_id})
-Finalize GroupAggregate  (cost=10130.81..10134.61 rows=15 width=12)
+-- speech_counts_by_parliament (GET /people/{person_id}), scratch copy
+HashAggregate  (cost=26266.77..26267.00 rows=15 width=8)
   Group Key: report.parliament_number
-  ->  Gather Merge  (cost=10130.81..10134.31 rows=30 width=12)
-        Workers Planned: 2
-        ->  Sort  (cost=9130.78..9130.82 rows=15 width=12)
-              Sort Key: report.parliament_number
-              ->  Partial HashAggregate  (cost=9130.34..9130.49 rows=15 width=12)
-                    Group Key: report.parliament_number
-                    ->  Nested Loop  (cost=55.31..9117.28 rows=2612 width=4)
-                          ->  Parallel Bitmap Heap Scan on speech  (cost=55.02..6123.68 rows=2612 width=4)
+  ->  Hash Join  (cost=18448.71..26244.46 rows=4463 width=12)
+        Hash Cond: (report.id = anon_1.report_id)
+        ->  Seq Scan on report  (cost=0.00..7686.01 rows=41801 width=8)
+        ->  Hash  (cost=18392.92..18392.92 rows=4463 width=12)
+              ->  Subquery Scan on anon_1  (cost=18303.66..18392.92 rows=4463 width=12)
+                    ->  HashAggregate  (cost=18303.66..18348.29 rows=4463 width=12)
+                          Group Key: speech.report_id
+                          ->  Bitmap Heap Scan on speech  (cost=63.94..18275.59 rows=5615 width=4)
                                 Recheck Cond: (speaker_id = 1349)
-                                ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..53.45 rows=6270 width=0)
+                                ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..62.54 rows=5615 width=0)
                                       Index Cond: (speaker_id = 1349)
-                          ->  Index Scan using report_pkey on report  (cost=0.29..1.15 rows=1 width=8)
-                                Index Cond: (id = speech.report_id)
 ```
 
 ```sql
