@@ -3,6 +3,7 @@ import {
   CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
   RESEARCHERS_FORM_URL,
+  SOURCE_CODE_URL,
 } from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
@@ -14,6 +15,11 @@ const FOOTER_LINKS = [
   ...(RESEARCHERS_FORM_URL
     ? ([{ label: 'For researchers', to: '/researchers' }] as const)
     : []),
+] as const
+
+const EXTERNAL_FOOTER_LINKS = [
+  { label: 'Official Report', href: OFFICIAL_RECORD_SEARCH_URL },
+  { label: 'GitHub', href: SOURCE_CODE_URL },
 ] as const
 
 const LINK_CLASS_NAME =
@@ -45,17 +51,19 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
-            <li className="whitespace-nowrap">
-              <a
-                href={OFFICIAL_RECORD_SEARCH_URL}
-                className={LINK_CLASS_NAME}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Official Report
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            </li>
+            {EXTERNAL_FOOTER_LINKS.map((item) => (
+              <li key={item.label} className="whitespace-nowrap">
+                <a
+                  href={item.href}
+                  className={LINK_CLASS_NAME}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {item.label}
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            ))}
             {CONTACT_EMAIL && (
               <li className="whitespace-nowrap">
                 <a href={`mailto:${CONTACT_EMAIL}`} className={LINK_CLASS_NAME}>
