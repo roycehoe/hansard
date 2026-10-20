@@ -66,8 +66,7 @@ export const Route = createFileRoute('/coverage/')({
             from {coverageData.sitting_count.toLocaleString(NUMBER_LOCALE)}{' '}
             sittings, and{' '}
             {coverageData.person_count.toLocaleString(NUMBER_LOCALE)} people.
-            The {coverageData.text_report_count.toLocaleString(NUMBER_LOCALE)}{' '}
-            reports with text hold{' '}
+            The reports hold{' '}
             {coverageData.speech_count.toLocaleString(NUMBER_LOCALE)}{' '}
             paragraphs.
           </p>
