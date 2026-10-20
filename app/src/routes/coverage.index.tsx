@@ -74,9 +74,8 @@ export const Route = createFileRoute('/coverage/')({
           <p>
             The archive holds{' '}
             {coverageData.report_count.toLocaleString(NUMBER_LOCALE)} reports
-            (one item of business each, such as an oral answer) from{' '}
-            {coverageData.sitting_count.toLocaleString(NUMBER_LOCALE)} sittings
-            (days the House met), and{' '}
+            from {coverageData.sitting_count.toLocaleString(NUMBER_LOCALE)}{' '}
+            sittings, and{' '}
             {coverageData.person_count.toLocaleString(NUMBER_LOCALE)} people.
             The {coverageData.text_report_count.toLocaleString(NUMBER_LOCALE)}{' '}
             reports with text hold{' '}
