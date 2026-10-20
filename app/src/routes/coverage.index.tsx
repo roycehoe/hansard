@@ -16,12 +16,7 @@ import {
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
 } from '@/constants/constants'
-import {
-  COVERAGE_LAST_UPDATED,
-  PARLIAMENT_FIFTEEN_FIRST_SITTING,
-  PARLIAMENT_FOURTEEN_DISSOLVED,
-  PARLIAMENT_FOURTEEN_LAST_SITTING,
-} from '@/constants/coverage/constants'
+import { COVERAGE_LAST_UPDATED } from '@/constants/coverage/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -173,12 +168,6 @@ export const Route = createFileRoute('/coverage/')({
         </p>
 
         <div className="border-separator text-muted-foreground space-y-2 border-t pt-6 text-sm">
-          <p>
-            {formatSittingDate(PARLIAMENT_FOURTEEN_LAST_SITTING)} was the last
-            sitting of Parliament 14, which was dissolved on{' '}
-            {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}. Parliament 15
-            first sat on {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}.
-          </p>
           <p>Built and maintained by Royce Hoe.</p>
           {CONTACT_EMAIL && (
             <p>

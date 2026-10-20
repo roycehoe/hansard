@@ -27,6 +27,9 @@ import {
   NO_TEXT_BY_DESIGN_REPORT_COUNT,
   NON_MEMBER_MEMBERSHIP_COUNT,
   NON_MEMBER_PERSON_COUNT,
+  PARLIAMENT_FIFTEEN_FIRST_SITTING,
+  PARLIAMENT_FOURTEEN_DISSOLVED,
+  PARLIAMENT_FOURTEEN_LAST_SITTING,
   REPAIR_DATE,
   REPAIR_PROCEDURAL_LINE_COUNT,
   UNLINKED_HAND_CHECK_DATE,
@@ -369,6 +372,13 @@ export const Route = createFileRoute('/coverage/methods')({
                 Text that is not part of any speech, such as headings and the
                 lines before the first speaker, is not shown on report pages. It
                 is about 1.2% of the text from before 10 September 2012.
+              </li>
+              <li>
+                No sittings fall between{' '}
+                {formatSittingDate(PARLIAMENT_FOURTEEN_LAST_SITTING)} and{' '}
+                {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}, and none
+                are missing. Parliament 14 was dissolved on{' '}
+                {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}.
               </li>
             </ul>
           </div>
