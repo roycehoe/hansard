@@ -12,6 +12,7 @@ import { NoticeRemovedReport } from '@/components/reports/NoticeRemovedReport'
 import { NoticeTextNotPublished } from '@/components/reports/NoticeTextNotPublished'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
 import { SkeletonReport } from '@/components/reports/SkeletonReport'
+import { TextReportProblem } from '@/components/reports/TextReportProblem'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -129,6 +130,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
           sittingDate={data.sitting_date}
           officialRecordUrl={data.official_record_url}
         />
+        <TextReportProblem title={data.title} />
       </div>
     )
   },

@@ -1,6 +1,5 @@
 import type { GetReportResponse } from '@/api/reports/getReport'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
-import { CONTACT_EMAIL } from '@/constants/constants'
 import { METHODS_TERMS_SECTION_ID } from '@/constants/coverage/constants'
 import {
   REPORT_TYPE_DESCRIPTIONS,
@@ -8,7 +7,6 @@ import {
 } from '@/constants/reports/constants'
 import type { ReportType } from '@/constants/reports/enums'
 import { formatParliament, formatSittingDate } from '@/lib/format'
-import { buildErrorEmailHref } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
 interface ListReportMetadataProps {
@@ -17,13 +15,6 @@ interface ListReportMetadataProps {
 
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
-
-function buildReportProblemHref(title: string): string {
-  return buildErrorEmailHref(
-    `Problem on ${title}`,
-    `${window.location.origin}${window.location.pathname}`
-  )
-}
 
 export function ListReportMetadata({ report }: ListReportMetadataProps) {
   return (
@@ -56,21 +47,6 @@ export function ListReportMetadata({ report }: ListReportMetadataProps) {
           </Link>
         </p>
       </dd>
-      {CONTACT_EMAIL && (
-        <>
-          <dt className="text-muted-foreground text-sm font-medium">
-            Problems
-          </dt>
-          <dd>
-            <a
-              href={buildReportProblemHref(report.title)}
-              className={LINK_CLASS_NAME}
-            >
-              Report a problem with this report
-            </a>
-          </dd>
-        </>
-      )}
     </dl>
   )
 }
