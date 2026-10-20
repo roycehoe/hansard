@@ -70,9 +70,8 @@ export const Route = createFileRoute('/coverage/methods')({
     useDocumentTitle('Data quality and methods')
     const coverage = useGetCoverage()
     const refresh = useGetRefresh()
-    const { headline, rows: attributionRows } = buildAttributionFigures(
-      refresh.data
-    )
+    const { measuredOn: attributionMeasuredOn, rows: attributionRows } =
+      buildAttributionFigures(refresh.data)
 
     function retryCoverage() {
       void coverage.refetch()
@@ -313,51 +312,32 @@ export const Route = createFileRoute('/coverage/methods')({
             How many paragraphs are credited to a person
           </h3>
           <p className="text-muted-foreground text-sm">
-            These figures cover the Legislative Assembly to Parliament 11 and
-            were measured on {formatSittingDate(headline.measuredOn)}.
+            Measured on {formatSittingDate(attributionMeasuredOn)}.
           </p>
           <p>
             These figures count paragraphs credited to a person. They do not
             show whether the credit is right. Only the sample check above tests
             that.
           </p>
-          <dl className="grid gap-4 lg:grid-cols-3">
+          <dl className="max-w-prose space-y-3 text-sm">
             <div className="space-y-1">
-              <dt className="text-sm font-medium">
-                Paragraphs with a speaker label credited to a named person
-              </dt>
-              <dd className="text-lg font-semibold tabular-nums">
-                {headline.namedLinked}
-              </dd>
-              <dd className="text-muted-foreground text-sm">
-                {headline.linkedRowCount.toLocaleString(NUMBER_LOCALE)} of the{' '}
-                {headline.speakerLabelRowCount.toLocaleString(NUMBER_LOCALE)}{' '}
-                paragraphs that print a speaker&apos;s name. Labels for members
-                as a group, such as &quot;hon. Member&quot;, and stage
-                directions are left out.
+              <dt className="font-medium">With a speaker label, credited</dt>
+              <dd className="text-muted-foreground">
+                Paragraphs that print a speaker&apos;s name and are credited to
+                a named person. Labels for members as a group, such as
+                &quot;hon. Member&quot;, and stage directions are left out.
               </dd>
             </div>
             <div className="space-y-1">
-              <dt className="text-sm font-medium">
-                All paragraphs credited to a named person
-              </dt>
-              <dd className="text-lg font-semibold tabular-nums">
-                {headline.allLinked}
-              </dd>
-              <dd className="text-muted-foreground text-sm">
-                {headline.linkedRowCount.toLocaleString(NUMBER_LOCALE)} of all{' '}
-                {headline.rowCount.toLocaleString(NUMBER_LOCALE)} paragraphs,
+              <dt className="font-medium">All, credited</dt>
+              <dd className="text-muted-foreground">
+                Paragraphs credited to a named person, out of all paragraphs,
                 including procedural lines and others with no speaker label.
               </dd>
             </div>
             <div className="space-y-1">
-              <dt className="text-sm font-medium">
-                Share of the text in a credited paragraph
-              </dt>
-              <dd className="text-lg font-semibold tabular-nums">
-                {headline.textShare}
-              </dd>
-              <dd className="text-muted-foreground text-sm">
+              <dt className="font-medium">Text share</dt>
+              <dd className="text-muted-foreground">
                 Characters of text in credited paragraphs, out of all the text
                 in reports, including reports whose text could not be split into
                 paragraphs.
