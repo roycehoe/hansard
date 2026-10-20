@@ -44,7 +44,6 @@ function buildLiveRow(group: ParliamentGroupFiguresData): AttributionRow {
   return {
     parliament: formatGroupLabel(group),
     years: constantRow?.years ?? '',
-    handCheckDate: constantRow?.handCheckDate ?? null,
     namedLinked: formatPercentage(group.named_linked_share),
     allLinked: formatPercentage(group.all_linked_share),
     textShare: formatPercentage(group.text_share),

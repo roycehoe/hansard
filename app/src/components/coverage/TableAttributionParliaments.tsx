@@ -7,8 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { NOT_CHECKED_LABEL } from '@/constants/coverage/constants'
-import { formatSittingDate } from '@/lib/format'
 import type { AttributionRow } from '@/types/coverage/interfaces'
 
 interface TableAttributionParliamentsProps {
@@ -27,9 +25,6 @@ export function TableAttributionParliaments({
         <TableHeader>
           <TableRow>
             <TableHead scope="col">Parliament</TableHead>
-            <TableHead scope="col" className="whitespace-normal">
-              Sample check
-            </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
               With a speaker label, credited
             </TableHead>
@@ -58,11 +53,6 @@ export function TableAttributionParliaments({
                   </span>
                 )}
               </TableHead>
-              <TableCell className="whitespace-normal">
-                {row.handCheckDate === null
-                  ? NOT_CHECKED_LABEL
-                  : formatSittingDate(row.handCheckDate)}
-              </TableCell>
               <TableCell className="text-right tabular-nums">
                 {row.namedLinked}
               </TableCell>

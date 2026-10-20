@@ -1,7 +1,6 @@
 export interface AttributionRow {
   parliament: string
   years: string
-  handCheckDate: string | null
   namedLinked: string
   allLinked: string
   textShare: string
