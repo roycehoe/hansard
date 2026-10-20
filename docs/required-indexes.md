@@ -183,31 +183,30 @@ Needed by `GET /people/{person_id}`.
 
 ```sql
 -- attendance_counts_by_parliament (GET /people/{person_id})
-SELECT anon_1.parliament_number, count(*) AS count_1  FROM attendance JOIN sitting ON sitting.id = attendance.sitting_id JOIN LATERAL (SELECT DISTINCT report.parliament_number AS parliament_number  FROM report  WHERE report.sitting_date >= to_date(sitting.sitting_date, 'DD-MM-YYYY') AND report.sitting_date < to_date(sitting.sitting_date, 'DD-MM-YYYY') + make_interval(secs=>86400.0)) AS anon_1 ON true  WHERE attendance.speaker_id IN (1349) AND attendance.is_present IS true GROUP BY anon_1.parliament_number;
+SELECT anon_1.parliament_number, count(*) AS count_1  FROM attendance JOIN sitting ON sitting.id = attendance.sitting_id JOIN LATERAL (SELECT DISTINCT report.parliament_number AS parliament_number  FROM report  WHERE report.sitting_date = to_date(sitting.sitting_date, 'DD-MM-YYYY')) AS anon_1 ON true  WHERE attendance.speaker_id IN (1349) AND attendance.is_present IS true GROUP BY anon_1.parliament_number;
 ```
 
-On 20 October 2026 this statement changed to find each attended sitting's Parliament with a range on `report.sitting_date`, one probe of `ix_report_sitting_date_parliament_number` per sitting. Before, it built `DISTINCT sitting_date, parliament_number` over every report and joined through `CAST(sitting_date AS DATE)`, which no index serves. That read all 46,649 index entries for each of the endpoint's two attendance statements, 43 to 301 ms each on production for person 383. A member present at every one of the 1,719 sittings would probe about as many entries as the old statement read. The plan below is a plain `EXPLAIN` on the scratch copy, not yet captured on production.
+On 20 October 2026 this statement changed to find each attended sitting's Parliament with a range on `report.sitting_date`, one probe of `ix_report_sitting_date_parliament_number` per sitting. Before, it built `DISTINCT sitting_date, parliament_number` over every report and joined through `CAST(sitting_date AS DATE)`, which no index serves. That read all 46,649 index entries for each of the endpoint's two attendance statements, 43 to 301 ms each on production for person 383. A member present at every one of the 1,719 sittings would probe about as many entries as the old statement read.
+
+On 21 October 2026 the range became an equality, `report.sitting_date = to_date(sitting.sitting_date, 'DD-MM-YYYY')`. Every report's `sitting_date` is midnight (41,838 of 41,838 on the scratch copy, and `GET /sittings/{sitting_date}` already assumes it), so the same reports match: the counts are identical for all 573 people, present and absent. For the present count of 177 of those people the range estimated a cost of 107,973 to 396,184, above the default `jit_above_cost` of 100,000, so Postgres compiled the statement: 9.6 ms of a 21.5 ms run for person 29, 18.0 of 53.5 for person 170. The equality estimates at most 55,246, 4 to 7 times lower, so nothing compiles. The probe per attended sitting and its buffers are the same. The plan below is a plain `EXPLAIN` on the scratch copy, not yet captured on production.
 
 ```text
 -- attendance_counts_by_parliament (GET /people/{person_id}), scratch copy
-GroupAggregate  (cost=34565.75..34583.79 rows=15 width=12)
+HashAggregate  (cost=7752.46..7752.58 rows=12 width=12)
   Group Key: report.parliament_number
-  ->  Sort  (cost=34565.75..34571.71 rows=2385 width=4)
-        Sort Key: report.parliament_number
-        ->  Nested Loop  (cost=700.45..34431.95 rows=2385 width=4)
-              ->  Hash Join  (cost=488.10..620.81 rows=159 width=9)
-                    Hash Cond: (sitting.id = attendance.sitting_id)
-                    ->  Seq Scan on sitting  (cost=0.00..128.19 rows=1719 width=13)
-                    ->  Hash  (cost=486.11..486.11 rows=159 width=4)
-                          ->  Bitmap Heap Scan on attendance  (cost=5.65..486.11 rows=159 width=4)
-                                Recheck Cond: (speaker_id = 1349)
-                                Filter: (is_present IS TRUE)
-                                ->  Bitmap Index Scan on ix_attendance_speaker_id  (cost=0.00..5.62 rows=176 width=0)
-                                      Index Cond: (speaker_id = 1349)
-              ->  HashAggregate  (cost=212.35..212.50 rows=15 width=4)
-                    Group Key: report.parliament_number
-                    ->  Index Only Scan using ix_report_sitting_date_parliament_number on report  (cost=0.30..211.83 rows=209 width=4)
-                          Index Cond: ((sitting_date >= to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text)) AND (sitting_date < (to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text) + '24:00:00'::interval)))
+  ->  Nested Loop  (cost=488.39..7742.92 rows=1908 width=4)
+        ->  Hash Join  (cost=488.10..620.81 rows=159 width=9)
+              Hash Cond: (sitting.id = attendance.sitting_id)
+              ->  Seq Scan on sitting  (cost=0.00..128.19 rows=1719 width=13)
+              ->  Hash  (cost=486.11..486.11 rows=159 width=4)
+                    ->  Bitmap Heap Scan on attendance  (cost=5.65..486.11 rows=159 width=4)
+                          Recheck Cond: (speaker_id = 1349)
+                          Filter: (is_present IS TRUE)
+                          ->  Bitmap Index Scan on ix_attendance_speaker_id  (cost=0.00..5.62 rows=176 width=0)
+                                Index Cond: (speaker_id = 1349)
+        ->  Unique  (cost=0.29..44.67 rows=12 width=4)
+              ->  Index Only Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..44.61 rows=25 width=4)
+                    Index Cond: (sitting_date = to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text))
 ```
 
 ## ix_report_sitting_date_parliament_number
