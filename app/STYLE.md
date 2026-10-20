@@ -824,6 +824,10 @@ Disable all form inputs while `isPending` — not just the submit button. This p
 <Button type="submit" disabled={isPending}>...</Button>
 ```
 
+### Filter forms
+
+A filter or sort control applies as soon as its value changes, with no Apply button. A date field applies on blur, and only when its value changed. Free-text search words wait for Enter or the Search button. On a phone, where filters sit in a sheet over the results, the sheet's "Show results" button applies them.
+
 ---
 
 ## Buttons
@@ -1050,16 +1054,18 @@ Most of this app is written by Claude, and Claude's defaults with shadcn and Tai
   Before (illustrative): `<h1 className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">`. After: `<h1 className="font-serif">`.
 - **Template chrome.** A tracked all-caps eyebrow label above a heading, 01/02/03 markers on content that isn't a sequence, one word of a heading in italic or a colour, middle-dot meta strings, "→" appended to link text, an icon in a tinted rounded square above a heading, emoji as icons, and monospace used to look technical. Fix: delete it. A heading needs no label above it, and icons come from `lucide-react` at one size and stroke. [Anthropic, frontend-design](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md).
   Before (illustrative): `<p className="text-xs tracking-wider uppercase">Archive</p>` above `<h1>Sittings</h1>`. After: `<h1>Sittings</h1>`.
-- **Scaffold in the product** (also: generator residue). Placeholder `href="#"` links, specimen pages such as `/design` and `/palette` in the primary nav, and the same destination linked twice in one view. Fix: every link goes somewhere real, `/design` is not linked from the site, `/palette` is linked from the footer only, and each destination is linked once per view. [Hallmark](https://github.com/Nutlope/hallmark).
-  Before: a header nav of Home, Search, Sittings, People, Coverage, Design and Palette that wrapped to two rows at 375 px, and "Read on the official record" in both the metadata list and the alert below it. After: `NAV_ITEMS` of Search, Sittings, People and Coverage (the wordmark links home), and one official-record link in `ListReportMetadata`.
+- **Scaffold in the product** (also: generator residue). Placeholder `href="#"` links, specimen pages such as `/design` and `/palette` in the primary nav, and the same destination linked twice in one view. Fix: every link goes somewhere real, `/design` is not linked from the site, `/palette` is linked from the footer only, and each destination is linked once per view. The footer and header are part of every view. A body link to a page or URL either one already links is a duplicate, unless it points somewhere more specific (a section anchor, one report's URL, a mailto with a pre-filled subject) or is a step in instructions the reader is following. [Hallmark](https://github.com/Nutlope/hallmark).
+  Before: a header nav of Home, Search, Sittings, People, Coverage, Design and Palette that wrapped to two rows at 375 px, and "Read on the official record" in both the metadata list and the alert below it. After: `NAV_ITEMS` of Search, Sittings, People and Coverage (the wordmark links home), and one official-record link in `TextSource`.
 - **Decorative motion.** See [Animations](#animations): no `transition-all`, no hover scale, nothing that moves on its own. [Hallmark](https://github.com/Nutlope/hallmark).
 
 ### Rules for this codebase
 
 - **Records are rows.** Any list of reports, speeches, sittings, people or links is a list of divided rows or a table. This rule has no exceptions outside `/design` and `/palette`.
 - **Numbers line up.** Numeric table columns follow [Numeric Columns](#numeric-columns), and counts in prose use `NUMBER_LOCALE`.
-- **Check the rendered page.** Open every changed route at 375 px and 1280 px before calling it done. The page has no horizontal scroll, and nav links and buttons don't wrap onto a second line.
+- **Check the rendered page.** Open every changed route at 375 px, 1024 px and 1280 px before calling it done. The page has no horizontal scroll, and nav links and buttons don't wrap onto a second line.
 - **Every state is designed.** Loading, empty, error and not-found follow [Page Loading States](#page-loading-states), [Error Notices](#error-notices) and the table [Empty State](#empty-state). Test them with real content, such as a long all-caps report title, a person with one speech and a Parliament with no reports.
+- **What repeats is needed every time.** The header, the footer, a line at the end of every page, and anything printed on every record carry only what every reader needs on every visit. Help a returning reader learns after one visit, contact details and credits go behind a tap or onto one page. Before: the contact address in the footer of every page, and a type's definition under the badge on every report. After: the address on `/coverage` only, and the definition one tap away on the badge.
+- **Long lists continue on scroll.** A list that runs past one page loads the next page as the reader nears its end, through `useInfiniteQuery` and `PaginationInfiniteScroll`, never with Previous and Next. The router restores the scroll position on Back.
 - **Preference:** one thing per screen is the focal point, and everything around it stays quiet. Spend emphasis (size, weight, the `primary` colour) on that one thing.
 - **Preference:** density matches the task. Record lists and tables are compact. Reading pages give the transcript room.
 - **Preference:** a new choice of type, colour or layout should have a stated reason other than "it is the default". Avoiding the AI tells listed here and reaching for a different default creates a new AI tell.
@@ -1083,7 +1089,7 @@ Run on every diff that touches `app/src`:
 - `git diff -U0 -- app/src ':!app/src/components/ui' | rg '^\+' | rg -n 'bg-gradient|bg-linear|bg-radial|bg-clip-text|backdrop-blur|transition-all|hover:scale|rounded-(full|xl|2xl|3xl)|shadow-|uppercase.*tracking|tracking.*uppercase|href="#"'` returns nothing, or each hit is justified by a rule above (an avatar's `rounded-full`, a floating layer's shadow).
 - `git diff -U0 -- app/src | rg '^\+' | rg -n '[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]'` returns nothing.
 - No list of records is wrapped in `Card`, and no grid holds equal cards.
-- Each changed route was opened at 375 px and 1280 px, with no horizontal scroll and no wrapped nav or button text.
+- Each changed route was opened at 375 px, 1024 px and 1280 px, with no horizontal scroll and no wrapped nav or button text.
 - A change that alters type, colour, spacing, layout, radius, shadow, icons or component choice beyond a rule above is a taste proposal with a before and after for Royce.
 
 ## Tables
@@ -1436,6 +1442,8 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 - **Hedging** (also: caveat creep, disclaimer stuffing). "May", "might", "best-effort", "typically", "in some cases". Fix: state the fact or the exact condition; if you can't, the caveat belongs on `/coverage/methods`. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
   Before: `Links to individual speeches are best-effort, because a re-parse can renumber them.` (`NoticeDerivedText`) After: `A speech link can lead to a different speech after the archive is rebuilt.`
 - **Over-explaining** (also: padding). A second sentence that adds a reason, history or mechanism nobody asked for. Fix: cut to the outcome; a confirmation is one short phrase. [Atlassian, success messages](https://atlassian.design/foundations/content/designing-messages/success-messages).
+- **Asides and extra figures** (also: parenthetical clutter). A bracketed definition or qualifier, a second figure that qualifies the first, a label the sentence already carries, or a date or count the same view already shows. Fix: delete it. A definition goes in Terms on `/coverage/methods`. A figure stays only where it is the point of that spot.
+  Before: `3,915 reports (3,915 with text)`; `3,915 reports (one item of business each, such as an oral answer) from 277 sittings (days the House met)`; `Source: Hansard, 12 September 1957`. After: `3,915 reports`; `3,915 reports from 277 sittings`; `Hansard`.
   Before: `Citation copied. The column number will be added once the archive has it.` (`ButtonCopyCitation`) After: `Citation copied`, with the column gap kept in the known gaps on `/coverage/methods`.
 - **Unrequested warning on a routine action, wrong surface** (also: toast overload). A caveat attached to a success, or lasting information in a toast that vanishes in seconds. Fix: confirm only; put the warning where the reader decides, or on `/coverage/methods`. [NN/g, indicators, validations and notifications](https://www.nngroup.com/articles/indicators-validations-notifications/).
   Before: the two toasts above carry data gaps that `/coverage/methods` already lists. After: both toasts confirm and nothing else.
@@ -1466,7 +1474,7 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 
 ### Rules for this codebase
 
-- **Shorten facts, don't delete them.** A fact cut from a toast or notice moves to the Known gaps section of `/coverage/methods`, written out in `app/src/routes/coverage.methods.tsx`. `/coverage` is for lay readers and carries no caveat list.
+- **Shorten facts, don't delete them.** A fact cut from any reader page (a toast, a notice, a summary line, a row) moves to `/coverage/methods`, written out in `app/src/routes/coverage.methods.tsx`. A limit or gap goes to Known gaps; a definition goes to Terms. Each term is defined once, in Terms. The point of use links to `/coverage/methods#terms` or opens the definition on a tap, and never explains it in brackets. `/coverage` is for lay readers and carries no caveat list.
 - **A confirmation toast is two to four words with no trailing full stop**, such as "Link copied". Info and warning toasts appear only as `/design` samples of the variants. The one error a toast may carry is the failure of the action that would have shown the confirmation, such as "Couldn't copy the link". Every other error uses the inline [Error Display](#error-display) or an [Error Notice](#error-notices).
 - **Use the canonical terms**: Person, Membership, Speaker label, Presiding officer, Report, Sitting, Paragraph. A Paragraph is one stored row of a report, and a speech is one or more paragraphs by one person. Never write "Speaker" for a Membership, and never shorten Presiding officer to "Speaker".
 - **Accessibility text stays accurate.** An `aria-label` contains the visible label text, ideally at the start ([WCAG 2.5.3, Label in name](https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html)). Shortening one must not lose what the control does. Icon-only controls are named for their function ("Close", not "X"). "(opens in a new tab)" stays in the accessible name of every link that opens a new tab, as visible text or in `sr-only` text.
@@ -1488,6 +1496,7 @@ Run on every diff that touches a string:
 - `git diff | rg -ni 'please|sorry|oops|unfortunately|successfully|best-effort|re-parse|seamless'` returns nothing in added strings.
 - Every confirmation toast is two to four words, with no "may", no second sentence and no trailing full stop. Every error is inline or a notice, except a failed copy.
 - Each caveat cut from a toast or notice is still stated on `/coverage/methods`.
+- Every bracket, every label ending in a colon and every count in an added string is the point of that spot. A definition links to Terms instead.
 - Each `aria-label` starts with its visible label text, or names the function of an icon-only control.
 - Headings, buttons and labels are in sentence case with no trailing period.
 - Terms match the canonical list: no "speaker" for a Membership, no "re-parse" or other pipeline word.
