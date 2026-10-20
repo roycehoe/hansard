@@ -41,8 +41,7 @@ export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
     'A short debate a member raises at the end of a sitting, on the motion to adjourn.',
   [ReportType.BILL]:
     "A bill's first, second or third reading. Many readings are a single line with no debate.",
-  [ReportType.BILL_INTRO]:
-    'Notice that a bill was introduced. It has no speeches.',
+  [ReportType.BILL_INTRO]: 'Notice that a bill was introduced.',
   [ReportType.MINISTERIAL_STATEMENT]:
     'A statement a minister makes to the House, not in answer to a question.',
   [ReportType.WRITTEN_STATEMENT]:
@@ -68,7 +67,7 @@ export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
     "A message from Singapore's head of state between 1959 and 1965.",
   [ReportType.MISC]: 'Records that fit no other type.',
   [ReportType.ATBP]:
-    'The record that the head of state assented to bills the House passed. It has no speeches.',
+    'The record that the head of state assented to bills the House passed.',
 }
 
 export const REPORT_TYPE_GROUPS: {
