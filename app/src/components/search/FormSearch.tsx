@@ -94,6 +94,7 @@ export function FormSearch({
     register,
     control,
     setValue,
+    getValues,
     handleSubmit,
     formState: { errors },
   } = useForm<FormSearchValues>({
@@ -134,6 +135,32 @@ export function FormSearch({
   function choosePerson(personId: number) {
     setValue('person', personId)
     void handleSubmit(submitSearch)()
+  }
+
+  function applyFiltersOnDesktop() {
+    if (isPhone) return
+    void handleSubmit(submitSearch)()
+  }
+
+  function changeParliament(parliament: string) {
+    setValue('parliament', parliament)
+    applyFiltersOnDesktop()
+  }
+
+  function changeType(type: string) {
+    setValue('type', type as FormSearchValues['type'])
+    applyFiltersOnDesktop()
+  }
+
+  function changeSort(sort: string) {
+    setValue('sort', sort as SearchSort)
+    applyFiltersOnDesktop()
+  }
+
+  function applyChangedDatesOnDesktop() {
+    const { from, to } = getValues()
+    if (from === defaultValues.from && to === defaultValues.to) return
+    applyFiltersOnDesktop()
   }
 
   function submitSearch(values: FormSearchValues) {
@@ -196,7 +223,7 @@ export function FormSearch({
         control={control}
         name="parliament"
         render={({ field }) => (
-          <Select value={field.value} onValueChange={field.onChange}>
+          <Select value={field.value} onValueChange={changeParliament}>
             <SelectTrigger
               ref={field.ref}
               id="search-parliament"
@@ -229,7 +256,7 @@ export function FormSearch({
         control={control}
         name="type"
         render={({ field }) => (
-          <Select value={field.value} onValueChange={field.onChange}>
+          <Select value={field.value} onValueChange={changeType}>
             <SelectTrigger
               ref={field.ref}
               id="search-type"
@@ -255,14 +282,22 @@ export function FormSearch({
   const fromField = (
     <div className="flex w-full flex-col gap-2 sm:w-44">
       <Label htmlFor="search-from">From</Label>
-      <Input id="search-from" type="date" {...register('from')} />
+      <Input
+        id="search-from"
+        type="date"
+        {...register('from', { onBlur: applyChangedDatesOnDesktop })}
+      />
     </div>
   )
 
   const toField = (
     <div className="flex w-full flex-col gap-2 sm:w-44">
       <Label htmlFor="search-to">To</Label>
-      <Input id="search-to" type="date" {...register('to')} />
+      <Input
+        id="search-to"
+        type="date"
+        {...register('to', { onBlur: applyChangedDatesOnDesktop })}
+      />
     </div>
   )
 
@@ -275,7 +310,7 @@ export function FormSearch({
         render={({ field }) => (
           <Select
             value={hasWords ? field.value : getSortWithoutWords(field.value)}
-            onValueChange={field.onChange}
+            onValueChange={changeSort}
           >
             <SelectTrigger
               ref={field.ref}
