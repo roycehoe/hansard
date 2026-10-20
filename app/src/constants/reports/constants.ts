@@ -3,7 +3,7 @@ import { ReportType } from '@/constants/reports/enums'
 export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
   [ReportType.ORAL_ANSWER]: 'Oral answer',
   [ReportType.WRITTEN_ANSWER]: 'Written answer',
-  [ReportType.WRITTEN_ANSWER_NA]: 'Written answer not available',
+  [ReportType.WRITTEN_ANSWER_NA]: 'Written answer to oral question',
   [ReportType.CLARIFICATION]: 'Clarification',
   [ReportType.MOTION]: 'Motion',
   [ReportType.MATTER_ADJ]: 'Adjournment matter',
