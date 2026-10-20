@@ -20,7 +20,6 @@ const LINK_CLASS_NAME =
 
 export function SiteFooter() {
   const refresh = useGetRefresh()
-  const latestSittingDate = refresh.data?.latest_sitting_date ?? null
   const lastCheckedDate = refresh.data?.last_checked_date ?? null
 
   return (
@@ -28,13 +27,11 @@ export function SiteFooter() {
       <div className="max-w-page-xl mx-auto flex w-full flex-col gap-2 px-5 py-5 text-sm sm:px-6 md:flex-row md:items-center md:justify-between md:px-7 md:py-7">
         <div className="space-y-1">
           <p className="text-foreground font-medium">
-            This is not an official Parliament site. The Official Report on SPRS
-            is the authoritative record.
+            Not an official Parliament site.
           </p>
-          {latestSittingDate !== null && lastCheckedDate !== null && (
+          {lastCheckedDate !== null && (
             <p className="text-muted-foreground">
-              Includes sittings up to {formatSittingDate(latestSittingDate)}.
-              Checked daily. Last checked {formatSittingDate(lastCheckedDate)}.
+              Last checked {formatSittingDate(lastCheckedDate)}.
             </p>
           )}
         </div>

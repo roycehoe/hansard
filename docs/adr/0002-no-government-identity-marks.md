@@ -9,3 +9,7 @@ The footer line changed from "Unofficial. Independent of the Parliament of Singa
 ## Amendment, 19 Oct 2026
 
 The footer now reads "This is not an official Parliament site. The Official Report on SPRS is the authoritative record." This wording takes precedence over the shorter line. Report, sitting and person pages also carry the attribution line "Source: Parliament of Singapore, Official Report", with the sitting date where the page has one. A speech's preview card puts "Unofficial transcript" before its title and the footer's first sentence after its quote, because a card shared in a chat app shows no footer.
+
+## Amendment, 20 Oct 2026
+
+The footer is back to "Not an official Parliament site.", with the date the data was last checked below it. Royce found the SPRS sentence superfluous. The short line still tells a reader the site is not the official record, which is all this decision needs from the footer. The attribution line on report, sitting and person pages still names the Official Report. The speech preview card keeps "This is not an official Parliament site." after its quote, because a card shared in a chat app shows no footer.
