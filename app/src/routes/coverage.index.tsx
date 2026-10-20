@@ -15,7 +15,6 @@ import {
   CONTACT_EMAIL,
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
-  SOURCE_CODE_URL,
 } from '@/constants/constants'
 import {
   COVERAGE_LAST_UPDATED,
@@ -180,19 +179,7 @@ export const Route = createFileRoute('/coverage/')({
             {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}. Parliament 15
             first sat on {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}.
           </p>
-          <p>
-            Built and maintained by Royce Hoe.{' '}
-            <a
-              href={SOURCE_CODE_URL}
-              className={UNDERLINED_LINK_CLASS_NAME}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Read the source code
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-            .
-          </p>
+          <p>Built and maintained by Royce Hoe.</p>
           {CONTACT_EMAIL && (
             <p>
               Found an error? Email{' '}
