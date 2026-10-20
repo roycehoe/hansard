@@ -304,9 +304,8 @@ export const Route = createFileRoute('/coverage/methods')({
           <p>
             On {formatSittingDate(REPAIR_DATE)}, a repair took the name off{' '}
             {REPAIR_PROCEDURAL_LINE_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
-            procedural lines, editorial notes and stage directions. The check on{' '}
-            {formatSittingDate(UNLINKED_HAND_CHECK_DATE)} came before the
-            repair, so it does not cover those lines.
+            procedural lines, editorial notes and stage directions. The earlier
+            check came before the repair, so it does not cover those lines.
           </p>
           <h3 className={SUBHEADING_CLASS_NAME}>
             How many paragraphs are credited to a person
