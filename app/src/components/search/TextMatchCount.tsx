@@ -1,7 +1,7 @@
 import { NUMBER_LOCALE } from '@/constants/constants'
 
 interface TextMatchCountProps {
-  shownCount: number
+  shownCount?: number
   totalCount: number
   isTotalCapped: boolean
   singularNoun: string
@@ -19,6 +19,13 @@ export function TextMatchCount({
   const totalPhrase = isTotalCapped ? `more than ${total}` : total
   const noun = totalCount === 1 && !isTotalCapped ? singularNoun : pluralNoun
 
+  if (shownCount === undefined) {
+    return (
+      <p role="status" className="text-muted-foreground text-sm">
+        {totalPhrase} {noun}
+      </p>
+    )
+  }
   return (
     <p role="status" className="text-muted-foreground text-sm">
       Showing {shownCount.toLocaleString(NUMBER_LOCALE)} of {totalPhrase}

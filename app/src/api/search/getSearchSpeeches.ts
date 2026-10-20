@@ -27,6 +27,7 @@ export interface SpeechMatchData {
   person_slug: string
   person_name: string
   snippet: string
+  report_match_count: number
 }
 
 export interface GetSearchSpeechesResponse {

@@ -2,7 +2,10 @@ import { ApiError } from '@/api/client'
 import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetSearchReports } from '@/api/search/getSearchReports'
-import type { GetSearchSpeechesResponse } from '@/api/search/getSearchSpeeches'
+import type {
+  GetSearchSpeechesRequest,
+  GetSearchSpeechesResponse,
+} from '@/api/search/getSearchSpeeches'
 import { useGetSearchSpeeches } from '@/api/search/getSearchSpeeches'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
@@ -106,18 +109,17 @@ export const Route = createFileRoute('/search')({
           ? [speechesHeading, 'Search']
           : ['Search'])
     )
+    const speechesRequest: GetSearchSpeechesRequest = {
+      q: words,
+      parliament_number: parliament,
+      date_from: from,
+      date_to: to,
+      report_type: type,
+      person_id: person,
+      sort: resultSort,
+    }
     const speeches = useGetSearchSpeeches(
-      canSearch
-        ? {
-            q: words,
-            parliament_number: parliament,
-            date_from: from,
-            date_to: to,
-            report_type: type,
-            person_id: person,
-            sort: resultSort,
-          }
-        : undefined
+      canSearch ? speechesRequest : undefined
     )
     const reports = useGetSearchReports(
       canSearchReports
@@ -247,7 +249,8 @@ export const Route = createFileRoute('/search')({
       return (
         <div className="space-y-4">
           <ListSpeechMatches
-            results={results}
+            resultPages={speeches.data.pages.map((page) => page.results)}
+            searchRequest={speechesRequest}
             hasWords={hasWords}
             highlightWords={hasWords ? words : undefined}
             totalCount={firstPage.total_count}

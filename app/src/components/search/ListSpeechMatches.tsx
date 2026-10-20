@@ -1,4 +1,7 @@
-import type { SpeechMatchData } from '@/api/search/getSearchSpeeches'
+import type {
+  GetSearchSpeechesRequest,
+  SpeechMatchData,
+} from '@/api/search/getSearchSpeeches'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { ListSpeechMatchesInReport } from '@/components/search/ListSpeechMatchesInReport'
@@ -15,21 +18,36 @@ import { useMemo } from 'react'
 const EMPTY_WORDS_TITLE = 'No speech matches'
 const EMPTY_FILTERS_TITLE = 'No speeches'
 
-function groupSpeechMatchesByReport(results: SpeechMatchData[]) {
-  const speechesByReportSlug = new Map<string, SpeechMatchData[]>()
-  for (const result of results) {
-    const speeches = speechesByReportSlug.get(result.report_slug) ?? []
-    speeches.push(result)
-    speechesByReportSlug.set(result.report_slug, speeches)
-  }
-  return Array.from(speechesByReportSlug, ([reportSlug, speeches]) => ({
+// A report keeps the matches from the page it first appeared on. Its matches
+// on later pages are counted in report_match_count, so a group above the
+// reader never grows.
+function groupSpeechMatchesByReport(resultPages: SpeechMatchData[][]) {
+  const reportSlugToGroup = new Map<
+    string,
+    { firstPageIndex: number; speeches: SpeechMatchData[] }
+  >()
+  resultPages.forEach((pageResults, pageIndex) => {
+    for (const result of pageResults) {
+      const group = reportSlugToGroup.get(result.report_slug)
+      if (group === undefined) {
+        reportSlugToGroup.set(result.report_slug, {
+          firstPageIndex: pageIndex,
+          speeches: [result],
+        })
+      } else if (group.firstPageIndex === pageIndex) {
+        group.speeches.push(result)
+      }
+    }
+  })
+  return Array.from(reportSlugToGroup, ([reportSlug, group]) => ({
     reportSlug,
-    speeches,
+    speeches: group.speeches,
   }))
 }
 
 interface ListSpeechMatchesProps {
-  results: SpeechMatchData[]
+  resultPages: SpeechMatchData[][]
+  searchRequest: GetSearchSpeechesRequest
   hasWords: boolean
   highlightWords: string | undefined
   totalCount: number
@@ -37,20 +55,21 @@ interface ListSpeechMatchesProps {
 }
 
 export function ListSpeechMatches({
-  results,
+  resultPages,
+  searchRequest,
   hasWords,
   highlightWords,
   totalCount,
   isTotalCapped,
 }: ListSpeechMatchesProps) {
   const reportGroups = useMemo(
-    () => groupSpeechMatchesByReport(results),
-    [results]
+    () => groupSpeechMatchesByReport(resultPages),
+    [resultPages]
   )
 
   return (
     <div className="space-y-4">
-      {results.length === 0 ? (
+      {reportGroups.length === 0 ? (
         <div role="status">
           <NoticeEmpty
             icon={SearchX}
@@ -63,7 +82,6 @@ export function ListSpeechMatches({
       ) : (
         <>
           <TextMatchCount
-            shownCount={results.length}
             totalCount={totalCount}
             isTotalCapped={isTotalCapped}
             singularNoun={hasWords ? 'speech match' : 'speech'}
@@ -95,7 +113,9 @@ export function ListSpeechMatches({
                   <BadgeReportType reportType={group.speeches[0].report_type} />
                 </div>
                 <ListSpeechMatchesInReport
+                  reportSlug={group.reportSlug}
                   speeches={group.speeches}
+                  searchRequest={searchRequest}
                   highlightWords={highlightWords}
                 />
               </li>
