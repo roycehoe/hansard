@@ -8,6 +8,8 @@ import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
 import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
 import { NoticeNotFoundPerson } from '@/components/people/NoticeNotFoundPerson'
+import { SkeletonPerson } from '@/components/people/SkeletonPerson'
+import { SkeletonPersonReports } from '@/components/people/SkeletonPersonReports'
 import { TableMemberships } from '@/components/people/TableMemberships'
 import { TableParliamentCounts } from '@/components/people/TableParliamentCounts'
 import {
@@ -19,7 +21,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { parsePersonSlug } from '@/lib/utils'
@@ -75,7 +76,7 @@ export const Route = createFileRoute('/people/$personSlug')({
     }
 
     function renderReports() {
-      if (reports.isLoading) return <Skeleton className="h-64 w-full" />
+      if (reports.isLoading) return <SkeletonPersonReports />
       if (reports.isError || !reports.data) {
         return (
           <NoticeErrorPersonReports
@@ -98,7 +99,7 @@ export const Route = createFileRoute('/people/$personSlug')({
     }
 
     if (!(personId >= 1)) return <NoticeNotFoundPerson />
-    if (person.isLoading) return <Skeleton className="h-96 w-full" />
+    if (person.isLoading) return <SkeletonPerson />
     if (
       person.isError &&
       person.error instanceof ApiError &&
