@@ -51,8 +51,6 @@ export const PARLIAMENT_FOURTEEN_DISSOLVED = '2025-04-15'
 
 export const PARLIAMENT_FIFTEEN_FIRST_SITTING = '2025-09-05'
 
-export const SOURCE_CODE_URL = 'https://github.com/roycehoe/hansard'
-
 export const ATTRIBUTION_BY_PARLIAMENT = [
   {
     parliament: `${LEGISLATIVE_ASSEMBLY_LABEL} to Parliament 11`,

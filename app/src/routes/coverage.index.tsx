@@ -15,13 +15,13 @@ import {
   CONTACT_EMAIL,
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
+  SOURCE_CODE_URL,
 } from '@/constants/constants'
 import {
   COVERAGE_LAST_UPDATED,
   PARLIAMENT_FIFTEEN_FIRST_SITTING,
   PARLIAMENT_FOURTEEN_DISSOLVED,
   PARLIAMENT_FOURTEEN_LAST_SITTING,
-  SOURCE_CODE_URL,
 } from '@/constants/coverage/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
