@@ -15,6 +15,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import {
+  ABSENCE_DEFINITION,
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
   TEXT_NOT_IN_ARCHIVE_LABEL,
@@ -360,6 +361,8 @@ export const Route = createFileRoute('/coverage/methods')({
                 Parliament&apos;s site lists the report, but only its title and
                 details are in this archive so far.
               </dd>
+              <dt className={TERM_CLASS_NAME}>Absent</dt>
+              <dd className={DEFINITION_CLASS_NAME}>{ABSENCE_DEFINITION}</dd>
             </dl>
           </div>
           {REPORT_TYPE_GROUPS.map((group) => (

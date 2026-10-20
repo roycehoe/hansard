@@ -1,22 +1,41 @@
 import type { GetReportResponse } from '@/api/reports/getReport'
+import {
+  DEFINED_TERM_CLASS_NAME,
+  PopoverDefinition,
+} from '@/components/layout/PopoverDefinition'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
-import { METHODS_TERMS_SECTION_ID } from '@/constants/coverage/constants'
 import {
   REPORT_TYPE_DESCRIPTIONS,
   REPORT_TYPES_LINK_LABEL,
 } from '@/constants/reports/constants'
 import type { ReportType } from '@/constants/reports/enums'
 import { formatParliament, formatSittingDate } from '@/lib/format'
-import { Link } from '@tanstack/react-router'
 
 interface ListReportMetadataProps {
   report: GetReportResponse
 }
 
-const LINK_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
-
 export function ListReportMetadata({ report }: ListReportMetadataProps) {
+  function renderReportType() {
+    const definition =
+      REPORT_TYPE_DESCRIPTIONS[report.report_type as ReportType]
+    const badge = (
+      <BadgeReportType
+        reportType={report.report_type}
+        className={definition ? DEFINED_TERM_CLASS_NAME : undefined}
+      />
+    )
+    if (!definition) return badge
+    return (
+      <PopoverDefinition
+        definition={definition}
+        termsLinkLabel={REPORT_TYPES_LINK_LABEL}
+      >
+        {badge}
+      </PopoverDefinition>
+    )
+  }
+
   return (
     <dl className="grid gap-x-8 gap-y-2 sm:grid-cols-[auto_1fr]">
       <dt className="text-muted-foreground text-sm font-medium">Date</dt>
@@ -34,19 +53,7 @@ export function ListReportMetadata({ report }: ListReportMetadataProps) {
         </>
       )}
       <dt className="text-muted-foreground text-sm font-medium">Type</dt>
-      <dd className="space-y-1">
-        <BadgeReportType reportType={report.report_type} />
-        <p className="text-muted-foreground max-w-prose text-sm">
-          {REPORT_TYPE_DESCRIPTIONS[report.report_type as ReportType]}{' '}
-          <Link
-            to="/coverage/methods"
-            hash={METHODS_TERMS_SECTION_ID}
-            className={LINK_CLASS_NAME}
-          >
-            {REPORT_TYPES_LINK_LABEL}
-          </Link>
-        </p>
-      </dd>
+      <dd>{renderReportType()}</dd>
     </dl>
   )
 }

@@ -1,4 +1,9 @@
 import type { AttendanceData } from '@/api/sittings/getSitting'
+import {
+  DEFINED_TERM_CLASS_NAME,
+  PopoverDefinition,
+} from '@/components/layout/PopoverDefinition'
+import { ABSENCE_DEFINITION } from '@/constants/constants'
 import { Link } from '@tanstack/react-router'
 
 interface ListAttendanceProps {
@@ -9,21 +14,29 @@ interface ListAttendanceGroupProps {
   headingId: string
   heading: string
   members: AttendanceData[]
-  note?: string
+  definition?: string
 }
 
 function ListAttendanceGroup({
   headingId,
   heading,
   members,
-  note,
+  definition,
 }: ListAttendanceGroupProps) {
+  function renderHeading() {
+    if (!definition) return heading
+    return (
+      <PopoverDefinition definition={definition}>
+        <span className={DEFINED_TERM_CLASS_NAME}>{heading}</span>
+      </PopoverDefinition>
+    )
+  }
+
   return (
     <section aria-labelledby={headingId} className="space-y-2">
       <h3 id={headingId} className="font-serif text-lg lg:text-xl">
-        {heading} ({members.length})
+        {renderHeading()} ({members.length})
       </h3>
-      {note && <p className="text-muted-foreground text-sm">{note}</p>}
       {members.length > 0 && (
         <ul>
           {members.map((member, index) => (
@@ -67,7 +80,7 @@ export function ListAttendance({ attendance }: ListAttendanceProps) {
         headingId="absent-heading"
         heading="Absent"
         members={attendance.filter((member) => !member.is_present)}
-        note="An absence can have many causes, including leave and official duties."
+        definition={ABSENCE_DEFINITION}
       />
     </div>
   )

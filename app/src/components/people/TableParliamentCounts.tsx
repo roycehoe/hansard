@@ -1,5 +1,9 @@
 import type { ParliamentCountData } from '@/api/people/getPerson'
 import {
+  DEFINED_TERM_CLASS_NAME,
+  PopoverDefinition,
+} from '@/components/layout/PopoverDefinition'
+import {
   Table,
   TableBody,
   TableCaption,
@@ -8,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { NUMBER_LOCALE } from '@/constants/constants'
+import { ABSENCE_DEFINITION, NUMBER_LOCALE } from '@/constants/constants'
 import { formatParliament } from '@/lib/format'
 
 interface TableParliamentCountsProps {
@@ -36,7 +40,9 @@ export function TableParliamentCounts({
               Present
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
-              Absent
+              <PopoverDefinition definition={ABSENCE_DEFINITION}>
+                <span className={DEFINED_TERM_CLASS_NAME}>Absent</span>
+              </PopoverDefinition>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -60,8 +66,7 @@ export function TableParliamentCounts({
         </TableBody>
       </Table>
       <p className="text-muted-foreground text-sm">
-        Attendance is counted from the sitting lists. An absence can have many
-        causes, including leave and official duties, so these are counts, not a
+        Attendance is counted from the sitting lists, and the counts are not a
         score.
       </p>
     </div>

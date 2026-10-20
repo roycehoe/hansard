@@ -27,6 +27,9 @@ export const LEGISLATIVE_ASSEMBLY_LABEL = 'Legislative Assembly'
 
 export const TEXT_NOT_IN_ARCHIVE_LABEL = 'Text not in this archive yet'
 
+export const ABSENCE_DEFINITION =
+  "Listed as absent in the sitting's attendance list. An absence can have many causes, including leave and official duties."
+
 export const DEFAULT_QUERY_RETRY_COUNT = 3
 
 export const SITE_NAME = 'Hansard'
