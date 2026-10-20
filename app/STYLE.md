@@ -205,18 +205,21 @@ queryClient.isMutating({ mutationKey: ['searches', 'export'] }) > 0
 
 Use `isLoading` (not `isFetching`) to gate a full-page loading screen. `isFetching` is also true during background refetches — using it would flash a full-page spinner over already-rendered content whenever a query silently revalidates (e.g. polling).
 
-Always render the shared `<Spinner />` or a `<Skeleton />` layout from `@/components/ui` for the loading state — never inline your own spinner wrapper.
+A page loader has the shape of the page it stands in for: the header, headings, rows and fields in their real places and rough widths, so nothing jumps when the data arrives. A single box the size of the page tells the reader nothing about what is coming. Build it from `<Skeleton />` bars in a `Skeleton<Name>` component in the feature folder, such as `SkeletonPerson` or `SkeletonSittingsGrouped`, and reuse the shared pieces: `SkeletonPageHeader` for a page that renders `PageHeader`, `SkeletonReportRows` for a list of reports, `SkeletonSearchResults` for search results. Keep it coarse: bars for each line of text, no icons, no copy. When a page's layout changes, change its skeleton in the same commit. Never inline your own spinner wrapper; a `<Spinner />` belongs inside a button, not in place of a page.
 
 ```typescript
 // Good
-const { data, isLoading, isError } = useGetSittingSpeeches({ sitting_id })
+const { data, isLoading, isError } = useGetPerson({ person_slug })
 
-if (isLoading) return <Skeleton className="h-96 w-full" />
+if (isLoading) return <SkeletonPerson />
 ```
 
 ```typescript
 // Bad — isFetching triggers on background refetches
-if (isFetching) return <Skeleton className="h-96 w-full" />
+if (isFetching) return <SkeletonPerson />
+
+// Bad — one box with nothing of the page's shape
+if (isLoading) return <Skeleton className="h-96 w-full" />
 
 // Bad — inline spinner wrapper
 if (isLoading) return (
@@ -232,7 +235,7 @@ When a page depends on multiple queries, combine their `isLoading` flags:
 const { data: metadata, isLoading: isLoadingMetadata } = useGetSittingMetadata({ sitting_id })
 const { data: speeches, isLoading: isLoadingSpeeches } = useGetSittingSpeeches({ sitting_id })
 
-if (isLoadingMetadata || isLoadingSpeeches) return <Skeleton className="h-96 w-full" />
+if (isLoadingMetadata || isLoadingSpeeches) return <SkeletonSitting />
 ```
 
 ---
@@ -269,7 +272,7 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `Popover`         | A trigger with its popover                     | `PopoverUnofficialTranscript.tsx`        |
 | `Row`             | One record rendered as a block in a list       | `RowSpeech.tsx`                          |
 | `ActionBar`       | A group of actions on one record               | `ActionBarSpeechCopy.tsx`                |
-| `Skeleton`        | Skeleton loaders                               | `SkeletonFetching.tsx`                   |
+| `Skeleton`        | A page or section's loading shape             | `SkeletonPerson.tsx`                     |
 | `Icon`            | Icon wrapper components                        | `IconReportType.tsx`                     |
 | `Section`         | A titled block of a page                       | `SectionForms.tsx`                       |
 | `Swatch`          | A colour sample                                | `SwatchColour.tsx`                       |
@@ -544,7 +547,7 @@ The page component owns the query and branches on its flags — the notice only 
 const { data, isLoading, isError, refetch, isRefetching } =
   useGetSittingSpeeches({ sitting_id })
 
-if (isLoading) return <Skeleton className="h-96 w-full" />
+if (isLoading) return <SkeletonSitting />
 if (isError) {
   return (
     <NoticeErrorSpeeches onRetry={() => refetch()} isRetrying={isRefetching} />
@@ -785,7 +788,7 @@ The parent gates rendering behind `isLoading` so the form always initialises wit
 
 ```typescript
 // Parent
-if (isLoading) return <Skeleton className="h-96 w-full" />
+if (isLoading) return <SkeletonFormEditSavedSearch />
 return <FormEditSavedSearch description={data.description} />
 
 // Form
