@@ -183,24 +183,31 @@ Needed by `GET /people/{person_id}`.
 
 ```sql
 -- attendance_counts_by_parliament (GET /people/{person_id})
-SELECT anon_1.parliament_number, count(*) AS count_1  FROM attendance JOIN sitting ON sitting.id = attendance.sitting_id JOIN (SELECT DISTINCT report.sitting_date AS sitting_date, report.parliament_number AS parliament_number  FROM report) AS anon_1 ON CAST(anon_1.sitting_date AS DATE) = to_date(sitting.sitting_date, 'DD-MM-YYYY')  WHERE attendance.speaker_id IN (1349) AND attendance.is_present IS true GROUP BY anon_1.parliament_number;
+SELECT anon_1.parliament_number, count(*) AS count_1  FROM attendance JOIN sitting ON sitting.id = attendance.sitting_id JOIN LATERAL (SELECT DISTINCT report.parliament_number AS parliament_number  FROM report  WHERE report.sitting_date >= to_date(sitting.sitting_date, 'DD-MM-YYYY') AND report.sitting_date < to_date(sitting.sitting_date, 'DD-MM-YYYY') + make_interval(secs=>86400.0)) AS anon_1 ON true  WHERE attendance.speaker_id IN (1349) AND attendance.is_present IS true GROUP BY anon_1.parliament_number;
 ```
 
+On 20 October 2026 this statement changed to find each attended sitting's Parliament with a range on `report.sitting_date`, one probe of `ix_report_sitting_date_parliament_number` per sitting. Before, it built `DISTINCT sitting_date, parliament_number` over every report and joined through `CAST(sitting_date AS DATE)`, which no index serves. That read all 46,649 index entries for each of the endpoint's two attendance statements, 43 to 301 ms each on production for person 383. A member present at every one of the 1,719 sittings would probe about as many entries as the old statement read. The plan below is a plain `EXPLAIN` on the scratch copy, not yet captured on production.
+
 ```text
--- attendance_counts_by_parliament (GET /people/{person_id})
-HashAggregate  (cost=1288.94..1290.94 rows=200 width=12)
+-- attendance_counts_by_parliament (GET /people/{person_id}), scratch copy
+GroupAggregate  (cost=34565.75..34583.79 rows=15 width=12)
   Group Key: report.parliament_number
-  ->  Hash Join  (cost=186.06..1279.84 rows=1819 width=4)
-        Hash Cond: ((report.sitting_date)::date = to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text))
-        ->  Unique  (cost=0.29..882.51 rows=4181 width=12)
-              ->  Index Only Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..673.45 rows=41811 width=12)
-        ->  Hash  (cost=184.69..184.69 rows=87 width=9)
-              ->  Nested Loop  (cost=0.57..184.69 rows=87 width=9)
-                    ->  Index Scan using ix_attendance_speaker_id on attendance  (cost=0.29..85.02 rows=87 width=4)
-                          Index Cond: (speaker_id = 1349)
-                          Filter: (is_present IS TRUE)
-                    ->  Index Scan using sitting_pkey on sitting  (cost=0.28..1.15 rows=1 width=13)
-                          Index Cond: (id = attendance.sitting_id)
+  ->  Sort  (cost=34565.75..34571.71 rows=2385 width=4)
+        Sort Key: report.parliament_number
+        ->  Nested Loop  (cost=700.45..34431.95 rows=2385 width=4)
+              ->  Hash Join  (cost=488.10..620.81 rows=159 width=9)
+                    Hash Cond: (sitting.id = attendance.sitting_id)
+                    ->  Seq Scan on sitting  (cost=0.00..128.19 rows=1719 width=13)
+                    ->  Hash  (cost=486.11..486.11 rows=159 width=4)
+                          ->  Bitmap Heap Scan on attendance  (cost=5.65..486.11 rows=159 width=4)
+                                Recheck Cond: (speaker_id = 1349)
+                                Filter: (is_present IS TRUE)
+                                ->  Bitmap Index Scan on ix_attendance_speaker_id  (cost=0.00..5.62 rows=176 width=0)
+                                      Index Cond: (speaker_id = 1349)
+              ->  HashAggregate  (cost=212.35..212.50 rows=15 width=4)
+                    Group Key: report.parliament_number
+                    ->  Index Only Scan using ix_report_sitting_date_parliament_number on report  (cost=0.30..211.83 rows=209 width=4)
+                          Index Cond: ((sitting_date >= to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text)) AND (sitting_date < (to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text) + '24:00:00'::interval)))
 ```
 
 ## ix_report_sitting_date_parliament_number

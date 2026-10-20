@@ -1,4 +1,6 @@
-from sqlalchemy import Date, cast, func
+from datetime import timedelta
+
+from sqlalchemy import func, true
 from sqlmodel import Session, select
 
 from database.attendance import Attendance
@@ -6,6 +8,7 @@ from database.report import Report
 from database.sitting import Sitting
 
 _SITTING_DATE_FORMAT = "DD-MM-YYYY"
+_ONE_DAY = timedelta(days=1)
 
 
 class CRUDAttendance:
@@ -15,21 +18,23 @@ class CRUDAttendance:
     def get_parliament_number_to_count_by_membership_ids_and_is_present(
         self, membership_ids: list[int], is_present: bool
     ) -> dict[int, int]:
-        report_dates = (
-            select(Report.sitting_date, Report.parliament_number).distinct().subquery()
+        sitting_date = func.to_date(Sitting.sitting_date, _SITTING_DATE_FORMAT)
+        # NOTE: a range on the sitting date, not a cast of it, so each sitting reads the report index instead of every report
+        sitting_parliament_numbers = (
+            select(Report.parliament_number)
+            .where(Report.sitting_date >= sitting_date)
+            .where(Report.sitting_date < sitting_date + _ONE_DAY)
+            .distinct()
+            .lateral()
         )
         statement = (
-            select(report_dates.c.parliament_number, func.count())
+            select(sitting_parliament_numbers.c.parliament_number, func.count())
             .select_from(Attendance)
             .join(Sitting, Sitting.id == Attendance.sitting_id)
-            .join(
-                report_dates,
-                cast(report_dates.c.sitting_date, Date)
-                == func.to_date(Sitting.sitting_date, _SITTING_DATE_FORMAT),
-            )
+            .join(sitting_parliament_numbers, true())
             .where(Attendance.speaker_id.in_(membership_ids))
             .where(Attendance.is_present.is_(is_present))
-            .group_by(report_dates.c.parliament_number)
+            .group_by(sitting_parliament_numbers.c.parliament_number)
         )
         rows = self.session.exec(statement).all()
         return {
