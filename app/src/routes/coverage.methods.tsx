@@ -103,8 +103,7 @@ export const Route = createFileRoute('/coverage/methods')({
             text. {NO_TEXT_BY_DESIGN_REPORT_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
             are a type the Parliament website publishes without text. The other{' '}
             {returnedNoTextCount.toLocaleString(NUMBER_LOCALE)} had no text on
-            the Parliament website when the archive was built, or hold text that
-            could not be split into speeches.
+            the Parliament website when the archive was built.
           </p>
         </section>
       )
