@@ -11,24 +11,24 @@ With `PUBLIC_MODE` set to `true`, the site drops both the password and the noind
 To go public:
 
 1. In `.do/app.yaml`, change the `PUBLIC_MODE` value from `"false"` to `"true"`.
-2. Commit and deploy.
+2. Commit and push to `master`. CI deploys once its checks pass.
 3. Check that `curl -I https://{domain}/` answers 200 with no `X-Robots-Tag` header.
 
 `/robots.txt` allows every crawler in both modes. While the password is on, a crawler gets 401 and the noindex header at every address, `/robots.txt` included, so nothing is indexed. A `Disallow` there would stop crawlers from fetching pages, so they would never see the noindex header.
 
-To put the site back behind the password, set the value to `"false"` and deploy. The two credentials must still be set as secrets.
+To put the site back behind the password, set `BASIC_AUTH_USERNAME` and `BASIC_AUTH_PASSWORD` as GitHub secrets first, then set the value to `"false"`, commit and push. Without the two secrets the new deployment fails to start and the platform rolls back.
 
 ## Taking a report down
 
 Royce decides what comes down. When Parliament asks for a report to be removed, the site commits to taking it down within 2 working days of the request.
 
-The list lives in the `TAKEDOWN_REPORT_SLUGS` environment variable of the `web` component, encrypted, so it never appears in the public repo. It holds report slugs separated by commas, such as `written-answer-11589,oral-answer-2041`. Spaces around a comma don't matter. Each change works from a phone, in a mobile browser:
+The list lives in the `TAKEDOWN_REPORT_SLUGS` GitHub secret, so it never appears in the public repo. Every deploy copies it into the `web` component's encrypted environment variable. It holds report slugs separated by commas, such as `written-answer-11589,oral-answer-2041`. Spaces around a comma don't matter. Each change works from a phone, in a mobile browser:
 
 1. Copy the report's slug. It is the part of the address after `/reports/` and before any `?`. A slug copied from the address bar with `%23` in it works as it is.
-2. Sign in at cloud.digitalocean.com and open Apps, then the `hansard` app, then the Settings tab.
-3. Tap the `web` component. In Environment Variables, tap Edit.
-4. Find `TAKEDOWN_REPORT_SLUGS` and replace its value with every slug already hidden plus the new one, separated by commas. An encrypted value can't be read back in the dashboard, so copy the list from the private note in step 7. Leave Encrypt ticked. Tap Save.
-5. Saving redeploys the app. Wait until the Activity tab shows the new deployment as live.
+2. Sign in at github.com and open the `roycehoe/hansard` repository, then Settings, then Secrets and variables, then Actions.
+3. Tap the pencil beside `TAKEDOWN_REPORT_SLUGS`.
+4. Replace the value with every slug already hidden plus the new one, separated by commas. A secret can't be read back, so copy the list from the private note in step 7. Tap Update secret.
+5. Open the Actions tab, then the latest CI run on `master`, and tap Re-run all jobs. The checks and the deploy take about 4 minutes. Wait until the `deploy` job shows a green tick.
 6. Check that both addresses answer 410. Each command prints the HTTP status of a GET request:
    - `curl -s -o /dev/null -w '%{http_code}\n' https://{domain}/reports/{slug}`
    - `curl -s -o /dev/null -w '%{http_code}\n' https://{domain}/api/reports/{slug}`
@@ -40,9 +40,9 @@ A taken-down report answers 410 on its page and in the API, and its page carries
 
 A deploy restarts the process, which empties the in-memory caches of preview tags and API responses. A browser or proxy can keep its own copy of a page for as long as the response's `Cache-Control` allows.
 
-If an entry holds `/`, `?` or a space, the site does not start and the deployment fails, with the entry's number in the deploy log. Fix the value and save again.
+If an entry holds `/`, `?` or a space, the site does not start and the deployment fails, with the entry's number in the deploy log. The platform rolls back to the last deployment that worked. Fix the secret and re-run the jobs.
 
-`.do/app.yaml` lists the variable with no value. After you apply that file to the app with `doctl apps update --spec`, open one hidden report's address and check it still answers 410. If the value was lost, the hidden reports show again, so save the list from the note.
+Change the list only through the GitHub secret. A value saved in the DigitalOcean dashboard lasts until the next push to `master`, whose deploy writes the secret over it and shows the hidden reports again.
 
 ## Researchers form
 
