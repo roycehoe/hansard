@@ -397,6 +397,11 @@ export const Route = createFileRoute('/coverage/methods')({
                 is about 1.2% of the text from before 10 September 2012.
               </li>
               <li>
+                The sitting of 18 March 1986 has no session number, so the
+                sittings of Parliament 6 are listed by volume instead of by
+                session.
+              </li>
+              <li>
                 No sittings fall between{' '}
                 {formatSittingDate(PARLIAMENT_FOURTEEN_LAST_SITTING)} and{' '}
                 {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}, and none

@@ -29,12 +29,6 @@ export function ListSittingsGrouped({ sittings }: ListSittingsGroupedProps) {
 
   return (
     <div className="space-y-8">
-      {!isGroupedBySession && (
-        <p className="text-muted-foreground text-sm">
-          Grouped by volume because session numbers aren't in the archive for
-          this Parliament.
-        </p>
-      )}
       {groups.map(([groupKey, groupSittings]) => (
         <section key={groupKey} className="space-y-2">
           <h2 className="font-serif text-xl lg:text-2xl">
