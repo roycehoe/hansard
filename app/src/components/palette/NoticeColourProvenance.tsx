@@ -81,8 +81,7 @@ function NoticeSourceReference({
         <a href={source.url} className={LINK_CLASSES}>
           {source.title}
         </a>
-        , {source.publisher}. The photo has no open licence, so this page links
-        to it instead of showing it.
+        , {source.publisher}.
       </p>
     </div>
   )
