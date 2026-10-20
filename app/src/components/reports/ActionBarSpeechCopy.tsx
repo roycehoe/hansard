@@ -64,7 +64,7 @@ export function ActionBarSpeechCopy({
             variant="quiet"
             size="icon-sm"
             onClick={copySpeechLink}
-            aria-label={`Copy link to speech ${ordinal}`}
+            aria-label={`Copy link to paragraph ${ordinal}`}
           >
             <Link2 aria-hidden="true" />
           </Button>
@@ -79,7 +79,7 @@ export function ActionBarSpeechCopy({
               variant="quiet"
               size="icon-sm"
               onClick={copySpeechCitation}
-              aria-label={`Cite speech ${ordinal}`}
+              aria-label={`Cite paragraph ${ordinal}`}
             >
               <Quote aria-hidden="true" />
             </Button>
@@ -96,7 +96,7 @@ export function ActionBarSpeechCopy({
                   `Error in ${reportTitle}`,
                   speechPermalink
                 )}
-                aria-label={`Report an error in speech ${ordinal}`}
+                aria-label={`Report an error in paragraph ${ordinal}`}
               >
                 <Flag aria-hidden="true" />
               </a>
