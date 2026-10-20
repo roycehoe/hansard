@@ -165,17 +165,6 @@ export const Route = createFileRoute('/coverage/methods')({
           </div>
           <dl className="max-w-prose space-y-3 text-sm">
             <div className="space-y-1">
-              <dt className="font-medium">Report</dt>
-              <dd className="text-muted-foreground">
-                One item of business in a sitting, such as an oral answer, a
-                bill reading or a motion.
-              </dd>
-            </div>
-            <div className="space-y-1">
-              <dt className="font-medium">Sitting</dt>
-              <dd className="text-muted-foreground">One day the House met.</dd>
-            </div>
-            <div className="space-y-1">
               <dt className="font-medium">Paragraph</dt>
               <dd className="text-muted-foreground">
                 One paragraph of a report as the Official Report prints it. A
