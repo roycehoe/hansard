@@ -1,8 +1,15 @@
 import type { GetReportResponse } from '@/api/reports/getReport'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { CONTACT_EMAIL } from '@/constants/constants'
+import { METHODS_TERMS_SECTION_ID } from '@/constants/coverage/constants'
+import {
+  REPORT_TYPE_DESCRIPTIONS,
+  REPORT_TYPES_LINK_LABEL,
+} from '@/constants/reports/constants'
+import type { ReportType } from '@/constants/reports/enums'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { buildErrorEmailHref } from '@/lib/utils'
+import { Link } from '@tanstack/react-router'
 
 interface ListReportMetadataProps {
   report: GetReportResponse
@@ -36,8 +43,18 @@ export function ListReportMetadata({ report }: ListReportMetadataProps) {
         </>
       )}
       <dt className="text-muted-foreground text-sm font-medium">Type</dt>
-      <dd>
+      <dd className="space-y-1">
         <BadgeReportType reportType={report.report_type} />
+        <p className="text-muted-foreground max-w-prose text-sm">
+          {REPORT_TYPE_DESCRIPTIONS[report.report_type as ReportType]}{' '}
+          <Link
+            to="/coverage/methods"
+            hash={METHODS_TERMS_SECTION_ID}
+            className={LINK_CLASS_NAME}
+          >
+            {REPORT_TYPES_LINK_LABEL}
+          </Link>
+        </p>
       </dd>
       {CONTACT_EMAIL && (
         <>

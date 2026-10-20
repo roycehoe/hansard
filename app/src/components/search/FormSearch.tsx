@@ -22,7 +22,11 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { FILTER_ALL } from '@/constants/constants'
-import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
+import { METHODS_TERMS_SECTION_ID } from '@/constants/coverage/constants'
+import {
+  REPORT_TYPE_DROPDOWN_OPTIONS,
+  REPORT_TYPES_LINK_LABEL,
+} from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
   PHONE_MEDIA_QUERY,
@@ -38,9 +42,13 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatParliamentOption } from '@/lib/format'
 import { getSortWithoutWords } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
+
+const LINK_CLASS_NAME =
+  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
 const formSchema = z
   .object({
@@ -251,7 +259,16 @@ export function FormSearch({
 
   const typeField = (
     <div className="flex w-full flex-col gap-2 sm:w-56">
-      <Label htmlFor="search-type">Type</Label>
+      <div className="flex items-baseline justify-between gap-2">
+        <Label htmlFor="search-type">Type</Label>
+        <Link
+          to="/coverage/methods"
+          hash={METHODS_TERMS_SECTION_ID}
+          className={LINK_CLASS_NAME}
+        >
+          {REPORT_TYPES_LINK_LABEL}
+        </Link>
+      </div>
       <Controller
         control={control}
         name="type"

@@ -9,6 +9,8 @@ export const COVERAGE_LAST_UPDATED = '2026-10-19'
 
 export const METHODS_LAST_REVISED = '2026-10-20'
 
+export const METHODS_TERMS_SECTION_ID = 'terms'
+
 export const ATTRIBUTION_MEASURED_ON = '2026-10-19'
 
 export const HAND_CHECK_DATE = '2026-10-19'

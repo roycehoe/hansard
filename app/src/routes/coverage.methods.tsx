@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import {
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
+  TEXT_NOT_IN_ARCHIVE_LABEL,
 } from '@/constants/constants'
 import {
   HAND_CHECK_CORRECT_SPEECH_COUNT,
@@ -24,6 +25,7 @@ import {
   HAND_CHECK_LINKED_SPEECH_COUNT,
   HAND_CHECK_UNLINKED_SPEECH_COUNT,
   METHODS_LAST_REVISED,
+  METHODS_TERMS_SECTION_ID,
   NO_TEXT_BY_DESIGN_REPORT_COUNT,
   NON_MEMBER_MEMBERSHIP_COUNT,
   NON_MEMBER_PERSON_COUNT,
@@ -34,10 +36,16 @@ import {
   REPAIR_PROCEDURAL_LINE_COUNT,
   UNLINKED_HAND_CHECK_DATE,
 } from '@/constants/coverage/constants'
+import {
+  REPORT_TYPE_DESCRIPTIONS,
+  REPORT_TYPE_GROUPS,
+  REPORT_TYPE_LABELS,
+} from '@/constants/reports/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildAttributionFigures } from '@/lib/attribution'
 import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Fragment } from 'react'
 
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
@@ -45,6 +53,13 @@ const LINK_CLASS_NAME =
 const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
 
 const SUBHEADING_CLASS_NAME = 'font-serif text-lg lg:text-xl'
+
+const TERM_LIST_CLASS_NAME =
+  'grid gap-x-8 gap-y-2 text-sm sm:grid-cols-[14rem_1fr]'
+
+const TERM_CLASS_NAME = 'font-medium'
+
+const DEFINITION_CLASS_NAME = 'text-muted-foreground max-w-prose'
 
 export const Route = createFileRoute('/coverage/methods')({
   component: function PageCoverageMethods() {
@@ -357,6 +372,50 @@ export const Route = createFileRoute('/coverage/methods')({
         </section>
 
         {renderYears()}
+
+        <section
+          id={METHODS_TERMS_SECTION_ID}
+          aria-labelledby="terms-heading"
+          className="space-y-4"
+        >
+          <h2 id="terms-heading" className={SECTION_HEADING_CLASS_NAME}>
+            Terms
+          </h2>
+          <div className="space-y-2">
+            <h3 className={SUBHEADING_CLASS_NAME}>The record</h3>
+            <dl className={TERM_LIST_CLASS_NAME}>
+              <dt className={TERM_CLASS_NAME}>Sitting</dt>
+              <dd className={DEFINITION_CLASS_NAME}>A day the House met.</dd>
+              <dt className={TERM_CLASS_NAME}>Report</dt>
+              <dd className={DEFINITION_CLASS_NAME}>
+                One item of business in a sitting, such as one question and its
+                answer, or one reading of a bill.
+              </dd>
+              <dt className={TERM_CLASS_NAME}>{TEXT_NOT_IN_ARCHIVE_LABEL}</dt>
+              <dd className={DEFINITION_CLASS_NAME}>
+                Parliament&apos;s site lists the report, but only its title and
+                details are in this archive so far.
+              </dd>
+            </dl>
+          </div>
+          {REPORT_TYPE_GROUPS.map((group) => (
+            <div key={group.heading} className="space-y-2">
+              <h3 className={SUBHEADING_CLASS_NAME}>{group.heading}</h3>
+              <dl className={TERM_LIST_CLASS_NAME}>
+                {group.reportTypes.map((reportType) => (
+                  <Fragment key={reportType}>
+                    <dt className={TERM_CLASS_NAME}>
+                      {REPORT_TYPE_LABELS[reportType]}
+                    </dt>
+                    <dd className={DEFINITION_CLASS_NAME}>
+                      {REPORT_TYPE_DESCRIPTIONS[reportType]}
+                    </dd>
+                  </Fragment>
+                ))}
+              </dl>
+            </div>
+          ))}
+        </section>
 
         <section aria-labelledby="gaps-heading" className="space-y-4">
           <h2 id="gaps-heading" className={SECTION_HEADING_CLASS_NAME}>

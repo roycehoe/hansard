@@ -26,6 +26,102 @@ export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
   [ReportType.ATBP]: 'Assent to bills passed',
 }
 
+export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
+  [ReportType.ORAL_ANSWER]:
+    "A member's question asked in the House and answered aloud by a minister during Question Time.",
+  [ReportType.WRITTEN_ANSWER]:
+    "A question the member filed for a written reply, with the minister's reply.",
+  [ReportType.WRITTEN_ANSWER_NA]:
+    "A question for Question Time that the House didn't reach before time ran out, so the minister replied in writing. These start on 22 December 1981.",
+  [ReportType.CLARIFICATION]:
+    'A spoken correction or addition to something said earlier, mostly by a minister. These start on 21 November 2011.',
+  [ReportType.MOTION]:
+    'A proposal put to the House for debate and a decision, including motions to adjourn.',
+  [ReportType.MATTER_ADJ]:
+    'A short debate a member raises at the end of a sitting, on the motion to adjourn.',
+  [ReportType.BILL]:
+    "A bill's first, second or third reading. Many readings are a single line with no debate.",
+  [ReportType.BILL_INTRO]:
+    'Notice that a bill was introduced. It has no speeches.',
+  [ReportType.MINISTERIAL_STATEMENT]:
+    'A statement a minister makes to the House, not in answer to a question.',
+  [ReportType.WRITTEN_STATEMENT]:
+    "A written correction to something an office holder said earlier, circulated with the Speaker's leave. These start on 7 October 2019.",
+  [ReportType.BUDGET]:
+    "The Budget debate and the Committee of Supply, where the House debates each ministry's spending.",
+  [ReportType.SPEAKER]:
+    'A statement or ruling by the Speaker. Some appendices to the record also have this type.',
+  [ReportType.DEPUTY_SPEAKER]: 'A statement by the Deputy Speaker.',
+  [ReportType.PERSONAL_EXPLANATION]:
+    "A member, with the Speaker's leave, explaining or correcting something that concerns them, often words they said earlier.",
+  [ReportType.POINT_OF_ORDER]:
+    'A member asking the Speaker to rule on whether the House is following its rules.',
+  [ReportType.TRIBUTE]: 'A tribute to a member or a public figure.',
+  [ReportType.PRESIDENT_ADDRESS]:
+    "The President's address at the opening of a session, the debate on it, and each ministry's addendum setting out its plans.",
+  [ReportType.PETITION]: 'A petition presented to the House.',
+  [ReportType.ADMIN_OATHS]:
+    'Members taking the Oath of Allegiance or making the Affirmation of Allegiance.',
+  [ReportType.OBITUARY_SPEECH]:
+    'Speeches marking the death of a member or a public figure.',
+  [ReportType.YANG_DI_MESSAGE]:
+    "A message from Singapore's head of state between 1959 and 1965.",
+  [ReportType.MISC]: 'Records that fit no other type.',
+  [ReportType.ATBP]:
+    'The record that the head of state assented to bills the House passed. It has no speeches.',
+}
+
+export const REPORT_TYPE_GROUPS: {
+  heading: string
+  reportTypes: ReportType[]
+}[] = [
+  {
+    heading: 'Questions',
+    reportTypes: [
+      ReportType.ORAL_ANSWER,
+      ReportType.WRITTEN_ANSWER,
+      ReportType.WRITTEN_ANSWER_NA,
+    ],
+  },
+  {
+    heading: 'Bills and money',
+    reportTypes: [
+      ReportType.BILL,
+      ReportType.BILL_INTRO,
+      ReportType.ATBP,
+      ReportType.BUDGET,
+    ],
+  },
+  {
+    heading: 'Statements',
+    reportTypes: [
+      ReportType.MINISTERIAL_STATEMENT,
+      ReportType.CLARIFICATION,
+      ReportType.WRITTEN_STATEMENT,
+      ReportType.PERSONAL_EXPLANATION,
+      ReportType.SPEAKER,
+      ReportType.DEPUTY_SPEAKER,
+    ],
+  },
+  {
+    heading: 'Proceedings and occasions',
+    reportTypes: [
+      ReportType.MOTION,
+      ReportType.MATTER_ADJ,
+      ReportType.POINT_OF_ORDER,
+      ReportType.PETITION,
+      ReportType.PRESIDENT_ADDRESS,
+      ReportType.YANG_DI_MESSAGE,
+      ReportType.ADMIN_OATHS,
+      ReportType.TRIBUTE,
+      ReportType.OBITUARY_SPEECH,
+      ReportType.MISC,
+    ],
+  },
+]
+
+export const REPORT_TYPES_LINK_LABEL = 'What the types mean'
+
 export const REPORT_TYPE_DROPDOWN_OPTIONS = Object.values(ReportType).map(
   (value) => ({ value, label: REPORT_TYPE_LABELS[value] })
 )
