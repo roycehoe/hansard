@@ -13,6 +13,7 @@ from validators.search import validate_can_search_reports, validate_can_search_s
 _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
 _MAX_QUERY_LENGTH = 200
+_MAX_REPORT_SLUG_LENGTH = 200
 
 router = APIRouter(prefix="/search", tags=["search"])
 
@@ -25,6 +26,9 @@ def search_speeches(
     date_to: Optional[date] = None,
     report_type: Optional[ReportType] = None,
     person_id: Optional[int] = Query(default=None, ge=1),
+    report_slug: Optional[str] = Query(
+        default=None, alias="report", max_length=_MAX_REPORT_SLUG_LENGTH
+    ),
     sort: SearchSort = SearchSort.RELEVANCE,
     page: int = Query(default=1, ge=1, le=search_service.MAX_SEARCH_PAGE),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
@@ -40,6 +44,7 @@ def search_speeches(
         date_to,
         report_type,
         person_id,
+        report_slug,
         sort,
         page,
         page_size,

@@ -30,6 +30,7 @@ def _get_report_filters(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     excluded_report_ids: list[int],
+    report_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
     filters = []
     if parliament_number is not None:
@@ -42,6 +43,8 @@ def _get_report_filters(
         filters.append(Report.report_type == report_type)
     if excluded_report_ids:
         filters.append(Speech.report_id.not_in(excluded_report_ids))
+    if report_ids is not None:
+        filters.append(Speech.report_id.in_(report_ids))
     return filters
 
 
@@ -70,6 +73,7 @@ def _get_query_filters(
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
     excluded_report_ids: list[int],
+    report_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
     tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
     # NOTE: dates filter on the speech's own sitting date, so the rum index on transcript_tsv and sitting_date reads only the range
@@ -86,6 +90,8 @@ def _get_query_filters(
         filters.append(Speech.speaker_id.in_(membership_ids))
     if excluded_report_ids:
         filters.append(Speech.report_id.not_in(excluded_report_ids))
+    if report_ids is not None:
+        filters.append(Speech.report_id.in_(report_ids))
     return filters
 
 
@@ -120,7 +126,7 @@ def _get_speech_ordering(
             Speech.id,
         ]
     if not is_date_index_ordered:
-        # NOTE: a member's matches are few, so sorting them beats walking the rum index until twenty of them turn up
+        # NOTE: a member's or a report's matches are few, so sorting them beats walking the rum index until twenty of them turn up
         return _get_browse_ordering(sort, Speech.sitting_date)
     # NOTE: a distance from a fixed date, because the rum index on transcript_tsv and sitting_date returns matches in that order
     if sort == SearchSort.OLDEST:
@@ -208,12 +214,17 @@ class CRUDSpeech:
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         excluded_report_ids: list[int],
+        report_ids: Optional[list[int]],
         sort: SearchSort,
         limit: int,
         offset: int,
     ) -> list[Speech]:
         tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-        is_date_index_ordered = sort != SearchSort.RELEVANCE and membership_ids is None
+        is_date_index_ordered = (
+            sort != SearchSort.RELEVANCE
+            and membership_ids is None
+            and report_ids is None
+        )
         filters = _get_query_filters(
             query,
             parliament_number,
@@ -222,6 +233,7 @@ class CRUDSpeech:
             report_type,
             membership_ids,
             excluded_report_ids,
+            report_ids,
         )
         # NOTE: only a date-index order gets the Parliament's date range, because the rum index reads a range but not a Parliament, and the range made a relevance search read 25 times the buffers
         if parliament_number is not None and is_date_index_ordered:
@@ -247,6 +259,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         excluded_report_ids: list[int],
+        report_ids: Optional[list[int]],
         sort: SearchSort,
         limit: int,
         offset: int,
@@ -261,6 +274,7 @@ class CRUDSpeech:
                     date_to,
                     report_type,
                     excluded_report_ids,
+                    report_ids,
                 )
             )
             .order_by(*_get_browse_ordering(sort, Report.sitting_date))
@@ -277,6 +291,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         excluded_report_ids: list[int],
+        report_ids: Optional[list[int]],
         sort: SearchSort,
         limit: int,
         offset: int,
@@ -292,6 +307,7 @@ class CRUDSpeech:
                     date_to,
                     report_type,
                     excluded_report_ids,
+                    report_ids,
                 )
             )
             .order_by(*_get_browse_ordering(sort, _get_sitting_date()))
@@ -309,6 +325,7 @@ class CRUDSpeech:
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         excluded_report_ids: list[int],
+        report_ids: Optional[list[int]],
         limit: int,
     ) -> int:
         matching_ids = (
@@ -323,6 +340,7 @@ class CRUDSpeech:
                     report_type,
                     membership_ids,
                     excluded_report_ids,
+                    report_ids,
                 )
             )
             .limit(limit)
@@ -337,6 +355,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         excluded_report_ids: list[int],
+        report_ids: Optional[list[int]],
         limit: int,
     ) -> int:
         matching_ids = (
@@ -349,6 +368,7 @@ class CRUDSpeech:
                     date_to,
                     report_type,
                     excluded_report_ids,
+                    report_ids,
                 )
             )
             .limit(limit)
@@ -364,6 +384,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         excluded_report_ids: list[int],
+        report_ids: Optional[list[int]],
         limit: int,
     ) -> int:
         matching_ids = (
@@ -377,12 +398,100 @@ class CRUDSpeech:
                     date_to,
                     report_type,
                     excluded_report_ids,
+                    report_ids,
                 )
             )
             .limit(limit)
         )
         statement = select(func.count()).select_from(matching_ids.subquery())
         return self.session.exec(statement).one()
+
+    def get_report_id_to_speech_count_by_query_filtered(
+        self,
+        query: str,
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        membership_ids: Optional[list[int]],
+        excluded_report_ids: list[int],
+        report_ids: list[int],
+    ) -> dict[int, int]:
+        statement = (
+            select(Speech.report_id, func.count())
+            .join(Report, Report.id == Speech.report_id)
+            .where(
+                *_get_query_filters(
+                    query,
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    membership_ids,
+                    excluded_report_ids,
+                    report_ids,
+                )
+            )
+            .group_by(Speech.report_id)
+        )
+        rows = self.session.exec(statement).all()
+        return {report_id: speech_count for report_id, speech_count in rows}
+
+    def get_report_id_to_speech_count_filtered(
+        self,
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        excluded_report_ids: list[int],
+        report_ids: list[int],
+    ) -> dict[int, int]:
+        statement = (
+            select(Speech.report_id, func.count())
+            .join(Report, Report.id == Speech.report_id)
+            .where(
+                *_get_report_filters(
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    excluded_report_ids,
+                    report_ids,
+                )
+            )
+            .group_by(Speech.report_id)
+        )
+        rows = self.session.exec(statement).all()
+        return {report_id: speech_count for report_id, speech_count in rows}
+
+    def get_report_id_to_speech_count_by_membership_ids_filtered(
+        self,
+        membership_ids: list[int],
+        parliament_number: Optional[int],
+        date_from: Optional[date],
+        date_to: Optional[date],
+        report_type: Optional[ReportType],
+        excluded_report_ids: list[int],
+        report_ids: list[int],
+    ) -> dict[int, int]:
+        statement = (
+            select(Speech.report_id, func.count())
+            .join(Report, Report.id == Speech.report_id)
+            .where(Speech.speaker_id.in_(membership_ids))
+            .where(
+                *_get_report_filters(
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    excluded_report_ids,
+                    report_ids,
+                )
+            )
+            .group_by(Speech.report_id)
+        )
+        rows = self.session.exec(statement).all()
+        return {report_id: speech_count for report_id, speech_count in rows}
 
     def get_id_to_headline_by_ids(
         self, speech_ids: list[int], query: str
