@@ -12,9 +12,6 @@ import { RESEARCHERS_FORM_URL } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 
-const LINK_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
-
 const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
 
 export const Route = createFileRoute('/researchers')({
@@ -55,14 +52,8 @@ export const Route = createFileRoute('/researchers')({
             is enough to tell who spoke.
           </p>
           <p>
-            <Link to="/coverage" className={LINK_CLASS_NAME}>
-              Coverage
-            </Link>{' '}
-            lists which years have text.{' '}
-            <Link to="/coverage/methods" className={LINK_CLASS_NAME}>
-              Data quality and methods
-            </Link>{' '}
-            gives the results of the sample check and the known gaps.
+            Reports by year, the sample check and the known gaps are on Data
+            quality and methods.
           </p>
         </section>
 
