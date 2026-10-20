@@ -226,9 +226,8 @@ export const Route = createFileRoute('/coverage/methods')({
           </p>
           <p>
             Reports per sitting rise from about 20 in Parliament 11 to about 70
-            in Parliament 14. Most of the rise is written answers, which get one
-            report per question: about 7 per sitting in Parliament 11 and about
-            52 in Parliament 14.
+            in Parliament 14, mostly because written answers get one report per
+            question.
           </p>
           <TableCoverageYears
             years={coverageData.years}
