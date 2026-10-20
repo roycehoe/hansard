@@ -1,8 +1,4 @@
-import {
-  formatPartyAffiliationStart,
-  formatSittingDate,
-  formatSourceUrlHost,
-} from '@/lib/format'
+import { formatPartyAffiliationStart, formatSourceUrlHost } from '@/lib/format'
 import { getPartyNoteId } from '@/lib/utils'
 import type { PartyAffiliationData, PartyNote } from '@/types/people/interfaces'
 import { Link } from '@tanstack/react-router'
@@ -25,7 +21,7 @@ export function ListPartyNotes({ notes }: ListPartyNotesProps) {
           params={{ reportSlug: partyAffiliation.source_report.report_slug }}
           className={LINK_CLASS_NAME}
         >
-          {`Hansard, ${formatSittingDate(partyAffiliation.source_report.sitting_date)}`}
+          Hansard
         </Link>
       )
     }
@@ -66,8 +62,7 @@ export function ListPartyNotes({ notes }: ListPartyNotesProps) {
                   <span className="text-foreground">
                     {`${formatPartyAffiliationStart(partyAffiliation)}, ${partyAffiliation.party}.`}
                   </span>{' '}
-                  {partyAffiliation.event} Source:{' '}
-                  {renderSource(partyAffiliation)}
+                  {partyAffiliation.event} {renderSource(partyAffiliation)}
                 </li>
               ))}
             </ul>
