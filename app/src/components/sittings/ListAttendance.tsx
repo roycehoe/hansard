@@ -3,6 +3,7 @@ import {
   DEFINED_TERM_CLASS_NAME,
   PopoverDefinition,
 } from '@/components/layout/PopoverDefinition'
+import { HoverCardPerson } from '@/components/people/HoverCardPerson'
 import { ABSENCE_DEFINITION } from '@/constants/constants'
 import { Link } from '@tanstack/react-router'
 
@@ -42,15 +43,20 @@ function ListAttendanceGroup({
           {members.map((member, index) => (
             <li key={`${member.name}-${index}`} className="py-1">
               {member.person_id !== null ? (
-                <Link
-                  to="/people/$personSlug"
-                  params={{
-                    personSlug: `${member.person_id}-${member.person_slug}`,
-                  }}
-                  className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                <HoverCardPerson
+                  personId={member.person_id}
+                  personSlug={member.person_slug}
                 >
-                  {member.person_name}
-                </Link>
+                  <Link
+                    to="/people/$personSlug"
+                    params={{
+                      personSlug: `${member.person_id}-${member.person_slug}`,
+                    }}
+                    className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                  >
+                    {member.person_name}
+                  </Link>
+                </HoverCardPerson>
               ) : (
                 <span>{member.name}</span>
               )}

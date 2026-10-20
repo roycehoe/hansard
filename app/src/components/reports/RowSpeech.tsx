@@ -1,4 +1,5 @@
 import type { SpeechData } from '@/api/reports/getReport'
+import { HoverCardPerson } from '@/components/people/HoverCardPerson'
 import { ActionBarSpeechCopy } from '@/components/reports/ActionBarSpeechCopy'
 import { TextTranscript } from '@/components/reports/TextTranscript'
 import { SPEAKER_NOT_RECORDED_LABEL } from '@/constants/reports/constants'
@@ -88,15 +89,20 @@ export function RowSpeech({
     }
     return (
       <>
-        <Link
-          to="/people/$personSlug"
-          params={{
-            personSlug: `${speech.person_id}-${speech.person_slug}`,
-          }}
-          className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-semibold outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+        <HoverCardPerson
+          personId={speech.person_id}
+          personSlug={speech.person_slug}
         >
-          {speech.speaker_label}
-        </Link>
+          <Link
+            to="/people/$personSlug"
+            params={{
+              personSlug: `${speech.person_id}-${speech.person_slug}`,
+            }}
+            className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-semibold outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+          >
+            {speech.speaker_label}
+          </Link>
+        </HoverCardPerson>
         {': '}
       </>
     )
