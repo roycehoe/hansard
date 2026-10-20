@@ -38,7 +38,7 @@ uv run ruff format .
 uv run pytest -m "not database"   # tests that need no database (what CI runs)
 uv run pytest                     # every test; the database ones need the scratch database, see api/CLAUDE.md
 
-# The deployed site (from the repo root): one container, frontend and API behind basic auth
+# The deployed site (from the repo root): one container, frontend and API
 docker build -t hansard-web .
 ```
 

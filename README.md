@@ -32,7 +32,7 @@ pnpm install
 pnpm dev                                           # http://localhost:5173
 ```
 
-The deployed site is one container that serves the frontend at `/` and the API at `/api`, behind basic auth.
+The deployed site is one container that serves the frontend at `/` and the API at `/api`.
 
 ```bash
 docker build -t hansard-web .

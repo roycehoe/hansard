@@ -44,7 +44,7 @@ services:
         value: ${BASIC_AUTH_PASSWORD}
       - key: PUBLIC_MODE
         scope: RUN_TIME
-        value: "false"
+        value: "true"
       - key: TAKEDOWN_REPORT_SLUGS
         scope: RUN_TIME
         type: SECRET
