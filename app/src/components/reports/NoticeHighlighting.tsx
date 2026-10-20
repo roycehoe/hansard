@@ -12,11 +12,10 @@ export function NoticeHighlighting({
   const hash = useLocation({ select: (location) => location.hash })
 
   return (
-    <p className="mb-6 text-sm">
+    <p className="mb-6 flex flex-wrap gap-x-4 gap-y-1 text-sm">
       <span className="text-muted-foreground">
         Highlighting: {terms.join(' ')}
       </span>
-      {' · '}
       <Link
         to="/reports/$reportSlug"
         params={{ reportSlug }}
