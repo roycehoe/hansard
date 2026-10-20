@@ -23,7 +23,11 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: shouldRetryQuery } },
 })
 
-const router = createRouter({ routeTree, defaultPreload: 'intent' })
+const router = createRouter({
+  routeTree,
+  defaultPreload: 'intent',
+  scrollRestoration: true,
+})
 
 declare module '@tanstack/react-router' {
   interface Register {
