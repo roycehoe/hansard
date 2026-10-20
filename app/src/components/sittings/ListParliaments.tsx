@@ -25,9 +25,8 @@ export function ListParliaments({ parliaments }: ListParliamentsProps) {
             </span>
             <span className="text-muted-foreground text-sm">
               {parliament.sitting_count.toLocaleString(NUMBER_LOCALE)} sittings,{' '}
-              {parliament.report_count.toLocaleString(NUMBER_LOCALE)} reports (
-              {parliament.text_report_count.toLocaleString(NUMBER_LOCALE)} with
-              text), {formatSittingDate(parliament.first_sitting_date)} to{' '}
+              {parliament.report_count.toLocaleString(NUMBER_LOCALE)} reports,{' '}
+              {formatSittingDate(parliament.first_sitting_date)} to{' '}
               {formatSittingDate(parliament.last_sitting_date)}
             </span>
           </Link>
