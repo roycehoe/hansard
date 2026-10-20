@@ -1,5 +1,4 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
-import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { SkeletonCoverageSummary } from '@/components/coverage/SkeletonCoverageSummary'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -16,7 +15,6 @@ import {
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
 } from '@/constants/constants'
-import { COVERAGE_LAST_UPDATED } from '@/constants/coverage/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -32,9 +30,6 @@ export const Route = createFileRoute('/coverage/')({
   component: function PageCoverage() {
     useDocumentTitle('Coverage')
     const coverage = useGetCoverage()
-    const refresh = useGetRefresh()
-    const lastCheckedDate =
-      refresh.data?.last_checked_date ?? COVERAGE_LAST_UPDATED
 
     function retryCoverage() {
       void coverage.refetch()
@@ -75,10 +70,6 @@ export const Route = createFileRoute('/coverage/')({
             reports with text hold{' '}
             {coverageData.speech_count.toLocaleString(NUMBER_LOCALE)}{' '}
             paragraphs.
-          </p>
-          <p className="text-muted-foreground text-sm">
-            Figures checked {formatSittingDate(lastCheckedDate)}. Latest sitting
-            in the archive: {formatSittingDate(coverageData.last_sitting_date)}.
           </p>
         </div>
       )
