@@ -1,6 +1,5 @@
 import { useGetRefresh } from '@/api/refresh/getRefresh'
 import {
-  CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
   RESEARCHERS_FORM_URL,
   SOURCE_CODE_URL,
@@ -64,13 +63,6 @@ export function SiteFooter() {
                 </a>
               </li>
             ))}
-            {CONTACT_EMAIL && (
-              <li className="whitespace-nowrap">
-                <a href={`mailto:${CONTACT_EMAIL}`} className={LINK_CLASS_NAME}>
-                  {CONTACT_EMAIL}
-                </a>
-              </li>
-            )}
           </ul>
         </nav>
       </div>
