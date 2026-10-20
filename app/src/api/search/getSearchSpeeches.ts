@@ -2,7 +2,7 @@ import { apiGet } from '@/api/client'
 import type { ReportType, SpeechKind } from '@/constants/reports/enums'
 import type { SearchSort } from '@/constants/search/enums'
 import { buildQueryString } from '@/lib/utils'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 
 export interface GetSearchSpeechesRequest {
   q?: string
@@ -12,7 +12,6 @@ export interface GetSearchSpeechesRequest {
   report_type?: ReportType
   person_id?: number
   sort?: SearchSort
-  page?: number
 }
 
 export interface SpeechMatchData {
@@ -39,8 +38,13 @@ export interface GetSearchSpeechesResponse {
   is_total_capped: boolean
 }
 
+const FIRST_PAGE = 1
+
+const SEARCH_STALE_TIME = 5 * 60 * 1000
+
 async function getSearchSpeechesResponse(
-  request: GetSearchSpeechesRequest
+  request: GetSearchSpeechesRequest,
+  page: number
 ): Promise<GetSearchSpeechesResponse> {
   return apiGet<GetSearchSpeechesResponse>(
     `/search/speeches${buildQueryString({
@@ -51,7 +55,7 @@ async function getSearchSpeechesResponse(
       report_type: request.report_type,
       person_id: request.person_id,
       sort: request.sort,
-      page: request.page,
+      page,
     })}`
   )
 }
@@ -59,7 +63,7 @@ async function getSearchSpeechesResponse(
 export function useGetSearchSpeeches(
   request: GetSearchSpeechesRequest | undefined
 ) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [
       'search',
       'speeches',
@@ -70,10 +74,13 @@ export function useGetSearchSpeeches(
       request?.report_type,
       request?.person_id,
       request?.sort,
-      request?.page,
     ],
     placeholderData: keepPreviousData,
-    queryFn: () => getSearchSpeechesResponse(request!),
+    queryFn: ({ pageParam }) => getSearchSpeechesResponse(request!, pageParam),
+    initialPageParam: FIRST_PAGE,
+    getNextPageParam: (lastPage) =>
+      lastPage.has_next_page ? lastPage.page + 1 : undefined,
+    staleTime: SEARCH_STALE_TIME,
     enabled: !!request,
   })
 }

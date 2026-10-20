@@ -75,8 +75,6 @@ export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
       search: (previous) => ({
         ...previous,
         [key]: undefined,
-        page: undefined,
-        title_page: undefined,
       }),
     })
   }

@@ -3,3 +3,8 @@ export enum SearchSort {
   DATE = 'date',
   OLDEST = 'oldest',
 }
+
+export enum SearchTab {
+  SPEECHES = 'speeches',
+  TITLES = 'titles',
+}

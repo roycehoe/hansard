@@ -30,22 +30,16 @@ function groupSpeechMatchesByReport(results: SpeechMatchData[]) {
 
 interface ListSpeechMatchesProps {
   results: SpeechMatchData[]
-  heading: string
   hasWords: boolean
   highlightWords: string | undefined
-  page: number
-  pageSize: number
   totalCount: number
   isTotalCapped: boolean
 }
 
 export function ListSpeechMatches({
   results,
-  heading,
   hasWords,
   highlightWords,
-  page,
-  pageSize,
   totalCount,
   isTotalCapped,
 }: ListSpeechMatchesProps) {
@@ -55,13 +49,7 @@ export function ListSpeechMatches({
   )
 
   return (
-    <section aria-labelledby="speech-matches-heading" className="space-y-4">
-      <h2
-        id="speech-matches-heading"
-        className="font-serif text-xl lg:text-2xl"
-      >
-        {heading}
-      </h2>
+    <div className="space-y-4">
       {results.length === 0 ? (
         <div role="status">
           <NoticeEmpty
@@ -75,8 +63,6 @@ export function ListSpeechMatches({
       ) : (
         <>
           <TextMatchCount
-            page={page}
-            pageSize={pageSize}
             shownCount={results.length}
             totalCount={totalCount}
             isTotalCapped={isTotalCapped}
@@ -117,6 +103,6 @@ export function ListSpeechMatches({
           </ol>
         </>
       )}
-    </section>
+    </div>
   )
 }

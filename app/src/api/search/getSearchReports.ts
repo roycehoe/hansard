@@ -2,7 +2,7 @@ import { apiGet } from '@/api/client'
 import type { ReportType } from '@/constants/reports/enums'
 import type { SearchSort } from '@/constants/search/enums'
 import { buildQueryString } from '@/lib/utils'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 
 export interface GetSearchReportsRequest {
   q?: string
@@ -12,7 +12,6 @@ export interface GetSearchReportsRequest {
   report_type?: ReportType
   is_text_available?: boolean
   sort?: SearchSort
-  page?: number
 }
 
 export interface ReportMatchData {
@@ -34,8 +33,13 @@ export interface GetSearchReportsResponse {
   is_total_capped: boolean
 }
 
+const FIRST_PAGE = 1
+
+const SEARCH_STALE_TIME = 5 * 60 * 1000
+
 async function getSearchReportsResponse(
-  request: GetSearchReportsRequest
+  request: GetSearchReportsRequest,
+  page: number
 ): Promise<GetSearchReportsResponse> {
   return apiGet<GetSearchReportsResponse>(
     `/search/reports${buildQueryString({
@@ -46,7 +50,7 @@ async function getSearchReportsResponse(
       report_type: request.report_type,
       is_text_available: request.is_text_available,
       sort: request.sort,
-      page: request.page,
+      page,
     })}`
   )
 }
@@ -54,7 +58,7 @@ async function getSearchReportsResponse(
 export function useGetSearchReports(
   request: GetSearchReportsRequest | undefined
 ) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [
       'search',
       'reports',
@@ -65,10 +69,13 @@ export function useGetSearchReports(
       request?.report_type,
       request?.is_text_available,
       request?.sort,
-      request?.page,
     ],
     placeholderData: keepPreviousData,
-    queryFn: () => getSearchReportsResponse(request!),
+    queryFn: ({ pageParam }) => getSearchReportsResponse(request!, pageParam),
+    initialPageParam: FIRST_PAGE,
+    getNextPageParam: (lastPage) =>
+      lastPage.has_next_page ? lastPage.page + 1 : undefined,
+    staleTime: SEARCH_STALE_TIME,
     enabled: !!request,
   })
 }

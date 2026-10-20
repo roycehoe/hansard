@@ -6,8 +6,6 @@ import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
 import {
   EMPTY_FILTERS_DESCRIPTION,
   EMPTY_WORDS_DESCRIPTION,
-  REPORTS_HEADING,
-  TITLE_MATCHES_HEADING,
 } from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
@@ -20,8 +18,6 @@ interface ListReportMatchesProps {
   results: ReportMatchData[]
   hasWords: boolean
   highlightWords: string | undefined
-  page: number
-  pageSize: number
   totalCount: number
   isTotalCapped: boolean
 }
@@ -30,16 +26,11 @@ export function ListReportMatches({
   results,
   hasWords,
   highlightWords,
-  page,
-  pageSize,
   totalCount,
   isTotalCapped,
 }: ListReportMatchesProps) {
   return (
-    <section aria-labelledby="title-matches-heading" className="space-y-4">
-      <h2 id="title-matches-heading" className="font-serif text-xl lg:text-2xl">
-        {hasWords ? TITLE_MATCHES_HEADING : REPORTS_HEADING}
-      </h2>
+    <div className="space-y-4">
       {results.length === 0 ? (
         <div role="status">
           <NoticeEmpty
@@ -53,8 +44,6 @@ export function ListReportMatches({
       ) : (
         <>
           <TextMatchCount
-            page={page}
-            pageSize={pageSize}
             shownCount={results.length}
             totalCount={totalCount}
             isTotalCapped={isTotalCapped}
@@ -90,6 +79,6 @@ export function ListReportMatches({
           </ol>
         </>
       )}
-    </section>
+    </div>
   )
 }

@@ -2,9 +2,10 @@ import { ApiError } from '@/api/client'
 import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetSearchReports } from '@/api/search/getSearchReports'
+import type { GetSearchSpeechesResponse } from '@/api/search/getSearchSpeeches'
 import { useGetSearchSpeeches } from '@/api/search/getSearchSpeeches'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { PaginationPrevNext } from '@/components/layout/PaginationPrevNext'
+import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import type { FormSearchValues } from '@/components/search/FormSearch'
 import { FormSearch } from '@/components/search/FormSearch'
 import { ListActiveFilters } from '@/components/search/ListActiveFilters'
@@ -24,21 +25,26 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
-import { FILTER_ALL, HTTP_TOO_MANY_REQUESTS } from '@/constants/constants'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  FILTER_ALL,
+  HTTP_TOO_MANY_REQUESTS,
+  NUMBER_LOCALE,
+} from '@/constants/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
+  REPORTS_HEADING,
   SEARCH_WORDS_INPUT_ID,
   SEARCH_WORDS_MAX_LENGTH,
   SPEECH_MATCHES_HEADING,
   SPEECHES_HEADING,
+  TITLE_MATCHES_HEADING,
 } from '@/constants/search/constants'
-import { SearchSort } from '@/constants/search/enums'
+import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { getSortWithoutWords, mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
-
-const FIRST_PAGE = 1
 
 function getSpeechesHeading(
   hasWords: boolean,
@@ -61,24 +67,14 @@ const searchSearchSchema = z.object({
   type: z.enum(ReportType).optional(),
   person: z.coerce.number().int().min(1).optional(),
   sort: z.enum(SearchSort).optional(),
-  page: z.coerce.number().int().min(FIRST_PAGE).optional(),
-  title_page: z.coerce.number().int().min(FIRST_PAGE).optional(),
+  tab: z.enum(SearchTab).optional().catch(undefined),
 })
 
 export const Route = createFileRoute('/search')({
   validateSearch: searchSearchSchema,
   component: function PageSearch() {
-    const {
-      q,
-      parliament,
-      from,
-      to,
-      type,
-      person,
-      sort,
-      page = FIRST_PAGE,
-      title_page: titlePage = FIRST_PAGE,
-    } = Route.useSearch()
+    const { q, parliament, from, to, type, person, sort, tab } =
+      Route.useSearch()
     const navigate = useNavigate()
     const parliaments = useGetAllParliaments()
     const personDetail = useGetPerson({ person_id: person ?? 0 })
@@ -97,6 +93,7 @@ export const Route = createFileRoute('/search')({
     const resultSort = hasWords ? sort : getSortWithoutWords(sort)
     const personName = personDetail.data?.canonical_name
     const speechesHeading = getSpeechesHeading(hasWords, personName)
+    const reportsHeading = hasWords ? TITLE_MATCHES_HEADING : REPORTS_HEADING
     useDocumentTitle(
       ...(hasWords
         ? [words, 'Search']
@@ -114,7 +111,6 @@ export const Route = createFileRoute('/search')({
             report_type: type,
             person_id: person,
             sort: resultSort,
-            page,
           }
         : undefined
     )
@@ -128,7 +124,6 @@ export const Route = createFileRoute('/search')({
             report_type: type,
             is_text_available: hasPerson ? false : undefined,
             sort: resultSort,
-            page: titlePage,
           }
         : undefined
     )
@@ -158,8 +153,7 @@ export const Route = createFileRoute('/search')({
           type: values.type === FILTER_ALL ? undefined : values.type,
           person: values.person ?? undefined,
           sort: values.sort,
-          page: undefined,
-          title_page: undefined,
+          tab,
         },
       })
     }
@@ -171,29 +165,28 @@ export const Route = createFileRoute('/search')({
         search: {
           q,
           sort,
-          page: undefined,
-          title_page: undefined,
+          tab,
         },
       })
     }
 
-    function changeSpeechPage(nextPage: number) {
-      void navigate({
-        to: '/search',
-        search: (previous) => ({
-          ...previous,
-          page: nextPage === FIRST_PAGE ? undefined : nextPage,
-        }),
-      })
+    function loadMoreSpeeches() {
+      void speeches.fetchNextPage()
     }
 
-    function changeReportPage(nextPage: number) {
+    function loadMoreReports() {
+      void reports.fetchNextPage()
+    }
+
+    function changeTab(nextTab: string) {
       void navigate({
         to: '/search',
         search: (previous) => ({
           ...previous,
-          title_page: nextPage === FIRST_PAGE ? undefined : nextPage,
+          tab:
+            nextTab === SearchTab.SPEECHES ? undefined : (nextTab as SearchTab),
         }),
+        resetScroll: false,
       })
     }
 
@@ -227,7 +220,7 @@ export const Route = createFileRoute('/search')({
 
     function renderSpeeches() {
       if (speeches.isLoading) return <Skeleton className="h-64 w-full" />
-      if (speeches.isError || !speeches.data) {
+      if (speeches.isLoadingError || !speeches.data) {
         if (isSearchBusyError(speeches.error)) {
           return (
             <NoticeErrorSearchBusy
@@ -243,23 +236,25 @@ export const Route = createFileRoute('/search')({
           />
         )
       }
+      const [firstPage] = speeches.data.pages
+      const results = speeches.data.pages.flatMap((page) => page.results)
       return (
         <div className="space-y-4">
           <ListSpeechMatches
-            results={speeches.data.results}
-            heading={speechesHeading}
+            results={results}
             hasWords={hasWords}
             highlightWords={hasWords ? words : undefined}
-            page={speeches.data.page}
-            pageSize={speeches.data.page_size}
-            totalCount={speeches.data.total_count}
-            isTotalCapped={speeches.data.is_total_capped}
+            totalCount={firstPage.total_count}
+            isTotalCapped={firstPage.is_total_capped}
           />
-          <PaginationPrevNext
-            page={page}
-            hasNextPage={speeches.data.has_next_page}
-            onPageChange={changeSpeechPage}
-            ariaLabel="Speech matches pages"
+          <PaginationInfiniteScroll
+            hasNextPage={speeches.hasNextPage && !speeches.isPlaceholderData}
+            isFetchingNextPage={speeches.isFetchingNextPage}
+            isFetchNextPageError={speeches.isFetchNextPageError}
+            onLoadMore={loadMoreSpeeches}
+            shownCount={results.length}
+            totalCount={firstPage.total_count}
+            isTotalCapped={firstPage.is_total_capped}
           />
         </div>
       )
@@ -267,7 +262,7 @@ export const Route = createFileRoute('/search')({
 
     function renderReports() {
       if (reports.isLoading) return <Skeleton className="h-64 w-full" />
-      if (reports.isError || !reports.data) {
+      if (reports.isLoadingError || !reports.data) {
         if (isSearchBusyError(reports.error)) {
           return (
             <NoticeErrorSearchBusy
@@ -283,24 +278,82 @@ export const Route = createFileRoute('/search')({
           />
         )
       }
+      const [firstPage] = reports.data.pages
+      const results = reports.data.pages.flatMap((page) => page.results)
       return (
         <div className="space-y-4">
           <ListReportMatches
-            results={reports.data.results}
+            results={results}
             hasWords={hasWords}
             highlightWords={hasWords ? words : undefined}
-            page={reports.data.page}
-            pageSize={reports.data.page_size}
-            totalCount={reports.data.total_count}
-            isTotalCapped={reports.data.is_total_capped}
+            totalCount={firstPage.total_count}
+            isTotalCapped={firstPage.is_total_capped}
           />
-          <PaginationPrevNext
-            page={titlePage}
-            hasNextPage={reports.data.has_next_page}
-            onPageChange={changeReportPage}
-            ariaLabel="Title matches pages"
+          <PaginationInfiniteScroll
+            hasNextPage={reports.hasNextPage && !reports.isPlaceholderData}
+            isFetchingNextPage={reports.isFetchingNextPage}
+            isFetchNextPageError={reports.isFetchNextPageError}
+            onLoadMore={loadMoreReports}
+            shownCount={results.length}
+            totalCount={firstPage.total_count}
+            isTotalCapped={firstPage.is_total_capped}
           />
         </div>
+      )
+    }
+
+    function renderTabCount(
+      firstPage:
+        | Pick<GetSearchSpeechesResponse, 'total_count' | 'is_total_capped'>
+        | undefined
+    ) {
+      if (firstPage === undefined) return null
+      const count = firstPage.total_count.toLocaleString(NUMBER_LOCALE)
+      return (
+        <span className="text-muted-foreground tabular-nums">
+          {firstPage.is_total_capped ? `${count}+` : count}
+        </span>
+      )
+    }
+
+    function renderResults() {
+      if (!canSearchReports) {
+        return (
+          <section
+            aria-labelledby="speech-matches-heading"
+            className="space-y-4"
+          >
+            <h2
+              id="speech-matches-heading"
+              className="font-serif text-xl lg:text-2xl"
+            >
+              {speechesHeading}
+            </h2>
+            {renderSpeeches()}
+          </section>
+        )
+      }
+      return (
+        <Tabs
+          value={tab ?? SearchTab.SPEECHES}
+          onValueChange={changeTab}
+          className="gap-4"
+        >
+          <TabsList variant="line">
+            <TabsTrigger value={SearchTab.SPEECHES}>
+              {speechesHeading}
+              {renderTabCount(speeches.data?.pages[0])}
+            </TabsTrigger>
+            <TabsTrigger value={SearchTab.TITLES}>
+              {reportsHeading}
+              {renderTabCount(reports.data?.pages[0])}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value={SearchTab.SPEECHES}>
+            {renderSpeeches()}
+          </TabsContent>
+          <TabsContent value={SearchTab.TITLES}>{renderReports()}</TabsContent>
+        </Tabs>
       )
     }
 
@@ -330,8 +383,7 @@ export const Route = createFileRoute('/search')({
         {!isWordsTooLong && (
           <ListPersonMatches words={words} hasPerson={hasPerson} />
         )}
-        {canSearch && renderSpeeches()}
-        {canSearchReports && renderReports()}
+        {canSearch && renderResults()}
       </div>
     )
   },
