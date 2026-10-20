@@ -32,9 +32,9 @@ export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
   [ReportType.WRITTEN_ANSWER]:
     "A question the member filed for a written reply, with the minister's reply.",
   [ReportType.WRITTEN_ANSWER_NA]:
-    "A question for Question Time that the House didn't reach before time ran out, so the minister replied in writing. These start on 22 December 1981.",
+    "A question for Question Time that the House didn't reach before time ran out, so the minister replied in writing.",
   [ReportType.CLARIFICATION]:
-    'A spoken correction or addition to something said earlier, mostly by a minister. These start on 21 November 2011.',
+    'A spoken correction or addition to something said earlier, mostly by a minister.',
   [ReportType.MOTION]:
     'A proposal put to the House for debate and a decision, including motions to adjourn.',
   [ReportType.MATTER_ADJ]:
@@ -45,7 +45,7 @@ export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
   [ReportType.MINISTERIAL_STATEMENT]:
     'A statement a minister makes to the House, not in answer to a question.',
   [ReportType.WRITTEN_STATEMENT]:
-    "A written correction to something an office holder said earlier, circulated with the Speaker's leave. These start on 7 October 2019.",
+    "A written correction to something an office holder said earlier, circulated with the Speaker's leave.",
   [ReportType.BUDGET]:
     "The Budget debate and the Committee of Supply, where the House debates each ministry's spending.",
   [ReportType.SPEAKER]:
