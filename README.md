@@ -6,7 +6,7 @@ The site only reads. Its data comes from the Postgres database that [roycehoe/ha
 
 ## Status
 
-Private beta. The site is behind a password and open to a small test group.
+Private beta at [hansard.fancybinary.sg](https://hansard.fancybinary.sg). The site is behind a password and open to a small test group.
 
 The archive covers 22 April 1955 to 7 October 2026, including the 15th Parliament. How often the site credits a speech to the wrong person, and what else is missing, is on the site's "Data quality and methods" page at `/coverage/methods`. The attribution figures, their method and the known limits of the data are in the [hansard-scraper README](https://github.com/roycehoe/hansard-scraper#how-accurate-the-speaker-links-are).
 
