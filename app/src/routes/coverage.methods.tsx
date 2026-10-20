@@ -101,16 +101,7 @@ export const Route = createFileRoute('/coverage/methods')({
             How the text was gathered
           </h2>
           <p>
-            The archive takes the text of each report from the{' '}
-            <a
-              href={OFFICIAL_RECORD_SEARCH_URL}
-              className={LINK_CLASS_NAME}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Official Report
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>{' '}
+            The archive takes the text of each report from the Official Report
             on the Parliament of Singapore&apos;s website. It splits the text
             into speeches at each speaker label, the name printed before a
             speech. It credits each speech to a person when the label is enough
