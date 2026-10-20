@@ -24,7 +24,7 @@ export function SiteFooter() {
 
   return (
     <footer className="bg-muted text-muted-foreground border-separator border-t">
-      <div className="max-w-page-xl mx-auto flex w-full flex-col gap-2 px-5 py-5 text-sm sm:px-6 md:flex-row md:items-center md:justify-between md:px-7 md:py-7">
+      <div className="max-w-page-xl mx-auto flex w-full flex-col gap-3 px-5 py-5 text-sm sm:px-6 md:px-7 md:py-7 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1">
           <p className="text-foreground font-medium">
             Not an official Parliament site.
@@ -36,15 +36,15 @@ export function SiteFooter() {
           )}
         </div>
         <nav aria-label="Footer">
-          <ul className="flex flex-wrap gap-x-5 gap-y-1">
+          <ul className="flex flex-wrap gap-x-5 gap-y-1 lg:flex-nowrap">
             {FOOTER_LINKS.map((item) => (
-              <li key={item.label}>
+              <li key={item.label} className="whitespace-nowrap">
                 <Link to={item.to} className={LINK_CLASS_NAME}>
                   {item.label}
                 </Link>
               </li>
             ))}
-            <li>
+            <li className="whitespace-nowrap">
               <a
                 href={OFFICIAL_RECORD_SEARCH_URL}
                 className={LINK_CLASS_NAME}
@@ -56,7 +56,7 @@ export function SiteFooter() {
               </a>
             </li>
             {CONTACT_EMAIL && (
-              <li>
+              <li className="whitespace-nowrap">
                 <a href={`mailto:${CONTACT_EMAIL}`} className={LINK_CLASS_NAME}>
                   {CONTACT_EMAIL}
                 </a>
