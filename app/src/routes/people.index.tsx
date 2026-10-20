@@ -6,6 +6,7 @@ import type { FormFilterPersonsValues } from '@/components/people/FormFilterPers
 import { FormFilterPersons } from '@/components/people/FormFilterPersons'
 import { ListPersons } from '@/components/people/ListPersons'
 import { NoticeErrorPersons } from '@/components/people/NoticeErrorPersons'
+import { SkeletonPersons } from '@/components/people/SkeletonPersons'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,7 +15,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   FILTER_ALL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
@@ -138,7 +138,7 @@ export const Route = createFileRoute('/people/')({
     }
 
     function renderBody() {
-      if (isLoading) return <Skeleton className="h-96 w-full" />
+      if (isLoading) return <SkeletonPersons />
       if (isError || !parliaments.data || !persons.data) {
         return (
           <NoticeErrorPersons onRetry={retryPeople} isRetrying={isRefetching} />

@@ -16,6 +16,8 @@ import { NoticeErrorParliaments } from '@/components/search/NoticeErrorParliamen
 import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
 import { NoticeErrorSearchBusy } from '@/components/search/NoticeErrorSearchBusy'
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
+import { SkeletonFormSearch } from '@/components/search/SkeletonFormSearch'
+import { SkeletonSearchResults } from '@/components/search/SkeletonSearchResults'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,7 +26,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   FILTER_ALL,
@@ -69,6 +70,8 @@ const searchSearchSchema = z.object({
   sort: z.enum(SearchSort).optional(),
   tab: z.enum(SearchTab).optional().catch(undefined),
 })
+
+const SEARCH_SKELETON_ROW_COUNT = 5
 
 export const Route = createFileRoute('/search')({
   validateSearch: searchSearchSchema,
@@ -191,7 +194,7 @@ export const Route = createFileRoute('/search')({
     }
 
     function renderForm() {
-      if (parliaments.isLoading) return <Skeleton className="h-40 w-full" />
+      if (parliaments.isLoading) return <SkeletonFormSearch />
       if (parliaments.isError || !parliaments.data) {
         return (
           <NoticeErrorParliaments
@@ -219,7 +222,8 @@ export const Route = createFileRoute('/search')({
     }
 
     function renderSpeeches() {
-      if (speeches.isLoading) return <Skeleton className="h-64 w-full" />
+      if (speeches.isLoading)
+        return <SkeletonSearchResults rowCount={SEARCH_SKELETON_ROW_COUNT} />
       if (speeches.isLoadingError || !speeches.data) {
         if (isSearchBusyError(speeches.error)) {
           return (
@@ -261,7 +265,8 @@ export const Route = createFileRoute('/search')({
     }
 
     function renderReports() {
-      if (reports.isLoading) return <Skeleton className="h-64 w-full" />
+      if (reports.isLoading)
+        return <SkeletonSearchResults rowCount={SEARCH_SKELETON_ROW_COUNT} />
       if (reports.isLoadingError || !reports.data) {
         if (isSearchBusyError(reports.error)) {
           return (

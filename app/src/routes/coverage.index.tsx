@@ -1,6 +1,7 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
 import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
+import { SkeletonCoverageSummary } from '@/components/coverage/SkeletonCoverageSummary'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
   Breadcrumb,
@@ -10,7 +11,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   CONTACT_EMAIL,
   NUMBER_LOCALE,
@@ -41,7 +41,7 @@ export const Route = createFileRoute('/coverage/')({
     }
 
     function renderSummary() {
-      if (coverage.isLoading) return <Skeleton className="h-20 w-full" />
+      if (coverage.isLoading) return <SkeletonCoverageSummary />
       if (coverage.isError || !coverage.data) {
         return (
           <NoticeErrorCoverage

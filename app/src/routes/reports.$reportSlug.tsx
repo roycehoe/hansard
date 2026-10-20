@@ -10,6 +10,7 @@ import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
 import { NoticeRemovedReport } from '@/components/reports/NoticeRemovedReport'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
+import { SkeletonReport } from '@/components/reports/SkeletonReport'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,7 +19,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
 import { HTTP_GONE, HTTP_NOT_FOUND } from '@/constants/constants'
 import { SPEECH_ANCHOR_MAX_LENGTH } from '@/constants/reports/constants'
 import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
@@ -60,7 +60,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
       void refetch()
     }
 
-    if (isLoading) return <Skeleton className="h-96 w-full" />
+    if (isLoading) return <SkeletonReport />
     if (
       isError &&
       error instanceof ApiError &&

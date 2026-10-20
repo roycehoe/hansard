@@ -4,6 +4,8 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { ListParliaments } from '@/components/sittings/ListParliaments'
 import { ListSittingsGrouped } from '@/components/sittings/ListSittingsGrouped'
 import { NoticeErrorSittings } from '@/components/sittings/NoticeErrorSittings'
+import { SkeletonParliaments } from '@/components/sittings/SkeletonParliaments'
+import { SkeletonSittingsGrouped } from '@/components/sittings/SkeletonSittingsGrouped'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +14,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -36,8 +37,13 @@ export const Route = createFileRoute('/sittings/')({
       void activeQuery.refetch()
     }
 
+    function renderSkeleton() {
+      if (isChosen) return <SkeletonSittingsGrouped />
+      return <SkeletonParliaments />
+    }
+
     function renderBody() {
-      if (activeQuery.isLoading) return <Skeleton className="h-96 w-full" />
+      if (activeQuery.isLoading) return renderSkeleton()
       if (activeQuery.isError) {
         return (
           <NoticeErrorSittings
@@ -52,7 +58,7 @@ export const Route = createFileRoute('/sittings/')({
       if (!isChosen && parliaments.data) {
         return <ListParliaments parliaments={parliaments.data.parliaments} />
       }
-      return <Skeleton className="h-96 w-full" />
+      return renderSkeleton()
     }
 
     return (

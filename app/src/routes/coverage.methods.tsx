@@ -1,6 +1,7 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
 import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
+import { SkeletonCoverageSection } from '@/components/coverage/SkeletonCoverageSection'
 import { TableAttributionParliaments } from '@/components/coverage/TableAttributionParliaments'
 import { TableCoverageCounts } from '@/components/coverage/TableCoverageCounts'
 import { TableCoverageYears } from '@/components/coverage/TableCoverageYears'
@@ -13,7 +14,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
@@ -54,6 +54,10 @@ const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
 
 const SUBHEADING_CLASS_NAME = 'font-serif text-lg lg:text-xl'
 
+const COUNTS_SKELETON_ROW_COUNT = 10
+
+const YEARS_SKELETON_ROW_COUNT = 8
+
 const TERM_LIST_CLASS_NAME =
   'grid gap-x-8 gap-y-2 text-sm sm:grid-cols-[14rem_1fr]'
 
@@ -75,7 +79,8 @@ export const Route = createFileRoute('/coverage/methods')({
     }
 
     function renderTextGathered() {
-      if (coverage.isLoading) return <Skeleton className="h-96 w-full" />
+      if (coverage.isLoading)
+        return <SkeletonCoverageSection tableRowCount={0} />
       if (coverage.isError || !coverage.data) {
         return (
           <NoticeErrorCoverage
@@ -128,7 +133,10 @@ export const Route = createFileRoute('/coverage/methods')({
     }
 
     function renderCounts() {
-      if (coverage.isLoading) return <Skeleton className="h-96 w-full" />
+      if (coverage.isLoading)
+        return (
+          <SkeletonCoverageSection tableRowCount={COUNTS_SKELETON_ROW_COUNT} />
+        )
       if (coverage.isError || !coverage.data) return null
 
       const coverageData = coverage.data
@@ -206,7 +214,10 @@ export const Route = createFileRoute('/coverage/methods')({
     }
 
     function renderYears() {
-      if (coverage.isLoading) return <Skeleton className="h-96 w-full" />
+      if (coverage.isLoading)
+        return (
+          <SkeletonCoverageSection tableRowCount={YEARS_SKELETON_ROW_COUNT} />
+        )
       if (coverage.isError || !coverage.data) return null
 
       const coverageData = coverage.data

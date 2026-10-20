@@ -9,9 +9,9 @@ import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
 import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
 import { NoticeNotFoundPerson } from '@/components/people/NoticeNotFoundPerson'
 import { SkeletonPerson } from '@/components/people/SkeletonPerson'
-import { SkeletonPersonReports } from '@/components/people/SkeletonPersonReports'
 import { TableMemberships } from '@/components/people/TableMemberships'
 import { TableParliamentCounts } from '@/components/people/TableParliamentCounts'
+import { SkeletonReportRows } from '@/components/reports/SkeletonReportRows'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -76,7 +76,7 @@ export const Route = createFileRoute('/people/$personSlug')({
     }
 
     function renderReports() {
-      if (reports.isLoading) return <SkeletonPersonReports />
+      if (reports.isLoading) return <SkeletonReportRows />
       if (reports.isError || !reports.data) {
         return (
           <NoticeErrorPersonReports

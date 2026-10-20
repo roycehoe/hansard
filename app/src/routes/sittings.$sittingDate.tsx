@@ -8,6 +8,7 @@ import { ListSittingReports } from '@/components/sittings/ListSittingReports'
 import { NoticeAttendanceUnavailable } from '@/components/sittings/NoticeAttendanceUnavailable'
 import { NoticeErrorSitting } from '@/components/sittings/NoticeErrorSitting'
 import { NoticeNotFoundSitting } from '@/components/sittings/NoticeNotFoundSitting'
+import { SkeletonSitting } from '@/components/sittings/SkeletonSitting'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,7 +17,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Skeleton } from '@/components/ui/skeleton'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament, formatSittingDate } from '@/lib/format'
@@ -36,7 +36,7 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
       void refetch()
     }
 
-    if (isLoading) return <Skeleton className="h-96 w-full" />
+    if (isLoading) return <SkeletonSitting />
     if (
       isError &&
       error instanceof ApiError &&

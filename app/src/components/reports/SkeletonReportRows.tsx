@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 const REPORT_ROW_COUNT = 5
 
-export function SkeletonPersonReports() {
+export function SkeletonReportRows() {
   return (
     <ol>
       {Array.from({ length: REPORT_ROW_COUNT }, (_, index) => (
