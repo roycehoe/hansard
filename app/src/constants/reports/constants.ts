@@ -34,27 +34,25 @@ export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
   [ReportType.WRITTEN_ANSWER_NA]:
     "A question for Question Time that the House didn't reach before time ran out, so the minister replied in writing.",
   [ReportType.CLARIFICATION]:
-    'A spoken correction or addition to something said earlier, mostly by a minister.',
+    'A spoken correction or addition to something said earlier.',
   [ReportType.MOTION]:
     'A proposal put to the House for debate and a decision, including motions to adjourn.',
   [ReportType.MATTER_ADJ]:
     'A short debate a member raises at the end of a sitting, on the motion to adjourn.',
-  [ReportType.BILL]:
-    "A bill's first, second or third reading. Many readings are a single line with no debate.",
+  [ReportType.BILL]: "A bill's first, second or third reading.",
   [ReportType.BILL_INTRO]: 'Notice that a bill was introduced.',
   [ReportType.MINISTERIAL_STATEMENT]:
     'A statement a minister makes to the House, not in answer to a question.',
   [ReportType.WRITTEN_STATEMENT]:
-    "A written correction to something an office holder said earlier, circulated with the Speaker's leave.",
+    "A written correction to something an office holder said earlier, circulated with the presiding officer's leave.",
   [ReportType.BUDGET]:
     "The Budget debate and the Committee of Supply, where the House debates each ministry's spending.",
-  [ReportType.SPEAKER]:
-    'A statement or ruling by the Speaker. Some appendices to the record also have this type.',
+  [ReportType.SPEAKER]: 'A statement or ruling by the presiding officer.',
   [ReportType.DEPUTY_SPEAKER]: 'A statement by the Deputy Speaker.',
   [ReportType.PERSONAL_EXPLANATION]:
-    "A member, with the Speaker's leave, explaining or correcting something that concerns them, often words they said earlier.",
+    "A member, with the presiding officer's leave, explaining or correcting something that concerns them.",
   [ReportType.POINT_OF_ORDER]:
-    'A member asking the Speaker to rule on whether the House is following its rules.',
+    'A member asking the presiding officer to rule on whether the House is following its rules.',
   [ReportType.TRIBUTE]: 'A tribute to a member or a public figure.',
   [ReportType.PRESIDENT_ADDRESS]:
     "The President's address at the opening of a session, the debate on it, and each ministry's addendum setting out its plans.",

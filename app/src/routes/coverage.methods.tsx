@@ -498,6 +498,11 @@ export const Route = createFileRoute('/coverage/methods')({
                 reports share their place in the order with another report, so
                 the archive cannot tell which comes first.
               </li>
+              <li>
+                Some appendices to the record, such as Committee of Supply
+                estimates, have the type &quot;Presiding officer&apos;s
+                statement&quot;.
+              </li>
             </ul>
           </div>
         </section>
