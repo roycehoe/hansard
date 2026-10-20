@@ -215,10 +215,6 @@ export const Route = createFileRoute('/coverage/methods')({
       )
         return null
 
-      const yearsWithoutText = coverageData.years
-        .filter((year) => year.report_count > year.text_report_count)
-        .map((year) => year.year)
-
       return (
         <section aria-labelledby="years-heading" className="space-y-4">
           <h2 id="years-heading" className={SECTION_HEADING_CLASS_NAME}>
@@ -228,7 +224,6 @@ export const Route = createFileRoute('/coverage/methods')({
             Counts are of what the archive holds. They have not been checked
             item by item against the Official Report.
           </p>
-          <p>Years with reports missing text: {yearsWithoutText.join(', ')}.</p>
           <p>
             Reports per sitting rise from about 20 in Parliament 11 to about 70
             in Parliament 14. Most of the rise is written answers, which get one
