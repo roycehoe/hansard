@@ -21,7 +21,7 @@ services:
     alerts:
       - rule: RESTART_COUNT
         operator: GREATER_THAN
-        value: 0
+        value: 0.5
         window: FIVE_MINUTES
       - rule: MEM_UTILIZATION
         operator: GREATER_THAN
