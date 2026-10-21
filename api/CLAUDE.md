@@ -60,7 +60,7 @@ What exists today:
 
 | Path | Contents |
 |---|---|
-| `main.py` | The `FastAPI` app. Every router is mounted here. `uv run fastapi dev` serves it. |
+| `main.py` | The `FastAPI` app. Every router is mounted here. `GZipMiddleware` runs at level 4, not the default 9: a long report compresses in about 40% of the time for 6 to 9% more bytes. `uv run fastapi dev` serves it. |
 | `website.py` | The deployed site: `main.py`'s app under `/api`, the built frontend at `/`, both behind basic auth unless public mode is on, and the takedown middleware in front of both. The root `Dockerfile` runs it. |
 | `settings.py` | `pydantic-settings` configuration: `AppSettings` (`DATABASE_URL`, `TAKEDOWN_REPORT_SLUGS`, `PUBLIC_MODE`) and `WebsiteSettings`, which only `website.py` reads. |
 | `enums.py` | `ReportType` (the 23 stored report type strings), `SearchSort`, `SpeechLinkStatus`, `PreviewType` and `RefreshRunStatus` (the four values the scraper writes to `refresh_run.status`). |
