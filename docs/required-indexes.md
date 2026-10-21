@@ -215,11 +215,11 @@ HashAggregate  (cost=7752.46..7752.58 rows=12 width=12)
 CREATE INDEX ix_report_sitting_date_parliament_number ON report (sitting_date, parliament_number);
 ```
 
-Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters and newest-first order of `GET /search/reports`, and of `GET /search/speeches` without search words. With search words, a date-ordered speech search reads it only for a Parliament's first and last sitting dates; the dates themselves filter `speech.sitting_date` (see `ix_speech_transcript_tsv_sitting_date_rum`).
+Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters and newest-first order of `GET /search/reports` and of `GET /search/speeches`, both without search words. With search words, a date-ordered title search adds zero to its sort key so that the planner cannot walk this index for the order (see `ix_report_title_fts`), and a date-ordered speech search reads it only for a Parliament's first and last sitting dates; the dates themselves filter `speech.sitting_date` (see `ix_speech_transcript_tsv_sitting_date_rum`).
 
 The first version of this list named a single-column index on `report (sitting_date)`. The scraper builds this composite instead. On the rehearsal copy it served every statement the single column served. It also turned the per-Parliament statements (the Parliament list, the sittings list, the `DISTINCT sitting_date, parliament_number` subquery under the attendance counts) into index-only scans of 44 pages instead of 6,309 heap pages. On production a heap scan of `report` costs 0.4 to 1.4 seconds per statement, so that is the larger gain. A `(parliament_number, sitting_date)` index served fewer statements and was no better on any of them. The composite is 352 kB.
 
-The date-filtered title search is repeated under `ix_report_title_fts`, because the text predicate decides its plan. The speech word search under a date range is in "Ranking cost".
+The date-ordered title search is repeated under `ix_report_title_fts`, because the text predicate decides its plan and the sort key is kept off this index. The speech word search under a date range is in "Ranking cost". The `title_search_date` plans here and under `ix_report_title_fts` are plain `EXPLAIN`s on the scratch copy, not yet captured on production.
 
 ```sql
 -- report_by_sitting_date (GET /sittings/{sitting_date})
@@ -236,19 +236,23 @@ Sort  (cost=19.37..19.41 rows=19 width=190)
 
 ```sql
 -- title_search_date (GET /search/reports)
-SELECT report.id, report.volume_number, report.parliament_number, report.sitting_number, report.sitting_date, report.speech_number, report.title, report.subtitle, report.report_id, report.report_type, report.html_file_name, report.report_version  FROM report  WHERE (to_tsvector('english', report.title) @@ websearch_to_tsquery('english', 'housing estate')) AND report.parliament_number = 14 ORDER BY report.sitting_date DESC, ts_rank(to_tsvector('english', report.title), websearch_to_tsquery('english', 'housing estate')) DESC, report.id   LIMIT 21 OFFSET 0;
+SELECT anon_1.id, anon_1.volume_number, anon_1.parliament_number, anon_1.sitting_number, anon_1.sitting_date, anon_1.speech_number, anon_1.title, anon_1.subtitle, anon_1.report_id, anon_1.report_type, anon_1.html_file_name, anon_1.report_version  FROM (SELECT report.id AS id, report.volume_number AS volume_number, report.parliament_number AS parliament_number, report.sitting_number AS sitting_number, report.sitting_date AS sitting_date, report.speech_number AS speech_number, report.title AS title, report.subtitle AS subtitle, report.report_id AS report_id, report.report_type AS report_type, report.html_file_name AS html_file_name, report.report_version AS report_version  FROM report  WHERE (to_tsvector('english', report.title) @@ websearch_to_tsquery('english', 'housing estate')) AND report.parliament_number = 14 ORDER BY report.sitting_date + make_interval(secs=>0.0) DESC  FETCH FIRST (21) ROWS WITH TIES) AS anon_1 ORDER BY anon_1.sitting_date DESC, ts_rank(to_tsvector('english', anon_1.title), websearch_to_tsquery('english', 'housing estate')) DESC, anon_1.id   LIMIT 21 OFFSET 0;
 ```
 
 ```text
 -- title_search_date (GET /search/reports)
-Limit  (cost=8.05..8.06 rows=1 width=194)
-  ->  Sort  (cost=8.05..8.06 rows=1 width=194)
-        Sort Key: sitting_date DESC, (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''hous'' & ''estat'''::tsquery)) DESC, id
-        ->  Bitmap Heap Scan on report  (cost=6.53..8.04 rows=1 width=194)
-              Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
-              Filter: (parliament_number = 14)
-              ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..6.53 rows=1 width=0)
-                    Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
+Limit  (cost=135.90..135.90 rows=3 width=194)
+  ->  Sort  (cost=135.90..135.90 rows=3 width=194)
+        Sort Key: anon_1.sitting_date DESC, (ts_rank(to_tsvector('english'::regconfig, (anon_1.title)::text), '''hous'' & ''estat'''::tsquery)) DESC, anon_1.id
+        ->  Subquery Scan on anon_1  (cost=135.08..135.87 rows=3 width=194)
+              ->  Limit  (cost=135.08..135.09 rows=3 width=198)
+                    ->  Sort  (cost=135.08..135.09 rows=3 width=198)
+                          Sort Key: ((report.sitting_date + '00:00:00'::interval)) DESC
+                          ->  Bitmap Heap Scan on report  (cost=85.33..135.05 rows=3 width=198)
+                                Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
+                                Filter: (parliament_number = 14)
+                                ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..85.33 rows=12 width=0)
+                                      Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
 ```
 
 `GET /search/speeches` without search words and without a `person_id`, and `GET /search/reports` without search words, order by `report.sitting_date` descending and filter by the Parliament, dates and report type. The planner walks this index backward and stops after the first few reports, so a page costs about 1 ms. These statements use the joined `report.sitting_date` as the sort key. The scalar subquery form that the person shape needs took 480 ms for Parliament 9 on 14 October 2026. `EXPLAIN (ANALYZE, BUFFERS)` on production, warm, third run:
@@ -389,6 +393,10 @@ Needed by `GET /search/reports` (B1).
 
 The title query was cheap before the index existed (about a second) but scanned the whole table. It now uses the same kind of expression index.
 
+On 21 October 2026 the newest-first and oldest-first orders of the title search changed. Ordering by `report.sitting_date` with the title match as a filter let the planner walk `ix_report_sitting_date_parliament_number` from one end and test every report against the title, because it expects matches to be spread evenly through time. For "covid" oldest first the plan returned 22 rows after removing 30,300 by filter, 15,474 buffers and 173 ms on the scratch copy (second block below). The statement now finds the matches through this index, keeps the first `limit + offset` of them by sitting date with `FETCH FIRST ... ROWS WITH TIES`, and ranks and orders only that cut. The sort key inside the cut is the sitting date plus a zero interval, so no index can supply the order. `WITH TIES` keeps every match on the cut-off date, because the ranking breaks ties within a date, and a plain `LIMIT` could drop one that belongs on the page. The cut selects every column of `report` except `markdown_content`. The relevance order is unchanged. The API binds the zero as an interval parameter; the compiled text below shows it as `make_interval(secs=>0.0)`.
+
+On the scratch copy, over 57 words newest and oldest first, interleaved on one connection, the median page statement fell from 7.4 to 1.9 ms and the slowest from 159 to 9 ms. A common word oldest first got slower, because the old plan stopped after its first few hundred reports and the cut reads every match: "bill" 1.4 to 7.7 ms, "amend" 1.7 to 5.3 ms. psycopg prepares a statement on its sixth execution on a connection and Postgres may then switch to a generic plan. For the new statement the generic plan has the same shape as the custom one: a bitmap scan of this index, a sort and the cut. The two date-order plans below are plain `EXPLAIN`s on the scratch copy, not yet captured on production.
+
 ```sql
 -- title_search_relevance (GET /search/reports)
 SELECT report.id, report.volume_number, report.parliament_number, report.sitting_number, report.sitting_date, report.speech_number, report.title, report.subtitle, report.report_id, report.report_type, report.html_file_name, report.report_version  FROM report  WHERE to_tsvector('english', report.title) @@ websearch_to_tsquery('english', 'housing estate') ORDER BY ts_rank(to_tsvector('english', report.title), websearch_to_tsquery('english', 'housing estate')) DESC, report.sitting_date DESC, report.id   LIMIT 21 OFFSET 0;
@@ -407,26 +415,88 @@ Limit  (cost=8.05..8.06 rows=1 width=194)
 
 ```sql
 -- title_search_date (GET /search/reports)
-SELECT report.id, report.volume_number, report.parliament_number, report.sitting_number, report.sitting_date, report.speech_number, report.title, report.subtitle, report.report_id, report.report_type, report.html_file_name, report.report_version  FROM report  WHERE (to_tsvector('english', report.title) @@ websearch_to_tsquery('english', 'housing estate')) AND report.parliament_number = 14 ORDER BY report.sitting_date DESC, ts_rank(to_tsvector('english', report.title), websearch_to_tsquery('english', 'housing estate')) DESC, report.id   LIMIT 21 OFFSET 0;
+SELECT anon_1.id, anon_1.volume_number, anon_1.parliament_number, anon_1.sitting_number, anon_1.sitting_date, anon_1.speech_number, anon_1.title, anon_1.subtitle, anon_1.report_id, anon_1.report_type, anon_1.html_file_name, anon_1.report_version  FROM (SELECT report.id AS id, report.volume_number AS volume_number, report.parliament_number AS parliament_number, report.sitting_number AS sitting_number, report.sitting_date AS sitting_date, report.speech_number AS speech_number, report.title AS title, report.subtitle AS subtitle, report.report_id AS report_id, report.report_type AS report_type, report.html_file_name AS html_file_name, report.report_version AS report_version  FROM report  WHERE (to_tsvector('english', report.title) @@ websearch_to_tsquery('english', 'housing estate')) AND report.parliament_number = 14 ORDER BY report.sitting_date + make_interval(secs=>0.0) DESC  FETCH FIRST (21) ROWS WITH TIES) AS anon_1 ORDER BY anon_1.sitting_date DESC, ts_rank(to_tsvector('english', anon_1.title), websearch_to_tsquery('english', 'housing estate')) DESC, anon_1.id   LIMIT 21 OFFSET 0;
 ```
 
 ```text
 -- title_search_date (GET /search/reports)
-Limit  (cost=8.05..8.06 rows=1 width=194)
-  ->  Sort  (cost=8.05..8.06 rows=1 width=194)
-        Sort Key: sitting_date DESC, (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''hous'' & ''estat'''::tsquery)) DESC, id
-        ->  Bitmap Heap Scan on report  (cost=6.53..8.04 rows=1 width=194)
-              Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
-              Filter: (parliament_number = 14)
-              ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..6.53 rows=1 width=0)
-                    Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
+Limit  (cost=135.90..135.90 rows=3 width=194)
+  ->  Sort  (cost=135.90..135.90 rows=3 width=194)
+        Sort Key: anon_1.sitting_date DESC, (ts_rank(to_tsvector('english'::regconfig, (anon_1.title)::text), '''hous'' & ''estat'''::tsquery)) DESC, anon_1.id
+        ->  Subquery Scan on anon_1  (cost=135.08..135.87 rows=3 width=194)
+              ->  Limit  (cost=135.08..135.09 rows=3 width=198)
+                    ->  Sort  (cost=135.08..135.09 rows=3 width=198)
+                          Sort Key: ((report.sitting_date + '00:00:00'::interval)) DESC
+                          ->  Bitmap Heap Scan on report  (cost=85.33..135.05 rows=3 width=198)
+                                Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
+                                Filter: (parliament_number = 14)
+                                ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..85.33 rows=12 width=0)
+                                      Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
+```
+
+```sql
+-- title_search_oldest, before 21 October 2026 (GET /search/reports?q=covid&sort=oldest)
+SELECT report.id, report.volume_number, report.parliament_number, report.sitting_number, report.sitting_date, report.speech_number, report.title, report.subtitle, report.report_id, report.report_type, report.html_file_name, report.report_version  FROM report  WHERE to_tsvector('english', report.title) @@ websearch_to_tsquery('english', 'covid') ORDER BY report.sitting_date ASC, ts_rank(to_tsvector('english', report.title), websearch_to_tsquery('english', 'covid')) DESC, report.id   LIMIT 21 OFFSET 0;
+```
+
+```text
+-- title_search_oldest, before 21 October 2026 (GET /search/reports?q=covid&sort=oldest)
+Limit  (cost=78.61..1466.74 rows=21 width=194) (actual time=173.425..173.428 rows=21 loops=1)
+  Buffers: shared hit=15474
+  ->  Incremental Sort  (cost=78.61..40664.95 rows=614 width=194) (actual time=173.424..173.425 rows=21 loops=1)
+        Sort Key: sitting_date, (ts_rank(to_tsvector('english'::regconfig, (title)::text), '''covid'''::tsquery)) DESC, id
+        Presorted Key: sitting_date
+        Full-sort Groups: 1  Sort Method: quicksort  Average Memory: 30kB  Peak Memory: 30kB
+        Buffers: shared hit=15474
+        ->  Index Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..40640.65 rows=614 width=194) (actual time=171.522..173.306 rows=22 loops=1)
+              Filter: (to_tsvector('english'::regconfig, (title)::text) @@ '''covid'''::tsquery)
+              Rows Removed by Filter: 30300
+              Buffers: shared hit=15474
+Planning:
+  Buffers: shared hit=1
+Planning Time: 0.098 ms
+Execution Time: 173.451 ms
+```
+
+```sql
+-- title_search_oldest (GET /search/reports?q=covid&sort=oldest)
+SELECT anon_1.id, anon_1.volume_number, anon_1.parliament_number, anon_1.sitting_number, anon_1.sitting_date, anon_1.speech_number, anon_1.title, anon_1.subtitle, anon_1.report_id, anon_1.report_type, anon_1.html_file_name, anon_1.report_version  FROM (SELECT report.id AS id, report.volume_number AS volume_number, report.parliament_number AS parliament_number, report.sitting_number AS sitting_number, report.sitting_date AS sitting_date, report.speech_number AS speech_number, report.title AS title, report.subtitle AS subtitle, report.report_id AS report_id, report.report_type AS report_type, report.html_file_name AS html_file_name, report.report_version AS report_version  FROM report  WHERE to_tsvector('english', report.title) @@ websearch_to_tsquery('english', 'covid') ORDER BY report.sitting_date + make_interval(secs=>0.0) ASC  FETCH FIRST (21) ROWS WITH TIES) AS anon_1 ORDER BY anon_1.sitting_date ASC, ts_rank(to_tsvector('english', anon_1.title), websearch_to_tsquery('english', 'covid')) DESC, anon_1.id   LIMIT 21 OFFSET 0;
+```
+
+```text
+-- title_search_oldest (GET /search/reports?q=covid&sort=oldest)
+Limit  (cost=2120.78..2120.83 rows=21 width=194) (actual time=2.078..2.080 rows=21 loops=1)
+  Buffers: shared hit=470
+  ->  Sort  (cost=2120.78..2120.83 rows=21 width=194) (actual time=2.077..2.078 rows=21 loops=1)
+        Sort Key: anon_1.sitting_date, (ts_rank(to_tsvector('english'::regconfig, (anon_1.title)::text), '''covid'''::tsquery)) DESC, anon_1.id
+        Sort Method: quicksort  Memory: 30kB
+        Buffers: shared hit=470
+        ->  Subquery Scan on anon_1  (cost=2114.76..2120.32 rows=21 width=194) (actual time=1.898..2.066 rows=21 loops=1)
+              Buffers: shared hit=470
+              ->  Limit  (cost=2114.76..2114.81 rows=21 width=198) (actual time=1.884..1.889 rows=21 loops=1)
+                    Buffers: shared hit=470
+                    ->  Sort  (cost=2114.76..2116.29 rows=614 width=198) (actual time=1.884..1.886 rows=22 loops=1)
+                          Sort Key: ((report.sitting_date + '00:00:00'::interval))
+                          Sort Method: quicksort  Memory: 148kB
+                          Buffers: shared hit=470
+                          ->  Bitmap Heap Scan on report  (cost=79.79..2098.20 rows=614 width=198) (actual time=0.240..1.047 rows=634 loops=1)
+                                Recheck Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''covid'''::tsquery)
+                                Heap Blocks: exact=452
+                                Buffers: shared hit=470
+                                ->  Bitmap Index Scan on ix_report_title_fts  (cost=0.00..79.64 rows=614 width=0) (actual time=0.205..0.205 rows=659 loops=1)
+                                      Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''covid'''::tsquery)
+                                      Buffers: shared hit=18
+Planning:
+  Buffers: shared hit=1
+Planning Time: 0.089 ms
+Execution Time: 2.101 ms
 ```
 
 ## Ranking cost
 
 Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
 
-Three commits changed that: the stored column (`1f8248d`, 17 October), the rum index with its `ANALYZE` (`aed4137`, 18 October) and the order clauses below (`11f0aa6`, 18 October). `ts_rank` is gone from speech search. Report title search still uses it, and the title plans above stand.
+Three commits changed that: the stored column (`1f8248d`, 17 October), the rum index with its `ANALYZE` (`aed4137`, 18 October) and the order clauses below (`11f0aa6`, 18 October). `ts_rank` is gone from speech search. Report title search still uses it. The relevance plan above stands, and the date orders rank only the cut described under `ix_report_title_fts`.
 
 The `ORDER BY` clauses of `GET /search/speeches` with search words, from `api/crud/speech.py`. The date orders need `ix_speech_transcript_tsv_sitting_date_rum`, on production since 18 October 2026. Before it, production matched the clauses of `613c795`, which are in the "Newest first" and "Oldest first" paragraphs below:
 

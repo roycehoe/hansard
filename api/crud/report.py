@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 from typing import Optional
 
 from sqlalchemy import ColumnElement, Integer, cast, exists, func, not_
-from sqlalchemy.orm import defer
+from sqlalchemy.orm import aliased, defer
 from sqlmodel import Session, select
 
 from crud.text_search import HEADLINE_OPTIONS, TEXT_SEARCH_CONFIGURATION
@@ -11,18 +11,24 @@ from database.speech import Speech
 from enums import ReportType, SearchSort
 
 _ONE_DAY = timedelta(days=1)
+_NO_DURATION = timedelta(0)
+_COLUMNS_WITHOUT_MARKDOWN_CONTENT = tuple(
+    column
+    for column in Report.__table__.columns
+    if column.key != Report.markdown_content.key
+)
 
 
 def _get_is_text_available() -> ColumnElement:
     return exists().where(Speech.report_id == Report.id)
 
 
-def _get_report_ordering(sort: SearchSort, rank: ColumnElement) -> list[ColumnElement]:
-    if sort == SearchSort.DATE:
-        return [Report.sitting_date.desc(), rank.desc(), Report.id]
+def _get_sitting_date_ordering(
+    sort: SearchSort, sitting_date: ColumnElement
+) -> ColumnElement:
     if sort == SearchSort.OLDEST:
-        return [Report.sitting_date.asc(), rank.desc(), Report.id]
-    return [rank.desc(), Report.sitting_date.desc(), Report.id]
+        return sitting_date.asc()
+    return sitting_date.desc()
 
 
 def _get_browse_ordering(sort: SearchSort) -> list[ColumnElement]:
@@ -267,8 +273,6 @@ class CRUDReport:
         offset: int,
     ) -> list[Report]:
         tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-        title_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Report.title)
-        rank = func.ts_rank(title_vector, tsquery)
         filters = _get_title_query_filters(
             query,
             parliament_number,
@@ -278,12 +282,43 @@ class CRUDReport:
             is_text_available,
             excluded_report_ids,
         )
-        ordering = _get_report_ordering(sort, rank)
-        statement = (
-            select(Report)
-            .options(defer(Report.markdown_content))
+        if sort == SearchSort.RELEVANCE:
+            title_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Report.title)
+            statement = (
+                select(Report)
+                .options(defer(Report.markdown_content))
+                .where(*filters)
+                .order_by(
+                    func.ts_rank(title_vector, tsquery).desc(),
+                    Report.sitting_date.desc(),
+                    Report.id,
+                )
+                .limit(limit)
+                .offset(offset)
+            )
+            return list(self.session.exec(statement).all())
+        # NOTE: adding zero hides the order from the sitting date index, which the planner would walk, testing every report against the title
+        unindexed_sitting_date = Report.sitting_date + _NO_DURATION
+        # NOTE: WITH TIES keeps every match on the cut-off date, so ranking sees all of them and the page equals ordering every match
+        first_matching_reports = (
+            select(*_COLUMNS_WITHOUT_MARKDOWN_CONTENT)
             .where(*filters)
-            .order_by(*ordering)
+            .order_by(_get_sitting_date_ordering(sort, unindexed_sitting_date))
+            .fetch(limit + offset, with_ties=True)
+            .subquery()
+        )
+        first_matching_report = aliased(Report, first_matching_reports)
+        title_vector = func.to_tsvector(
+            TEXT_SEARCH_CONFIGURATION, first_matching_report.title
+        )
+        statement = (
+            select(first_matching_report)
+            .options(defer(first_matching_report.markdown_content))
+            .order_by(
+                _get_sitting_date_ordering(sort, first_matching_report.sitting_date),
+                func.ts_rank(title_vector, tsquery).desc(),
+                first_matching_report.id,
+            )
             .limit(limit)
             .offset(offset)
         )
