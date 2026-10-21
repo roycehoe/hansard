@@ -16,7 +16,7 @@ AI coding tools wrote most of the code. Royce Hoe planned the work and answers f
 
 ## Report an error
 
-Email hansard@fancybinary.sg, or use the "Report an error" link beside any speech. To report in public, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml). Each fix is logged in [docs/corrections.md](docs/corrections.md).
+Email royceinbox@hotmail.com, or use the "Report an error" link beside any speech. To report in public, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml). Each fix is logged in [docs/corrections.md](docs/corrections.md).
 
 ## Run it locally
 

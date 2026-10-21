@@ -56,4 +56,4 @@ The site calls no language model. Search is Postgres full-text search, and every
 
 ## Contact
 
-Royce Hoe, hansard@fancybinary.sg.
+Royce Hoe, royceinbox@hotmail.com.

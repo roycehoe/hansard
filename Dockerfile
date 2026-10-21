@@ -5,7 +5,7 @@ COPY app/package.json app/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY app/ ./
 ENV VITE_API_URL=/api
-ARG VITE_CONTACT_EMAIL=hansard@fancybinary.sg
+ARG VITE_CONTACT_EMAIL=royceinbox@hotmail.com
 ENV VITE_CONTACT_EMAIL=$VITE_CONTACT_EMAIL
 ARG VITE_RESEARCHERS_FORM_URL=
 ENV VITE_RESEARCHERS_FORM_URL=$VITE_RESEARCHERS_FORM_URL
