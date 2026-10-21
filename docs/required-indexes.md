@@ -126,31 +126,54 @@ Limit  (cost=9805.56..9805.61 rows=21 width=24)
                     Index Cond: (id = speech.report_id)
 ```
 
-`GET /search/speeches` with a `person_id` and no search words also uses this index. The statement filters `speech.speaker_id`, keeps the Parliament, date and report type filters through the join to `report`, and orders by sitting date newest first, then `speech.id`. The sitting date sort key is a scalar subquery on `report` and not the joined column, because with the joined column the planner walks `ix_report_sitting_date_parliament_number` backward and filters speeches one at a time: 9.2 seconds for person 29 against 127 ms for the subquery form on 14 October 2026. `EXPLAIN (ANALYZE, BUFFERS)` on production, warm, third run, for person 29 (12 Memberships, 13,135 speeches), page 1:
+`GET /search/speeches` with a `person_id` and no search words also uses this index. The statement filters `speech.speaker_id`, keeps the Parliament, date and report type filters through the join to `report`, and orders by `speech.sitting_date`, newest first or oldest first, then `speech.id`. The sort key is the speech's own date, which equals its report's date on every row. Until 21 October 2026 it was a scalar subquery on `report`, because with the joined column `report.sitting_date` the planner walks `ix_report_sitting_date_parliament_number` backward and filters speeches one at a time: 9.2 seconds for person 29 against 127 ms for the subquery form on 14 October 2026. That reason does not apply to `speech.sitting_date`: no index orders speeches by it without search words, so the planner reads the member's speeches through `ix_speech_speaker_id` and keeps the top 21 in a sort. The subquery ran once for each of the member's speeches (12,457 times and 37,371 buffers for person 29), the join still hashed a sequential scan of `report`, and the plan's cost for the heavy members crossed `jit_above_cost`, so JIT fired. `EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy, third run, not yet captured on production, for person 29 (12 Memberships, 12,457 speeches), page 1:
 
 ```sql
 -- speech_search_filters_person (GET /search/speeches?person_id=29)
-SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.report_id, speech.speaker_id  FROM speech JOIN report ON report.id = speech.report_id  WHERE speech.speaker_id IN (30, 91, 158, 229, 308, 382, 462, 552, 644, 743, 846, 956) ORDER BY (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, speech.id  LIMIT 21 OFFSET 0;
+SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.kind, speech.sitting_date, speech.report_id, speech.speaker_id FROM speech JOIN report ON report.id = speech.report_id WHERE speech.speaker_id IN (30, 91, 158, 229, 308, 382, 462, 552, 644, 743, 846, 956) ORDER BY speech.sitting_date DESC, speech.id LIMIT 21 OFFSET 0;
 ```
 
 ```text
--- speech_search_filters_person (GET /search/speeches?person_id=29)
-Limit  (cost=48756.35..48756.40 rows=21 width=412) (actual time=123.973..123.984 rows=21 loops=1)
-  ->  Sort  (cost=48756.35..48795.68 rows=15733 width=412) (actual time=123.971..123.978 rows=21 loops=1)
-        Sort Key: ((SubPlan 1)) DESC, speech.id
-        Sort Method: top-N heapsort  Memory: 48kB
-        ->  Hash Join  (cost=1341.48..48332.16 rows=15733 width=412) (actual time=26.702..113.932 rows=13135 loops=1)
-              Hash Cond: (speech.report_id = report.id)
-              ->  Index Scan using ix_speech_speaker_id on speech  (cost=0.43..10645.92 rows=15733 width=404) (actual time=0.020..19.313 rows=13135 loops=1)
-                    Index Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
-              ->  Hash  (cost=818.41..818.41 rows=41811 width=4) (actual time=26.489..26.490 rows=41811 loops=1)
-                    ->  Index Only Scan using report_pkey on report  (cost=0.29..818.41 rows=41811 width=4) (actual time=0.014..10.335 rows=41811 loops=1)
-              SubPlan 1
-                ->  Index Scan using report_pkey on report report_1  (cost=0.29..2.31 rows=1 width=8) (actual time=0.003..0.004 rows=1 loops=13135)
-Execution Time: 124.095 ms
+-- speech_search_filters_person (GET /search/speeches?person_id=29), scratch copy, not yet captured on production
+Limit  (cost=42731.91..42747.75 rows=21 width=408) (actual time=25.706..29.068 rows=21 loops=1)
+  Buffers: shared hit=3949
+  ->  Nested Loop  (cost=42731.91..54161.88 rows=15155 width=408) (actual time=25.705..29.065 rows=21 loops=1)
+        Buffers: shared hit=3949
+        ->  Gather Merge  (cost=42731.61..44496.66 rows=15155 width=408) (actual time=25.564..28.916 rows=21 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              Buffers: shared hit=3945
+              ->  Sort  (cost=41731.59..41747.37 rows=6315 width=408) (actual time=4.392..4.393 rows=7 loops=3)
+                    Sort Key: speech.sitting_date DESC, speech.id
+                    Sort Method: quicksort  Memory: 5938kB
+                    Buffers: shared hit=3945
+                    Worker 0:  Sort Method: quicksort  Memory: 25kB
+                    Worker 1:  Sort Method: quicksort  Memory: 25kB
+                    ->  Parallel Bitmap Heap Scan on speech  (cost=218.62..41332.97 rows=6315 width=408) (actual time=0.424..2.608 rows=4152 loops=3)
+                          Recheck Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
+                          Heap Blocks: exact=3867
+                          Buffers: shared hit=3913
+                          ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..214.80 rows=15155 width=0) (actual time=0.833..0.833 rows=12457 loops=1)
+                                Index Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
+                                Buffers: shared hit=46
+        ->  Memoize  (cost=0.30..1.10 rows=1 width=4) (actual time=0.007..0.007 rows=1 loops=21)
+              Cache Key: speech.report_id
+              Cache Mode: logical
+              Hits: 20  Misses: 1  Evictions: 0  Overflows: 0  Memory Usage: 1kB
+              Buffers: shared hit=4
+              ->  Index Only Scan using report_pkey on report  (cost=0.29..1.09 rows=1 width=4) (actual time=0.012..0.013 rows=1 loops=1)
+                    Index Cond: (id = speech.report_id)
+                    Heap Fetches: 1
+                    Buffers: shared hit=4
+Planning:
+  Buffers: shared hit=16
+Planning Time: 0.140 ms
+Execution Time: 29.272 ms
 ```
 
-The same statement measured, warm, third run: page 50 (`OFFSET 980`) 144 ms, person 568 (39 speeches) 1.3 ms, person 29 with Parliament 5 (`report.parliament_number = 5` added) 19 ms. Every one reads the person's speeches through `ix_speech_speaker_id` and keeps the top 21 in a heap sort.
+Before and after on the scratch copy, interleaved, 10 rounds, medians: person 170 55 to 38 ms and 59,003 to 4,617 buffers, with JIT gone; person 170 oldest first 47 to 23 ms; person 170 page 50 (`OFFSET 980`) 56 to 37 ms; person 29 53 to 42 ms and 48,552 to 3,949 buffers; person 349 43 to 24 ms and 66,579 to 3,372 buffers; person 547 (14 speeches) 1.4 to 1.1 ms. The pages were identical for all 573 people with memberships, 14,161 inputs over both sorts, no filter, Parliament 14, 2020, written answers and one report.
+
+The planner now chooses a parallel plan (Gather Merge, as in the plan above) for 322 of the 532 people with speeches, against 191 before. A 3-round sweep of page 1 for all 532 took 11,968 ms in total against 10,989 before, led by people with 500 to 1,500 speeches (median 6.6 to 20.2 ms), but a 10-round check of 11 people showed no more than about 2 ms of loss for a mid-sized one. With `max_parallel_workers_per_gather = 0` the new statement was faster than the old for all 11 (person 383: 8.6 ms before, 6.4 after, 4.0 after with no workers). Production's setting is not known until Part A1 of the SQL file has run. The earlier statement measured on production on 14 October 2026, warm, third run: page 1 for person 29 124 ms, page 50 144 ms, person 568 (39 speeches) 1.3 ms, person 29 with Parliament 5 19 ms.
 
 ## ix_attendance_sitting_id
 
@@ -255,7 +278,7 @@ Limit  (cost=135.90..135.90 rows=3 width=194)
                                       Index Cond: (to_tsvector('english'::regconfig, (title)::text) @@ '''hous'' & ''estat'''::tsquery)
 ```
 
-`GET /search/speeches` without search words and without a `person_id`, and `GET /search/reports` without search words, order by `report.sitting_date` descending and filter by the Parliament, dates and report type. The planner walks this index backward and stops after the first few reports, so a page costs about 1 ms. These statements use the joined `report.sitting_date` as the sort key. The scalar subquery form that the person shape needs took 480 ms for Parliament 9 on 14 October 2026. `EXPLAIN (ANALYZE, BUFFERS)` on production, warm, third run:
+`GET /search/speeches` without search words and without a `person_id`, and `GET /search/reports` without search words, order by `report.sitting_date` descending and filter by the Parliament, dates and report type. The planner walks this index backward and stops after the first few reports, so a page costs about 1 ms. These statements use the joined `report.sitting_date` as the sort key. A scalar subquery as the sort key, which the person shape used until 21 October 2026, took 480 ms for Parliament 9 on 14 October 2026. `EXPLAIN (ANALYZE, BUFFERS)` on production, warm, third run:
 
 ```sql
 -- speech_filters_parliament (GET /search/speeches?parliament_number=9)

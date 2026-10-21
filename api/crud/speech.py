@@ -15,15 +15,6 @@ _BEFORE_FIRST_SITTING = datetime(1900, 1, 1)
 _AFTER_LAST_SITTING = datetime(2100, 1, 1)
 
 
-def _get_sitting_date() -> ColumnElement:
-    sitting_date_report = aliased(Report)
-    return (
-        select(sitting_date_report.sitting_date)
-        .where(sitting_date_report.id == Speech.report_id)
-        .scalar_subquery()
-    )
-
-
 def _get_report_filters(
     parliament_number: Optional[int],
     date_from: Optional[date],
@@ -312,7 +303,7 @@ class CRUDSpeech:
                     report_ids,
                 )
             )
-            .order_by(*_get_browse_ordering(sort, _get_sitting_date()))
+            .order_by(*_get_browse_ordering(sort, Speech.sitting_date))
             .limit(limit)
             .offset(offset)
         )
