@@ -131,14 +131,16 @@ function hasApiErrorCode(body: unknown, errorCode: string): boolean {
   return parsed.success && parsed.data.detail.error_code === errorCode
 }
 
-export function isSearchTimedOutError(error: Error | null): boolean {
-  if (!(error instanceof ApiError)) return false
-  // App Platform replaces the API's 503 with its own HTML 504 and keeps the original status in this header
-  if (
+function isServiceUnavailableReplacedByProxy(error: ApiError): boolean {
+  return (
     error.status === HTTP_GATEWAY_TIMEOUT &&
     error.headers.get(PROXY_ORIGINAL_STATUS_HEADER) ===
       String(HTTP_SERVICE_UNAVAILABLE)
   )
-    return true
+}
+
+export function isSearchTimedOutError(error: Error | null): boolean {
+  if (!(error instanceof ApiError)) return false
+  if (isServiceUnavailableReplacedByProxy(error)) return true
   return hasApiErrorCode(error.body, SEARCH_TIMED_OUT_ERROR_CODE)
 }
