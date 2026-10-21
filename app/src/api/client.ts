@@ -3,12 +3,14 @@ export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 export class ApiError extends Error {
   status: number
   body: unknown
+  headers: Headers
 
-  constructor(status: number, body: unknown) {
+  constructor(status: number, body: unknown, headers: Headers) {
     super(`Request failed with status ${status}`)
     this.name = 'ApiError'
     this.status = status
     this.body = body
+    this.headers = headers
   }
 }
 
@@ -36,7 +38,7 @@ async function request<T>(
     } catch {
       /* keep the raw text */
     }
-    throw new ApiError(res.status, parsed)
+    throw new ApiError(res.status, parsed, res.headers)
   }
 
   if (res.status === 204) return undefined as T

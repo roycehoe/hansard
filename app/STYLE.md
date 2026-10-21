@@ -558,6 +558,8 @@ if (isError) {
 
 **Retry is the primary action.** A failed fetch is usually transient, so the notice must let the user recover in place rather than only navigating away. Expose retry via an `onRetry: () => void` prop wired to the query's `refetch`, and an `isRetrying: boolean` prop wired to `isRefetching` — the notice never calls the API hook itself, exactly as a form receives mutation state from its parent.
 
+The one exception is a failure that a retry would repeat. A search stopped at the API's time limit times out again on the same words and filters, so `NoticeErrorSearchTimedOut` has no retry button, its body names the filters that narrow the search, and `shouldRetryQuery` in `main.tsx` does not retry it.
+
 The anatomy is fixed:
 
 - **Container** — centred column, owning its own vertical rhythm: `flex w-full flex-col items-center justify-center gap-12 py-24`. Never wrap the notice in an `h-[100vh]` / `h-screen` shell — `py-24` is the standard, matching the empty-state notice.

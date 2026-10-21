@@ -1,13 +1,24 @@
+import { ApiError } from '@/api/client'
 import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
-import { CONTACT_EMAIL, FILTER_ALL } from '@/constants/constants'
+import {
+  CONTACT_EMAIL,
+  FILTER_ALL,
+  HTTP_GATEWAY_TIMEOUT,
+  HTTP_SERVICE_UNAVAILABLE,
+} from '@/constants/constants'
 import { TEXTLESS_ASSENT_FIRST_SITTING } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
+import {
+  PROXY_ORIGINAL_STATUS_HEADER,
+  SEARCH_TIMED_OUT_ERROR_CODE,
+} from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
 import { formatParliament } from '@/lib/format'
 import type { PartyAffiliationData, PartyNote } from '@/types/people/interfaces'
 import { clsx, type ClassValue } from 'clsx'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
+import { z } from 'zod'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -109,4 +120,25 @@ export function isTextPublished(
 export function buildErrorEmailHref(subject: string, pageUrl: string): string {
   const body = `${pageUrl}\n\nWhat is wrong:\n`
   return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+}
+
+const apiErrorBodySchema = z.object({
+  detail: z.object({ error_code: z.string() }),
+})
+
+function hasApiErrorCode(body: unknown, errorCode: string): boolean {
+  const parsed = apiErrorBodySchema.safeParse(body)
+  return parsed.success && parsed.data.detail.error_code === errorCode
+}
+
+export function isSearchTimedOutError(error: Error | null): boolean {
+  if (!(error instanceof ApiError)) return false
+  // App Platform replaces the API's 503 with its own HTML 504 and keeps the original status in this header
+  if (
+    error.status === HTTP_GATEWAY_TIMEOUT &&
+    error.headers.get(PROXY_ORIGINAL_STATUS_HEADER) ===
+      String(HTTP_SERVICE_UNAVAILABLE)
+  )
+    return true
+  return hasApiErrorCode(error.body, SEARCH_TIMED_OUT_ERROR_CODE)
 }

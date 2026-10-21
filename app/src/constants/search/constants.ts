@@ -53,3 +53,7 @@ export const VISIBLE_SPEECH_MATCHES_PER_REPORT = 3
 export const SEARCH_WORDS_INPUT_ID = 'search-q'
 
 export const CLEAR_FILTERS_LABEL = 'Clear filters'
+
+export const SEARCH_TIMED_OUT_ERROR_CODE = 'search.timed_out'
+
+export const PROXY_ORIGINAL_STATUS_HEADER = 'x-do-orig-status'

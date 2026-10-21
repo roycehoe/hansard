@@ -17,6 +17,10 @@ export const HTTP_TOO_MANY_REQUESTS = 429
 
 export const HTTP_SERVER_ERROR_MIN = 500
 
+export const HTTP_SERVICE_UNAVAILABLE = 503
+
+export const HTTP_GATEWAY_TIMEOUT = 504
+
 export const NUMBER_LOCALE = 'en-SG'
 
 export const FILTER_ALL = 'all'

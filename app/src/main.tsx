@@ -5,6 +5,7 @@ import {
   HTTP_SERVER_ERROR_MIN,
 } from '@/constants/constants'
 import { countPageView, loadAnalytics } from '@/lib/analytics'
+import { isSearchTimedOutError } from '@/lib/utils'
 import { routeTree } from '@/routeTree.gen'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { RouterEvents } from '@tanstack/react-router'
@@ -14,6 +15,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 
 function shouldRetryQuery(failureCount: number, error: Error): boolean {
+  if (isSearchTimedOutError(error)) return false
   if (error instanceof ApiError && error.status < HTTP_SERVER_ERROR_MIN)
     return false
   return failureCount < DEFAULT_QUERY_RETRY_COUNT
