@@ -10,8 +10,11 @@ _CONNECTION_OPTIONS = (
     f"{_READ_ONLY_OPTION} -c statement_timeout={_STATEMENT_TIMEOUT_MILLISECONDS}"
 )
 _SEARCH_STATEMENT_TIMEOUT_MILLISECONDS = 10_000
+# NOTE: off, so a capped count's sequential scan of speech always starts at block 0; on, it starts where the last LIMIT-cut scan stopped, so each run reads pages no earlier run cached
+_UNSYNCHRONIZED_SEQUENTIAL_SCANS_OPTION = "-c synchronize_seqscans=off"
 _SEARCH_CONNECTION_OPTIONS = (
     f"{_READ_ONLY_OPTION} -c statement_timeout={_SEARCH_STATEMENT_TIMEOUT_MILLISECONDS}"
+    f" {_UNSYNCHRONIZED_SEQUENTIAL_SCANS_OPTION}"
 )
 _SEARCH_POOL_SIZE = 3
 _SEARCH_MAX_OVERFLOW = 2

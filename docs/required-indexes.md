@@ -606,6 +606,44 @@ Exact counts fail: "government" times out, and `oral-answer` alone takes 2.2 s. 
 
 The stored column fixed the broad word cost, not a smaller cap. On 18 October 2026, with `transcript_tsv` and the rum index, the count capped at 1,001 took 0.23 to 1.47 s in every shape tested on production, "government" included.
 
+On 21 October 2026 the search engine's connection options gained `-c synchronize_seqscans=off`. A broad word's capped count plans a sequential scan of `speech` that stops at the 1,001st match. Postgres synchronises sequential scans of a table larger than a quarter of `shared_buffers`, so with the default setting each scan started where the last cut scan stopped, and every run read pages no earlier run had cached. With the setting off, the scan always starts at block 0 and a repeat finds the same pages cached. `pg_settings` lists it with context `user`, so the read-only role can set it. A capped count is the lesser of its matches and 1,001 wherever the scan starts, so no count changes: the capped count of 335 inputs (44 broad words under no filter, a Parliament and a year, the 8 words under 23 filter sets, and 19 per-report cases) was identical before and after. The setting reaches only sequential scans. A bitmap or index plan is unchanged.
+
+`EXPLAIN (ANALYZE, BUFFERS)` of the "government" count on the scratch copy, three runs each: with the default setting `Rows Removed by Filter` was 7,396, 7,518 and 9,889 and the runs took 262, 261 and 347 ms. With it off it was 10,291 every time and the runs took 83, 11 and 14 ms. Interleaved against the old options on the scratch copy under load, 8 rounds, medians: "government" 963 to 9.8 ms, "housing" 311 to 16 ms, "year" 154 to 4.7 ms. Over the 44 words found in more than 5.6% of speeches, 3 rounds each, the median fell from 243 to 12 ms and the 90th percentile from 558 to 43 ms, and no word got slower. The plan below is the third run with the setting off, scratch copy, not yet captured on production.
+
+The fixed start costs a count that filters to a part of the table the start does not favour. `speech` is not in date order (the sitting date has a correlation of 0.05 with block position), and Parliament 14 holds 4% of the first 10,000 blocks against 20% of the table. A Parliament 14 count that still scans sequentially moved both ways, medians over 3 rounds against a start moved by an unrelated count first: "sir" 1,534 to 755 ms, "mr" 984 to 594, "one" 501 to 474, "singapor" 86 to 111, "minist" 81 to 131, "also" 101 to 185, "government" 199 to 406.
+
+```sql
+-- speech_count (GET /search/speeches?q=government)
+SELECT count(*) AS count_1 FROM (SELECT speech.id AS id FROM speech JOIN report ON report.id = speech.report_id WHERE (speech.transcript_tsv @@ websearch_to_tsquery('english', 'government')) LIMIT 1001) AS anon_1;
+```
+
+```text
+-- speech_count (GET /search/speeches?q=government)
+Aggregate  (cost=925.96..925.97 rows=1 width=8) (actual time=14.071..14.071 rows=1 loops=1)
+  Buffers: shared hit=1570 read=947
+  ->  Limit  (cost=0.30..913.45 rows=1001 width=4) (actual time=0.029..14.025 rows=1001 loops=1)
+        Buffers: shared hit=1570 read=947
+        ->  Nested Loop  (cost=0.30..126593.72 rows=138773 width=4) (actual time=0.028..13.966 rows=1001 loops=1)
+              Buffers: shared hit=1570 read=947
+              ->  Seq Scan on speech  (cost=0.00..118551.32 rows=138773 width=4) (actual time=0.021..13.146 rows=1001 loops=1)
+                    Filter: (transcript_tsv @@ '''govern'''::tsquery)
+                    Rows Removed by Filter: 10291
+                    Buffers: shared hit=365 read=947
+              ->  Memoize  (cost=0.30..0.40 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=1001)
+                    Cache Key: speech.report_id
+                    Cache Mode: logical
+                    Hits: 474  Misses: 527  Evictions: 0  Overflows: 0  Memory Usage: 54kB
+                    Buffers: shared hit=1205
+                    ->  Index Only Scan using report_pkey on report  (cost=0.29..0.39 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=527)
+                          Index Cond: (id = speech.report_id)
+                          Heap Fetches: 150
+                          Buffers: shared hit=1205
+Planning:
+  Buffers: shared hit=19
+Planning Time: 0.196 ms
+Execution Time: 14.085 ms
+```
+
 ## Queries the GIN index cannot serve
 
 A negation-only query, such as `-coe`, makes `websearch_to_tsquery` produce a query whose `querytree` is `T` (match everything). A GIN index cannot answer that, so the planner falls back to a sequential scan of `speech` or `report`. No index fixes this, and the API does not work around it (ADR 0003). The empty state tells the reader that common words are ignored.
