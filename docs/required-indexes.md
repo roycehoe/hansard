@@ -215,7 +215,7 @@ HashAggregate  (cost=7752.46..7752.58 rows=12 width=12)
 CREATE INDEX ix_report_sitting_date_parliament_number ON report (sitting_date, parliament_number);
 ```
 
-Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters and newest-first order of `GET /search/reports` and of `GET /search/speeches`, both without search words. With search words, a date-ordered title search adds zero to its sort key so that the planner cannot walk this index for the order (see `ix_report_title_fts`), and a date-ordered speech search reads it only for a Parliament's first and last sitting dates; the dates themselves filter `speech.sitting_date` (see `ix_speech_transcript_tsv_sitting_date_rum`).
+Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters and newest-first order of `GET /search/reports` and of `GET /search/speeches`, both without search words. With search words, a date-ordered title search adds zero to its sort key so that the planner cannot walk this index for the order (see `ix_report_title_fts`), and a date-ordered speech search and the speech match count read it only for a Parliament's first and last sitting dates; the dates themselves filter `speech.sitting_date` (see `ix_speech_transcript_tsv_sitting_date_rum`).
 
 The first version of this list named a single-column index on `report (sitting_date)`. The scraper builds this composite instead. On the rehearsal copy it served every statement the single column served. It also turned the per-Parliament statements (the Parliament list, the sittings list, the `DISTINCT sitting_date, parliament_number` subquery under the attendance counts) into index-only scans of 44 pages instead of 6,309 heap pages. On production a heap scan of `report` costs 0.4 to 1.4 seconds per statement, so that is the larger gain. A `(parliament_number, sitting_date)` index served fewer statements and was no better on any of them. The composite is 352 kB.
 
@@ -353,7 +353,7 @@ CREATE INDEX ix_speech_new_transcript_tsv_sitting_date_rum ON speech_new
 -- the copy is analysed before the swap, which renames this index to ix_speech_transcript_tsv_sitting_date_rum
 ```
 
-On production since 18 October 2026, when scraper migration `c93f77e499cc` ran there from 17:52 to 18:21. Needed by `GET /search/speeches` with search words, sorted oldest first or newest first, and by its match count under a date range. The index stores each match's sitting date in place of the word positions, so it returns the matches of a query in order of distance from a date. The API orders oldest first by `speech.sitting_date |=> '1900-01-01'` and newest first by `speech.sitting_date <=| '2100-01-01'`, then by `speech.id`, so the first page reads a few hundred buffers however common the word is. Date filters on word search read `speech.sitting_date`. In date order a Parliament filter also adds that Parliament's first and last sitting dates as a range on it, so the index reads only that span, and the exact Parliament filter on `report` stays. Relevance and the count do not get the range: with it, relevance in Parliament 14 read 159,000 buffers against 6,500. A member filter keeps a plain sort on `speech.sitting_date`, because a member's matches are few: walking the index until 20 of theirs turn up read 57,000 buffers for person 29 against 4,400 for the sort.
+On production since 18 October 2026, when scraper migration `c93f77e499cc` ran there from 17:52 to 18:21. Needed by `GET /search/speeches` with search words, sorted oldest first or newest first, and by its match count under a date range. The index stores each match's sitting date in place of the word positions, so it returns the matches of a query in order of distance from a date. The API orders oldest first by `speech.sitting_date |=> '1900-01-01'` and newest first by `speech.sitting_date <=| '2100-01-01'`, then by `speech.id`, so the first page reads a few hundred buffers however common the word is. Date filters on word search read `speech.sitting_date`. In date order and in the match count a Parliament filter also adds that Parliament's first and last sitting dates as a range on it, so the index reads only that span, and the exact Parliament filter on `report` stays. Relevance does not get the range: with it, relevance in Parliament 14 read 159,000 buffers against 6,500. The count gained the range on 21 October 2026 (see "Match counts"). A member filter keeps a plain sort on `speech.sitting_date`, because a member's matches are few: walking the index until 20 of theirs turn up read 57,000 buffers for person 29 against 4,400 for the sort.
 
 The index cannot order by relevance: it holds no word positions, so `<=>` against the query is not an index order. Relevance keeps `ix_speech_transcript_tsv_rum`. The scraper's ADR 0010 records why the date is a copy on `speech` and how the copy is kept in step.
 
@@ -610,7 +610,7 @@ On 21 October 2026 the search engine's connection options gained `-c synchronize
 
 `EXPLAIN (ANALYZE, BUFFERS)` of the "government" count on the scratch copy, three runs each: with the default setting `Rows Removed by Filter` was 7,396, 7,518 and 9,889 and the runs took 262, 261 and 347 ms. With it off it was 10,291 every time and the runs took 83, 11 and 14 ms. Interleaved against the old options on the scratch copy under load, 8 rounds, medians: "government" 963 to 9.8 ms, "housing" 311 to 16 ms, "year" 154 to 4.7 ms. Over the 44 words found in more than 5.6% of speeches, 3 rounds each, the median fell from 243 to 12 ms and the 90th percentile from 558 to 43 ms, and no word got slower. The plan below is the third run with the setting off, scratch copy, not yet captured on production.
 
-The fixed start costs a count that filters to a part of the table the start does not favour. `speech` is not in date order (the sitting date has a correlation of 0.05 with block position), and Parliament 14 holds 4% of the first 10,000 blocks against 20% of the table. A Parliament 14 count that still scans sequentially moved both ways, medians over 3 rounds against a start moved by an unrelated count first: "sir" 1,534 to 755 ms, "mr" 984 to 594, "one" 501 to 474, "singapor" 86 to 111, "minist" 81 to 131, "also" 101 to 185, "government" 199 to 406.
+The fixed start costs a count that filters to a part of the table the start does not favour. `speech` is not in date order (the sitting date has a correlation of 0.05 with block position), and Parliament 14 holds 4% of the first 10,000 blocks against 20% of the table. A Parliament 14 count that still scans sequentially moved both ways, medians over 3 rounds against a start moved by an unrelated count first: "sir" 1,534 to 755 ms, "mr" 984 to 594, "one" 501 to 474, "singapor" 86 to 111, "minist" 81 to 131, "also" 101 to 185, "government" 199 to 406. Since 21 October 2026 the count also carries the Parliament's date range, which takes these shapes off the sequential scan (below).
 
 ```sql
 -- speech_count (GET /search/speeches?q=government)
@@ -642,6 +642,71 @@ Planning:
   Buffers: shared hit=19
 Planning Time: 0.196 ms
 Execution Time: 14.085 ms
+```
+
+On 21 October 2026 the speech match count began to add the Parliament's date range when a Parliament is set, as the date-ordered page query already did: `speech.sitting_date` between the Parliament's first and last report date, each a one-row scalar subquery on `ix_report_sitting_date_parliament_number` (64 and 3 buffers for Parliament 14). The exact `report.parliament_number` filter stays. Before, a Parliament count read every match of the word from the GIN index and joined each to `report` until 1,001 were in the Parliament. Now `ix_speech_transcript_tsv_sitting_date_rum` returns only the matches inside the span. The range cannot drop a speech of the Parliament: `speech.sitting_date` equals its report's date on all 1,051,922 scratch rows, and every Parliament's speeches lie between its own first and last report date. No count changed. 638 inputs were identical before and after: Parliaments 0 to 15 and 99, each against the 8 matrix words, four words with excluded report ids, "housing" and "sir" under 11 other filters, and per-report cases. 335 of the counts were zero, 149 between 1 and 1,000 and 154 capped.
+
+Interleaved on the scratch copy, 8 rounds, medians, with buffers from `EXPLAIN (ANALYZE, BUFFERS)`:
+
+| Count | Before | After | Buffers before | Buffers after |
+|---|---|---|---|---|
+| "housing", Parliament 14 | 25 ms | 11 ms | 28,798 | 3,912 |
+| "government", Parliament 9 | 20 ms | 11 ms | 13,617 | 1,832 |
+| "minister", Parliament 1 | 54 ms | 12 ms | 70,929 | 1,180 |
+| "sir", Parliament 14 | 86 ms | 13 ms | 68,809 | 2,469 |
+| "government", Parliament 14 | 44 ms | 12 ms | 33,121 | 2,281 |
+| "government", Parliament 3 | 15 ms | 11 ms | 18,142 | 1,475 |
+| "housing", Parliament 0 | 17 ms | 10 ms | 16,007 | 4,058 |
+| "covid", Parliament 14 | 3.0 ms | 6.4 ms | 2,199 | 3,678 |
+
+A narrow word is the one regression: "covid" has few matches, so its GIN bitmap was already small and the ranged rum scan reads more. The seven Parliament 14 counts that scanned `speech` sequentially ("sir", "mr", "one", "singapor", "minist", "also", "government") took 22 to 51 ms each with the range, against 111 to 755 ms without it. In the harness a "sir" search in Parliament 14 took 264 ms warm before and 142 after, and "housing" in Parliament 14 with written answers 210 before and 85 after. None of these timings has a date filter of its own.
+
+The plan below is the count for "housing" in Parliament 14 on the scratch copy, third run, not yet captured on production. Before, the plan was a Bitmap Heap Scan of `speech` over the 67,018 GIN matches, joined to `report` until 1,001 rows were in Parliament 14: 28,798 buffers, 24 ms.
+
+```sql
+-- speech_count, Parliament filter (GET /search/speeches?q=housing&parliament_number=14)
+SELECT count(*) AS count_1 FROM (SELECT speech.id AS id FROM speech JOIN report ON report.id = speech.report_id WHERE (speech.transcript_tsv @@ websearch_to_tsquery('english', 'housing')) AND report.parliament_number = 14 AND speech.sitting_date >= (SELECT min(report_1.sitting_date) AS min_1 FROM report AS report_1 WHERE report_1.parliament_number = 14) AND speech.sitting_date <= (SELECT max(report_1.sitting_date) AS max_1 FROM report AS report_1 WHERE report_1.parliament_number = 14) LIMIT 1001) AS anon_1;
+```
+
+```text
+-- speech_count, Parliament filter (GET /search/speeches?q=housing&parliament_number=14)
+Aggregate  (cost=3702.33..3702.34 rows=1 width=8) (actual time=11.005..11.007 rows=1 loops=1)
+  Buffers: shared hit=3912, temp read=282 written=282
+  ->  Limit  (cost=65.16..3701.14 rows=95 width=4) (actual time=9.034..10.946 rows=1001 loops=1)
+        Buffers: shared hit=3912, temp read=282 written=282
+        InitPlan 2
+          ->  Result  (cost=1.21..1.22 rows=1 width=8) (actual time=0.160..0.161 rows=1 loops=1)
+                Buffers: shared hit=64
+                InitPlan 1
+                  ->  Limit  (cost=0.29..1.21 rows=1 width=8) (actual time=0.159..0.159 rows=1 loops=1)
+                        Buffers: shared hit=64
+                        ->  Index Only Scan using ix_report_sitting_date_parliament_number on report report_1  (cost=0.29..10416.33 rows=11284 width=8) (actual time=0.159..0.159 rows=1 loops=1)
+                              Index Cond: (parliament_number = 14)
+                              Heap Fetches: 1
+                              Buffers: shared hit=64
+        InitPlan 4
+          ->  Result  (cost=1.21..1.22 rows=1 width=8) (actual time=0.005..0.006 rows=1 loops=1)
+                Buffers: shared hit=3
+                InitPlan 3
+                  ->  Limit  (cost=0.29..1.21 rows=1 width=8) (actual time=0.005..0.005 rows=1 loops=1)
+                        Buffers: shared hit=3
+                        ->  Index Only Scan Backward using ix_report_sitting_date_parliament_number on report report_1_1  (cost=0.29..10416.33 rows=11284 width=8) (actual time=0.005..0.005 rows=1 loops=1)
+                              Index Cond: (parliament_number = 14)
+                              Heap Fetches: 0
+                              Buffers: shared hit=3
+        ->  Nested Loop  (cost=62.71..3698.69 rows=95 width=4) (actual time=9.033..10.884 rows=1001 loops=1)
+              Buffers: shared hit=3912, temp read=282 written=282
+              ->  Index Scan using ix_speech_transcript_tsv_sitting_date_rum on speech  (cost=62.42..1477.88 rows=351 width=4) (actual time=9.026..9.902 rows=1001 loops=1)
+                    Index Cond: ((transcript_tsv @@ '''hous'''::tsquery) AND (sitting_date >= (InitPlan 2).col1) AND (sitting_date <= (InitPlan 4).col1))
+                    Buffers: shared hit=909, temp read=282 written=282
+              ->  Index Scan using report_pkey on report  (cost=0.29..6.33 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=1001)
+                    Index Cond: (id = speech.report_id)
+                    Filter: (parliament_number = 14)
+                    Buffers: shared hit=3003
+Planning:
+  Buffers: shared hit=19
+Planning Time: 0.264 ms
+Execution Time: 11.299 ms
 ```
 
 ## Queries the GIN index cannot serve

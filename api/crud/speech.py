@@ -328,21 +328,23 @@ class CRUDSpeech:
         report_ids: Optional[list[int]],
         limit: int,
     ) -> int:
+        filters = _get_query_filters(
+            query,
+            parliament_number,
+            date_from,
+            date_to,
+            report_type,
+            membership_ids,
+            excluded_report_ids,
+            report_ids,
+        )
+        # NOTE: the count reads the Parliament's date range too, so the rum index on transcript_tsv and sitting_date reads only that span instead of every match
+        if parliament_number is not None:
+            filters.extend(_get_parliament_sitting_date_filters(parliament_number))
         matching_ids = (
             select(Speech.id)
             .join(Report, Report.id == Speech.report_id)
-            .where(
-                *_get_query_filters(
-                    query,
-                    parliament_number,
-                    date_from,
-                    date_to,
-                    report_type,
-                    membership_ids,
-                    excluded_report_ids,
-                    report_ids,
-                )
-            )
+            .where(*filters)
             .limit(limit)
         )
         statement = select(func.count()).select_from(matching_ids.subquery())
