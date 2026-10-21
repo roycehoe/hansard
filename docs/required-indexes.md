@@ -39,7 +39,7 @@ Facts that apply to every plan below:
 CREATE INDEX ix_speech_report_id ON speech (report_id);
 ```
 
-Needed by `GET /reports/{report_slug}`. `GET /search/speeches` also joins `speech` to `report` on this column. `GET /coverage`, `GET /parliaments`, `GET /sittings/{sitting_date}` and `GET /search/reports` decide whether a Report has text with an `EXISTS` on `speech.report_id`, one index probe per Report. Of the statements `GET /coverage` sends, only its text count per year probes every Report; its first and last sitting date with text stop at the first Report with text (see `ix_report_sitting_date_parliament_number`).
+Needed by `GET /reports/{report_slug}`. `GET /search/speeches` also joins `speech` to `report` on this column when a filter reads `report`: a Parliament or a report type, and for a member's speeches without search words a date range too. `GET /coverage`, `GET /parliaments`, `GET /sittings/{sitting_date}` and `GET /search/reports` decide whether a Report has text with an `EXISTS` on `speech.report_id`, one index probe per Report. Of the statements `GET /coverage` sends, only its text count per year probes every Report; its first and last sitting date with text stop at the first Report with text (see `ix_report_sitting_date_parliament_number`).
 
 Before the index existed, `speech_by_report_id` scanned all of `speech` for one report's speeches. It now reads the report's rows through the index.
 
@@ -116,54 +116,36 @@ Bitmap Heap Scan on report  (cost=248.84..2034.00 rows=583 width=8)
         Index Cond: (id = ANY ('{...}'::integer[]))
 ```
 
-`GET /search/speeches` with a `person_id` and no search words also uses this index. The statement filters `speech.speaker_id`, keeps the Parliament, date and report type filters through the join to `report`, and orders by `speech.sitting_date`, newest first or oldest first, then `speech.id`. The sort key is the speech's own date, which equals its report's date on every row. Until 21 October 2026 it was a scalar subquery on `report`, because with the joined column `report.sitting_date` the planner walks `ix_report_sitting_date_parliament_number` backward and filters speeches one at a time: 9.2 seconds for person 29 against 127 ms for the subquery form on 14 October 2026. That reason does not apply to `speech.sitting_date`: no index orders speeches by it without search words, so the planner reads the member's speeches through `ix_speech_speaker_id` and keeps the top 21 in a sort. The subquery ran once for each of the member's speeches (12,457 times and 37,371 buffers for person 29), the join still hashed a sequential scan of `report`, and the plan's cost for the heavy members crossed `jit_above_cost`, so JIT fired. `EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy, third run, not yet captured on production, for person 29 (12 Memberships, 12,457 speeches), page 1:
+`GET /search/speeches` with a `person_id` and no search words also uses this index. The statement filters `speech.speaker_id`, keeps the Parliament, date and report type filters through the join to `report` (with none of them set it has no join, see below), and orders by `speech.sitting_date`, newest first or oldest first, then `speech.id`. The sort key is the speech's own date, which equals its report's date on every row. Until 21 October 2026 it was a scalar subquery on `report`, because with the joined column `report.sitting_date` the planner walks `ix_report_sitting_date_parliament_number` backward and filters speeches one at a time: 9.2 seconds for person 29 against 127 ms for the subquery form on 14 October 2026. That reason does not apply to `speech.sitting_date`: no index orders speeches by it without search words, so the planner reads the member's speeches through `ix_speech_speaker_id` and keeps the top 21 in a sort. The subquery ran once for each of the member's speeches (12,457 times and 37,371 buffers for person 29), the join still hashed a sequential scan of `report`, and the plan's cost for the heavy members crossed `jit_above_cost`, so JIT fired. `EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy, third run, not yet captured on production, for person 29 (12 Memberships, 12,457 speeches), page 1:
 
 ```sql
 -- speech_search_filters_person (GET /search/speeches?person_id=29)
-SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.kind, speech.sitting_date, speech.report_id, speech.speaker_id FROM speech JOIN report ON report.id = speech.report_id WHERE speech.speaker_id IN (30, 91, 158, 229, 308, 382, 462, 552, 644, 743, 846, 956) ORDER BY speech.sitting_date DESC, speech.id LIMIT 21 OFFSET 0;
+SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.kind, speech.sitting_date, speech.report_id, speech.speaker_id FROM speech WHERE speech.report_id IS NOT NULL AND speech.speaker_id IN (30, 91, 158, 229, 308, 382, 462, 552, 644, 743, 846, 956) ORDER BY speech.sitting_date DESC, speech.id LIMIT 21 OFFSET 0;
 ```
 
 ```text
 -- speech_search_filters_person (GET /search/speeches?person_id=29), scratch copy, not yet captured on production
-Limit  (cost=42731.91..42747.75 rows=21 width=408) (actual time=25.706..29.068 rows=21 loops=1)
-  Buffers: shared hit=3949
-  ->  Nested Loop  (cost=42731.91..54161.88 rows=15155 width=408) (actual time=25.705..29.065 rows=21 loops=1)
-        Buffers: shared hit=3949
-        ->  Gather Merge  (cost=42731.61..44496.66 rows=15155 width=408) (actual time=25.564..28.916 rows=21 loops=1)
-              Workers Planned: 2
-              Workers Launched: 2
-              Buffers: shared hit=3945
-              ->  Sort  (cost=41731.59..41747.37 rows=6315 width=408) (actual time=4.392..4.393 rows=7 loops=3)
-                    Sort Key: speech.sitting_date DESC, speech.id
-                    Sort Method: quicksort  Memory: 5938kB
-                    Buffers: shared hit=3945
-                    Worker 0:  Sort Method: quicksort  Memory: 25kB
-                    Worker 1:  Sort Method: quicksort  Memory: 25kB
-                    ->  Parallel Bitmap Heap Scan on speech  (cost=218.62..41332.97 rows=6315 width=408) (actual time=0.424..2.608 rows=4152 loops=3)
-                          Recheck Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
-                          Heap Blocks: exact=3867
-                          Buffers: shared hit=3913
-                          ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..214.80 rows=15155 width=0) (actual time=0.833..0.833 rows=12457 loops=1)
-                                Index Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
-                                Buffers: shared hit=46
-        ->  Memoize  (cost=0.30..1.10 rows=1 width=4) (actual time=0.007..0.007 rows=1 loops=21)
-              Cache Key: speech.report_id
-              Cache Mode: logical
-              Hits: 20  Misses: 1  Evictions: 0  Overflows: 0  Memory Usage: 1kB
-              Buffers: shared hit=4
-              ->  Index Only Scan using report_pkey on report  (cost=0.29..1.09 rows=1 width=4) (actual time=0.012..0.013 rows=1 loops=1)
-                    Index Cond: (id = speech.report_id)
-                    Heap Fetches: 1
-                    Buffers: shared hit=4
-Planning:
-  Buffers: shared hit=16
-Planning Time: 0.140 ms
-Execution Time: 29.272 ms
+Limit  (cost=41874.18..41874.23 rows=21 width=408) (actual time=5.221..5.224 rows=21 loops=1)
+  Buffers: shared hit=3913
+  ->  Sort  (cost=41874.18..41912.06 rows=15155 width=408) (actual time=5.221..5.222 rows=21 loops=1)
+        Sort Key: sitting_date DESC, id
+        Sort Method: top-N heapsort  Memory: 42kB
+        Buffers: shared hit=3913
+        ->  Bitmap Heap Scan on speech  (cost=218.62..41465.57 rows=15155 width=408) (actual time=0.873..3.459 rows=12457 loops=1)
+              Recheck Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
+              Filter: (report_id IS NOT NULL)
+              Heap Blocks: exact=3867
+              Buffers: shared hit=3913
+              ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..214.80 rows=15155 width=0) (actual time=0.523..0.523 rows=12457 loops=1)
+                    Index Cond: (speaker_id = ANY ('{30,91,158,229,308,382,462,552,644,743,846,956}'::integer[]))
+                    Buffers: shared hit=46
+Planning Time: 0.054 ms
+Execution Time: 5.258 ms
 ```
 
 Before and after on the scratch copy, interleaved, 10 rounds, medians: person 170 55 to 38 ms and 59,003 to 4,617 buffers, with JIT gone; person 170 oldest first 47 to 23 ms; person 170 page 50 (`OFFSET 980`) 56 to 37 ms; person 29 53 to 42 ms and 48,552 to 3,949 buffers; person 349 43 to 24 ms and 66,579 to 3,372 buffers; person 547 (14 speeches) 1.4 to 1.1 ms. The pages were identical for all 573 people with memberships, 14,161 inputs over both sorts, no filter, Parliament 14, 2020, written answers and one report.
 
-The planner now chooses a parallel plan (Gather Merge, as in the plan above) for 322 of the 532 people with speeches, against 191 before. A 3-round sweep of page 1 for all 532 took 11,968 ms in total against 10,989 before, led by people with 500 to 1,500 speeches (median 6.6 to 20.2 ms), but a 10-round check of 11 people showed no more than about 2 ms of loss for a mid-sized one. With `max_parallel_workers_per_gather = 0` the new statement was faster than the old for all 11 (person 383: 8.6 ms before, 6.4 after, 4.0 after with no workers). Production's setting is not known until Part A1 of the SQL file has run. The earlier statement measured on production on 14 October 2026, warm, third run: page 1 for person 29 124 ms, page 50 144 ms, person 568 (39 speeches) 1.3 ms, person 29 with Parliament 5 19 ms.
+On 21 October 2026 the join to `report` went from this statement, its count and its per-report count whenever no Parliament, date or report type filter is set. The join only checked that the speech has a report, and `speech.report_id` is a foreign key to `report`, so `speech.report_id IS NOT NULL` keeps the same rows (the scratch copy has no null `report_id`). With the join, the planner chose between two plans: for 304 of the 532 people with speeches a parallel plan (Gather Merge, then one `report_pkey` probe per row on the page), and otherwise a hash join over a sequential scan of all of `report` (6,208 buffers). Without it, no person's page or count plans a parallel worker, and the plan above reads only the member's speeches. Interleaved on the scratch copy, 10 rounds, warm medians, page 1: person 152 (346 speeches) 4.9 to 1.7 ms, person 348 10.8 to 1.8, person 221 10.1 to 4.4, person 29 9.6 to 5.8, person 170 10.9 to 7.1, person 170 page 50 11.3 to 8.2; the capped counts 1.8 to 4.9 ms before, 0.9 to 2.0 after, and person 29's count 909 to 422 buffers. With every shared buffer of the database evicted first (3 rounds), the pages were within noise of each other, but without the join a plan can no longer fall back to the hash join, which took person 221 to 204 ms when workers were off. A 3-round sweep of page 1 for all 532 people took 1,910 ms in total before and 971 after (median person 3.6 to 1.3 ms), and no person got slower by more than 1 ms. 7,798 inputs were identical before and after: every person with Memberships over both sorts and pages 1, 2 and 50, with and without excluded reports, their counts and one report each, and the word search pages and counts listed under "Ranking cost". The earlier statement measured on production on 14 October 2026, warm, third run: page 1 for person 29 124 ms, page 50 144 ms, person 568 (39 speeches) 1.3 ms, person 29 with Parliament 5 19 ms.
 
 ## ix_attendance_sitting_id
 
@@ -578,48 +560,40 @@ Relevance. The rum index returns matches in `<=>` order, so the planner stops af
 
 On 21 October 2026 relevance took two changes. A member filter now adds zero to the distance, as a date range does. Without it the planner walked `ix_speech_transcript_tsv_rum` in rank order and tested each match against the member: for "sir" and the four Memberships of person 349 that removed 179,708 rows to find 367, and took 1,355 ms and 112,417 buffers on the scratch copy, spilling to temp files. With zero added it intersects `ix_speech_speaker_id` with `ix_speech_transcript_tsv` and sorts the member's matches: 9.8 ms and 642 buffers. The tie-break moved from a subquery on `report`, run once for every row the sort pulled, to `speech.sitting_date`; "government" page 50 fell from 9,657 to 5,520 buffers with it. Interleaved on the scratch copy, 5 rounds, page and count together, medians: "sir" for person 349 2,010 to 28 ms, "housing" for person 170 69 to 22 ms (13,064 to 1,086 buffers), "government" for person 29 page 2 114 to 40 ms (1,879 to 4,055 buffers, because the plan now reads both indexes). Plain "government" pages 1, 2 and 50 and "housing" in written answers did not move beyond noise over 20 rounds (68.4 to 68.5 ms, 65.9 to 62.4, 66.3 to 68.5, 53.8 to 53.9). The page ids and their order were identical before and after for 1,236 inputs.
 
+On 21 October 2026 the join to `report` also went from the word search page, its count and its per-report count whenever no Parliament or report type filter is set, as it did from a member's speeches without search words (see `ix_speech_speaker_id`). The dates filter `speech.sitting_date`, so only those two filters read `report`. Without a filter on `report` the join only checked that the speech has a report, and `speech.report_id IS NOT NULL` keeps the same rows because `speech.report_id` is a foreign key to `report`. Interleaved on the scratch copy, 10 rounds, warm medians, then with every shared buffer of the database evicted first, 3 rounds: "housing" in 2020 by relevance 10.5 to 5.5 ms warm and 66 to 14 ms evicted (7,437 to 1,229 buffers), its count 5.0 to 4.7 ms (1,445 to 889); "housing" for person 170 newest first 9.8 to 6.5 ms warm, 21 to 13 ms evicted; the "public housing" count 14.5 to 7.8 ms warm, 63 to 32 ms evicted (15,762 to 2,883 buffers), where the join had made the planner pick a parallel plan; the "government" count 3.9 to 3.4 ms warm, 8.9 to 4.9 ms evicted (2,894 to 1,312). The broad word pages read fewer buffers ("government" page 50 7,048 to 5,012) but did not move beyond noise ("government" by relevance 64.0 and 62.4 ms, page 50 62.5 and 61.3, newest first 42.6 and 45.3). Searches with a Parliament or a report type keep the join and did not change. 1,520 word inputs were identical before and after: the 8 words of the earlier comparisons under no filter, Parliament 14, written answers, four date ranges, five people, a person with a year and a person with a Parliament, by all three sorts on pages 1, 2 and 50, their capped counts, two of the filter sets also with excluded reports, and pages and per-report counts for three words in the 40 reports with the most speeches.
+
 The page for "sir" and person 349 after the change, scratch copy, third run, not yet captured on production:
 
 ```sql
 -- speech_search_relevance_person (GET /search/speeches?q=sir&person_id=349)
-SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.kind, speech.sitting_date, speech.report_id, speech.speaker_id FROM speech JOIN report ON report.id = speech.report_id WHERE (speech.transcript_tsv @@ websearch_to_tsquery('english', 'sir')) AND speech.speaker_id IN (953, 1071, 1180, 1302) ORDER BY (speech.transcript_tsv <=> websearch_to_tsquery('english', 'sir')) + 0, speech.sitting_date DESC, speech.id LIMIT 21 OFFSET 0;
+SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.kind, speech.sitting_date, speech.report_id, speech.speaker_id FROM speech WHERE speech.report_id IS NOT NULL AND (speech.transcript_tsv @@ websearch_to_tsquery('english', 'sir')) AND speech.speaker_id IN (953, 1071, 1180, 1302) ORDER BY (speech.transcript_tsv <=> websearch_to_tsquery('english', 'sir')) + 0, speech.sitting_date DESC, speech.id LIMIT 21 OFFSET 0;
 ```
 
 ```text
 -- speech_search_relevance_person (GET /search/speeches?q=sir&person_id=349), scratch copy, not yet captured on production
-Limit  (cost=11936.45..11936.51 rows=21 width=416) (actual time=9.752..9.754 rows=21 loops=1)
-  Buffers: shared hit=642
-  ->  Sort  (cost=11936.45..11941.24 rows=1913 width=416) (actual time=9.751..9.753 rows=21 loops=1)
-        Sort Key: (((speech.transcript_tsv <=> '''sir'''::tsquery) + '0'::double precision)), speech.sitting_date DESC, speech.id
+Limit  (cost=8241.99..8242.05 rows=21 width=416) (actual time=10.682..10.684 rows=21 loops=1)
+  Buffers: shared hit=392
+  ->  Sort  (cost=8241.99..8246.78 rows=1913 width=416) (actual time=10.682..10.683 rows=21 loops=1)
+        Sort Key: (((transcript_tsv <=> '''sir'''::tsquery) + '0'::double precision)), sitting_date DESC, id
         Sort Method: top-N heapsort  Memory: 54kB
-        Buffers: shared hit=642
-        ->  Nested Loop  (cost=1326.59..11884.88 rows=1913 width=416) (actual time=9.277..9.644 rows=367 loops=1)
-              Buffers: shared hit=642
-              ->  Bitmap Heap Scan on speech  (cost=1326.29..8180.85 rows=1913 width=772) (actual time=9.270..9.385 rows=367 loops=1)
-                    Recheck Cond: ((speaker_id = ANY ('{953,1071,1180,1302}'::integer[])) AND (transcript_tsv @@ '''sir'''::tsquery))
-                    Heap Blocks: exact=323
-                    Buffers: shared hit=383
-                    ->  BitmapAnd  (cost=1326.29..1326.29 rows=1913 width=0) (actual time=9.241..9.241 rows=0 loops=1)
-                          Buffers: shared hit=60
-                          ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..133.41 rows=11160 width=0) (actual time=0.283..0.283 rows=11760 loops=1)
-                                Index Cond: (speaker_id = ANY ('{953,1071,1180,1302}'::integer[]))
-                                Buffers: shared hit=23
-                          ->  Bitmap Index Scan on ix_speech_transcript_tsv  (cost=0.00..1191.68 rows=180468 width=0) (actual time=8.812..8.812 rows=180075 loops=1)
-                                Index Cond: (transcript_tsv @@ '''sir'''::tsquery)
-                                Buffers: shared hit=37
-              ->  Memoize  (cost=0.30..2.08 rows=1 width=4) (actual time=0.000..0.000 rows=1 loops=367)
-                    Cache Key: speech.report_id
-                    Cache Mode: logical
-                    Hits: 267  Misses: 100  Evictions: 0  Overflows: 0  Memory Usage: 11kB
-                    Buffers: shared hit=250
-                    ->  Index Only Scan using report_pkey on report  (cost=0.29..2.07 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=100)
-                          Index Cond: (id = speech.report_id)
-                          Heap Fetches: 49
-                          Buffers: shared hit=250
+        Buffers: shared hit=392
+        ->  Bitmap Heap Scan on speech  (cost=1326.29..8190.42 rows=1913 width=416) (actual time=10.381..10.574 rows=367 loops=1)
+              Recheck Cond: ((speaker_id = ANY ('{953,1071,1180,1302}'::integer[])) AND (transcript_tsv @@ '''sir'''::tsquery))
+              Filter: (report_id IS NOT NULL)
+              Heap Blocks: exact=323
+              Buffers: shared hit=392
+              ->  BitmapAnd  (cost=1326.29..1326.29 rows=1913 width=0) (actual time=10.354..10.354 rows=0 loops=1)
+                    Buffers: shared hit=60
+                    ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..133.41 rows=11160 width=0) (actual time=0.306..0.306 rows=11760 loops=1)
+                          Index Cond: (speaker_id = ANY ('{953,1071,1180,1302}'::integer[]))
+                          Buffers: shared hit=23
+                    ->  Bitmap Index Scan on ix_speech_transcript_tsv  (cost=0.00..1191.68 rows=180468 width=0) (actual time=9.908..9.908 rows=180075 loops=1)
+                          Index Cond: (transcript_tsv @@ '''sir'''::tsquery)
+                          Buffers: shared hit=37
 Planning:
-  Buffers: shared hit=19
-Planning Time: 0.118 ms
-Execution Time: 9.766 ms
+  Buffers: shared hit=3
+Planning Time: 0.070 ms
+Execution Time: 10.866 ms
 ```
 
 Newest first, at `613c795`. The key is the joined `report.sitting_date`, so a common word walks the report date index from the newest report and stops after the first page. With the subquery date the planner sorted every match: 34.7 to 38.5 s for "government" once the rum index existed, and one cold run passed 120 s.
@@ -711,40 +685,29 @@ The stored column fixed the broad word cost, not a smaller cap. On 18 October 20
 
 On 21 October 2026 the search engine's connection options gained `-c synchronize_seqscans=off`. A broad word's capped count plans a sequential scan of `speech` that stops at the 1,001st match. Postgres synchronises sequential scans of a table larger than a quarter of `shared_buffers`, so with the default setting each scan started where the last cut scan stopped, and every run read pages no earlier run had cached. With the setting off, the scan always starts at block 0 and a repeat finds the same pages cached. `pg_settings` lists it with context `user`, so the read-only role can set it. A capped count is the lesser of its matches and 1,001 wherever the scan starts, so no count changes: the capped count of 335 inputs (44 broad words under no filter, a Parliament and a year, the 8 words under 23 filter sets, and 19 per-report cases) was identical before and after. The setting reaches only sequential scans. A bitmap or index plan is unchanged.
 
-`EXPLAIN (ANALYZE, BUFFERS)` of the "government" count on the scratch copy, three runs each: with the default setting `Rows Removed by Filter` was 7,396, 7,518 and 9,889 and the runs took 262, 261 and 347 ms. With it off it was 10,291 every time and the runs took 83, 11 and 14 ms. Interleaved against the old options on the scratch copy under load, 8 rounds, medians: "government" 963 to 9.8 ms, "housing" 311 to 16 ms, "year" 154 to 4.7 ms. Over the 44 words found in more than 5.6% of speeches, 3 rounds each, the median fell from 243 to 12 ms and the 90th percentile from 558 to 43 ms, and no word got slower. The plan below is the third run with the setting off, scratch copy, not yet captured on production.
+`EXPLAIN (ANALYZE, BUFFERS)` of the "government" count on the scratch copy, three runs each, before the join to `report` went (see "Ranking cost"): with the default setting `Rows Removed by Filter` was 7,396, 7,518 and 9,889 and the runs took 262, 261 and 347 ms. With it off it was 10,291 every time and the runs took 83, 11 and 14 ms. Interleaved against the old options on the scratch copy under load, 8 rounds, medians: "government" 963 to 9.8 ms, "housing" 311 to 16 ms, "year" 154 to 4.7 ms. Over the 44 words found in more than 5.6% of speeches, 3 rounds each, the median fell from 243 to 12 ms and the 90th percentile from 558 to 43 ms, and no word got slower. The plan below is the third run with the setting off and without the join to `report`, scratch copy, not yet captured on production.
 
 The fixed start costs a count that filters to a part of the table the start does not favour. `speech` is not in date order (the sitting date has a correlation of 0.05 with block position), and Parliament 14 holds 4% of the first 10,000 blocks against 20% of the table. A Parliament 14 count that still scans sequentially moved both ways, medians over 3 rounds against a start moved by an unrelated count first: "sir" 1,534 to 755 ms, "mr" 984 to 594, "one" 501 to 474, "singapor" 86 to 111, "minist" 81 to 131, "also" 101 to 185, "government" 199 to 406. Since 21 October 2026 the count also carries the Parliament's date range, which takes these shapes off the sequential scan (below).
 
 ```sql
 -- speech_count (GET /search/speeches?q=government)
-SELECT count(*) AS count_1 FROM (SELECT speech.id AS id FROM speech JOIN report ON report.id = speech.report_id WHERE (speech.transcript_tsv @@ websearch_to_tsquery('english', 'government')) LIMIT 1001) AS anon_1;
+SELECT count(*) AS count_1 FROM (SELECT speech.id AS id FROM speech WHERE speech.report_id IS NOT NULL AND (speech.transcript_tsv @@ websearch_to_tsquery('english', 'government')) LIMIT 1001) AS anon_1;
 ```
 
 ```text
 -- speech_count (GET /search/speeches?q=government)
-Aggregate  (cost=925.96..925.97 rows=1 width=8) (actual time=14.071..14.071 rows=1 loops=1)
-  Buffers: shared hit=1570 read=947
-  ->  Limit  (cost=0.30..913.45 rows=1001 width=4) (actual time=0.029..14.025 rows=1001 loops=1)
-        Buffers: shared hit=1570 read=947
-        ->  Nested Loop  (cost=0.30..126593.72 rows=138773 width=4) (actual time=0.028..13.966 rows=1001 loops=1)
-              Buffers: shared hit=1570 read=947
-              ->  Seq Scan on speech  (cost=0.00..118551.32 rows=138773 width=4) (actual time=0.021..13.146 rows=1001 loops=1)
-                    Filter: (transcript_tsv @@ '''govern'''::tsquery)
-                    Rows Removed by Filter: 10291
-                    Buffers: shared hit=365 read=947
-              ->  Memoize  (cost=0.30..0.40 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=1001)
-                    Cache Key: speech.report_id
-                    Cache Mode: logical
-                    Hits: 474  Misses: 527  Evictions: 0  Overflows: 0  Memory Usage: 54kB
-                    Buffers: shared hit=1205
-                    ->  Index Only Scan using report_pkey on report  (cost=0.29..0.39 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=527)
-                          Index Cond: (id = speech.report_id)
-                          Heap Fetches: 150
-                          Buffers: shared hit=1205
+Aggregate  (cost=867.65..867.66 rows=1 width=8) (actual time=3.044..3.045 rows=1 loops=1)
+  Buffers: shared hit=671 read=641
+  ->  Limit  (cost=0.00..855.14 rows=1001 width=4) (actual time=0.021..2.992 rows=1001 loops=1)
+        Buffers: shared hit=671 read=641
+        ->  Seq Scan on speech  (cost=0.00..118551.32 rows=138773 width=4) (actual time=0.021..2.939 rows=1001 loops=1)
+              Filter: ((report_id IS NOT NULL) AND (transcript_tsv @@ '''govern'''::tsquery))
+              Rows Removed by Filter: 10291
+              Buffers: shared hit=671 read=641
 Planning:
-  Buffers: shared hit=19
-Planning Time: 0.196 ms
-Execution Time: 14.085 ms
+  Buffers: shared hit=3
+Planning Time: 0.085 ms
+Execution Time: 3.053 ms
 ```
 
 On 21 October 2026 the speech match count began to add the Parliament's date range when a Parliament is set, as the date-ordered page query already did: `speech.sitting_date` between the Parliament's first and last report date, each a one-row scalar subquery on `ix_report_sitting_date_parliament_number` (64 and 3 buffers for Parliament 14). The exact `report.parliament_number` filter stays. Before, a Parliament count read every match of the word from the GIN index and joined each to `report` until 1,001 were in the Parliament. Now `ix_speech_transcript_tsv_sitting_date_rum` returns only the matches inside the span. The range cannot drop a speech of the Parliament: `speech.sitting_date` equals its report's date on all 1,051,922 scratch rows, and every Parliament's speeches lie between its own first and last report date. No count changed. 638 inputs were identical before and after: Parliaments 0 to 15 and 99, each against the 8 matrix words, four words with excluded report ids, "housing" and "sir" under 11 other filters, and per-report cases. 335 of the counts were zero, 149 between 1 and 1,000 and 154 capped.
@@ -865,40 +828,30 @@ Planning Time: 0.210 ms
 Execution Time: 42.456 ms
 ```
 
-After the change the bounds are `$2::TIMESTAMP WITHOUT TIME ZONE` and `$3::TIMESTAMP WITHOUT TIME ZONE`. With the values written in:
+After the change the bounds are `$2::TIMESTAMP WITHOUT TIME ZONE` and `$3::TIMESTAMP WITHOUT TIME ZONE`. With the values written in, and without the join to `report`, which went later the same day (see "Ranking cost"):
 
 ```sql
 -- speech_count, date range, after
-SELECT count(*) AS count_1 FROM (SELECT speech.id AS id FROM speech JOIN report ON report.id = speech.report_id WHERE (speech.transcript_tsv @@ websearch_to_tsquery('english', 'housing')) AND speech.sitting_date >= '2020-01-01 00:00:00' AND speech.sitting_date < '2021-01-01 00:00:00' LIMIT 1001) AS anon_1;
+SELECT count(*) AS count_1 FROM (SELECT speech.id AS id FROM speech WHERE speech.report_id IS NOT NULL AND (speech.transcript_tsv @@ websearch_to_tsquery('english', 'housing')) AND speech.sitting_date >= '2020-01-01 00:00:00' AND speech.sitting_date < '2021-01-01 00:00:00' LIMIT 1001) AS anon_1;
 ```
 
 ```text
-Aggregate  (cost=5426.20..5426.21 rows=1 width=8) (actual time=4.233..4.233 rows=1 loops=1)
-  Buffers: shared hit=1314
-  ->  Limit  (cost=94.13..5413.69 rows=1001 width=4) (actual time=3.451..4.197 rows=1001 loops=1)
-        Buffers: shared hit=1314
-        ->  Nested Loop  (cost=94.13..12832.39 rows=2397 width=4) (actual time=3.451..4.145 rows=1001 loops=1)
-              Buffers: shared hit=1314
-              ->  Bitmap Heap Scan on speech  (cost=93.83..8552.89 rows=2397 width=4) (actual time=3.447..3.826 rows=1001 loops=1)
-                    Recheck Cond: ((transcript_tsv @@ '''hous'''::tsquery) AND (sitting_date >= '2020-01-01 00:00:00'::timestamp without time zone) AND (sitting_date < '2021-01-01 00:00:00'::timestamp without time zone))
-                    Heap Blocks: exact=754
-                    Buffers: shared hit=889
-                    ->  Bitmap Index Scan on ix_speech_transcript_tsv_sitting_date_rum  (cost=0.00..93.23 rows=2397 width=0) (actual time=3.374..3.374 rows=1395 loops=1)
-                          Index Cond: ((transcript_tsv @@ '''hous'''::tsquery) AND (sitting_date >= '2020-01-01 00:00:00'::timestamp without time zone) AND (sitting_date < '2021-01-01 00:00:00'::timestamp without time zone))
-                          Buffers: shared hit=96
-              ->  Memoize  (cost=0.30..1.96 rows=1 width=4) (actual time=0.000..0.000 rows=1 loops=1001)
-                    Cache Key: speech.report_id
-                    Cache Mode: logical
-                    Hits: 816  Misses: 185  Evictions: 0  Overflows: 0  Memory Usage: 19kB
-                    Buffers: shared hit=425
-                    ->  Index Only Scan using report_pkey on report  (cost=0.29..1.95 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=185)
-                          Index Cond: (id = speech.report_id)
-                          Heap Fetches: 54
-                          Buffers: shared hit=425
+Aggregate  (cost=3638.89..3638.90 rows=1 width=8) (actual time=3.884..3.885 rows=1 loops=1)
+  Buffers: shared hit=889
+  ->  Limit  (cost=93.83..3626.38 rows=1001 width=4) (actual time=3.362..3.848 rows=1001 loops=1)
+        Buffers: shared hit=889
+        ->  Bitmap Heap Scan on speech  (cost=93.83..8552.89 rows=2397 width=4) (actual time=3.361..3.796 rows=1001 loops=1)
+              Recheck Cond: ((transcript_tsv @@ '''hous'''::tsquery) AND (sitting_date >= '2020-01-01 00:00:00'::timestamp without time zone) AND (sitting_date < '2021-01-01 00:00:00'::timestamp without time zone))
+              Filter: (report_id IS NOT NULL)
+              Heap Blocks: exact=754
+              Buffers: shared hit=889
+              ->  Bitmap Index Scan on ix_speech_transcript_tsv_sitting_date_rum  (cost=0.00..93.23 rows=2397 width=0) (actual time=3.285..3.285 rows=1395 loops=1)
+                    Index Cond: ((transcript_tsv @@ '''hous'''::tsquery) AND (sitting_date >= '2020-01-01 00:00:00'::timestamp without time zone) AND (sitting_date < '2021-01-01 00:00:00'::timestamp without time zone))
+                    Buffers: shared hit=96
 Planning:
-  Buffers: shared hit=19
-Planning Time: 0.130 ms
-Execution Time: 4.245 ms
+  Buffers: shared hit=3
+Planning Time: 0.108 ms
+Execution Time: 3.898 ms
 ```
 
 ## Queries the GIN index cannot serve

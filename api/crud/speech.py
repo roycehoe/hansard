@@ -1,7 +1,7 @@
 from datetime import date, datetime, time, timedelta
 from typing import Optional
 
-from sqlalchemy import ColumnElement, Float, func
+from sqlalchemy import ColumnElement, Float, Select, func
 from sqlalchemy.orm import aliased
 from sqlmodel import Session, select
 
@@ -37,6 +37,20 @@ def _get_report_filters(
     if report_ids is not None:
         filters.append(Speech.report_id.in_(report_ids))
     return filters
+
+
+def _is_report_filtered(
+    parliament_number: Optional[int],
+    date_from: Optional[date],
+    date_to: Optional[date],
+    report_type: Optional[ReportType],
+) -> bool:
+    return (
+        parliament_number is not None
+        or date_from is not None
+        or date_to is not None
+        or report_type is not None
+    )
 
 
 def _get_parliament_sitting_date_filters(
@@ -135,6 +149,13 @@ def _get_speech_ordering(
     ]
 
 
+def _get_with_report_required(statement: Select, is_report_filtered: bool) -> Select:
+    if is_report_filtered:
+        return statement.join(Report, Report.id == Speech.report_id)
+    # NOTE: no join, because with no filter on report the join only checks that the speech has a report, and speech.report_id is a foreign key to it
+    return statement.where(Speech.report_id.is_not(None))
+
+
 class CRUDSpeech:
     def __init__(self, session: Session):
         self.session = session
@@ -208,8 +229,10 @@ class CRUDSpeech:
             sort, tsquery, is_ranked_after_filtering, is_date_index_ordered
         )
         statement = (
-            select(Speech)
-            .join(Report, Report.id == Speech.report_id)
+            _get_with_report_required(
+                select(Speech),
+                parliament_number is not None or report_type is not None,
+            )
             .where(*filters)
             .order_by(*ordering)
             .limit(limit)
@@ -262,8 +285,10 @@ class CRUDSpeech:
         offset: int,
     ) -> list[Speech]:
         statement = (
-            select(Speech)
-            .join(Report, Report.id == Speech.report_id)
+            _get_with_report_required(
+                select(Speech),
+                _is_report_filtered(parliament_number, date_from, date_to, report_type),
+            )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(
                 *_get_report_filters(
@@ -307,8 +332,10 @@ class CRUDSpeech:
         if parliament_number is not None:
             filters.extend(_get_parliament_sitting_date_filters(parliament_number))
         matching_ids = (
-            select(Speech.id)
-            .join(Report, Report.id == Speech.report_id)
+            _get_with_report_required(
+                select(Speech.id),
+                parliament_number is not None or report_type is not None,
+            )
             .where(*filters)
             .limit(limit)
         )
@@ -355,8 +382,10 @@ class CRUDSpeech:
         limit: int,
     ) -> int:
         matching_ids = (
-            select(Speech.id)
-            .join(Report, Report.id == Speech.report_id)
+            _get_with_report_required(
+                select(Speech.id),
+                _is_report_filtered(parliament_number, date_from, date_to, report_type),
+            )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(
                 *_get_report_filters(
@@ -385,8 +414,10 @@ class CRUDSpeech:
         report_ids: list[int],
     ) -> dict[int, int]:
         statement = (
-            select(Speech.report_id, func.count())
-            .join(Report, Report.id == Speech.report_id)
+            _get_with_report_required(
+                select(Speech.report_id, func.count()),
+                parliament_number is not None or report_type is not None,
+            )
             .where(
                 *_get_query_filters(
                     query,
@@ -442,8 +473,10 @@ class CRUDSpeech:
         report_ids: list[int],
     ) -> dict[int, int]:
         statement = (
-            select(Speech.report_id, func.count())
-            .join(Report, Report.id == Speech.report_id)
+            _get_with_report_required(
+                select(Speech.report_id, func.count()),
+                _is_report_filtered(parliament_number, date_from, date_to, report_type),
+            )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(
                 *_get_report_filters(
