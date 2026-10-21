@@ -56,7 +56,7 @@ Sort  (cost=72.03..72.25 rows=87 width=405)
 
 ```sql
 -- person_reports (GET /people/{person_id}/reports)
-SELECT anon_1.report_id, anon_1.speech_count  FROM (SELECT speech.report_id AS report_id, count(*) AS speech_count  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id) AS anon_1 JOIN report ON report.id = anon_1.report_id ORDER BY report.sitting_date DESC, report.speech_number DESC   LIMIT 21 OFFSET 0;
+SELECT anon_1.report_id, anon_1.speech_count  FROM (SELECT speech.report_id AS report_id, count(*) AS speech_count  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id) AS anon_1 JOIN report ON report.id = anon_1.report_id ORDER BY report.sitting_date DESC, report.speech_number DESC, report.id   LIMIT 21 OFFSET 0;
 ```
 
 ```text
@@ -109,7 +109,7 @@ HashAggregate  (cost=26266.77..26267.00 rows=15 width=8)
 
 ```sql
 -- person_reports (GET /people/{person_id}/reports)
-SELECT anon_1.report_id, anon_1.speech_count  FROM (SELECT speech.report_id AS report_id, count(*) AS speech_count  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id) AS anon_1 JOIN report ON report.id = anon_1.report_id ORDER BY report.sitting_date DESC, report.speech_number DESC   LIMIT 21 OFFSET 0;
+SELECT anon_1.report_id, anon_1.speech_count  FROM (SELECT speech.report_id AS report_id, count(*) AS speech_count  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id) AS anon_1 JOIN report ON report.id = anon_1.report_id ORDER BY report.sitting_date DESC, report.speech_number DESC, report.id   LIMIT 21 OFFSET 0;
 ```
 
 ```text

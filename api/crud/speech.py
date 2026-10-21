@@ -177,7 +177,9 @@ class CRUDSpeech:
         statement = (
             select(speech_counts.c.report_id, speech_counts.c.speech_count)
             .join(Report, Report.id == speech_counts.c.report_id)
-            .order_by(Report.sitting_date.desc(), Report.speech_number.desc())
+            .order_by(
+                Report.sitting_date.desc(), Report.speech_number.desc(), Report.id
+            )
             .limit(limit)
             .offset(offset)
         )
