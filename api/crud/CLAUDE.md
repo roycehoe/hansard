@@ -164,7 +164,11 @@ A `get` returns `Optional[Model]`. CRUD reports what the database holds; whether
 ```python
 # crud/report.py: CRUD reports absence
 def get_by_report_id(self, report_id: str) -> Optional[Report]:
-    statement = select(Report).where(Report.report_id == report_id)
+    statement = (
+        select(Report)
+        .options(defer(Report.markdown_content))
+        .where(Report.report_id == report_id)
+    )
     return self.session.exec(statement).first()
 
 # the caller decides absence is an error, and raises without parentheses

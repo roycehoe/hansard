@@ -92,7 +92,11 @@ class CRUDReport:
         self.session = session
 
     def get_by_report_id(self, report_id: str) -> Optional[Report]:
-        statement = select(Report).where(Report.report_id == report_id)
+        statement = (
+            select(Report)
+            .options(defer(Report.markdown_content))
+            .where(Report.report_id == report_id)
+        )
         return self.session.exec(statement).first()
 
     def get_by_ids(self, report_ids: list[int]) -> list[Report]:
