@@ -18,6 +18,7 @@ import { Fragment, useEffect } from 'react'
 interface ListSpeechesProps {
   report: GetReportResponse
   highlightTerms: string[]
+  highlightWords: string[]
 }
 
 function getScrollTargetId(speechLink: SpeechLinkData | null): string {
@@ -54,7 +55,11 @@ function getPreviousSpeakerLabel(
   return undefined
 }
 
-export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
+export function ListSpeeches({
+  report,
+  highlightTerms,
+  highlightWords,
+}: ListSpeechesProps) {
   useEffect(
     function scrollToSpeechOnLoad() {
       scrollToLinkedSpeech(report.speech_link)
@@ -67,14 +72,14 @@ export function ListSpeeches({ report, highlightTerms }: ListSpeechesProps) {
     report.speech_link?.status === SpeechLinkStatus.MOVED
       ? report.speech_link.ordinal
       : null
-  const highlightPattern = buildHighlightPattern(highlightTerms)
+  const highlightPattern = buildHighlightPattern(highlightWords)
 
   return (
     <section aria-labelledby="speeches-heading">
       <h2 id="speeches-heading" className="sr-only">
         Speeches
       </h2>
-      {highlightPattern !== undefined && (
+      {highlightTerms.length > 0 && (
         <NoticeHighlighting
           reportSlug={report.report_slug}
           terms={highlightTerms}

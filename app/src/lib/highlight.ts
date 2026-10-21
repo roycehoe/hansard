@@ -3,6 +3,7 @@ import { HIGHLIGHT_STOP_WORDS } from '@/constants/reports/constants'
 const MIN_HIGHLIGHT_TERM_LENGTH = 2
 const QUOTE_CHARACTERS = /["“”]/g
 const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/g
+const WORD_CHARACTER = '[\\p{L}\\p{N}_]'
 const OR_OPERATOR = 'OR'
 const EXCLUDED_WORD_PREFIX = '-'
 
@@ -31,12 +32,15 @@ export function parseHighlightTerms(query: string): string[] {
   })
 }
 
-export function buildHighlightPattern(terms: string[]): RegExp | undefined {
-  if (terms.length === 0) return undefined
-  const alternatives = terms
-    .map((term) => term.replace(REGEX_SPECIAL_CHARACTERS, '\\$&'))
+export function buildHighlightPattern(words: string[]): RegExp | undefined {
+  if (words.length === 0) return undefined
+  const alternatives = words
+    .map((word) => word.replace(REGEX_SPECIAL_CHARACTERS, '\\$&'))
     .join('|')
-  return new RegExp(`(\\b(?:${alternatives})\\w*)`, 'i')
+  return new RegExp(
+    `((?<!${WORD_CHARACTER})(?:${alternatives})(?!${WORD_CHARACTER}))`,
+    'iu'
+  )
 }
 
 export function splitByHighlight(

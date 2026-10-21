@@ -1,6 +1,7 @@
 import { ApiError } from '@/api/client'
 import type { GetReportResponse } from '@/api/reports/getReport'
 import { useGetReport } from '@/api/reports/getReport'
+import { useGetReportMatchedWords } from '@/api/reports/getReportMatchedWords'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { TextSource } from '@/components/layout/TextSource'
 import { ButtonCopyCitation } from '@/components/reports/ButtonCopyCitation'
@@ -50,14 +51,24 @@ function isReportTextUnavailable(report: GetReportResponse) {
   )
 }
 
-function renderBody(report: GetReportResponse, highlightTerms: string[]) {
+function renderBody(
+  report: GetReportResponse,
+  highlightTerms: string[],
+  highlightWords: string[]
+) {
   if (isReportTextUnavailable(report)) {
     return (
       <NoticeTextUnavailable officialRecordUrl={report.official_record_url} />
     )
   }
   if (!report.is_text_available) return <NoticeTextNotPublished />
-  return <ListSpeeches report={report} highlightTerms={highlightTerms} />
+  return (
+    <ListSpeeches
+      report={report}
+      highlightTerms={highlightTerms}
+      highlightWords={highlightWords}
+    />
+  )
 }
 
 export const Route = createFileRoute('/reports/$reportSlug')({
@@ -67,6 +78,11 @@ export const Route = createFileRoute('/reports/$reportSlug')({
     const { hl, s, q } = Route.useSearch()
     const { data, isLoading, isError, error, refetch, isRefetching } =
       useGetReport({ report_slug: reportSlug, s, q })
+    const highlightTerms = parseHighlightTerms(hl ?? '')
+    const { data: matchedWordsResponse } = useGetReportMatchedWords({
+      report_slug: reportSlug,
+      q: highlightTerms.join(' '),
+    })
     useDocumentTitle(data?.title ?? 'Report')
 
     function retryReport() {
@@ -132,7 +148,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
           }
         />
         <ListReportMetadata report={data} />
-        {renderBody(data, parseHighlightTerms(hl ?? ''))}
+        {renderBody(data, highlightTerms, matchedWordsResponse?.words ?? [])}
         <TextSource
           sittingDate={data.sitting_date}
           officialRecordUrl={
