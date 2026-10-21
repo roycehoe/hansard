@@ -29,6 +29,7 @@ function getParliamentOptionLabel(
 export interface FormFilterPersonsValues {
   parliament: string
   party: string
+  constituency: string
   name: string
 }
 
@@ -37,6 +38,7 @@ interface FormFilterPersonsProps {
   parliaments: ParliamentData[]
   parliamentNumbers: number[]
   parties: string[]
+  constituencies: string[]
   onChange: (values: FormFilterPersonsValues) => void
 }
 
@@ -45,6 +47,7 @@ export function FormFilterPersons({
   parliaments,
   parliamentNumbers,
   parties,
+  constituencies,
   onChange,
 }: FormFilterPersonsProps) {
   function changeParliament(parliament: string) {
@@ -53,6 +56,10 @@ export function FormFilterPersons({
 
   function changeParty(party: string) {
     onChange({ ...values, party })
+  }
+
+  function changeConstituency(constituency: string) {
+    onChange({ ...values, constituency })
   }
 
   function changeName(event: ChangeEvent<HTMLInputElement>) {
@@ -96,8 +103,24 @@ export function FormFilterPersons({
           </SelectContent>
         </Select>
       </div>
+      <div className="flex w-full flex-col gap-2 sm:w-72">
+        <Label htmlFor="filter-persons-constituency">Constituency</Label>
+        <Select value={values.constituency} onValueChange={changeConstituency}>
+          <SelectTrigger id="filter-persons-constituency" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={FILTER_ALL}>All constituencies</SelectItem>
+            {constituencies.map((constituency) => (
+              <SelectItem key={constituency} value={constituency}>
+                {constituency}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="flex w-full flex-col gap-2 sm:w-56">
-        <Label htmlFor="filter-persons-name">Name</Label>
+        <Label htmlFor="filter-persons-name">Name or constituency</Label>
         <Input
           id="filter-persons-name"
           value={values.name}

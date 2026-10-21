@@ -48,7 +48,11 @@ export function ListPersons({ persons }: ListPersonsProps) {
                   key={`${membership.parliament_number}-${membership.party}`}
                 >
                   {index > 0 && '; '}
-                  {`${formatParliament(membership.parliament_number)}, ${membership.party}`}
+                  {[
+                    formatParliament(membership.parliament_number),
+                    ...membership.constituencies,
+                    membership.party,
+                  ].join(', ')}
                   <TextPartyNoteMarker
                     partyNote={membershipToPartyNote.get(membership)}
                   />

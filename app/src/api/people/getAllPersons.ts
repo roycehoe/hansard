@@ -7,6 +7,7 @@ export interface GetAllPersonsRequest {
   parliament_number?: number
   party?: string
   name?: string
+  constituency?: string
 }
 
 export interface MembershipData {
@@ -15,6 +16,7 @@ export interface MembershipData {
   party_affiliations: PartyAffiliationData[]
   is_legislative_assembly: boolean
   is_member: boolean
+  constituencies: string[]
 }
 
 export interface PersonData {
@@ -36,6 +38,7 @@ async function getAllPersonsResponse(
       parliament_number: request.parliament_number,
       party: request.party,
       name: request.name,
+      constituency: request.constituency,
     })}`
   )
 }
@@ -48,6 +51,7 @@ export function useGetAllPersons(request: GetAllPersonsRequest | undefined) {
       request?.parliament_number,
       request?.party,
       request?.name,
+      request?.constituency,
     ],
     queryFn: () => getAllPersonsResponse(request!),
     enabled: !!request,

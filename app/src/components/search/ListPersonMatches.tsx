@@ -1,3 +1,4 @@
+import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
 import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
@@ -17,6 +18,23 @@ const SEARCH_OPERATOR_PATTERN = /"|\sOR\s|(^|\s)-/
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
+function getPersonsMergedById(
+  first: PersonData[],
+  second: PersonData[]
+): PersonData[] {
+  const personIds = new Set(first.map((person) => person.person_id))
+  return [
+    ...first,
+    ...second.filter((person) => !personIds.has(person.person_id)),
+  ]
+}
+
+function getMembershipConstituencies(memberships: MembershipData[]): string[] {
+  return [
+    ...new Set(memberships.flatMap((membership) => membership.constituencies)),
+  ]
+}
+
 interface ListPersonMatchesProps {
   words: string
   hasPerson: boolean
@@ -30,17 +48,24 @@ export function ListPersonMatches({
     !hasPerson &&
     words.length >= PERSON_MATCHES_MIN_WORDS_LENGTH &&
     !SEARCH_OPERATOR_PATTERN.test(words)
-  const persons = useGetAllPersons(canMatchPeople ? { name: words } : undefined)
+  const personsByName = useGetAllPersons(
+    canMatchPeople ? { name: words } : undefined
+  )
+  const personsByConstituency = useGetAllPersons(
+    canMatchPeople ? { constituency: words } : undefined
+  )
 
   if (
     !canMatchPeople ||
-    persons.isLoading ||
-    persons.isError ||
-    !persons.data
+    personsByName.isLoading ||
+    personsByConstituency.isLoading
   ) {
     return null
   }
-  const matches = persons.data.persons
+  const matches = getPersonsMergedById(
+    personsByName.data?.persons ?? [],
+    personsByConstituency.data?.persons ?? []
+  )
   if (matches.length === 0) return null
 
   const membershipToPartyNote = getPersonsMembershipToPartyNote(matches)
@@ -95,6 +120,9 @@ export function ListPersonMatches({
                         ))}
                     </Fragment>
                   ))}
+                  {getMembershipConstituencies(person.memberships).map(
+                    (constituency) => `, ${constituency}`
+                  )}
                 </p>
                 <p>
                   <Link

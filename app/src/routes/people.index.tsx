@@ -29,13 +29,15 @@ import { z } from 'zod'
 const peopleSearchSchema = z.object({
   parliament: z.coerce.number().int().min(0).optional(),
   party: z.string().optional(),
+  constituency: z.string().optional(),
   name: z.string().optional(),
 })
 
 function isMatchingMembership(
   membership: MembershipData,
   parliament: number | undefined,
-  party: string | undefined
+  party: string | undefined,
+  constituency: string | undefined
 ): boolean {
   const isMatchingParliament =
     parliament === undefined ||
@@ -43,7 +45,10 @@ function isMatchingMembership(
       ? membership.is_legislative_assembly
       : membership.parliament_number === parliament)
   return (
-    isMatchingParliament && (party === undefined || membership.party === party)
+    isMatchingParliament &&
+    (party === undefined || membership.party === party) &&
+    (constituency === undefined ||
+      membership.constituencies.includes(constituency))
   )
 }
 
@@ -51,16 +56,24 @@ function filterPersonsByMembershipAndName(
   persons: PersonData[],
   parliament: number | undefined,
   party: string | undefined,
+  constituency: string | undefined,
   name: string
 ): PersonData[] {
   const lowerCaseName = name.trim().toLowerCase()
-  return persons.filter(
-    (person) =>
-      person.canonical_name.toLowerCase().includes(lowerCaseName) &&
-      person.memberships.some((membership) =>
-        isMatchingMembership(membership, parliament, party)
-      )
-  )
+  return persons.filter((person) => {
+    const matchingMemberships = person.memberships.filter((membership) =>
+      isMatchingMembership(membership, parliament, party, constituency)
+    )
+    return (
+      matchingMemberships.length > 0 &&
+      (person.canonical_name.toLowerCase().includes(lowerCaseName) ||
+        matchingMemberships.some((membership) =>
+          membership.constituencies.some((membershipConstituency) =>
+            membershipConstituency.toLowerCase().includes(lowerCaseName)
+          )
+        ))
+    )
+  })
 }
 
 function getPartiesInParliament(
@@ -72,13 +85,32 @@ function getPartiesInParliament(
     persons.flatMap((person) =>
       person.memberships
         .filter((membership) =>
-          isMatchingMembership(membership, parliament, undefined)
+          isMatchingMembership(membership, parliament, undefined, undefined)
         )
         .map((membership) => membership.party)
     )
   )
   if (party !== undefined) parties.add(party)
   return [...parties].sort()
+}
+
+function getConstituenciesInParliamentAndParty(
+  persons: PersonData[],
+  parliament: number | undefined,
+  party: string | undefined,
+  constituency: string | undefined
+): string[] {
+  const constituencies = new Set(
+    persons.flatMap((person) =>
+      person.memberships
+        .filter((membership) =>
+          isMatchingMembership(membership, parliament, party, undefined)
+        )
+        .flatMap((membership) => membership.constituencies)
+    )
+  )
+  if (constituency !== undefined) constituencies.add(constituency)
+  return [...constituencies].sort()
 }
 
 function getParliamentNumbersWithParty(
@@ -91,7 +123,7 @@ function getParliamentNumbersWithParty(
     (parliamentNumber) =>
       parliamentNumber === parliament ||
       memberships.some((membership) =>
-        isMatchingMembership(membership, parliamentNumber, party)
+        isMatchingMembership(membership, parliamentNumber, party, undefined)
       )
   )
 }
@@ -100,7 +132,7 @@ export const Route = createFileRoute('/people/')({
   validateSearch: peopleSearchSchema,
   component: function PagePeople() {
     useDocumentTitle('People')
-    const { parliament, party, name } = Route.useSearch()
+    const { parliament, party, constituency, name } = Route.useSearch()
     const navigate = useNavigate()
     const parliaments = useGetAllParliaments()
     const persons = useGetAllPersons({})
@@ -131,6 +163,7 @@ export const Route = createFileRoute('/people/')({
           parliament:
             parliamentValue === undefined ? undefined : Number(parliamentValue),
           party: mapFilterToSearchValue(values.party),
+          constituency: mapFilterToSearchValue(values.constituency),
           name: mapFilterToSearchValue(values.name),
         },
         replace: true,
@@ -151,6 +184,7 @@ export const Route = createFileRoute('/people/')({
               parliament:
                 parliament === undefined ? FILTER_ALL : String(parliament),
               party: party ?? FILTER_ALL,
+              constituency: constituency ?? FILTER_ALL,
               name: typedName,
             }}
             parliaments={parliaments.data.parliaments}
@@ -164,6 +198,12 @@ export const Route = createFileRoute('/people/')({
               parliament,
               party
             )}
+            constituencies={getConstituenciesInParliamentAndParty(
+              persons.data.persons,
+              parliament,
+              party,
+              constituency
+            )}
             onChange={applyFilters}
           />
           <ListPersons
@@ -171,6 +211,7 @@ export const Route = createFileRoute('/people/')({
               persons.data.persons,
               parliament,
               party,
+              constituency,
               typedName
             )}
           />
