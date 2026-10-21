@@ -22,6 +22,11 @@ from utils.preview_tags import (
 )
 
 _INDEX_FILE = "index.html"
+_ASSETS_PATH_PREFIX = "assets/"
+_CACHE_CONTROL_HEADER = "Cache-Control"
+# NOTE: Vite puts a hash of each file's contents in the name of every file under assets/, so a new build gets new names and a stored copy is never stale. The page itself keeps its name across builds, so browsers and Cloudflare check it again on each visit and a release shows at once
+_ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable"
+_INDEX_CACHE_CONTROL = "no-cache"
 _DIRECTORY_INDEX_PATH = "."
 _PATH_KEY = "path"
 _SPEECH_ORDINAL_PARAMETER = "s"
@@ -83,7 +88,8 @@ class FrontendFiles(StaticFiles):
             query_params.get(_SPEECH_ANCHOR_PARAMETER),
         )
         return HTMLResponse(
-            get_index_html_with_preview_tags(self.index_html, preview_tags_html)
+            get_index_html_with_preview_tags(self.index_html, preview_tags_html),
+            headers={_CACHE_CONTROL_HEADER: _INDEX_CACHE_CONTROL},
         )
 
     async def get_response(self, path: str, scope: Scope) -> Response:
@@ -95,4 +101,6 @@ class FrontendFiles(StaticFiles):
             return await self._get_index_response(scope)
         if path == _DIRECTORY_INDEX_PATH:
             return await self._get_index_response(scope)
+        if path.startswith(_ASSETS_PATH_PREFIX):
+            response.headers[_CACHE_CONTROL_HEADER] = _ASSET_CACHE_CONTROL
         return response
