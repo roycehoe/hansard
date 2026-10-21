@@ -16,7 +16,7 @@ export const SEARCH_WORDS_TOO_LONG_ERROR = `Use ${SEARCH_WORDS_MAX_LENGTH} chara
 
 export const SEARCH_WORDS_TOO_LONG_NOTICE = `Search words are limited to ${SEARCH_WORDS_MAX_LENGTH} characters. Shorten them and search again.`
 
-export const SEARCH_TIPS_TEXT = `Use quotes for an exact phrase, OR for either word, and a minus sign to leave a word out. Up to ${SEARCH_WORDS_MAX_LENGTH} characters.`
+export const SEARCH_TIPS_TEXT = `Put words in quotes to find them together, in that order. OR finds either word, and a minus sign leaves a word out. Searches also match other forms of a word, so "housing" finds "house". Up to ${SEARCH_WORDS_MAX_LENGTH} characters.`
 
 export const PERSON_PICKER_MIN_NAME_LENGTH = 2
 
