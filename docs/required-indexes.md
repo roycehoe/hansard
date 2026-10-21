@@ -37,7 +37,7 @@ Facts that apply to every plan below:
 CREATE INDEX ix_speech_report_id ON speech (report_id);
 ```
 
-Needed by `GET /reports/{report_slug}` and `GET /people/{person_id}/reports`. `GET /search/speeches` also joins `speech` to `report` on this column. `GET /coverage`, `GET /parliaments`, `GET /sittings/{sitting_date}` and `GET /search/reports` decide whether a Report has text with an `EXISTS` on `speech.report_id`, one index probe per Report. Of the statements `GET /coverage` sends, only its text count per year probes every Report; its first and last sitting date with text stop at the first Report with text (see `ix_report_sitting_date_parliament_number`).
+Needed by `GET /reports/{report_slug}`. `GET /search/speeches` also joins `speech` to `report` on this column. `GET /coverage`, `GET /parliaments`, `GET /sittings/{sitting_date}` and `GET /search/reports` decide whether a Report has text with an `EXISTS` on `speech.report_id`, one index probe per Report. Of the statements `GET /coverage` sends, only its text count per year probes every Report; its first and last sitting date with text stop at the first Report with text (see `ix_report_sitting_date_parliament_number`).
 
 Before the index existed, `speech_by_report_id` scanned all of `speech` for one report's speeches. It now reads the report's rows through the index.
 
@@ -54,25 +54,6 @@ Sort  (cost=72.03..72.25 rows=87 width=405)
         Index Cond: (report_id = 27549)
 ```
 
-```sql
--- person_reports (GET /people/{person_id}/reports)
-SELECT anon_1.report_id, anon_1.speech_count  FROM (SELECT speech.report_id AS report_id, count(*) AS speech_count  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id) AS anon_1 JOIN report ON report.id = anon_1.report_id ORDER BY report.sitting_date DESC, report.speech_number DESC, report.id   LIMIT 21 OFFSET 0;
-```
-
-```text
--- person_reports (GET /people/{person_id}/reports)
-Limit  (cost=9805.56..9805.61 rows=21 width=24)
-  ->  Sort  (cost=9805.56..9817.65 rows=4836 width=24)
-        Sort Key: report.sitting_date DESC, report.speech_number DESC
-        ->  Nested Loop  (cost=4492.03..9675.17 rows=4836 width=24)
-              ->  HashAggregate  (cost=4491.74..4540.10 rows=4836 width=12)
-                    Group Key: speech.report_id
-                    ->  Index Scan using ix_speech_speaker_id on speech  (cost=0.43..4460.39 rows=6270 width=4)
-                          Index Cond: (speaker_id = 1349)
-              ->  Index Scan using report_pkey on report  (cost=0.29..1.06 rows=1 width=16)
-                    Index Cond: (id = speech.report_id)
-```
-
 ## ix_speech_speaker_id
 
 ```sql
@@ -81,49 +62,56 @@ CREATE INDEX ix_speech_speaker_id ON speech (speaker_id);
 
 Needed by `GET /people/{person_id}`, `GET /people/{person_id}/reports` and `GET /search/speeches` when `person_id` is given, with or without search words.
 
-Both statements filter `speech.speaker_id`. Before the index existed each scanned the whole table. `person_reports` appears again here because it needs this index as well as `ix_speech_report_id`.
+Both endpoints start with `speech_counts_by_report`, which filters `speech.speaker_id`. Before the index existed it scanned the whole table.
 
 ```sql
--- speech_counts_by_parliament (GET /people/{person_id})
-SELECT report.parliament_number, CAST(sum(anon_1.speech_count) AS INTEGER) AS sum_1  FROM (SELECT speech.report_id AS report_id, count(*) AS speech_count  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id) AS anon_1 JOIN report ON report.id = anon_1.report_id GROUP BY report.parliament_number;
+-- speech_counts_by_report (GET /people/{person_id} and GET /people/{person_id}/reports)
+SELECT speech.report_id, count(*) AS count_1  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id;
 ```
 
-On 20 October 2026 this statement changed to count speeches per report before joining `report`, so the join reads each report once instead of once per speech. Before, it joined every speech to `report`: 4,412 primary-key lookups and two parallel workers for person 383, 112 ms on production. The plan below is a plain `EXPLAIN` on the scratch copy, not yet captured on production. For a member with many speeches the planner overestimates the reports (4,463 expected for 1349) and hashes a sequential scan of `report`, as the old statement did for person 29 (see "Ranking cost"). Every person's counts were identical before and after the change.
+On 20 October 2026 `speech_counts_by_parliament` changed to count speeches per report before joining `report`, so the join reads each report once instead of once per speech. Before, it joined every speech to `report`: 4,412 primary-key lookups and two parallel workers for person 383, 112 ms on production. For a member with many speeches the planner overestimated the reports (4,463 expected for 1349) and hashed a sequential scan of `report`, as the old statement did for person 29 (see "Ranking cost"). Every person's counts were identical before and after the change. On 21 October 2026 the join went. Both endpoints now count the member's speeches per report in this statement, and the service sums them per Parliament (`GET /people/{person_id}`) or pages through them (`GET /people/{person_id}/reports`) with the next statements, which read `report` only. Every person's `GET /people/{person_id}` and every page of `GET /people/{person_id}/reports` were identical before and after the change. Plain `EXPLAIN` on the scratch copy, not yet captured on production:
 
 ```text
--- speech_counts_by_parliament (GET /people/{person_id}), scratch copy
-HashAggregate  (cost=26266.77..26267.00 rows=15 width=8)
-  Group Key: report.parliament_number
-  ->  Hash Join  (cost=18448.71..26244.46 rows=4463 width=12)
-        Hash Cond: (report.id = anon_1.report_id)
-        ->  Seq Scan on report  (cost=0.00..7686.01 rows=41801 width=8)
-        ->  Hash  (cost=18392.92..18392.92 rows=4463 width=12)
-              ->  Subquery Scan on anon_1  (cost=18303.66..18392.92 rows=4463 width=12)
-                    ->  HashAggregate  (cost=18303.66..18348.29 rows=4463 width=12)
-                          Group Key: speech.report_id
-                          ->  Bitmap Heap Scan on speech  (cost=63.94..18275.59 rows=5615 width=4)
-                                Recheck Cond: (speaker_id = 1349)
-                                ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..62.54 rows=5615 width=0)
-                                      Index Cond: (speaker_id = 1349)
+-- speech_counts_by_report, scratch copy
+HashAggregate  (cost=18303.66..18348.29 rows=4463 width=12)
+  Group Key: report_id
+  ->  Bitmap Heap Scan on speech  (cost=63.94..18275.59 rows=5615 width=4)
+        Recheck Cond: (speaker_id = 1349)
+        ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..62.54 rows=5615 width=0)
+              Index Cond: (speaker_id = 1349)
 ```
 
 ```sql
 -- person_reports (GET /people/{person_id}/reports)
-SELECT anon_1.report_id, anon_1.speech_count  FROM (SELECT speech.report_id AS report_id, count(*) AS speech_count  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id) AS anon_1 JOIN report ON report.id = anon_1.report_id ORDER BY report.sitting_date DESC, report.speech_number DESC, report.id   LIMIT 21 OFFSET 0;
+SELECT report.id  FROM report  WHERE report.id = ANY (ARRAY[...]) ORDER BY report.sitting_date + make_interval(secs=>0.0) DESC, report.speech_number DESC, report.id   LIMIT 21 OFFSET 0;
 ```
 
+The array holds the report ids that `speech_counts_by_report` returned; `...` stands for the 583 ids of member 1349. This statement reads no `speech` row. The sort key has zero added so the planner cannot walk `ix_report_sitting_date_parliament_number` backward and test each report against the id list, which it chose for member 1349 and person 29 when the key was the plain column: 14,453 buffers for person 29's first page against 639 with the zero added. Plain `EXPLAIN` on the scratch copy, not yet captured on production:
+
 ```text
--- person_reports (GET /people/{person_id}/reports)
-Limit  (cost=9805.56..9805.61 rows=21 width=24)
-  ->  Sort  (cost=9805.56..9817.65 rows=4836 width=24)
-        Sort Key: report.sitting_date DESC, report.speech_number DESC
-        ->  Nested Loop  (cost=4492.03..9675.17 rows=4836 width=24)
-              ->  HashAggregate  (cost=4491.74..4540.10 rows=4836 width=12)
-                    Group Key: speech.report_id
-                    ->  Index Scan using ix_speech_speaker_id on speech  (cost=0.43..4460.39 rows=6270 width=4)
-                          Index Cond: (speaker_id = 1349)
-              ->  Index Scan using report_pkey on report  (cost=0.29..1.06 rows=1 width=16)
-                    Index Cond: (id = speech.report_id)
+-- person_reports (GET /people/{person_id}/reports), scratch copy
+Limit  (cost=2051.18..2051.23 rows=21 width=16)
+  ->  Sort  (cost=2051.18..2052.64 rows=583 width=16)
+        Sort Key: ((sitting_date + '00:00:00'::interval)) DESC, speech_number DESC, id
+        ->  Bitmap Heap Scan on report  (cost=248.84..2035.46 rows=583 width=16)
+              Recheck Cond: (id = ANY ('{...}'::integer[]))
+              ->  Bitmap Index Scan on report_pkey  (cost=0.00..247.24 rows=583 width=0)
+                    Index Cond: (id = ANY ('{...}'::integer[]))
+```
+
+```sql
+-- report_parliament_numbers (GET /people/{person_id})
+SELECT report.id, report.parliament_number  FROM report  WHERE report.id = ANY (ARRAY[...]);
+```
+
+The array holds the report ids from `speech_counts_by_report`; `...` stands for the 583 ids of member 1349. The planner reads `report` by primary key: person 29 reads 639 buffers here and 3,913 in `speech_counts_by_report`, where the single joined statement read 11,181 before 21 October 2026 (`EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy, warm, not yet captured on production). Plain `EXPLAIN` on the scratch copy, not yet captured on production:
+
+```text
+-- report_parliament_numbers (GET /people/{person_id}), scratch copy
+Bitmap Heap Scan on report  (cost=248.84..2034.00 rows=583 width=8)
+  Recheck Cond: (id = ANY ('{...}'::integer[]))
+  ->  Bitmap Index Scan on report_pkey  (cost=0.00..247.24 rows=583 width=0)
+        Index Cond: (id = ANY ('{...}'::integer[]))
 ```
 
 `GET /search/speeches` with a `person_id` and no search words also uses this index. The statement filters `speech.speaker_id`, keeps the Parliament, date and report type filters through the join to `report`, and orders by `speech.sitting_date`, newest first or oldest first, then `speech.id`. The sort key is the speech's own date, which equals its report's date on every row. Until 21 October 2026 it was a scalar subquery on `report`, because with the joined column `report.sitting_date` the planner walks `ix_report_sitting_date_parliament_number` backward and filters speeches one at a time: 9.2 seconds for person 29 against 127 ms for the subquery form on 14 October 2026. That reason does not apply to `speech.sitting_date`: no index orders speeches by it without search words, so the planner reads the member's speeches through `ix_speech_speaker_id` and keeps the top 21 in a sort. The subquery ran once for each of the member's speeches (12,457 times and 37,371 buffers for person 29), the join still hashed a sequential scan of `report`, and the plan's cost for the heavy members crossed `jit_above_cost`, so JIT fired. `EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy, third run, not yet captured on production, for person 29 (12 Memberships, 12,457 speeches), page 1:
@@ -695,7 +683,7 @@ Planning Time: 1.359 ms
 Execution Time: 249.034 ms
 ```
 
-The planner expected 16,993 speeches for these memberships (13,345 real), so it joined to `report` with a hash join over a full sequential scan (183 ms, 4,010 pages read from disk) instead of 13,345 primary-key lookups. The speech side takes 12.6 ms. The other statements of the endpoint take under 30 ms each.
+The planner expected 16,993 speeches for these memberships (13,345 real), so it joined to `report` with a hash join over a full sequential scan (183 ms, 4,010 pages read from disk) instead of 13,345 primary-key lookups. The speech side takes 12.6 ms. The other statements of the endpoint take under 30 ms each. On 21 October 2026 the statement was split in two, one counting the member's speeches per report and one reading those reports' Parliament numbers by primary key, so the sequential scan of `report` is gone; the plan above stays as the record of the old statement.
 
 ## Match counts
 

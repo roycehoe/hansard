@@ -102,6 +102,24 @@ def _get_matching_memberships(
     )
 
 
+def _get_parliament_number_to_speech_count(
+    membership_ids: list[int], session: Session
+) -> dict[int, int]:
+    report_id_to_speech_count = CRUDSpeech(
+        session
+    ).get_report_id_to_speech_count_by_membership_ids(membership_ids)
+    report_id_to_parliament_number = CRUDReport(
+        session
+    ).get_id_to_parliament_number_by_ids(list(report_id_to_speech_count))
+    parliament_number_to_speech_count: dict[int, int] = {}
+    for report_id, parliament_number in report_id_to_parliament_number.items():
+        parliament_number_to_speech_count[parliament_number] = (
+            parliament_number_to_speech_count.get(parliament_number, 0)
+            + report_id_to_speech_count[report_id]
+        )
+    return parliament_number_to_speech_count
+
+
 def get_all_persons(
     parliament_number: Optional[int],
     party: Optional[str],
@@ -160,9 +178,9 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
     membership_id_to_location_names = CRUDAttendance(
         session
     ).get_membership_id_to_location_names_by_membership_ids(membership_ids)
-    parliament_number_to_speech_count = CRUDSpeech(
-        session
-    ).get_parliament_number_to_speech_count_by_membership_ids(membership_ids)
+    parliament_number_to_speech_count = _get_parliament_number_to_speech_count(
+        membership_ids, session
+    )
     parliament_number_to_present_count = CRUDAttendance(
         session
     ).get_parliament_number_to_count_by_membership_ids_and_is_present(
@@ -231,10 +249,13 @@ def get_person_reports(
     ]
     report_id_to_speech_count = CRUDSpeech(
         session
-    ).get_report_id_to_speech_count_by_membership_ids(
-        membership_ids, limit=page_size + 1, offset=(page - 1) * page_size
+    ).get_report_id_to_speech_count_by_membership_ids(membership_ids)
+    report_ids = CRUDReport(session).get_all_ids_by_ids(
+        list(report_id_to_speech_count),
+        limit=page_size + 1,
+        offset=(page - 1) * page_size,
     )
-    page_report_ids = list(report_id_to_speech_count)[:page_size]
+    page_report_ids = report_ids[:page_size]
     report_id_to_report = {
         report.id: report
         for report in CRUDReport(session).get_by_ids(page_report_ids)
@@ -256,7 +277,7 @@ def get_person_reports(
         ],
         page=page,
         page_size=page_size,
-        has_next_page=len(report_id_to_speech_count) > page_size,
+        has_next_page=len(report_ids) > page_size,
     )
 
 
