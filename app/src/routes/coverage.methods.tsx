@@ -118,8 +118,10 @@ export const Route = createFileRoute('/coverage/methods')({
             speech. It credits each speech to a person when the label is enough
             to tell who spoke. When the label names only a role, such as
             &quot;Mr Speaker&quot; or &quot;The Chairman&quot;, the archive
-            infers the person who held that role at the time and marks the
-            credit with an i.
+            credits the person who held that role at the time. Credits to a
+            Deputy Speaker or a Chairman carry an i, because several people hold
+            those roles at once and a change in the chair that the record does
+            not mention can make the credit wrong.
           </p>
           <p>
             The Parliament website moved to a newer system on 10 September 2012.

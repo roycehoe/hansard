@@ -15,7 +15,7 @@ from schemas.report import GetReportResponse, SpeechData, SpeechLinkData
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
-from utils.speaker_label import is_role_only_speaker_label
+from utils.speaker_label import is_shared_role_speaker_label
 from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
 
 _EMPTY_ANCHOR = ""
@@ -33,7 +33,6 @@ def _get_speech_data(
     speech: Speech,
     anchor: str,
     membership_id_to_person: dict[int, Person],
-    parliament_number: int,
 ) -> SpeechData:
     person = (
         membership_id_to_person.get(speech.speaker_id)
@@ -49,7 +48,7 @@ def _get_speech_data(
             person_id=None,
             person_slug="",
             person_name="",
-            is_person_inferred=False,
+            is_shared_role_credit=False,
             anchor=anchor,
         )
     return SpeechData(
@@ -60,9 +59,7 @@ def _get_speech_data(
         person_id=person.id,
         person_slug=get_person_slug(person.canonical_name),
         person_name=person.canonical_name,
-        is_person_inferred=is_role_only_speaker_label(
-            speech.speaker or "", parliament_number
-        ),
+        is_shared_role_credit=is_shared_role_speaker_label(speech.speaker or ""),
         anchor=anchor,
     )
 
@@ -122,7 +119,6 @@ def get_report(
                 speech,
                 ordinal_to_anchor[speech.ordinal],
                 membership_id_to_person,
-                report.parliament_number,
             )
             for speech in speeches
         ],

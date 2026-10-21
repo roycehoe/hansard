@@ -21,7 +21,7 @@ export interface SpeechData {
   person_id: number | null
   person_slug: string
   person_name: string
-  is_person_inferred: boolean
+  is_shared_role_credit: boolean
   anchor: string
 }
 

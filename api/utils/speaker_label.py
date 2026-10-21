@@ -1,7 +1,6 @@
 import re
 
-# NOTE: the scraper stores no record of how a speech was linked, so this repeats the label rules of its stage 8 (populate/speaker_links.py and services/role_context.py in hansard-scraper): a label these rules read as a role is linked to whoever held the role at the time, never by a printed name. A change to those rules has to be made here too
-_SPEAKER_LABELS = ("Mr Speaker", "Mdm Speaker")
+# NOTE: the scraper stores no record of how a speech was linked, so this repeats the label rules of its stage 8 (populate/speaker_links.py and services/role_context.py in hansard-scraper) for the two roles several people hold at once: a Deputy Speaker or Chairman label is linked to whoever the rules place in the chair, never by a printed name, and a swap the record does not mention can make that wrong. Single-holder roles such as Speaker or Prime Minister are left out on purpose, because their holder on a date is a matter of record. A change to those rules has to be made here too
 _DEPUTY_SPEAKER_LABELS = (
     "Mr Deputy Speaker",
     "Mr DeputySpeaker",
@@ -9,21 +8,6 @@ _DEPUTY_SPEAKER_LABELS = (
     "Mdm DeputySpeaker",
     "The Deputy Speaker",
 )
-_DATED_ROLE_LABELS = ("The Chief Minister", "The Prime Minister")
-_PARLIAMENT_ROLE_LABELS = (("The Minister for Health", 11),)
-_CARRIED_ROLE_LABELS = ("The Chief Secretary",)
-_HEAD_OF_STATE_LABELS = (
-    "His Excellency the Governor",
-    "His Excellency the Yang di-Pertuan Negara",
-    "The President",
-)
-_NON_SPEAKER_LABELS = (
-    "An hon. Member",
-    "Some hon. Members",
-    "Non-Residents",
-    "Tributes by Leader of the House and Opposition Leaders",
-)
-_UNLINKED_LABEL_PREFIXES = ("(", "_")
 _LABEL_COLON = ":"
 _BYTE_ORDER_MARK = "\ufeff"
 _LABEL_TRAILING_CHARACTERS = ";, "
@@ -79,24 +63,13 @@ def _get_cleaned_speaker_label(speaker_label: str) -> str:
     return doubled.group(1) if doubled is not None else cleaned
 
 
-def is_role_only_speaker_label(speaker_label: str, parliament_number: int) -> bool:
+def is_shared_role_speaker_label(speaker_label: str) -> bool:
     if _CHAIRMAN_LABEL.match(speaker_label) is not None:
         return True
     if _BARE_DEPUTY_SPEAKER_LABEL.match(speaker_label.strip()) is not None:
         return True
-    if speaker_label.rstrip(_LABEL_COLON).strip() in _CARRIED_ROLE_LABELS:
-        return True
-    if speaker_label in _HEAD_OF_STATE_LABELS:
-        return True
-    if speaker_label in _NON_SPEAKER_LABELS:
-        return False
-    if speaker_label.startswith(_UNLINKED_LABEL_PREFIXES):
-        return False
     cleaned = _get_cleaned_speaker_label(speaker_label.rstrip(_LABEL_COLON).strip())
-    if cleaned in _SPEAKER_LABELS:
-        return True
-    if cleaned.startswith(_DEPUTY_SPEAKER_LABELS):
-        return _PARENTHESIS.search(cleaned) is None
-    if cleaned in _DATED_ROLE_LABELS:
-        return True
-    return (cleaned, parliament_number) in _PARLIAMENT_ROLE_LABELS
+    return (
+        cleaned.startswith(_DEPUTY_SPEAKER_LABELS)
+        and _PARENTHESIS.search(cleaned) is None
+    )

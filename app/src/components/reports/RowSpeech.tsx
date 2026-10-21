@@ -104,7 +104,7 @@ export function RowSpeech({
             {speech.speaker_label}
           </Link>
         </HoverCardPerson>
-        {speech.is_person_inferred && (
+        {speech.is_shared_role_credit && (
           <PopoverInferredCredit speakerLabel={speech.speaker_label} />
         )}
         {': '}

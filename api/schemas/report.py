@@ -14,7 +14,7 @@ class SpeechData(BaseModel):
     person_id: Optional[int]
     person_slug: str
     person_name: str
-    is_person_inferred: bool
+    is_shared_role_credit: bool
     anchor: str
 
 
