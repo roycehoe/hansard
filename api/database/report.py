@@ -1,6 +1,9 @@
-from typing import Optional
+from typing import ClassVar, Optional
 
 from pydantic import NaiveDatetime
+from sqlalchemy import Column
+from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.orm import deferred
 from sqlmodel import Field, SQLModel
 
 
@@ -12,6 +15,8 @@ class Report(SQLModel, table=True):
     sitting_date: NaiveDatetime
     speech_number: int
     title: str
+    # NOTE: a deferred class attribute, so reading a Report never loads the vector
+    title_tsv: ClassVar = deferred(Column(TSVECTOR))
     subtitle: Optional[str] = None
     report_id: str
     report_type: str

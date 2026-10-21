@@ -88,9 +88,8 @@ def _get_title_query_filters(
     excluded_report_ids: list[int],
 ) -> list[ColumnElement]:
     tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-    title_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Report.title)
     return [
-        title_vector.op("@@")(tsquery),
+        Report.title_tsv.op("@@")(tsquery),
         *_get_report_filters(
             parliament_number,
             date_from,
@@ -325,13 +324,12 @@ class CRUDReport:
             excluded_report_ids,
         )
         if sort == SearchSort.RELEVANCE:
-            title_vector = func.to_tsvector(TEXT_SEARCH_CONFIGURATION, Report.title)
             statement = (
                 select(Report)
                 .options(defer(Report.markdown_content))
                 .where(*filters)
                 .order_by(
-                    func.ts_rank(title_vector, tsquery).desc(),
+                    func.ts_rank(Report.title_tsv, tsquery).desc(),
                     Report.sitting_date.desc(),
                     Report.id,
                 )
@@ -350,15 +348,12 @@ class CRUDReport:
             .subquery()
         )
         first_matching_report = aliased(Report, first_matching_reports)
-        title_vector = func.to_tsvector(
-            TEXT_SEARCH_CONFIGURATION, first_matching_report.title
-        )
         statement = (
             select(first_matching_report)
             .options(defer(first_matching_report.markdown_content))
             .order_by(
                 _get_sitting_date_ordering(sort, first_matching_report.sitting_date),
-                func.ts_rank(title_vector, tsquery).desc(),
+                func.ts_rank(first_matching_report.title_tsv, tsquery).desc(),
                 first_matching_report.id,
             )
             .limit(limit)
