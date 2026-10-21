@@ -358,8 +358,8 @@ export const Route = createFileRoute('/coverage/methods')({
               </dd>
               <dt className={TERM_CLASS_NAME}>{TEXT_NOT_IN_ARCHIVE_LABEL}</dt>
               <dd className={DEFINITION_CLASS_NAME}>
-                Parliament&apos;s site lists the report, but only its title and
-                details are in this archive so far.
+                Parliament&apos;s site lists the report but did not give this
+                archive its text, so only its title and details are here.
               </dd>
               <dt className={TERM_CLASS_NAME}>Absent</dt>
               <dd className={DEFINITION_CLASS_NAME}>{ABSENCE_DEFINITION}</dd>

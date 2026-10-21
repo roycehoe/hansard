@@ -43,13 +43,20 @@ const reportSearchSchema = z.object({
     .catch(undefined),
 })
 
+function isReportTextUnavailable(report: GetReportResponse) {
+  return (
+    !report.is_text_available &&
+    isTextPublished(report.report_type, report.sitting_date)
+  )
+}
+
 function renderBody(report: GetReportResponse, highlightTerms: string[]) {
-  if (!report.is_text_available) {
-    if (!isTextPublished(report.report_type, report.sitting_date)) {
-      return <NoticeTextNotPublished />
-    }
-    return <NoticeTextUnavailable />
+  if (isReportTextUnavailable(report)) {
+    return (
+      <NoticeTextUnavailable officialRecordUrl={report.official_record_url} />
+    )
   }
+  if (!report.is_text_available) return <NoticeTextNotPublished />
   return <ListSpeeches report={report} highlightTerms={highlightTerms} />
 }
 
@@ -128,7 +135,9 @@ export const Route = createFileRoute('/reports/$reportSlug')({
         {renderBody(data, parseHighlightTerms(hl ?? ''))}
         <TextSource
           sittingDate={data.sitting_date}
-          officialRecordUrl={data.official_record_url}
+          officialRecordUrl={
+            isReportTextUnavailable(data) ? null : data.official_record_url
+          }
         />
         <TextReportProblem title={data.title} />
       </div>
