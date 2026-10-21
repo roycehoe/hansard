@@ -40,7 +40,7 @@ uv run pytest
 
 The tests marked `database` read real rows, so they need the scratch database: a copy of the scraper's schema and data at `postgresql+psycopg://user:password@localhost:5435/hansard_launch`. `tests/conftest.py` sets `DATABASE_URL` to it before any project import and stops the session if `settings.database_url` resolves anywhere else, so no test can reach the database in `api/.env`. One database test seeds a `refresh_run` row through a separate writable test engine and deletes it; the API code itself never writes. Do not write new tests unless explicitly asked; the existing ones must pass.
 
-**No pre-commit hooks.** Do not add any without being asked. The only auth is HTTP basic auth on the deployed site (`website.py`), added on 18 October 2026 for the private launch; the API in `main.py` has none. It is on unless `PUBLIC_MODE` is `true`.
+**No pre-commit hooks.** Do not add any without being asked. The only auth is HTTP basic auth in `website.py`, added on 18 October 2026 for the private launch; the API in `main.py` has none. It has been off on the live site since 20 October 2026, because `.do/app.yaml` sets `PUBLIC_MODE` to `true`, and any other value turns it on.
 
 ## The database contract
 
