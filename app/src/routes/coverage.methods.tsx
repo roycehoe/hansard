@@ -106,7 +106,10 @@ export const Route = createFileRoute('/coverage/methods')({
             on the Parliament of Singapore&apos;s website. It splits the text
             into speeches at each speaker label, the name printed before a
             speech. It credits each speech to a person when the label is enough
-            to tell who spoke.
+            to tell who spoke. When the label names only a role, such as
+            &quot;Mr Speaker&quot; or &quot;The Chairman&quot;, the archive
+            infers the person who held that role at the time and marks the
+            credit with an i.
           </p>
           <p>
             The Parliament website moved to a newer system on 10 September 2012.

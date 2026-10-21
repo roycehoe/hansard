@@ -257,6 +257,12 @@ export const HIGHLIGHT_STOP_WORDS: ReadonlySet<string> = new Set([
 
 export const SPEAKER_NOT_RECORDED_LABEL = 'Speaker not recorded'
 
+export const INFERRED_CREDIT_CLOSE_DELAY_MS = 150
+export const INFERRED_CREDIT_METHOD_TEXT =
+  'The archive credits the person who held that role at the time. It works this out from the dates each person held the office, or from where the record of the sitting names who held it.'
+export const INFERRED_CREDIT_CAVEAT_TEXT =
+  'If the role changed hands and the record does not say so, this credit can be wrong.'
+
 export const SPEECH_ANCHOR_MAX_LENGTH = 200
 export const SPEECH_LINK_NOTICE_ID = 'speech-link-notice'
 export const SPEECH_LINK_MOVED_NOTICE = 'This paragraph moved after an update.'

@@ -1,6 +1,7 @@
 import type { SpeechData } from '@/api/reports/getReport'
 import { HoverCardPerson } from '@/components/people/HoverCardPerson'
 import { ActionBarSpeechCopy } from '@/components/reports/ActionBarSpeechCopy'
+import { PopoverInferredCredit } from '@/components/reports/PopoverInferredCredit'
 import { TextTranscript } from '@/components/reports/TextTranscript'
 import { SPEAKER_NOT_RECORDED_LABEL } from '@/constants/reports/constants'
 import { SpeechKind, TranscriptStyle } from '@/constants/reports/enums'
@@ -103,6 +104,9 @@ export function RowSpeech({
             {speech.speaker_label}
           </Link>
         </HoverCardPerson>
+        {speech.is_person_inferred && (
+          <PopoverInferredCredit speakerLabel={speech.speaker_label} />
+        )}
         {': '}
       </>
     )
