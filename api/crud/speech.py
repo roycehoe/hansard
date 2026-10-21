@@ -5,7 +5,11 @@ from sqlalchemy import ColumnElement, Float, Select, func
 from sqlalchemy.orm import aliased
 from sqlmodel import Session, select
 
-from crud.text_search import HEADLINE_OPTIONS, TEXT_SEARCH_CONFIGURATION
+from crud.text_search import (
+    HEADLINE_OPTIONS,
+    HIGHLIGHT_ALL_OPTIONS,
+    TEXT_SEARCH_CONFIGURATION,
+)
 from database.report import Report
 from database.speech import Speech
 from enums import ReportType, SearchSort
@@ -505,3 +509,24 @@ class CRUDSpeech:
         ).where(Speech.id.in_(speech_ids))
         rows = self.session.exec(statement).all()
         return {speech_id: headline for speech_id, headline in rows}
+
+    def get_all_marked_transcripts_by_report_id_and_query(
+        self, report_id: int, query: str
+    ) -> list[str]:
+        tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
+        # NOTE: materialized, so the match runs over the report's own speeches; otherwise a common word makes the planner read its whole entry in the full-text index
+        report_speeches = (
+            select(Speech.transcript, Speech.transcript_tsv)
+            .where(Speech.report_id == report_id)
+            .cte("report_speech")
+            .prefix_with("MATERIALIZED")
+        )
+        statement = select(
+            func.ts_headline(
+                TEXT_SEARCH_CONFIGURATION,
+                report_speeches.c.transcript,
+                tsquery,
+                HIGHLIGHT_ALL_OPTIONS,
+            )
+        ).where(report_speeches.c.transcript_tsv.op("@@")(tsquery))
+        return list(self.session.exec(statement).all())

@@ -11,7 +11,13 @@ from enums import SpeechLinkStatus
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from middleware.membership import get_membership_id_to_person
 from middleware.takedown import is_report_id_taken_down
-from schemas.report import GetReportResponse, SpeechData, SpeechLinkData
+from schemas.report import (
+    GetReportMatchedWordsResponse,
+    GetReportResponse,
+    SpeechData,
+    SpeechLinkData,
+)
+from utils.marked_words import get_marked_words
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
@@ -19,13 +25,17 @@ from utils.speaker_label import is_shared_role_speaker_label
 from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
 
 _EMPTY_ANCHOR = ""
+_OR_OPERATOR = " OR "
 
 
 def _get_validated_report(report_slug: str, session: Session) -> Report:
     for report_id in get_report_id_candidates(report_slug):
         report = CRUDReport(session).get_by_report_id(report_id)
-        if report is not None:
-            return report
+        if report is None:
+            continue
+        if is_report_id_taken_down(report.report_id):
+            raise ReportTakenDownException
+        return report
     raise ReportNotFoundException
 
 
@@ -91,8 +101,6 @@ def get_report(
     session: Session,
 ) -> GetReportResponse:
     report = _get_validated_report(report_slug, session)
-    if is_report_id_taken_down(report.report_id):
-        raise ReportTakenDownException
     speeches = CRUDSpeech(session).get_all_by_report_id(report.id)
     ordinal_to_anchor = {
         speech.ordinal: get_speech_anchor(speech.transcript) for speech in speeches
@@ -126,3 +134,15 @@ def get_report(
             ordinal_to_anchor, speech_ordinal, speech_anchor
         ),
     )
+
+
+def get_report_matched_words(
+    report_slug: str, words: str, session: Session
+) -> GetReportMatchedWordsResponse:
+    report = _get_validated_report(report_slug, session)
+    marked_transcripts = CRUDSpeech(
+        session
+    ).get_all_marked_transcripts_by_report_id_and_query(
+        report.id, _OR_OPERATOR.join(words.split())
+    )
+    return GetReportMatchedWordsResponse(words=get_marked_words(marked_transcripts))

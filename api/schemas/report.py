@@ -36,3 +36,7 @@ class GetReportResponse(BaseModel):
     is_text_available: bool
     speeches: list[SpeechData]
     speech_link: Optional[SpeechLinkData]
+
+
+class GetReportMatchedWordsResponse(BaseModel):
+    words: list[str]

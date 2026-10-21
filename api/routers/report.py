@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 
 from database.engine import get_session
-from schemas.report import GetReportResponse
+from schemas.report import GetReportMatchedWordsResponse, GetReportResponse
 from services import report as report_service
 
 _MAX_SPEECH_ANCHOR_LENGTH = 200
+_MAX_WORDS_LENGTH = 200
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -24,3 +25,12 @@ def get_report(
     return report_service.get_report(
         report_slug, speech_ordinal, speech_anchor, session
     )
+
+
+@router.get("/{report_slug}/matched-words", status_code=200)
+def get_report_matched_words(
+    report_slug: str,
+    words: str = Query(alias="q", max_length=_MAX_WORDS_LENGTH),
+    session: Session = Depends(get_session),
+) -> GetReportMatchedWordsResponse:
+    return report_service.get_report_matched_words(report_slug, words, session)
