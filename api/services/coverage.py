@@ -38,8 +38,8 @@ def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
         for year in sorted(year_to_report_count)
     ]
     return GetCoverageResponse(
-        report_count=CRUDReport(session).get_count(),
-        text_report_count=CRUDReport(session).get_text_report_count(),
+        report_count=sum(year_to_report_count.values()),
+        text_report_count=sum(year_to_text_report_count.values()),
         speech_count=CRUDSpeech(session).get_count(),
         linked_speech_count=CRUDSpeech(session).get_count_with_membership_id(),
         person_count=CRUDPerson(session).get_count(),

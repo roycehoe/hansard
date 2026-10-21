@@ -37,7 +37,7 @@ Facts that apply to every plan below:
 CREATE INDEX ix_speech_report_id ON speech (report_id);
 ```
 
-Needed by `GET /reports/{report_slug}` and `GET /people/{person_id}/reports`. `GET /search/speeches` also joins `speech` to `report` on this column. `GET /coverage`, `GET /parliaments`, `GET /sittings/{sitting_date}` and `GET /search/reports` decide whether a Report has text with an `EXISTS` on `speech.report_id`, one index probe per Report.
+Needed by `GET /reports/{report_slug}` and `GET /people/{person_id}/reports`. `GET /search/speeches` also joins `speech` to `report` on this column. `GET /coverage`, `GET /parliaments`, `GET /sittings/{sitting_date}` and `GET /search/reports` decide whether a Report has text with an `EXISTS` on `speech.report_id`, one index probe per Report. Of the statements `GET /coverage` sends, only its text count per year probes every Report; its first and last sitting date with text stop at the first Report with text (see `ix_report_sitting_date_parliament_number`).
 
 Before the index existed, `speech_by_report_id` scanned all of `speech` for one report's speeches. It now reads the report's rows through the index.
 
@@ -293,6 +293,48 @@ Execution Time: 0.311 ms
 ```
 
 The speech statement measured the same way: report type `oral-answer` only 0.9 ms, a date range only (1 January to 31 March 2020) 1.0 ms.
+
+On 21 October 2026 `GET /coverage` began to read its first and last sitting date with text from this index in order, stopping at the first Report with text, instead of `min()` and `max()` over the `EXISTS` filter. The planner takes its min/max index shortcut only on a query without a join, and the `EXISTS` is a semi join, so the old statements scanned `report` in parallel and probed `ix_speech_report_id` once per Report: 139,273 and 139,270 buffers, 22 ms warm. Each now reads 7 buffers. The plans below are `EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy, warm, not yet captured on production.
+
+```sql
+-- coverage_first_date_with_text (GET /coverage)
+SELECT report.sitting_date  FROM report  WHERE EXISTS (SELECT *  FROM speech  WHERE speech.report_id = report.id) ORDER BY report.sitting_date   LIMIT 1;
+```
+
+```text
+-- coverage_first_date_with_text (GET /coverage)
+Limit  (cost=0.72..4.93 rows=1 width=8) (actual time=0.025..0.026 rows=1 loops=1)
+  Buffers: shared hit=7
+  ->  Nested Loop Semi Join  (cost=0.72..49028.26 rows=11629 width=8) (actual time=0.025..0.025 rows=1 loops=1)
+        Buffers: shared hit=7
+        ->  Index Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..29921.52 rows=41838 width=12) (actual time=0.008..0.008 rows=1 loops=1)
+              Buffers: shared hit=3
+        ->  Index Only Scan using ix_speech_report_id on speech  (cost=0.43..2.12 rows=91 width=4) (actual time=0.016..0.016 rows=1 loops=1)
+              Index Cond: (report_id = report.id)
+              Heap Fetches: 0
+              Buffers: shared hit=4
+Execution Time: 0.031 ms
+```
+
+```sql
+-- coverage_last_date_with_text (GET /coverage)
+SELECT report.sitting_date  FROM report  WHERE EXISTS (SELECT *  FROM speech  WHERE speech.report_id = report.id) ORDER BY report.sitting_date DESC   LIMIT 1;
+```
+
+```text
+-- coverage_last_date_with_text (GET /coverage)
+Limit  (cost=0.72..4.93 rows=1 width=8) (actual time=0.004..0.005 rows=1 loops=1)
+  Buffers: shared hit=7
+  ->  Nested Loop Semi Join  (cost=0.72..49028.26 rows=11629 width=8) (actual time=0.004..0.005 rows=1 loops=1)
+        Buffers: shared hit=7
+        ->  Index Scan Backward using ix_report_sitting_date_parliament_number on report  (cost=0.29..29921.52 rows=41838 width=12) (actual time=0.003..0.003 rows=1 loops=1)
+              Buffers: shared hit=3
+        ->  Index Only Scan using ix_speech_report_id on speech  (cost=0.43..2.12 rows=91 width=4) (actual time=0.001..0.001 rows=1 loops=1)
+              Index Cond: (report_id = report.id)
+              Heap Fetches: 0
+              Buffers: shared hit=4
+Execution Time: 0.009 ms
+```
 
 ## ix_speech_transcript_fts
 

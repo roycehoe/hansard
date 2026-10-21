@@ -215,16 +215,6 @@ class CRUDReport:
         rows = self.session.exec(statement).all()
         return {sitting_date: report_count for sitting_date, report_count in rows}
 
-    def get_count(self) -> int:
-        statement = select(func.count()).select_from(Report)
-        return self.session.exec(statement).one()
-
-    def get_text_report_count(self) -> int:
-        statement = (
-            select(func.count()).select_from(Report).where(_get_is_text_available())
-        )
-        return self.session.exec(statement).one()
-
     def get_min_sitting_date(self) -> Optional[datetime]:
         statement = select(func.min(Report.sitting_date))
         return self.session.exec(statement).one()
@@ -234,16 +224,24 @@ class CRUDReport:
         return self.session.exec(statement).one()
 
     def get_min_sitting_date_with_text(self) -> Optional[datetime]:
-        statement = select(func.min(Report.sitting_date)).where(
-            _get_is_text_available()
+        # NOTE: ordered with LIMIT 1 because min() over the EXISTS filter cannot use the sitting date index and probes speech for every report
+        statement = (
+            select(Report.sitting_date)
+            .where(_get_is_text_available())
+            .order_by(Report.sitting_date)
+            .limit(1)
         )
-        return self.session.exec(statement).one()
+        return self.session.exec(statement).first()
 
     def get_max_sitting_date_with_text(self) -> Optional[datetime]:
-        statement = select(func.max(Report.sitting_date)).where(
-            _get_is_text_available()
+        # NOTE: ordered with LIMIT 1 because max() over the EXISTS filter cannot use the sitting date index and probes speech for every report
+        statement = (
+            select(Report.sitting_date)
+            .where(_get_is_text_available())
+            .order_by(Report.sitting_date.desc())
+            .limit(1)
         )
-        return self.session.exec(statement).one()
+        return self.session.exec(statement).first()
 
     def get_year_to_report_count(self) -> dict[int, int]:
         year = cast(func.extract("year", Report.sitting_date), Integer)
