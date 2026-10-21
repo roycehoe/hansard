@@ -544,10 +544,10 @@ The `ORDER BY` clauses of `GET /search/speeches` with search words, from `api/cr
 
 ```sql
 -- relevance
-ORDER BY speech.transcript_tsv <=> websearch_to_tsquery('english', 'government'), (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, speech.id
+ORDER BY speech.transcript_tsv <=> websearch_to_tsquery('english', 'government'), speech.sitting_date DESC, speech.id
 
--- relevance, with a date range
-ORDER BY (speech.transcript_tsv <=> websearch_to_tsquery('english', 'government')) + 0, (SELECT report_1.sitting_date  FROM report AS report_1  WHERE report_1.id = speech.report_id) DESC, speech.id
+-- relevance, with a date range or a member filter
+ORDER BY (speech.transcript_tsv <=> websearch_to_tsquery('english', 'government')) + 0, speech.sitting_date DESC, speech.id
 
 -- newest first
 ORDER BY speech.sitting_date <=| '2100-01-01 00:00:00', speech.id
@@ -559,7 +559,53 @@ ORDER BY speech.sitting_date |=> '1900-01-01 00:00:00', speech.id
 ORDER BY speech.sitting_date DESC, speech.id
 ```
 
-Relevance. The rum index returns matches in `<=>` order, so the planner stops after the first page. Under a date range that scan would walk matches in rank order until 20 pass the filter: 3.88 s and 35,400 buffers for "government" in 1975 on the clone, against 0.03 s and 3,000 buffers from the report date index. Adding zero hides the order from the rum index. At `613c795` the planner then started from `ix_report_sitting_date_parliament_number`; with the date filter on `speech.sitting_date` it reads the range from `ix_speech_transcript_tsv_sitting_date_rum` and ranks only the matches in it: 4,022 buffers and 0.03 s on the clone.
+Relevance. The rum index returns matches in `<=>` order, so the planner stops after the first page. Under a date range that scan would walk matches in rank order until 20 pass the filter: 3.88 s and 35,400 buffers for "government" in 1975 on the clone, against 0.03 s and 3,000 buffers from the report date index. Adding zero hides the order from the rum index. At `613c795` the planner then started from `ix_report_sitting_date_parliament_number`; with the date filter on `speech.sitting_date` it reads the range from `ix_speech_transcript_tsv_sitting_date_rum` and ranks only the matches in it: 4,022 buffers and 0.03 s on the clone. A member filter takes the same zero since 21 October 2026, and the tie-break since then is `speech.sitting_date`, which equals the report's date on every row, in place of a subquery on `report`.
+
+On 21 October 2026 relevance took two changes. A member filter now adds zero to the distance, as a date range does. Without it the planner walked `ix_speech_transcript_tsv_rum` in rank order and tested each match against the member: for "sir" and the four Memberships of person 349 that removed 179,708 rows to find 367, and took 1,355 ms and 112,417 buffers on the scratch copy, spilling to temp files. With zero added it intersects `ix_speech_speaker_id` with `ix_speech_transcript_tsv` and sorts the member's matches: 9.8 ms and 642 buffers. The tie-break moved from a subquery on `report`, run once for every row the sort pulled, to `speech.sitting_date`; "government" page 50 fell from 9,657 to 5,520 buffers with it. Interleaved on the scratch copy, 5 rounds, page and count together, medians: "sir" for person 349 2,010 to 28 ms, "housing" for person 170 69 to 22 ms (13,064 to 1,086 buffers), "government" for person 29 page 2 114 to 40 ms (1,879 to 4,055 buffers, because the plan now reads both indexes). Plain "government" pages 1, 2 and 50 and "housing" in written answers did not move beyond noise over 20 rounds (68.4 to 68.5 ms, 65.9 to 62.4, 66.3 to 68.5, 53.8 to 53.9). The page ids and their order were identical before and after for 1,236 inputs.
+
+The page for "sir" and person 349 after the change, scratch copy, third run, not yet captured on production:
+
+```sql
+-- speech_search_relevance_person (GET /search/speeches?q=sir&person_id=349)
+SELECT speech.id, speech.ordinal, speech.speaker, speech.transcript, speech.kind, speech.sitting_date, speech.report_id, speech.speaker_id FROM speech JOIN report ON report.id = speech.report_id WHERE (speech.transcript_tsv @@ websearch_to_tsquery('english', 'sir')) AND speech.speaker_id IN (953, 1071, 1180, 1302) ORDER BY (speech.transcript_tsv <=> websearch_to_tsquery('english', 'sir')) + 0, speech.sitting_date DESC, speech.id LIMIT 21 OFFSET 0;
+```
+
+```text
+-- speech_search_relevance_person (GET /search/speeches?q=sir&person_id=349), scratch copy, not yet captured on production
+Limit  (cost=11936.45..11936.51 rows=21 width=416) (actual time=9.752..9.754 rows=21 loops=1)
+  Buffers: shared hit=642
+  ->  Sort  (cost=11936.45..11941.24 rows=1913 width=416) (actual time=9.751..9.753 rows=21 loops=1)
+        Sort Key: (((speech.transcript_tsv <=> '''sir'''::tsquery) + '0'::double precision)), speech.sitting_date DESC, speech.id
+        Sort Method: top-N heapsort  Memory: 54kB
+        Buffers: shared hit=642
+        ->  Nested Loop  (cost=1326.59..11884.88 rows=1913 width=416) (actual time=9.277..9.644 rows=367 loops=1)
+              Buffers: shared hit=642
+              ->  Bitmap Heap Scan on speech  (cost=1326.29..8180.85 rows=1913 width=772) (actual time=9.270..9.385 rows=367 loops=1)
+                    Recheck Cond: ((speaker_id = ANY ('{953,1071,1180,1302}'::integer[])) AND (transcript_tsv @@ '''sir'''::tsquery))
+                    Heap Blocks: exact=323
+                    Buffers: shared hit=383
+                    ->  BitmapAnd  (cost=1326.29..1326.29 rows=1913 width=0) (actual time=9.241..9.241 rows=0 loops=1)
+                          Buffers: shared hit=60
+                          ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..133.41 rows=11160 width=0) (actual time=0.283..0.283 rows=11760 loops=1)
+                                Index Cond: (speaker_id = ANY ('{953,1071,1180,1302}'::integer[]))
+                                Buffers: shared hit=23
+                          ->  Bitmap Index Scan on ix_speech_transcript_tsv  (cost=0.00..1191.68 rows=180468 width=0) (actual time=8.812..8.812 rows=180075 loops=1)
+                                Index Cond: (transcript_tsv @@ '''sir'''::tsquery)
+                                Buffers: shared hit=37
+              ->  Memoize  (cost=0.30..2.08 rows=1 width=4) (actual time=0.000..0.000 rows=1 loops=367)
+                    Cache Key: speech.report_id
+                    Cache Mode: logical
+                    Hits: 267  Misses: 100  Evictions: 0  Overflows: 0  Memory Usage: 11kB
+                    Buffers: shared hit=250
+                    ->  Index Only Scan using report_pkey on report  (cost=0.29..2.07 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=100)
+                          Index Cond: (id = speech.report_id)
+                          Heap Fetches: 49
+                          Buffers: shared hit=250
+Planning:
+  Buffers: shared hit=19
+Planning Time: 0.118 ms
+Execution Time: 9.766 ms
+```
 
 Newest first, at `613c795`. The key is the joined `report.sitting_date`, so a common word walks the report date index from the newest report and stops after the first page. With the subquery date the planner sorted every match: 34.7 to 38.5 s for "government" once the rum index existed, and one cold run passed 120 s.
 

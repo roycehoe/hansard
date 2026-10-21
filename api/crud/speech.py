@@ -96,11 +96,11 @@ def _get_query_filters(
 
 
 def _get_relevance_distance(
-    tsquery: ColumnElement, is_date_filtered: bool
+    tsquery: ColumnElement, is_ranked_after_filtering: bool
 ) -> ColumnElement:
     distance = Speech.transcript_tsv.op("<=>", return_type=Float)(tsquery)
-    if is_date_filtered:
-        # NOTE: adding zero hides the order from the rum index, so a date range is read from the sitting date index first
+    if is_ranked_after_filtering:
+        # NOTE: adding zero hides the order from the rum index, so a date range or a member's speeches are read from their own index first and only those matches are ranked
         return distance + 0
     return distance
 
@@ -116,13 +116,13 @@ def _get_browse_ordering(
 def _get_speech_ordering(
     sort: SearchSort,
     tsquery: ColumnElement,
-    is_date_filtered: bool,
+    is_ranked_after_filtering: bool,
     is_date_index_ordered: bool,
 ) -> list[ColumnElement]:
     if sort == SearchSort.RELEVANCE:
         return [
-            _get_relevance_distance(tsquery, is_date_filtered),
-            _get_sitting_date().desc(),
+            _get_relevance_distance(tsquery, is_ranked_after_filtering),
+            Speech.sitting_date.desc(),
             Speech.id,
         ]
     if not is_date_index_ordered:
@@ -238,9 +238,11 @@ class CRUDSpeech:
         # NOTE: only a date-index order gets the Parliament's date range, because the rum index reads a range but not a Parliament, and the range made a relevance search read 25 times the buffers
         if parliament_number is not None and is_date_index_ordered:
             filters.extend(_get_parliament_sitting_date_filters(parliament_number))
-        is_date_filtered = date_from is not None or date_to is not None
+        is_ranked_after_filtering = (
+            date_from is not None or date_to is not None or membership_ids is not None
+        )
         ordering = _get_speech_ordering(
-            sort, tsquery, is_date_filtered, is_date_index_ordered
+            sort, tsquery, is_ranked_after_filtering, is_date_index_ordered
         )
         statement = (
             select(Speech)
