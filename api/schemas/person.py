@@ -27,6 +27,7 @@ class MembershipData(BaseModel):
     party_affiliations: list[PartyAffiliationData]
     is_legislative_assembly: bool
     is_member: bool
+    constituencies: list[str]
 
 
 class PersonData(BaseModel):

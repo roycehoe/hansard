@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy import func
 from sqlmodel import Session, select
 
+from database.attendance import Attendance
 from database.speaker import Speaker
 from utils.like_pattern import escape_like_pattern
 
@@ -37,6 +38,7 @@ class CRUDMembership:
         is_legislative_assembly: Optional[bool],
         party: Optional[str],
         name: Optional[str],
+        location_name: Optional[str],
     ) -> list[Speaker]:
         filters = []
         if parliament_number is not None:
@@ -49,6 +51,13 @@ class CRUDMembership:
             filters.append(
                 Speaker.name.ilike(f"%{escape_like_pattern(name)}%", escape="\\")
             )
+        if location_name is not None:
+            membership_ids_at_location = select(Attendance.speaker_id).where(
+                Attendance.location_name.ilike(
+                    f"%{escape_like_pattern(location_name)}%", escape="\\"
+                )
+            )
+            filters.append(Speaker.id.in_(membership_ids_at_location))
         statement = select(Speaker).where(*filters)
         return list(self.session.exec(statement).all())
 

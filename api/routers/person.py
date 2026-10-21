@@ -22,9 +22,12 @@ def get_all_persons(
     parliament_number: Optional[int] = Query(default=None, ge=0),
     party: Optional[str] = Query(default=None, min_length=1),
     name: Optional[str] = Query(default=None, min_length=1),
+    constituency: Optional[str] = Query(default=None, min_length=1),
     session: Session = Depends(get_session),
 ) -> GetAllPersonsResponse:
-    return person_service.get_all_persons(parliament_number, party, name, session)
+    return person_service.get_all_persons(
+        parliament_number, party, name, constituency, session
+    )
 
 
 @router.get("/{person_id}", status_code=200)

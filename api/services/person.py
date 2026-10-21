@@ -93,12 +93,15 @@ def _get_matching_memberships(
     parliament_number: Optional[int],
     party: Optional[str],
     name: Optional[str],
+    constituency: Optional[str],
     session: Session,
 ) -> list[Speaker]:
     if parliament_number == _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER:
-        return CRUDMembership(session).get_all_filtered(None, True, party, name)
+        return CRUDMembership(session).get_all_filtered(
+            None, True, party, name, constituency
+        )
     return CRUDMembership(session).get_all_filtered(
-        parliament_number, None, party, name
+        parliament_number, None, party, name, constituency
     )
 
 
@@ -124,10 +127,11 @@ def get_all_persons(
     parliament_number: Optional[int],
     party: Optional[str],
     name: Optional[str],
+    constituency: Optional[str],
     session: Session,
 ) -> GetAllPersonsResponse:
     matching_memberships = _get_matching_memberships(
-        parliament_number, party, name, session
+        parliament_number, party, name, constituency, session
     )
     person_ids = sorted(
         {
@@ -138,9 +142,13 @@ def get_all_persons(
     )
     persons = CRUDPerson(session).get_by_ids(person_ids)
     memberships = CRUDMembership(session).get_all_by_person_ids(person_ids)
+    membership_ids = [membership.id for membership in memberships]
     membership_id_to_party_affiliations = _get_membership_id_to_party_affiliations(
-        [membership.id for membership in memberships], session
+        membership_ids, session
     )
+    membership_id_to_location_names = CRUDAttendance(
+        session
+    ).get_membership_id_to_location_names_by_membership_ids(membership_ids)
     person_id_to_memberships: dict[int, list[Speaker]] = {}
     for membership in memberships:
         person_id_to_memberships.setdefault(membership.person_id, []).append(membership)
@@ -159,6 +167,9 @@ def get_all_persons(
                         ),
                         is_legislative_assembly=membership.is_legislative_assembly,
                         is_member=membership.is_member,
+                        constituencies=membership_id_to_location_names.get(
+                            membership.id, []
+                        ),
                     )
                     for membership in person_id_to_memberships.get(person.id, [])
                 ],

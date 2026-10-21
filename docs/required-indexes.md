@@ -881,6 +881,7 @@ A negation-only query, such as `-coe`, makes `websearch_to_tsquery` produce a qu
 - `report.report_id` is already unique-indexed.
 - `speaker.person_id` is already indexed.
 - `speaker` for `GET /people` has 1,434 rows, so the filter by parliament and `ILIKE` on name scans the table at negligible cost. A leading-wildcard `ILIKE` could not use a B-tree anyway.
+- `attendance.location_name` for the `constituency` filter of `GET /people`, which keeps the Memberships whose id is in `SELECT speaker_id FROM attendance WHERE location_name ILIKE '%x%'`. `attendance` has about 140,000 rows, and a leading-wildcard `ILIKE` could not use a B-tree. Not timed.
 - `report.parliament_number` on its own, for `GET /sittings`. The service runs three group-by statements of the shape below (volume, sitting number and report count per date), each a scan of `report` filtered by Parliament. `ix_report_sitting_date_parliament_number` serves them as an index-only scan, and no separate index on `parliament_number` is listed.
 
 ```sql
