@@ -1,20 +1,22 @@
 # Required indexes
 
-The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: ten indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. Two more, `ix_speech_transcript_fts` and, since 21 October 2026, `ix_report_title_fts`, still exist, but no API statement uses them. The ninth, `ix_speech_transcript_tsv_sitting_date_rum`, reads the column `speech.sitting_date`. Scraper migration `c93f77e499cc` added both to production on 18 October 2026; see its section below. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026, and its date order changes again with the sitting-date index; "Ranking cost" holds its order clauses and timings.
+The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: eleven indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. Two more, `ix_speech_transcript_fts` and, since 21 October 2026, `ix_report_title_fts`, still exist, but no API statement uses them. The ninth, `ix_speech_transcript_tsv_sitting_date_rum`, reads the column `speech.sitting_date`. Scraper migration `c93f77e499cc` added both to production on 18 October 2026; see its section below. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026, and its date order changes again with the sitting-date index; "Ranking cost" holds its order clauses and timings.
 
-Every index here except `ix_speech_transcript_tsv_sitting_date_rum` exists and is valid on production, and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes. Four migrations built them:
+Every index here except `ix_speech_transcript_tsv_sitting_date_rum` exists and is valid on production, and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes. Five migrations built them:
 
 - Scraper commit `1f0d8ef` (`feat: add the indexes the read API relies on`, Alembic revision `e5a9c3b7d216`) created seven on 14 October 2026, from 11:01 to 11:07 SGT (392 seconds in total).
 - Commit `e856c26` (revision `f2b8d4a6c913`) added the stored column `speech.transcript_tsv` and `ix_speech_transcript_tsv`. Production took the upgrade on 17 October from 13:44 to 14:00 SGT, together with the attendance constraint (23 minutes; the column rewrites `speech`).
 - Commit `aed4137` (revision `50505c58da5d`, after `641870b78b3f`) created the `rum` extension and `ix_speech_transcript_tsv_rum`, then ran `ANALYZE speech`. Production took it on 18 October 2026 from 08:00:34 to 08:04:26 SGT (3 minutes 52 seconds). The index is valid at 222 MB, on `rum` 1.3 (DigitalOcean Postgres 17).
 - Commit `7dbfc78` (revision `8281c763bb21`) added the stored column `report.title_tsv` and `ix_report_title_tsv`. Production took it on 21 October 2026 from 02:06 to 02:09 UTC (202 seconds).
+- Commit `d0ffc82` (revision `6b3a29f6f809`) rebuilt `ix_speech_speaker_id` and `ix_attendance_speaker_id` under the same names and key columns with `INCLUDE` columns, and added `ix_report_id_parliament_number`, so the reads behind `GET /people/{person_id}` are index-only scans. Production took it on 21 October 2026 from 13:13:26 to 13:13:45 SGT (19 seconds). Postgres does not deduplicate an index with `INCLUDE` columns, so the two rebuilt indexes are three to six times their old size.
 
 | Index | Table | Size on production |
 |---|---|---|
 | `ix_speech_report_id` | `speech` | 8152 kB |
-| `ix_speech_speaker_id` | `speech` | 7480 kB |
+| `ix_speech_speaker_id` | `speech` | 25 MB (8448 kB before `INCLUDE`) |
 | `ix_attendance_sitting_id` | `attendance` | 944 kB |
-| `ix_attendance_speaker_id` | `attendance` | 952 kB |
+| `ix_attendance_speaker_id` | `attendance` | 6072 kB (1056 kB before `INCLUDE`) |
+| `ix_report_id_parliament_number` | `report` | 1040 kB |
 | `ix_report_sitting_date_parliament_number` | `report` | 352 kB |
 | `ix_report_title_tsv` | `report` | 1768 kB on the scratch copy |
 | `ix_report_title_fts` (not used by the API since 21 October 2026) | `report` | 1768 kB |
@@ -59,7 +61,7 @@ Sort  (cost=72.03..72.25 rows=87 width=405)
 ## ix_speech_speaker_id
 
 ```sql
-CREATE INDEX ix_speech_speaker_id ON speech (speaker_id);
+CREATE INDEX ix_speech_speaker_id ON speech (speaker_id) INCLUDE (report_id);
 ```
 
 Needed by `GET /people/{person_id}`, `GET /people/{person_id}/reports` and `GET /search/speeches` when `person_id` is given, with or without search words.
@@ -71,16 +73,16 @@ Both endpoints start with `speech_counts_by_report`, which filters `speech.speak
 SELECT speech.report_id, count(*) AS count_1  FROM speech  WHERE speech.speaker_id IN (1349) GROUP BY speech.report_id;
 ```
 
-On 20 October 2026 `speech_counts_by_parliament` changed to count speeches per report before joining `report`, so the join reads each report once instead of once per speech. Before, it joined every speech to `report`: 4,412 primary-key lookups and two parallel workers for person 383, 112 ms on production. For a member with many speeches the planner overestimated the reports (4,463 expected for 1349) and hashed a sequential scan of `report`, as the old statement did for person 29 (see "Ranking cost"). Every person's counts were identical before and after the change. On 21 October 2026 the join went. Both endpoints now count the member's speeches per report in this statement, and the service sums them per Parliament (`GET /people/{person_id}`) or pages through them (`GET /people/{person_id}/reports`) with the next statements, which read `report` only. Every person's `GET /people/{person_id}` and every page of `GET /people/{person_id}/reports` were identical before and after the change. Plain `EXPLAIN` on the scratch copy, not yet captured on production:
+On 20 October 2026 `speech_counts_by_parliament` changed to count speeches per report before joining `report`, so the join reads each report once instead of once per speech. Before, it joined every speech to `report`: 4,412 primary-key lookups and two parallel workers for person 383, 112 ms on production. For a member with many speeches the planner overestimated the reports (4,463 expected for 1349) and hashed a sequential scan of `report`, as the old statement did for person 29 (see "Ranking cost"). Every person's counts were identical before and after the change. On 21 October 2026 the join went. Both endpoints now count the member's speeches per report in this statement, and the service sums them per Parliament (`GET /people/{person_id}`) or pages through them (`GET /people/{person_id}/reports`) with the next statements, which read `report` only. Every person's `GET /people/{person_id}` and every page of `GET /people/{person_id}/reports` were identical before and after the change.
+
+Until scraper revision `6b3a29f6f809` the index held `speaker_id` only, so this statement read each of the member's speech rows from the heap for its `report_id`, scattered across a table larger than production's memory. With `INCLUDE (report_id)` it is an index-only scan with no heap fetches. `EXPLAIN (ANALYZE, BUFFERS)` on production, second run, 21 October 2026, shared buffers and time before and after: person 29 6,647 to 112 buffers (75 to 9.0 ms), person 137 3,304 to 53 (9.1 to 4.4 ms), person 170 8,115 to 108 (178 to 12 ms), person 383 2,671 to 31 (16 to 3.6 ms). The builds had just loaded the new indexes into memory, so these are warm timings. On the scratch copy with every shared buffer of the database evicted first, person 170's statement went from 1,125 to 7.9 ms, and its `GET /people/{person_id}` statements from 1,236 to 477 ms in total, before the attendance indexes were rebuilt. The day before, heavy members' pages took 2.2 to 5.3 s on the live site. Plain `EXPLAIN` on the scratch copy:
 
 ```text
 -- speech_counts_by_report, scratch copy
-HashAggregate  (cost=18303.66..18348.29 rows=4463 width=12)
+HashAggregate  (cost=223.17..273.14 rows=4997 width=12)
   Group Key: report_id
-  ->  Bitmap Heap Scan on speech  (cost=63.94..18275.59 rows=5615 width=4)
-        Recheck Cond: (speaker_id = 1349)
-        ->  Bitmap Index Scan on ix_speech_speaker_id  (cost=0.00..62.54 rows=5615 width=0)
-              Index Cond: (speaker_id = 1349)
+  ->  Index Only Scan using ix_speech_speaker_id on speech  (cost=0.43..190.56 rows=6522 width=4)
+        Index Cond: (speaker_id = 1349)
 ```
 
 ```sql
@@ -88,16 +90,16 @@ HashAggregate  (cost=18303.66..18348.29 rows=4463 width=12)
 SELECT report.id  FROM report  WHERE report.id = ANY (ARRAY[...]) ORDER BY report.sitting_date + make_interval(secs=>0.0) DESC, report.speech_number DESC, report.id   LIMIT 21 OFFSET 0;
 ```
 
-The array holds the report ids that `speech_counts_by_report` returned; `...` stands for the 583 ids of member 1349. This statement reads no `speech` row. The sort key has zero added so the planner cannot walk `ix_report_sitting_date_parliament_number` backward and test each report against the id list, which it chose for member 1349 and person 29 when the key was the plain column: 14,453 buffers for person 29's first page against 639 with the zero added. Plain `EXPLAIN` on the scratch copy, not yet captured on production:
+The array holds the report ids that `speech_counts_by_report` returned; `...` stands for the 583 ids of member 1349. This statement reads no `speech` row. The sort key has zero added so the planner cannot walk `ix_report_sitting_date_parliament_number` backward and test each report against the id list, which it chose for member 1349 and person 29 when the key was the plain column: 14,453 buffers for person 29's first page against 639 with the zero added. The sort reads `sitting_date` and `speech_number` from the heap, so the planner now finds the rows through the smaller `ix_report_id_parliament_number` instead of `report_pkey`. Plain `EXPLAIN` on the scratch copy, not yet captured on production:
 
 ```text
 -- person_reports (GET /people/{person_id}/reports), scratch copy
-Limit  (cost=2051.18..2051.23 rows=21 width=16)
-  ->  Sort  (cost=2051.18..2052.64 rows=583 width=16)
+Limit  (cost=1905.76..1905.82 rows=21 width=16)
+  ->  Sort  (cost=1905.76..1907.22 rows=583 width=16)
         Sort Key: ((sitting_date + '00:00:00'::interval)) DESC, speech_number DESC, id
-        ->  Bitmap Heap Scan on report  (cost=248.84..2035.46 rows=583 width=16)
+        ->  Bitmap Heap Scan on report  (cost=153.30..1890.05 rows=583 width=16)
               Recheck Cond: (id = ANY ('{...}'::integer[]))
-              ->  Bitmap Index Scan on report_pkey  (cost=0.00..247.24 rows=583 width=0)
+              ->  Bitmap Index Scan on ix_report_id_parliament_number  (cost=0.00..151.70 rows=583 width=0)
                     Index Cond: (id = ANY ('{...}'::integer[]))
 ```
 
@@ -106,14 +108,12 @@ Limit  (cost=2051.18..2051.23 rows=21 width=16)
 SELECT report.id, report.parliament_number  FROM report  WHERE report.id = ANY (ARRAY[...]);
 ```
 
-The array holds the report ids from `speech_counts_by_report`; `...` stands for the 583 ids of member 1349. The planner reads `report` by primary key: person 29 reads 639 buffers here and 3,913 in `speech_counts_by_report`, where the single joined statement read 11,181 before 21 October 2026 (`EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy, warm, not yet captured on production). Plain `EXPLAIN` on the scratch copy, not yet captured on production:
+The array holds the report ids from `speech_counts_by_report`; `...` stands for the 583 ids of member 1349. Since scraper revision `6b3a29f6f809` the planner answers it from `ix_report_id_parliament_number` alone, an index-only scan with no heap fetches; before, it read `report` by primary key. `EXPLAIN (ANALYZE, BUFFERS)` on production, second run, 21 October 2026, before and after: person 29 687 to 89 buffers (115 to 1.1 ms), person 137 1,058 to 71 (54 to 1.5 ms), person 170 1,714 to 181 (879 to 2.8 ms), person 383 983 to 125 (456 to 3.3 ms). Before, this statement read 229 to 790 buffers from disk even on a second run. Plain `EXPLAIN` on the scratch copy:
 
 ```text
 -- report_parliament_numbers (GET /people/{person_id}), scratch copy
-Bitmap Heap Scan on report  (cost=248.84..2034.00 rows=583 width=8)
-  Recheck Cond: (id = ANY ('{...}'::integer[]))
-  ->  Bitmap Index Scan on report_pkey  (cost=0.00..247.24 rows=583 width=0)
-        Index Cond: (id = ANY ('{...}'::integer[]))
+Index Only Scan using ix_report_id_parliament_number on report  (cost=0.29..157.53 rows=583 width=8)
+  Index Cond: (id = ANY ('{...}'::integer[]))
 ```
 
 `GET /search/speeches` with a `person_id` and no search words also uses this index. The statement filters `speech.speaker_id`, keeps the Parliament, date and report type filters through the join to `report` (with none of them set it has no join, see below), and orders by `speech.sitting_date`, newest first or oldest first, then `speech.id`. The sort key is the speech's own date, which equals its report's date on every row. Until 21 October 2026 it was a scalar subquery on `report`, because with the joined column `report.sitting_date` the planner walks `ix_report_sitting_date_parliament_number` backward and filters speeches one at a time: 9.2 seconds for person 29 against 127 ms for the subquery form on 14 October 2026. That reason does not apply to `speech.sitting_date`: no index orders speeches by it without search words, so the planner reads the member's speeches through `ix_speech_speaker_id` and keeps the top 21 in a sort. The subquery ran once for each of the member's speeches (12,457 times and 37,371 buffers for person 29), the join still hashed a sequential scan of `report`, and the plan's cost for the heavy members crossed `jit_above_cost`, so JIT fired. `EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy, third run, not yet captured on production, for person 29 (12 Memberships, 12,457 speeches), page 1:
@@ -173,10 +173,19 @@ Sort  (cost=79.97..80.16 rows=76 width=40)
 ## ix_attendance_speaker_id
 
 ```sql
-CREATE INDEX ix_attendance_speaker_id ON attendance (speaker_id);
+CREATE INDEX ix_attendance_speaker_id ON attendance (speaker_id) INCLUDE (is_present, sitting_id, location_name);
 ```
 
-Needed by `GET /people/{person_id}`.
+Needed by `GET /people/{person_id}`, for `attendance_counts_by_parliament` (twice, present and absent) and for the Membership's location names (`SELECT DISTINCT speaker_id, location_name FROM attendance WHERE speaker_id IN (...) AND location_name IS NOT NULL`). Since scraper revision `6b3a29f6f809` the `INCLUDE` columns let all three read the index alone. `EXPLAIN (ANALYZE, BUFFERS)` on production, second run, 21 October 2026, shared buffers and time before and after:
+
+| Person | Location names | Present count | Absent count |
+|---|---|---|---|
+| 29 | 1,341 to 49 (44 to 1.9 ms) | 3,280 to 1,988 (45 to 16 ms) | 3,754 to 2,462 (13 to 17 ms) |
+| 137 | 678 to 22 (16 to 1.0 ms) | 2,097 to 1,441 (10 to 9.8 ms) | 824 to 168 (2.6 to 1.0 ms) |
+| 170 | 988 to 32 (68 to 1.6 ms) | 2,493 to 1,537 (96 to 18 ms) | 2,679 to 1,723 (28 to 6.7 ms) |
+| 383 | 289 to 12 (3.1 to 0.7 ms) | 1,070 to 793 (25 to 12 ms) | 305 to 28 (0.8 to 0.5 ms) |
+
+What the counts still read is one probe of `ix_report_sitting_date_parliament_number` per attended sitting, plus `sitting` (the absent count also probes `sitting_pkey`). Cutting that further means changing the statement, not adding an index.
 
 ```sql
 -- attendance_counts_by_parliament (GET /people/{person_id})
@@ -185,26 +194,32 @@ SELECT anon_1.parliament_number, count(*) AS count_1  FROM attendance JOIN sitti
 
 On 20 October 2026 this statement changed to find each attended sitting's Parliament with a range on `report.sitting_date`, one probe of `ix_report_sitting_date_parliament_number` per sitting. Before, it built `DISTINCT sitting_date, parliament_number` over every report and joined through `CAST(sitting_date AS DATE)`, which no index serves. That read all 46,649 index entries for each of the endpoint's two attendance statements, 43 to 301 ms each on production for person 383. A member present at every one of the 1,719 sittings would probe about as many entries as the old statement read.
 
-On 21 October 2026 the range became an equality, `report.sitting_date = to_date(sitting.sitting_date, 'DD-MM-YYYY')`. Every report's `sitting_date` is midnight (41,838 of 41,838 on the scratch copy, and `GET /sittings/{sitting_date}` already assumes it), so the same reports match: the counts are identical for all 573 people, present and absent. For the present count of 177 of those people the range estimated a cost of 107,973 to 396,184, above the default `jit_above_cost` of 100,000, so Postgres compiled the statement: 9.6 ms of a 21.5 ms run for person 29, 18.0 of 53.5 for person 170. The equality estimates at most 55,246, 4 to 7 times lower, so nothing compiles. The probe per attended sitting and its buffers are the same. The plan below is a plain `EXPLAIN` on the scratch copy, not yet captured on production.
+On 21 October 2026 the range became an equality, `report.sitting_date = to_date(sitting.sitting_date, 'DD-MM-YYYY')`. Every report's `sitting_date` is midnight (41,838 of 41,838 on the scratch copy, and `GET /sittings/{sitting_date}` already assumes it), so the same reports match: the counts are identical for all 573 people, present and absent. For the present count of 177 of those people the range estimated a cost of 107,973 to 396,184, above the default `jit_above_cost` of 100,000, so Postgres compiled the statement: 9.6 ms of a 21.5 ms run for person 29, 18.0 of 53.5 for person 170. The equality estimates at most 55,246, 4 to 7 times lower, so nothing compiles. The probe per attended sitting and its buffers are the same. The plan below is a plain `EXPLAIN` on the scratch copy, after scraper revision `6b3a29f6f809`.
 
 ```text
 -- attendance_counts_by_parliament (GET /people/{person_id}), scratch copy
-HashAggregate  (cost=7752.46..7752.58 rows=12 width=12)
+HashAggregate  (cost=915.34..915.46 rows=12 width=12)
   Group Key: report.parliament_number
-  ->  Nested Loop  (cost=488.39..7742.92 rows=1908 width=4)
-        ->  Hash Join  (cost=488.10..620.81 rows=159 width=9)
+  ->  Nested Loop  (cost=17.15..906.10 rows=1848 width=4)
+        ->  Hash Join  (cost=16.86..149.58 rows=154 width=9)
               Hash Cond: (sitting.id = attendance.sitting_id)
               ->  Seq Scan on sitting  (cost=0.00..128.19 rows=1719 width=13)
-              ->  Hash  (cost=486.11..486.11 rows=159 width=4)
-                    ->  Bitmap Heap Scan on attendance  (cost=5.65..486.11 rows=159 width=4)
-                          Recheck Cond: (speaker_id = 1349)
+              ->  Hash  (cost=14.94..14.94 rows=154 width=4)
+                    ->  Index Only Scan using ix_attendance_speaker_id on attendance  (cost=0.42..14.94 rows=154 width=4)
+                          Index Cond: (speaker_id = 1349)
                           Filter: (is_present IS TRUE)
-                          ->  Bitmap Index Scan on ix_attendance_speaker_id  (cost=0.00..5.62 rows=176 width=0)
-                                Index Cond: (speaker_id = 1349)
-        ->  Unique  (cost=0.29..44.67 rows=12 width=4)
-              ->  Index Only Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..44.61 rows=25 width=4)
+        ->  Unique  (cost=0.29..4.79 rows=12 width=4)
+              ->  Index Only Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..4.73 rows=25 width=4)
                     Index Cond: (sitting_date = to_date((sitting.sitting_date)::text, 'DD-MM-YYYY'::text))
 ```
+
+## ix_report_id_parliament_number
+
+```sql
+CREATE INDEX ix_report_id_parliament_number ON report (id) INCLUDE (parliament_number);
+```
+
+Needed by `GET /people/{person_id}`, for `report_parliament_numbers` (see `ix_speech_speaker_id`, which holds its statement, plan and production numbers). It sits beside `report_pkey` on the same key, because rebuilding the primary key with `INCLUDE` would mean dropping and revalidating the foreign keys that point at it. `person_reports` (`GET /people/{person_id}/reports`) also finds its rows through it, though it reads the heap for the sort.
 
 ## ix_report_sitting_date_parliament_number
 
