@@ -21,9 +21,19 @@ import {
   TEXT_NOT_IN_ARCHIVE_LABEL,
 } from '@/constants/constants'
 import {
+  ERROR_CHECK_DATE,
+  ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT,
+  ERROR_CHECK_SPEECH_COUNT,
+  ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND,
+  ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN,
+  ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND,
+  ERROR_SHARE_TO_PARLIAMENT_ELEVEN,
+  ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND,
   HAND_CHECK_CORRECT_SPEECH_COUNT,
   HAND_CHECK_DATE,
   HAND_CHECK_LINKED_SPEECH_COUNT,
+  HAND_CHECK_RIGHT_SHARE_LOWER_BOUND,
+  HAND_CHECK_RIGHT_SHARE_UPPER_BOUND,
   HAND_CHECK_UNLINKED_SPEECH_COUNT,
   METHODS_LAST_REVISED,
   METHODS_TERMS_SECTION_ID,
@@ -274,14 +284,40 @@ export const Route = createFileRoute('/coverage/methods')({
             Who said what
           </h2>
           <p>
-            On {formatSittingDate(HAND_CHECK_DATE)},{' '}
+            On {formatSittingDate(HAND_CHECK_DATE)}, an AI model checked{' '}
             {HAND_CHECK_LINKED_SPEECH_COUNT} paragraphs from the Legislative
-            Assembly to Parliament 15 that are credited to a person were checked
-            against the source text by an AI model. No person has read them yet.
-            None was credited to the wrong person.{' '}
-            {HAND_CHECK_CORRECT_SPEECH_COUNT} were correct. The other one was a
-            caption from a tabled list, which should be credited to no one, but
-            carried the name of the member whose written answer it follows.
+            Assembly to Parliament 15 that are credited to a person against the
+            source text. No person has read them yet.{' '}
+            {HAND_CHECK_LINKED_SPEECH_COUNT - HAND_CHECK_CORRECT_SPEECH_COUNT}{' '}
+            of the {HAND_CHECK_LINKED_SPEECH_COUNT} was wrong: a caption from a
+            tabled list, which should be credited to no one, carried the name of
+            the member whose written answer it follows. No member&apos;s words
+            were credited to another member. From this check, between{' '}
+            {HAND_CHECK_RIGHT_SHARE_LOWER_BOUND} and{' '}
+            {HAND_CHECK_RIGHT_SHARE_UPPER_BOUND} of credited paragraphs are
+            right, at 95% confidence.
+          </p>
+          <p>
+            That check covers credited paragraphs only. Checks finished on{' '}
+            {formatSittingDate(ERROR_CHECK_DATE)} read{' '}
+            {ERROR_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs
+            from across the archive, credited or not, against the source text,
+            also by AI models. They counted a paragraph as wrong when it was
+            credited to the wrong speaker, when text was lost or repeated, or
+            when a chamber event or a first reading was credited to a speaker.
+            From the Legislative Assembly to Parliament 11,{' '}
+            {ERROR_SHARE_TO_PARLIAMENT_ELEVEN} of paragraphs had one of these
+            errors, and at 95% confidence no more than{' '}
+            {ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND}. In Parliaments 12 to 14
+            the share was {ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN}, at most{' '}
+            {ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND}. In Parliament 15
+            the checks found none in{' '}
+            {ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT.toLocaleString(
+              NUMBER_LOCALE
+            )}{' '}
+            paragraphs, which puts the share at no more than about{' '}
+            {ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND}. These shares are what to
+            expect on a random page.
           </p>
           <p>
             An earlier check by an AI model, on{' '}
