@@ -1,13 +1,9 @@
 from fastapi import APIRouter
-from sqlmodel import Session, text
-
-from database.engine import engine
 
 router = APIRouter()
 
 
+# NOTE: the only async handler, so the platform's check answers on the event loop and never waits for a worker thread that a slow request holds
 @router.get("/health")
-def get_health() -> dict[str, str]:
-    with Session(engine) as session:
-        session.exec(text("SELECT 1"))
+async def get_health() -> dict[str, str]:
     return {"status": "ok"}
