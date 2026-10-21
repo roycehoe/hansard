@@ -268,3 +268,8 @@ export const SPEECH_LINK_NOTICE_ID = 'speech-link-notice'
 export const SPEECH_LINK_MOVED_NOTICE = 'This paragraph moved after an update.'
 export const SPEECH_LINK_MISSING_NOTICE =
   'The paragraph this link pointed to is no longer in this report.'
+
+export const LOST_CHARACTER = '�'
+
+export const LOST_CHARACTER_DEFINITION =
+  "Parliament's copy of this text lost a character here, often a fraction such as ½ or ¾. The true character isn't known."

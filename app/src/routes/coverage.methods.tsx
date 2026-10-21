@@ -48,6 +48,7 @@ import {
   UNLINKED_HAND_CHECK_DATE,
 } from '@/constants/coverage/constants'
 import {
+  LOST_CHARACTER,
   REPORT_TYPE_DESCRIPTIONS,
   REPORT_TYPE_GROUPS,
   REPORT_TYPE_LABELS,
@@ -490,6 +491,11 @@ export const Route = createFileRoute('/coverage/methods')({
               <li>
                 In 149 reports from before 10 September 2012, some words run
                 together, so a search for either word can miss the passage.
+              </li>
+              <li>
+                Parliament&apos;s copy of some older reports lost characters,
+                mostly fractions such as ½ and ¾. Each shows as {LOST_CHARACTER}
+                , and the true character isn&apos;t known.
               </li>
               <li>
                 In 403 sittings before 10 September 2012, the order of about
