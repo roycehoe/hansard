@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import Optional
 
 from sqlalchemy import ColumnElement, Float, func
@@ -56,6 +56,10 @@ def _get_parliament_sitting_date_filters(
     ]
 
 
+def _get_midnight(day: date) -> datetime:
+    return datetime.combine(day, time.min)
+
+
 def _get_query_filters(
     query: str,
     parliament_number: Optional[int],
@@ -67,14 +71,14 @@ def _get_query_filters(
     report_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
     tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-    # NOTE: dates filter on the speech's own sitting date, so the rum index on transcript_tsv and sitting_date reads only the range
+    # NOTE: dates filter on the speech's own sitting date as midnight timestamps, because a date parameter makes Postgres compare the timestamp column with a date, which the rum index on transcript_tsv and sitting_date cannot take as an index condition
     filters = [Speech.transcript_tsv.op("@@")(tsquery)]
     if parliament_number is not None:
         filters.append(Report.parliament_number == parliament_number)
     if date_from is not None:
-        filters.append(Speech.sitting_date >= date_from)
+        filters.append(Speech.sitting_date >= _get_midnight(date_from))
     if date_to is not None:
-        filters.append(Speech.sitting_date < date_to + _ONE_DAY)
+        filters.append(Speech.sitting_date < _get_midnight(date_to + _ONE_DAY))
     if report_type is not None:
         filters.append(Report.report_type == report_type)
     if membership_ids is not None:

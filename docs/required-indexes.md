@@ -406,7 +406,7 @@ CREATE INDEX ix_speech_new_transcript_tsv_sitting_date_rum ON speech_new
 -- the copy is analysed before the swap, which renames this index to ix_speech_transcript_tsv_sitting_date_rum
 ```
 
-On production since 18 October 2026, when scraper migration `c93f77e499cc` ran there from 17:52 to 18:21. Needed by `GET /search/speeches` with search words, sorted oldest first or newest first, and by its match count under a date range. The index stores each match's sitting date in place of the word positions, so it returns the matches of a query in order of distance from a date. The API orders oldest first by `speech.sitting_date |=> '1900-01-01'` and newest first by `speech.sitting_date <=| '2100-01-01'`, then by `speech.id`, so the first page reads a few hundred buffers however common the word is. Date filters on word search read `speech.sitting_date`. In date order and in the match count a Parliament filter also adds that Parliament's first and last sitting dates as a range on it, so the index reads only that span, and the exact Parliament filter on `report` stays. Relevance does not get the range: with it, relevance in Parliament 14 read 159,000 buffers against 6,500. The count gained the range on 21 October 2026 (see "Match counts"). A member filter keeps a plain sort on `speech.sitting_date`, because a member's matches are few: walking the index until 20 of theirs turn up read 57,000 buffers for person 29 against 4,400 for the sort.
+On production since 18 October 2026, when scraper migration `c93f77e499cc` ran there from 17:52 to 18:21. Needed by `GET /search/speeches` with search words, sorted oldest first or newest first, and by its match count under a date range. The index stores each match's sitting date in place of the word positions, so it returns the matches of a query in order of distance from a date. The API orders oldest first by `speech.sitting_date |=> '1900-01-01'` and newest first by `speech.sitting_date <=| '2100-01-01'`, then by `speech.id`, so the first page reads a few hundred buffers however common the word is. Date filters on word search read `speech.sitting_date`, and the API binds their bounds as midnight timestamps. Bound as `date` values, as it did until 21 October 2026, the statement compares the timestamp column with a date, which this index cannot take as an index condition: the planner read every match of the word from `ix_speech_transcript_tsv` and tested the dates in the heap. For "housing" in 2020 the count read 67,018 matches, removed 53,531 on the date filter and took 36,873 buffers, against 1,314 buffers and the dates in the index condition with timestamps. A date written into the SQL text is untyped and gets the index, so a plain `EXPLAIN` with the dates written in does not show the problem. In date order and in the match count a Parliament filter also adds that Parliament's first and last sitting dates as a range on it, so the index reads only that span, and the exact Parliament filter on `report` stays. Relevance does not get the range: with it, relevance in Parliament 14 read 159,000 buffers against 6,500. The count gained the range on 21 October 2026 (see "Match counts"). A member filter keeps a plain sort on `speech.sitting_date`, because a member's matches are few: walking the index until 20 of theirs turn up read 57,000 buffers for person 29 against 4,400 for the sort.
 
 The index cannot order by relevance: it holds no word positions, so `<=>` against the query is not an index order. Relevance keeps `ix_speech_transcript_tsv_rum`. The scraper's ADR 0010 records why the date is a copy on `speech` and how the copy is kept in step.
 
@@ -570,7 +570,7 @@ ORDER BY speech.sitting_date |=> '1900-01-01 00:00:00', speech.id
 ORDER BY speech.sitting_date DESC, speech.id
 ```
 
-Relevance. The rum index returns matches in `<=>` order, so the planner stops after the first page. Under a date range that scan would walk matches in rank order until 20 pass the filter: 3.88 s and 35,400 buffers for "government" in 1975 on the clone, against 0.03 s and 3,000 buffers from the report date index. Adding zero hides the order from the rum index. At `613c795` the planner then started from `ix_report_sitting_date_parliament_number`; with the date filter on `speech.sitting_date` it reads the range from `ix_speech_transcript_tsv_sitting_date_rum` and ranks only the matches in it: 4,022 buffers and 0.03 s on the clone. A member filter takes the same zero since 21 October 2026, and the tie-break since then is `speech.sitting_date`, which equals the report's date on every row, in place of a subquery on `report`.
+Relevance. The rum index returns matches in `<=>` order, so the planner stops after the first page. Under a date range that scan would walk matches in rank order until 20 pass the filter: 3.88 s and 35,400 buffers for "government" in 1975 on the clone, against 0.03 s and 3,000 buffers from the report date index. Adding zero hides the order from the rum index. At `613c795` the planner then started from `ix_report_sitting_date_parliament_number`; with the date filter on `speech.sitting_date` it reads the range from `ix_speech_transcript_tsv_sitting_date_rum` and ranks only the matches in it: 4,022 buffers and 0.03 s on the clone. That holds only when the bounds are timestamps. The API sent `date` bounds until 21 October 2026, and the planner then read all of the word's matches from `ix_speech_transcript_tsv` and filtered the dates in the heap: "housing" in 2020, relevance page 1, took 45,186 buffers and 56 ms on the scratch copy, against 2,056 buffers and 7 ms with timestamps. A member filter takes the same zero since 21 October 2026, and the tie-break since then is `speech.sitting_date`, which equals the report's date on every row, in place of a subquery on `report`.
 
 On 21 October 2026 relevance took two changes. A member filter now adds zero to the distance, as a date range does. Without it the planner walked `ix_speech_transcript_tsv_rum` in rank order and tested each match against the member: for "sir" and the four Memberships of person 349 that removed 179,708 rows to find 367, and took 1,355 ms and 112,417 buffers on the scratch copy, spilling to temp files. With zero added it intersects `ix_speech_speaker_id` with `ix_speech_transcript_tsv` and sorts the member's matches: 9.8 ms and 642 buffers. The tie-break moved from a subquery on `report`, run once for every row the sort pulled, to `speech.sitting_date`; "government" page 50 fell from 9,657 to 5,520 buffers with it. Interleaved on the scratch copy, 5 rounds, page and count together, medians: "sir" for person 349 2,010 to 28 ms, "housing" for person 170 69 to 22 ms (13,064 to 1,086 buffers), "government" for person 29 page 2 114 to 40 ms (1,879 to 4,055 buffers, because the plan now reads both indexes). Plain "government" pages 1, 2 and 50 and "housing" in written answers did not move beyond noise over 20 rounds (68.4 to 68.5 ms, 65.9 to 62.4, 66.3 to 68.5, 53.8 to 53.9). The page ids and their order were identical before and after for 1,236 inputs.
 
@@ -806,6 +806,95 @@ Planning:
   Buffers: shared hit=19
 Planning Time: 0.264 ms
 Execution Time: 11.299 ms
+```
+
+Date ranges. A date range filters `speech.sitting_date` in the page query and in the count. The API sent the bounds as `date` values, so the statement compared a timestamp column with `$2::DATE`, the rum index could not take the dates, and the planner read every match of the word from `ix_speech_transcript_tsv` and filtered them in the heap (see `ix_speech_transcript_tsv_sitting_date_rum`). On 21 October 2026 the bounds became midnight timestamps. Every `speech.sitting_date` is a midnight, so no result changed. 3,760 inputs were identical before and after, 2,157 of them with a date range: 1,236 pages, 638 and 335 counts, and 1,551 further date-range inputs (16 ranges from a single day to the whole record, four filter sets, six words; capped counts, three sorts, pages 1 and 2, per-report counts).
+
+Interleaved on the scratch copy, 5 rounds, medians, page and capped count measured separately, buffers from `EXPLAIN (ANALYZE, BUFFERS)` (the last row has no dates and is the noise check: the same SQL took 41.3 and 31.4 ms, so a page difference under about 10 ms means nothing):
+
+| Search | Page before | Page after | Count before | Count after |
+|---|---|---|---|---|
+| "housing", 2020 | 56 ms, 45,186 buffers | 7 ms, 2,056 | 42 ms, 36,873 | 5 ms, 1,314 |
+| "housing", 2020, newest first | 30 ms, 8,047 | 11 ms, 203 | 46 ms, 36,873 | 5 ms, 1,314 |
+| "housing", 2020, oldest first | 89 ms, 60,434 | 10 ms, 254 | 43 ms, 36,873 | 6 ms, 1,314 |
+| "government", 2020 | 1,309 ms, 67,498 | 24 ms, 3,949 | 296 ms, 19,367 | 9 ms, 1,070 |
+| "sir", 1975 | 216 ms, 66,065 | 23 ms, 1,515 | 210 ms, 65,874 | 12 ms, 997 |
+| "housing", 1990 to 1995 | 63 ms, 51,995 | 11 ms, 5,859 | 26 ms, 22,743 | 6 ms, 1,918 |
+| "housing", January 2020 | 50 ms, 42,096 | 6 ms, 344 | 47 ms, 42,093 | 5 ms, 341 |
+| "housing", 4 October 2021 | 50 ms, 42,144 | 5 ms, 403 | 44 ms, 42,141 | 5 ms, 400 |
+| "housing", 2020, written answers | 78 ms, 49,172 | 21 ms, 8,452 | 77 ms, 46,091 | 16 ms, 5,369 |
+| "housing", 2020, person 170 | 8 ms, 609 | 5 ms, 268 | 6 ms, 609 | 4 ms, 268 |
+| "housing", no dates | 41 ms, 279 | 31 ms, 279 | 9 ms, 3,962 | 9 ms, 3,962 |
+
+Through the API with the response cache cleared, warm medians of two passes of five: "housing" in 2020 113 to 23 ms, newest first 92 to 34, oldest first 150 to 26, "government" in 2020 331 to 49, "sir" in 1975 272 to 54; the count inside the first fell from 34 to 4.5 ms. The first request after a start went from 510 to 128 ms for "housing" in 2020 and from 1,108 to 106 ms for "government". These are warm local timings. Whether this caused the production timeout on a year range is not confirmed; that waits for a deploy and a run of these statements on production.
+
+The count for "housing" in 2020, scratch copy, third run, not yet captured on production. The statement as the API sends it (the dates bound `$2::DATE` and `$3::DATE`, the 1001 as a parameter), then the plan before the change:
+
+```sql
+-- speech_count, date range (GET /search/speeches?q=housing&date_from=2020-01-01&date_to=2020-12-31), before
+SELECT count(*) AS count_1 FROM (SELECT speech.id AS id FROM speech JOIN report ON report.id = speech.report_id WHERE (speech.transcript_tsv @@ websearch_to_tsquery('english', $1::VARCHAR)) AND speech.sitting_date >= $2::DATE AND speech.sitting_date < $3::DATE LIMIT $4::INTEGER) AS anon_1;
+```
+
+```text
+Aggregate  (cost=44260.43..44260.44 rows=1 width=8) (actual time=42.436..42.437 rows=1 loops=1)
+  Buffers: shared hit=36873
+  ->  Limit  (cost=471.72..44247.92 rows=1001 width=4) (actual time=14.259..42.392 rows=1001 loops=1)
+        Buffers: shared hit=36873
+        ->  Nested Loop  (cost=471.72..105298.44 rows=2397 width=4) (actual time=14.258..42.335 rows=1001 loops=1)
+              Buffers: shared hit=36873
+              ->  Bitmap Heap Scan on speech  (cost=471.43..100633.37 rows=2397 width=4) (actual time=14.242..41.655 rows=1001 loops=1)
+                    Recheck Cond: (transcript_tsv @@ '''hous'''::tsquery)
+                    Filter: ((sitting_date >= '2020-01-01'::date) AND (sitting_date < '2021-01-01'::date))
+                    Rows Removed by Filter: 53531
+                    Heap Blocks: exact=34542
+                    Buffers: shared hit=34562
+                    ->  Bitmap Index Scan on ix_speech_transcript_tsv  (cost=0.00..470.83 rows=70124 width=0) (actual time=5.633..5.634 rows=67018 loops=1)
+                          Index Cond: (transcript_tsv @@ '''hous'''::tsquery)
+                          Buffers: shared hit=20
+              ->  Index Only Scan using report_pkey on report  (cost=0.29..1.95 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=1001)
+                    Index Cond: (id = speech.report_id)
+                    Heap Fetches: 308
+                    Buffers: shared hit=2311
+Planning:
+  Buffers: shared hit=19
+Planning Time: 0.210 ms
+Execution Time: 42.456 ms
+```
+
+After the change the bounds are `$2::TIMESTAMP WITHOUT TIME ZONE` and `$3::TIMESTAMP WITHOUT TIME ZONE`. With the values written in:
+
+```sql
+-- speech_count, date range, after
+SELECT count(*) AS count_1 FROM (SELECT speech.id AS id FROM speech JOIN report ON report.id = speech.report_id WHERE (speech.transcript_tsv @@ websearch_to_tsquery('english', 'housing')) AND speech.sitting_date >= '2020-01-01 00:00:00' AND speech.sitting_date < '2021-01-01 00:00:00' LIMIT 1001) AS anon_1;
+```
+
+```text
+Aggregate  (cost=5426.20..5426.21 rows=1 width=8) (actual time=4.233..4.233 rows=1 loops=1)
+  Buffers: shared hit=1314
+  ->  Limit  (cost=94.13..5413.69 rows=1001 width=4) (actual time=3.451..4.197 rows=1001 loops=1)
+        Buffers: shared hit=1314
+        ->  Nested Loop  (cost=94.13..12832.39 rows=2397 width=4) (actual time=3.451..4.145 rows=1001 loops=1)
+              Buffers: shared hit=1314
+              ->  Bitmap Heap Scan on speech  (cost=93.83..8552.89 rows=2397 width=4) (actual time=3.447..3.826 rows=1001 loops=1)
+                    Recheck Cond: ((transcript_tsv @@ '''hous'''::tsquery) AND (sitting_date >= '2020-01-01 00:00:00'::timestamp without time zone) AND (sitting_date < '2021-01-01 00:00:00'::timestamp without time zone))
+                    Heap Blocks: exact=754
+                    Buffers: shared hit=889
+                    ->  Bitmap Index Scan on ix_speech_transcript_tsv_sitting_date_rum  (cost=0.00..93.23 rows=2397 width=0) (actual time=3.374..3.374 rows=1395 loops=1)
+                          Index Cond: ((transcript_tsv @@ '''hous'''::tsquery) AND (sitting_date >= '2020-01-01 00:00:00'::timestamp without time zone) AND (sitting_date < '2021-01-01 00:00:00'::timestamp without time zone))
+                          Buffers: shared hit=96
+              ->  Memoize  (cost=0.30..1.96 rows=1 width=4) (actual time=0.000..0.000 rows=1 loops=1001)
+                    Cache Key: speech.report_id
+                    Cache Mode: logical
+                    Hits: 816  Misses: 185  Evictions: 0  Overflows: 0  Memory Usage: 19kB
+                    Buffers: shared hit=425
+                    ->  Index Only Scan using report_pkey on report  (cost=0.29..1.95 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=185)
+                          Index Cond: (id = speech.report_id)
+                          Heap Fetches: 54
+                          Buffers: shared hit=425
+Planning:
+  Buffers: shared hit=19
+Planning Time: 0.130 ms
+Execution Time: 4.245 ms
 ```
 
 ## Queries the GIN index cannot serve
