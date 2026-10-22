@@ -18,17 +18,20 @@ export function SkeletonPersons() {
           </div>
         ))}
       </div>
-      <ol>
-        {Array.from({ length: PERSON_ROW_COUNT }, (_, index) => (
-          <li
-            key={index}
-            className="border-separator space-y-1 border-b py-3 last:border-b-0"
-          >
-            <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-4 w-full max-w-md" />
-          </li>
-        ))}
-      </ol>
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-20" />
+        <ol>
+          {Array.from({ length: PERSON_ROW_COUNT }, (_, index) => (
+            <li
+              key={index}
+              className="border-separator space-y-1 border-b py-3 last:border-b-0"
+            >
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="h-4 w-full max-w-md" />
+            </li>
+          ))}
+        </ol>
+      </div>
     </div>
   )
 }

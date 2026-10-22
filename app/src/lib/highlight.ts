@@ -43,6 +43,17 @@ export function buildHighlightPattern(words: string[]): RegExp | undefined {
   )
 }
 
+export function buildWordStartPattern(words: string[]): RegExp | undefined {
+  if (words.length === 0) return undefined
+  const alternatives = words
+    .map((word) => word.replace(REGEX_SPECIAL_CHARACTERS, '\\$&'))
+    .join('|')
+  return new RegExp(
+    `((?<!${WORD_CHARACTER})(?:${alternatives})${WORD_CHARACTER}*)`,
+    'iu'
+  )
+}
+
 export function splitByHighlight(
   text: string,
   pattern: RegExp | undefined

@@ -2,6 +2,8 @@ import type { PersonData } from '@/api/people/getAllPersons'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
+import { TextHighlighted } from '@/components/reports/TextHighlighted'
+import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatParliament } from '@/lib/format'
 import { getPersonsMembershipToPartyNote } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
@@ -10,9 +12,15 @@ import { Fragment } from 'react'
 
 interface ListPersonsProps {
   persons: PersonData[]
+  namePattern: RegExp | undefined
+  constituencyPattern: RegExp | undefined
 }
 
-export function ListPersons({ persons }: ListPersonsProps) {
+export function ListPersons({
+  persons,
+  namePattern,
+  constituencyPattern,
+}: ListPersonsProps) {
   if (persons.length === 0) {
     return (
       <NoticeEmpty
@@ -27,41 +35,56 @@ export function ListPersons({ persons }: ListPersonsProps) {
 
   return (
     <>
-      <ul>
-        {persons.map((person) => (
-          <li
-            key={person.person_id}
-            className="border-separator space-y-1 border-b py-3 last:border-b-0"
-          >
-            <Link
-              to="/people/$personSlug"
-              params={{
-                personSlug: `${person.person_id}-${person.person_slug}`,
-              }}
-              className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-semibold outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+      <div className="space-y-2">
+        <p aria-live="polite" className="text-muted-foreground text-sm">
+          {persons.length.toLocaleString(NUMBER_LOCALE)}{' '}
+          {persons.length === 1 ? 'person' : 'people'}
+        </p>
+        <ul>
+          {persons.map((person) => (
+            <li
+              key={person.person_id}
+              className="border-separator space-y-1 border-b py-3 last:border-b-0"
             >
-              {person.canonical_name}
-            </Link>
-            <p className="text-muted-foreground text-sm">
-              {person.memberships.map((membership, index) => (
-                <Fragment
-                  key={`${membership.parliament_number}-${membership.party}`}
-                >
-                  {index > 0 && '; '}
-                  {[
-                    formatParliament(membership.parliament_number),
-                    ...membership.constituencies,
-                    membership.party,
-                  ].join(', ')}
-                  <TextPartyNoteMarker
-                    partyNote={membershipToPartyNote.get(membership)}
-                  />
-                </Fragment>
-              ))}
-            </p>
-          </li>
-        ))}
-      </ul>
+              <Link
+                to="/people/$personSlug"
+                params={{
+                  personSlug: `${person.person_id}-${person.person_slug}`,
+                }}
+                className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-semibold outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+              >
+                <TextHighlighted
+                  text={person.canonical_name}
+                  pattern={namePattern}
+                />
+              </Link>
+              <p className="text-muted-foreground text-sm">
+                {person.memberships.map((membership, index) => (
+                  <Fragment
+                    key={`${membership.parliament_number}-${membership.party}`}
+                  >
+                    {index > 0 && '; '}
+                    {formatParliament(membership.parliament_number)}
+                    {membership.constituencies.map((constituency) => (
+                      <Fragment key={constituency}>
+                        {', '}
+                        <TextHighlighted
+                          text={constituency}
+                          pattern={constituencyPattern}
+                        />
+                      </Fragment>
+                    ))}
+                    {`, ${membership.party}`}
+                    <TextPartyNoteMarker
+                      partyNote={membershipToPartyNote.get(membership)}
+                    />
+                  </Fragment>
+                ))}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
       <ListPartyNotes notes={[...membershipToPartyNote.values()]} />
     </>
   )

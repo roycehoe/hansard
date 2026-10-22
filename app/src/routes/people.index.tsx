@@ -24,6 +24,7 @@ import {
   MEMBERSHIP_PARLIAMENT_NUMBERS,
 } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { buildWordStartPattern } from '@/lib/highlight'
 import { mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -223,6 +224,8 @@ export const Route = createFileRoute('/people/')({
               nameWords,
               constituencyWords
             )}
+            namePattern={buildWordStartPattern(nameWords)}
+            constituencyPattern={buildWordStartPattern(constituencyWords)}
           />
         </div>
       )
