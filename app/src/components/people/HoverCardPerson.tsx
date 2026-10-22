@@ -1,6 +1,7 @@
 import type { PersonMembershipData } from '@/api/people/getPerson'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetPersonReports } from '@/api/people/getPersonReports'
+import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import {
   HoverCard,
   HoverCardContent,
@@ -9,6 +10,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipParliaments, formatSittingDate } from '@/lib/format'
+import { isSittingMember } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
@@ -76,29 +78,41 @@ function CardPersonSummary({ personId, personSlug }: CardPersonSummaryProps) {
   const latestReport = reports.data?.pages[0]?.reports[0]
 
   return (
-    <div className="space-y-2 text-sm">
-      <p className="font-serif text-base font-semibold">
-        {data.canonical_name}
-      </p>
-      <div className="text-muted-foreground space-y-0.5">
+    <div className="space-y-3 text-sm">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <p className="font-serif text-base font-semibold">
+          {data.canonical_name}
+        </p>
+        {isSittingMember(data.memberships) && <BadgeSittingMember />}
+      </div>
+      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
         {latestMembership !== undefined && latestMembership.party !== '' && (
-          <p>
-            <span className="text-foreground font-medium">
-              {latestMembership.party}
-            </span>
-            {seat !== '' && `, ${seat}`}
-          </p>
+          <>
+            <dt className="text-muted-foreground">Party</dt>
+            <dd>{latestMembership.party}</dd>
+          </>
+        )}
+        {seat !== '' && (
+          <>
+            <dt className="text-muted-foreground">Seat</dt>
+            <dd>{seat}</dd>
+          </>
         )}
         {data.memberships.length > 0 && (
-          <p>{formatMembershipParliaments(data.memberships)}</p>
+          <>
+            <dt className="text-muted-foreground">Served</dt>
+            <dd>{formatMembershipParliaments(data.memberships)}</dd>
+          </>
         )}
-        <p>
-          {speechCount.toLocaleString(NUMBER_LOCALE)}{' '}
-          {speechCount === 1 ? 'speech' : 'speeches'}.
-          {latestReport !== undefined &&
-            ` Last spoke ${formatSittingDate(latestReport.sitting_date)}.`}
-        </p>
-      </div>
+        <dt className="text-muted-foreground">Speeches</dt>
+        <dd>{speechCount.toLocaleString(NUMBER_LOCALE)}</dd>
+        {latestReport !== undefined && (
+          <>
+            <dt className="text-muted-foreground">Last spoke</dt>
+            <dd>{formatSittingDate(latestReport.sitting_date)}</dd>
+          </>
+        )}
+      </dl>
       <div className="border-separator flex flex-wrap gap-x-4 gap-y-1 border-t pt-2">
         <Link
           to="/people/$personSlug"
