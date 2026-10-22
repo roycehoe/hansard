@@ -38,7 +38,6 @@ interface FormFilterPersonsProps {
   parliaments: ParliamentData[]
   parliamentNumbers: number[]
   parties: string[]
-  constituencies: string[]
   onChange: (values: FormFilterPersonsValues) => void
 }
 
@@ -47,7 +46,6 @@ export function FormFilterPersons({
   parliaments,
   parliamentNumbers,
   parties,
-  constituencies,
   onChange,
 }: FormFilterPersonsProps) {
   function changeParliament(parliament: string) {
@@ -58,8 +56,8 @@ export function FormFilterPersons({
     onChange({ ...values, party })
   }
 
-  function changeConstituency(constituency: string) {
-    onChange({ ...values, constituency })
+  function changeConstituency(event: ChangeEvent<HTMLInputElement>) {
+    onChange({ ...values, constituency: event.target.value })
   }
 
   function changeName(event: ChangeEvent<HTMLInputElement>) {
@@ -68,6 +66,24 @@ export function FormFilterPersons({
 
   return (
     <div className="flex flex-wrap items-end gap-4">
+      <div className="flex w-full flex-col gap-2 sm:w-56">
+        <Label htmlFor="filter-persons-name">Name</Label>
+        <Input
+          id="filter-persons-name"
+          placeholder="e.g. Tharman, Pritam"
+          value={values.name}
+          onChange={changeName}
+        />
+      </div>
+      <div className="flex w-full flex-col gap-2 sm:w-56">
+        <Label htmlFor="filter-persons-constituency">Constituency</Label>
+        <Input
+          id="filter-persons-constituency"
+          placeholder="e.g. Aljunied, Braddell"
+          value={values.constituency}
+          onChange={changeConstituency}
+        />
+      </div>
       <div className="flex w-full flex-col gap-2 sm:w-72">
         <Label htmlFor="filter-persons-parliament">Parliament</Label>
         <Select value={values.parliament} onValueChange={changeParliament}>
@@ -102,30 +118,6 @@ export function FormFilterPersons({
             ))}
           </SelectContent>
         </Select>
-      </div>
-      <div className="flex w-full flex-col gap-2 sm:w-72">
-        <Label htmlFor="filter-persons-constituency">Constituency</Label>
-        <Select value={values.constituency} onValueChange={changeConstituency}>
-          <SelectTrigger id="filter-persons-constituency" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={FILTER_ALL}>All constituencies</SelectItem>
-            {constituencies.map((constituency) => (
-              <SelectItem key={constituency} value={constituency}>
-                {constituency}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex w-full flex-col gap-2 sm:w-56">
-        <Label htmlFor="filter-persons-name">Name or constituency</Label>
-        <Input
-          id="filter-persons-name"
-          value={values.name}
-          onChange={changeName}
-        />
       </div>
       <Button variant="outline" asChild>
         <Link to="/people">Clear</Link>

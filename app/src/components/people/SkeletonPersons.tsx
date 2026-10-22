@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-const FILTER_WIDTHS = ['sm:w-72', 'sm:w-56', 'sm:w-72', 'sm:w-56']
+const FILTER_WIDTHS = ['sm:w-56', 'sm:w-56', 'sm:w-72', 'sm:w-56']
 
 const PERSON_ROW_COUNT = 8
 

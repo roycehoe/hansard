@@ -19,7 +19,10 @@ import {
   FILTER_ALL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
 } from '@/constants/constants'
-import { MEMBERSHIP_PARLIAMENT_NUMBERS } from '@/constants/people/constants'
+import {
+  CONSTITUENCY_SUFFIX_WORDS,
+  MEMBERSHIP_PARLIAMENT_NUMBERS,
+} from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { mapFilterToSearchValue } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
@@ -33,11 +36,35 @@ const peopleSearchSchema = z.object({
   name: z.string().optional(),
 })
 
+const WORD_SEPARATOR = /[^\p{L}\p{N}]+/u
+
+function splitIntoWords(text: string): string[] {
+  return text
+    .toLowerCase()
+    .split(WORD_SEPARATOR)
+    .filter((word) => word !== '')
+}
+
+function splitIntoConstituencyWords(text: string): string[] {
+  return splitIntoWords(text).filter(
+    (word) => !CONSTITUENCY_SUFFIX_WORDS.has(word)
+  )
+}
+
+function isEveryWordMatched(
+  searchWords: string[],
+  textWords: string[]
+): boolean {
+  return searchWords.every((searchWord) =>
+    textWords.some((textWord) => textWord.startsWith(searchWord))
+  )
+}
+
 function isMatchingMembership(
   membership: MembershipData,
   parliament: number | undefined,
   party: string | undefined,
-  constituency: string | undefined
+  constituencyWords: string[]
 ): boolean {
   const isMatchingParliament =
     parliament === undefined ||
@@ -47,8 +74,10 @@ function isMatchingMembership(
   return (
     isMatchingParliament &&
     (party === undefined || membership.party === party) &&
-    (constituency === undefined ||
-      membership.constituencies.includes(constituency))
+    (constituencyWords.length === 0 ||
+      membership.constituencies.some((constituency) =>
+        isEveryWordMatched(constituencyWords, splitIntoWords(constituency))
+      ))
   )
 }
 
@@ -56,24 +85,16 @@ function filterPersonsByMembershipAndName(
   persons: PersonData[],
   parliament: number | undefined,
   party: string | undefined,
-  constituency: string | undefined,
-  name: string
+  nameWords: string[],
+  constituencyWords: string[]
 ): PersonData[] {
-  const lowerCaseName = name.trim().toLowerCase()
-  return persons.filter((person) => {
-    const matchingMemberships = person.memberships.filter((membership) =>
-      isMatchingMembership(membership, parliament, party, constituency)
-    )
-    return (
-      matchingMemberships.length > 0 &&
-      (person.canonical_name.toLowerCase().includes(lowerCaseName) ||
-        matchingMemberships.some((membership) =>
-          membership.constituencies.some((membershipConstituency) =>
-            membershipConstituency.toLowerCase().includes(lowerCaseName)
-          )
-        ))
-    )
-  })
+  return persons.filter(
+    (person) =>
+      isEveryWordMatched(nameWords, splitIntoWords(person.canonical_name)) &&
+      person.memberships.some((membership) =>
+        isMatchingMembership(membership, parliament, party, constituencyWords)
+      )
+  )
 }
 
 function getPartiesInParliament(
@@ -85,32 +106,13 @@ function getPartiesInParliament(
     persons.flatMap((person) =>
       person.memberships
         .filter((membership) =>
-          isMatchingMembership(membership, parliament, undefined, undefined)
+          isMatchingMembership(membership, parliament, undefined, [])
         )
         .map((membership) => membership.party)
     )
   )
   if (party !== undefined) parties.add(party)
   return [...parties].sort()
-}
-
-function getConstituenciesInParliamentAndParty(
-  persons: PersonData[],
-  parliament: number | undefined,
-  party: string | undefined,
-  constituency: string | undefined
-): string[] {
-  const constituencies = new Set(
-    persons.flatMap((person) =>
-      person.memberships
-        .filter((membership) =>
-          isMatchingMembership(membership, parliament, party, undefined)
-        )
-        .flatMap((membership) => membership.constituencies)
-    )
-  )
-  if (constituency !== undefined) constituencies.add(constituency)
-  return [...constituencies].sort()
 }
 
 function getParliamentNumbersWithParty(
@@ -123,7 +125,7 @@ function getParliamentNumbersWithParty(
     (parliamentNumber) =>
       parliamentNumber === parliament ||
       memberships.some((membership) =>
-        isMatchingMembership(membership, parliamentNumber, party, undefined)
+        isMatchingMembership(membership, parliamentNumber, party, [])
       )
   )
 }
@@ -137,14 +139,26 @@ export const Route = createFileRoute('/people/')({
     const parliaments = useGetAllParliaments()
     const persons = useGetAllPersons({})
     // The router commits a search change a microtask after navigate, too late
-    // for a controlled input, so the typed name lives in state and is reset
-    // only when the URL name changes from elsewhere, such as the Clear link.
+    // for a controlled input, so the typed words live in state and are reset
+    // only when the URL words change from elsewhere, such as the Clear link.
     const [typedName, setTypedName] = useState<string>(name ?? '')
     const [lastUrlName, setLastUrlName] = useState<string | undefined>(name)
+    const [typedConstituency, setTypedConstituency] = useState<string>(
+      constituency ?? ''
+    )
+    const [lastUrlConstituency, setLastUrlConstituency] = useState<
+      string | undefined
+    >(constituency)
     if (name !== lastUrlName) {
       setLastUrlName(name)
       setTypedName(name ?? '')
     }
+    if (constituency !== lastUrlConstituency) {
+      setLastUrlConstituency(constituency)
+      setTypedConstituency(constituency ?? '')
+    }
+    const nameWords = splitIntoWords(typedName)
+    const constituencyWords = splitIntoConstituencyWords(typedConstituency)
     const isLoading = parliaments.isLoading || persons.isLoading
     const isError = parliaments.isError || persons.isError
     const isRefetching = parliaments.isRefetching || persons.isRefetching
@@ -157,6 +171,7 @@ export const Route = createFileRoute('/people/')({
     function applyFilters(values: FormFilterPersonsValues) {
       const parliamentValue = mapFilterToSearchValue(values.parliament)
       setTypedName(values.name)
+      setTypedConstituency(values.constituency)
       void navigate({
         to: '/people',
         search: {
@@ -184,7 +199,7 @@ export const Route = createFileRoute('/people/')({
               parliament:
                 parliament === undefined ? FILTER_ALL : String(parliament),
               party: party ?? FILTER_ALL,
-              constituency: constituency ?? FILTER_ALL,
+              constituency: typedConstituency,
               name: typedName,
             }}
             parliaments={parliaments.data.parliaments}
@@ -198,12 +213,6 @@ export const Route = createFileRoute('/people/')({
               parliament,
               party
             )}
-            constituencies={getConstituenciesInParliamentAndParty(
-              persons.data.persons,
-              parliament,
-              party,
-              constituency
-            )}
             onChange={applyFilters}
           />
           <ListPersons
@@ -211,8 +220,8 @@ export const Route = createFileRoute('/people/')({
               persons.data.persons,
               parliament,
               party,
-              constituency,
-              typedName
+              nameWords,
+              constituencyWords
             )}
           />
         </div>
