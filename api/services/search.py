@@ -29,6 +29,7 @@ from schemas.search import (
     SpeechMatchData,
 )
 from utils.markdown_text import strip_markdown
+from utils.marked_words import get_headline_without_nested_marks
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.transcript_snippet import get_transcript_snippet
@@ -406,7 +407,7 @@ def search_speeches(
                 [speech.id for speech in page_speeches], query
             )
             speech_id_to_snippet = {
-                speech_id: strip_markdown(headline)
+                speech_id: strip_markdown(get_headline_without_nested_marks(headline))
                 for speech_id, headline in speech_id_to_headline.items()
             }
         report_id_to_report = {
@@ -514,9 +515,12 @@ def search_reports(
         if query.strip() == "":
             report_id_to_headline = {}
         else:
-            report_id_to_headline = CRUDReport(session).get_id_to_title_headline_by_ids(
-                report_ids, query
-            )
+            report_id_to_headline = {
+                report_id: get_headline_without_nested_marks(headline)
+                for report_id, headline in CRUDReport(session)
+                .get_id_to_title_headline_by_ids(report_ids, query)
+                .items()
+            }
         report_ids_with_text = set(
             CRUDReport(session).get_all_ids_with_text_by_ids(report_ids)
         )
