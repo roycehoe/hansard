@@ -1,7 +1,8 @@
 import { HIGHLIGHT_STOP_WORDS } from '@/constants/reports/constants'
 
 const MIN_HIGHLIGHT_TERM_LENGTH = 2
-const QUOTE_CHARACTERS = /["“”]/g
+const HIGHLIGHT_TERM_PATTERN = /(-?)["“”]([^"“”]*)["“”]?|[^\s"“”]+/g
+const QUOTE = '"'
 const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/g
 const WORD_CHARACTER = '[\\p{L}\\p{N}_]'
 const OR_OPERATOR = 'OR'
@@ -12,22 +13,33 @@ interface HighlightSegment {
   isMarked: boolean
 }
 
+function isHighlightableWord(word: string): boolean {
+  return (
+    word !== OR_OPERATOR &&
+    !word.startsWith(EXCLUDED_WORD_PREFIX) &&
+    word.length >= MIN_HIGHLIGHT_TERM_LENGTH &&
+    !HIGHLIGHT_STOP_WORDS.has(word.toLowerCase())
+  )
+}
+
 export function parseHighlightTerms(query: string): string[] {
-  const words = query
-    .replace(QUOTE_CHARACTERS, ' ')
-    .split(/\s+/)
-    .filter(
-      (word) =>
-        word !== OR_OPERATOR &&
-        !word.startsWith(EXCLUDED_WORD_PREFIX) &&
-        word.length >= MIN_HIGHLIGHT_TERM_LENGTH &&
-        !HIGHLIGHT_STOP_WORDS.has(word.toLowerCase())
-    )
-  const seenWords = new Set<string>()
-  return words.filter((word) => {
-    const lowerCaseWord = word.toLowerCase()
-    if (seenWords.has(lowerCaseWord)) return false
-    seenWords.add(lowerCaseWord)
+  const terms = Array.from(query.matchAll(HIGHLIGHT_TERM_PATTERN)).flatMap(
+    ([token, excludedPrefix, quotedWords]) => {
+      if (quotedWords === undefined) {
+        return isHighlightableWord(token) ? [token] : []
+      }
+      if (excludedPrefix === EXCLUDED_WORD_PREFIX) return []
+      return quotedWords
+        .split(/\s+/)
+        .filter(isHighlightableWord)
+        .map((word) => `${QUOTE}${word}${QUOTE}`)
+    }
+  )
+  const seenTerms = new Set<string>()
+  return terms.filter((term) => {
+    const lowerCaseTerm = term.toLowerCase()
+    if (seenTerms.has(lowerCaseTerm)) return false
+    seenTerms.add(lowerCaseTerm)
     return true
   })
 }
