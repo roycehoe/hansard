@@ -5,6 +5,6 @@ export const MEMBERSHIP_PARLIAMENT_NUMBERS = Array.from(
   (_, parliamentNumber) => parliamentNumber
 )
 
-// The scraper stores some GRCs with the suffix and some without, so a typed
-// "GRC" or "SMC" would hide every constituency stored without it.
+// The scraper stores constituency names without the "GRC" or "SMC" suffix
+// that readers often type, so a typed suffix would match nothing.
 export const CONSTITUENCY_SUFFIX_WORDS = new Set(['grc', 'smc'])
