@@ -13,13 +13,9 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Spinner } from '@/components/ui/spinner'
-import {
-  PERSON_PICKER_DEBOUNCE_MS,
-  PERSON_PICKER_MAX_OPTIONS,
-  PERSON_PICKER_MIN_NAME_LENGTH,
-} from '@/constants/search/constants'
-import { useDebouncedValue } from '@/hooks/useDebouncedValue'
+import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipSummary } from '@/lib/format'
+import { isEveryWordMatched, splitIntoWords } from '@/lib/utils'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { useState } from 'react'
@@ -37,29 +33,14 @@ export function PopoverPersonFilter({
 }: PopoverPersonFilterProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [typedName, setTypedName] = useState<string>('')
-  const name = typedName.trim()
-  const { debouncedValue: debouncedName } = useDebouncedValue(
-    name,
-    PERSON_PICKER_DEBOUNCE_MS
-  )
-  const isNameLongEnough = name.length >= PERSON_PICKER_MIN_NAME_LENGTH
-  const persons = useGetAllPersons(
-    debouncedName.length >= PERSON_PICKER_MIN_NAME_LENGTH
-      ? { name: debouncedName }
-      : undefined
-  )
+  const persons = useGetAllPersons({})
   const chosenPerson = useGetPerson({ person_id: value ?? 0 })
-  const isSearching =
-    isNameLongEnough && (debouncedName !== name || persons.isFetching)
-  const matches = isNameLongEnough ? (persons.data?.persons ?? []) : []
-  const options = matches.slice(0, PERSON_PICKER_MAX_OPTIONS)
-
-  const isResultSettled = isNameLongEnough && !isSearching && !persons.isError
-  const hintLine = isNameLongEnough
-    ? null
-    : 'Type two or more letters of a name.'
+  const nameWords = splitIntoWords(typedName)
+  const matches = (persons.data?.persons ?? []).filter((person) =>
+    isEveryWordMatched(nameWords, splitIntoWords(person.canonical_name))
+  )
   const emptyLine =
-    isResultSettled && options.length === 0
+    persons.isSuccess && matches.length === 0
       ? 'No people match this name.'
       : null
 
@@ -86,12 +67,9 @@ export function PopoverPersonFilter({
   }
 
   function renderAnnouncement() {
-    if (!isResultSettled) return ''
+    if (!persons.isSuccess) return ''
     if (matches.length === 0) return 'No people match this name'
-    if (matches.length > PERSON_PICKER_MAX_OPTIONS) {
-      return `${matches.length} people match, ${PERSON_PICKER_MAX_OPTIONS} shown`
-    }
-    return `${matches.length} ${matches.length === 1 ? 'person matches' : 'people match'}`
+    return `${matches.length.toLocaleString(NUMBER_LOCALE)} ${matches.length === 1 ? 'person matches' : 'people match'}`
   }
 
   return (
@@ -126,7 +104,7 @@ export function PopoverPersonFilter({
             onValueChange={setTypedName}
           />
           <CommandList>
-            {options.map((person) => (
+            {matches.map((person) => (
               <CommandItem
                 key={person.person_id}
                 value={String(person.person_id)}
@@ -140,18 +118,16 @@ export function PopoverPersonFilter({
               </CommandItem>
             ))}
           </CommandList>
-          {(hintLine ?? emptyLine) !== null && (
-            <p className="text-muted-foreground p-3 text-sm">
-              {hintLine ?? emptyLine}
-            </p>
+          {emptyLine !== null && (
+            <p className="text-muted-foreground p-3 text-sm">{emptyLine}</p>
           )}
-          {isSearching && (
+          {persons.isLoading && (
             <div className="flex items-center gap-2 p-3 text-sm">
               <Spinner />
-              Searching…
+              Loading people…
             </div>
           )}
-          {persons.isError && !isSearching && (
+          {persons.isError && (
             <div className="flex flex-row items-center gap-2 p-3 text-sm">
               <TriangleAlert
                 aria-hidden="true"

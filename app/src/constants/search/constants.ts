@@ -18,12 +18,7 @@ export const SEARCH_WORDS_TOO_LONG_NOTICE = `Search words are limited to ${SEARC
 
 export const SEARCH_TIPS_TEXT = `Put words in quotes to find them together, in that order. OR finds either word, and a minus sign leaves a word out. Searches also match other forms of a word, so "housing" finds "house". Up to ${SEARCH_WORDS_MAX_LENGTH} characters.`
 
-export const PERSON_PICKER_MIN_NAME_LENGTH = 2
-
-export const PERSON_PICKER_MAX_OPTIONS = 20
-
 export const SEARCH_TIPS_CLOSE_DELAY_MS = 150
-export const PERSON_PICKER_DEBOUNCE_MS = 250
 
 export const SNIPPET_MARK_START = '<mark>'
 
