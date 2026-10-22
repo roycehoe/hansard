@@ -74,6 +74,10 @@ export function ListPersonMatches({
   if (matches.length === 0) return null
 
   const membershipToPartyNote = getPersonsMembershipToPartyNote(matches)
+  const peopleSearch =
+    personsByName.data?.persons.length === 0
+      ? { constituency: words }
+      : { name: words }
 
   return (
     <section aria-labelledby="person-matches-heading" className="space-y-4">
@@ -85,11 +89,7 @@ export function ListPersonMatches({
       </h2>
       {matches.length > PERSON_MATCHES_MAX_LISTED ? (
         <p>
-          <Link
-            to="/people"
-            search={{ name: words }}
-            className={LINK_CLASS_NAME}
-          >
+          <Link to="/people" search={peopleSearch} className={LINK_CLASS_NAME}>
             {matches.length} people match {words}. See them all
           </Link>
         </p>
