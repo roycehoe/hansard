@@ -40,8 +40,8 @@ def _get_words(text: str) -> tuple[str, ...]:
     )
 
 
-def _is_group_searchable(group: SearchQueryGroup) -> bool:
-    return any(not term.is_excluded for term in group.terms)
+def _is_group_searchable(terms: tuple[SearchQueryTerm, ...]) -> bool:
+    return any(not term.is_excluded for term in terms)
 
 
 def get_search_query(query: str) -> SearchQuery:
@@ -81,7 +81,7 @@ def get_search_query(query: str) -> SearchQuery:
             )
     groups.append(SearchQueryGroup(terms=tuple(terms)))
     return SearchQuery(
-        groups=tuple(group for group in groups if _is_group_searchable(group))
+        groups=tuple(group for group in groups if _is_group_searchable(group.terms))
     )
 
 
@@ -98,59 +98,59 @@ def _get_websearch_term(term: SearchQueryTerm) -> str:
     return words
 
 
-def get_group_websearch_query(group: SearchQueryGroup) -> str:
+def get_group_websearch_query(terms: tuple[SearchQueryTerm, ...]) -> str:
     return _WORD_SEPARATOR.join(
         _get_websearch_term(term)
-        for term in group.terms
+        for term in terms
         if not term.is_quoted or not term.is_excluded
     )
 
 
-def get_websearch_query(search_query: SearchQuery) -> str:
+def get_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
     return _WEBSEARCH_OR.join(
-        get_group_websearch_query(group) for group in search_query.groups
+        get_group_websearch_query(group.terms) for group in groups
     )
 
 
-def get_exact_form_pattern(term: SearchQueryTerm) -> str:
+def get_exact_form_pattern(words: tuple[str, ...]) -> str:
     return (
         _EXACT_FORM_START
-        + _EXACT_FORM_WORD_SEPARATOR.join(re.escape(word) for word in term.words)
+        + _EXACT_FORM_WORD_SEPARATOR.join(re.escape(word) for word in words)
         + _EXACT_FORM_END
     )
 
 
-def get_quoted_websearch_query(search_query: SearchQuery) -> str:
+def get_quoted_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
     return _WEBSEARCH_OR.join(
         _get_websearch_term(term)
-        for group in search_query.groups
+        for group in groups
         for term in group.terms
         if term.is_quoted and not term.is_excluded
     )
 
 
-def get_positive_websearch_query(search_query: SearchQuery) -> str:
+def get_positive_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
     return _WEBSEARCH_OR.join(
         _get_websearch_term(term)
-        for group in search_query.groups
+        for group in groups
         for term in group.terms
         if not term.is_excluded
     )
 
 
-def get_stemmed_websearch_query(search_query: SearchQuery) -> str:
+def get_stemmed_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
     return _WEBSEARCH_OR.join(
         _get_websearch_term(term)
-        for group in search_query.groups
+        for group in groups
         for term in group.terms
         if not term.is_quoted and not term.is_excluded
     )
 
 
-def get_quoted_words(search_query: SearchQuery) -> list[str]:
+def get_quoted_words(groups: tuple[SearchQueryGroup, ...]) -> list[str]:
     return [
         word.lower()
-        for group in search_query.groups
+        for group in groups
         for term in group.terms
         if term.is_quoted and not term.is_excluded
         for word in term.words

@@ -23,7 +23,7 @@ def get_match_tsquery(query: str) -> ColumnElement:
     if not is_quote_in_query(query):
         return func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
     return func.websearch_to_tsquery(
-        TEXT_SEARCH_CONFIGURATION, get_websearch_query(get_search_query(query))
+        TEXT_SEARCH_CONFIGURATION, get_websearch_query(get_search_query(query).groups)
     )
 
 
@@ -33,12 +33,12 @@ def _get_group_match(
     return and_(
         tsv_column.op("@@")(
             func.websearch_to_tsquery(
-                TEXT_SEARCH_CONFIGURATION, get_group_websearch_query(group)
+                TEXT_SEARCH_CONFIGURATION, get_group_websearch_query(group.terms)
             )
         ),
         *[
             text_column.regexp_match(
-                get_exact_form_pattern(term), flags=_CASE_INSENSITIVE
+                get_exact_form_pattern(term.words), flags=_CASE_INSENSITIVE
             )
             for term in group.terms
             if term.is_quoted and not term.is_excluded
@@ -46,7 +46,7 @@ def _get_group_match(
         *[
             not_(
                 text_column.regexp_match(
-                    get_exact_form_pattern(term), flags=_CASE_INSENSITIVE
+                    get_exact_form_pattern(term.words), flags=_CASE_INSENSITIVE
                 )
             )
             for term in group.terms
@@ -75,8 +75,8 @@ def get_match_filter(
 
 
 def get_headline(query: str, text_column: ColumnElement, options: str) -> ColumnElement:
-    search_query = get_search_query(query)
-    quoted_websearch_query = get_quoted_websearch_query(search_query)
+    groups = get_search_query(query).groups
+    quoted_websearch_query = get_quoted_websearch_query(groups)
     if not is_quote_in_query(query) or quoted_websearch_query == "":
         return func.ts_headline(
             TEXT_SEARCH_CONFIGURATION, text_column, get_match_tsquery(query), options
@@ -86,11 +86,11 @@ def get_headline(query: str, text_column: ColumnElement, options: str) -> Column
         text_column,
         func.websearch_to_tsquery(
             EXACT_TEXT_SEARCH_CONFIGURATION,
-            get_positive_websearch_query(search_query),
+            get_positive_websearch_query(groups),
         ),
         options,
     )
-    stemmed_websearch_query = get_stemmed_websearch_query(search_query)
+    stemmed_websearch_query = get_stemmed_websearch_query(groups)
     if stemmed_websearch_query == "":
         return exact_headline
     return func.ts_headline(

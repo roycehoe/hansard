@@ -144,9 +144,9 @@ def get_report_matched_words(
     report_slug: str, words: str, session: Session
 ) -> GetReportMatchedWordsResponse:
     report = _get_validated_report(report_slug, session)
-    search_query = get_search_query(words)
-    quoted_words = set(get_quoted_words(search_query))
-    stemmed_websearch_query = get_stemmed_websearch_query(search_query)
+    groups = get_search_query(words).groups
+    quoted_words = set(get_quoted_words(groups))
+    stemmed_websearch_query = get_stemmed_websearch_query(groups)
     if stemmed_websearch_query == "":
         return GetReportMatchedWordsResponse(words=sorted(quoted_words))
     marked_transcripts = CRUDSpeech(
