@@ -6,6 +6,7 @@ import {
   HTTP_GATEWAY_TIMEOUT,
   HTTP_SERVICE_UNAVAILABLE,
 } from '@/constants/constants'
+import { LATEST_MEMBERSHIP_PARLIAMENT_NUMBER } from '@/constants/people/constants'
 import { TEXTLESS_ASSENT_FIRST_SITTING } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
@@ -77,6 +78,16 @@ export function getPersonsMembershipToPartyNote(
         membership,
       }))
     )
+  )
+}
+
+export function isSittingMember(
+  memberships: { parliament_number: number; is_member: boolean }[]
+): boolean {
+  return memberships.some(
+    (membership) =>
+      membership.parliament_number === LATEST_MEMBERSHIP_PARLIAMENT_NUMBER &&
+      membership.is_member
   )
 }
 
