@@ -4,6 +4,7 @@ import { useGetPersonReports } from '@/api/people/getPersonReports'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import { TextSource } from '@/components/layout/TextSource'
+import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
 import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
@@ -23,7 +24,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { parsePersonSlug } from '@/lib/utils'
+import { isSittingMember, parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
@@ -112,6 +113,7 @@ export const Route = createFileRoute('/people/$personSlug')({
       <div className="space-y-8">
         <PageHeader
           title={data.canonical_name}
+          badge={isSittingMember(data.memberships) && <BadgeSittingMember />}
           description={
             nameVariants === ''
               ? undefined

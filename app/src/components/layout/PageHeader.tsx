@@ -5,6 +5,7 @@ interface PageHeaderProps {
   description?: string
   breadcrumb?: ReactNode
   actions?: ReactNode
+  badge?: ReactNode
 }
 
 export function PageHeader({
@@ -12,15 +13,19 @@ export function PageHeader({
   description,
   breadcrumb,
   actions,
+  badge,
 }: PageHeaderProps) {
   return (
     <div className="border-separator space-y-4 border-b pb-6">
       {breadcrumb}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
-          <h1 className="font-serif text-2xl font-semibold break-words lg:text-3xl">
-            {title}
-          </h1>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <h1 className="font-serif text-2xl font-semibold break-words lg:text-3xl">
+              {title}
+            </h1>
+            {badge}
+          </div>
           {description && (
             <p className="text-muted-foreground max-w-prose text-base">
               {description}

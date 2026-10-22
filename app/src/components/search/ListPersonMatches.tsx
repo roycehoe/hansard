@@ -1,9 +1,14 @@
 import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
 import { useGetAllPersons } from '@/api/people/getAllPersons'
+import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
 import { formatMembershipParliaments, getMembershipParties } from '@/lib/format'
-import { cn, getPersonsMembershipToPartyNote } from '@/lib/utils'
+import {
+  cn,
+  getPersonsMembershipToPartyNote,
+  isSittingMember,
+} from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
@@ -96,15 +101,20 @@ export function ListPersonMatches({
                 key={person.person_id}
                 className="border-separator space-y-1 border-b py-3 last:border-b-0"
               >
-                <Link
-                  to="/people/$personSlug"
-                  params={{
-                    personSlug: `${person.person_id}-${person.person_slug}`,
-                  }}
-                  className={cn(LINK_CLASS_NAME, 'font-semibold')}
-                >
-                  {person.canonical_name}
-                </Link>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <Link
+                    to="/people/$personSlug"
+                    params={{
+                      personSlug: `${person.person_id}-${person.person_slug}`,
+                    }}
+                    className={cn(LINK_CLASS_NAME, 'font-semibold')}
+                  >
+                    {person.canonical_name}
+                  </Link>
+                  {isSittingMember(person.memberships) && (
+                    <BadgeSittingMember />
+                  )}
+                </div>
                 <p className="text-muted-foreground text-sm">
                   {formatMembershipParliaments(person.memberships)}
                   {getMembershipParties(person.memberships).map((party) => (
