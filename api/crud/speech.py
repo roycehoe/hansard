@@ -9,6 +9,9 @@ from crud.text_search import (
     HEADLINE_OPTIONS,
     HIGHLIGHT_ALL_OPTIONS,
     TEXT_SEARCH_CONFIGURATION,
+    get_headline,
+    get_match_filter,
+    get_match_tsquery,
 )
 from database.report import Report
 from database.speech import Speech
@@ -88,9 +91,8 @@ def _get_query_filters(
     excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
-    tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
     # NOTE: dates filter on the speech's own sitting date as midnight timestamps, because a date parameter makes Postgres compare the timestamp column with a date, which the rum index on transcript_tsv and sitting_date cannot take as an index condition
-    filters = [Speech.transcript_tsv.op("@@")(tsquery)]
+    filters = [get_match_filter(query, Speech.transcript_tsv, Speech.transcript)]
     if parliament_number is not None:
         filters.append(Report.parliament_number == parliament_number)
     if date_from is not None:
@@ -207,7 +209,7 @@ class CRUDSpeech:
         limit: int,
         offset: int,
     ) -> list[Speech]:
-        tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
+        tsquery = get_match_tsquery(query)
         is_date_index_ordered = (
             sort != SearchSort.RELEVANCE
             and membership_ids is None
@@ -500,12 +502,9 @@ class CRUDSpeech:
     def get_id_to_headline_by_ids(
         self, speech_ids: list[int], query: str
     ) -> dict[int, str]:
-        tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
         statement = select(
             Speech.id,
-            func.ts_headline(
-                TEXT_SEARCH_CONFIGURATION, Speech.transcript, tsquery, HEADLINE_OPTIONS
-            ),
+            get_headline(query, Speech.transcript, HEADLINE_OPTIONS),
         ).where(Speech.id.in_(speech_ids))
         rows = self.session.exec(statement).all()
         return {speech_id: headline for speech_id, headline in rows}
