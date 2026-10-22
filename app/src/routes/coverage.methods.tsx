@@ -462,12 +462,11 @@ export const Route = createFileRoute('/coverage/methods')({
             </h3>
             <ul className="list-disc space-y-2 pl-5 text-sm">
               <li>
-                About 13,000 paragraphs are labelled &quot;The Chairman&quot;
+                About 9,000 paragraphs are labelled &quot;The Chairman&quot;
                 without a name, so they can&apos;t be credited to a person.
               </li>
               <li>
-                2,078 reports from before 10 September 2012 do not have the
-                latest corrections to who said what.
+                66 reports do not have the latest corrections to who said what.
               </li>
               <li>
                 A member who sat in both the Legislative Assembly (1955 to 1965)
