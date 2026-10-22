@@ -15,7 +15,12 @@ from sqlalchemy import (
 from sqlalchemy.orm import aliased, defer
 from sqlmodel import Session, select
 
-from crud.text_search import HEADLINE_OPTIONS, TEXT_SEARCH_CONFIGURATION
+from crud.text_search import (
+    HEADLINE_OPTIONS,
+    get_headline,
+    get_match_filter,
+    get_match_tsquery,
+)
 from database.report import Report
 from database.speech import Speech
 from enums import ReportType, SearchSort
@@ -87,9 +92,8 @@ def _get_title_query_filters(
     is_text_available: Optional[bool],
     excluded_report_ids: list[int],
 ) -> list[ColumnElement]:
-    tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
     return [
-        Report.title_tsv.op("@@")(tsquery),
+        get_match_filter(query, Report.title_tsv, Report.title),
         *_get_report_filters(
             parliament_number,
             date_from,
@@ -313,7 +317,7 @@ class CRUDReport:
         limit: int,
         offset: int,
     ) -> list[Report]:
-        tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
+        tsquery = get_match_tsquery(query)
         filters = _get_title_query_filters(
             query,
             parliament_number,
@@ -451,12 +455,9 @@ class CRUDReport:
     def get_id_to_title_headline_by_ids(
         self, report_ids: list[int], query: str
     ) -> dict[int, str]:
-        tsquery = func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
         statement = select(
             Report.id,
-            func.ts_headline(
-                TEXT_SEARCH_CONFIGURATION, Report.title, tsquery, HEADLINE_OPTIONS
-            ),
+            get_headline(query, Report.title, HEADLINE_OPTIONS),
         ).where(Report.id.in_(report_ids))
         rows = self.session.exec(statement).all()
         return {report_id: headline for report_id, headline in rows}
