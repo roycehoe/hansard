@@ -21,11 +21,15 @@ from utils.marked_words import get_marked_words
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
+from utils.search_query import (
+    get_quoted_words,
+    get_search_query,
+    get_stemmed_websearch_query,
+)
 from utils.speaker_label import is_shared_role_speaker_label
 from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
 
 _EMPTY_ANCHOR = ""
-_OR_OPERATOR = " OR "
 
 
 def _get_validated_report(report_slug: str, session: Session) -> Report:
@@ -140,9 +144,16 @@ def get_report_matched_words(
     report_slug: str, words: str, session: Session
 ) -> GetReportMatchedWordsResponse:
     report = _get_validated_report(report_slug, session)
+    search_query = get_search_query(words)
+    quoted_words = set(get_quoted_words(search_query))
+    stemmed_websearch_query = get_stemmed_websearch_query(search_query)
+    if stemmed_websearch_query == "":
+        return GetReportMatchedWordsResponse(words=sorted(quoted_words))
     marked_transcripts = CRUDSpeech(
         session
     ).get_all_marked_transcripts_by_report_id_and_query(
-        report.id, _OR_OPERATOR.join(words.split())
+        report.id, stemmed_websearch_query
     )
-    return GetReportMatchedWordsResponse(words=get_marked_words(marked_transcripts))
+    return GetReportMatchedWordsResponse(
+        words=sorted(quoted_words | set(get_marked_words(marked_transcripts)))
+    )
