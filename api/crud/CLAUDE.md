@@ -155,7 +155,7 @@ The models in `database/` declare no relationships today. Services join by ids w
 
 ## Full-text search constants
 
-`crud/text_search.py` holds `TEXT_SEARCH_CONFIGURATION` (`literal_column("'english'")`) and `HEADLINE_OPTIONS`. Both `CRUDSpeech` and `CRUDReport` import them. Report title search reads the stored `title_tsv` column and speech search the stored `transcript_tsv` column, so both build only the query side. The configuration is a SQL literal, never a bound parameter. The rule dates from when title search filtered through an expression index, which the planner matches only when the expression is identical. The module holds constants only; it is not a CRUD class and must not grow a session or a statement.
+`crud/text_search.py` holds `TEXT_SEARCH_CONFIGURATION` (`literal_column("'english'")`), `EXACT_TEXT_SEARCH_CONFIGURATION` (`literal_column("'simple'")`), `HEADLINE_OPTIONS` and `HIGHLIGHT_ALL_OPTIONS`, plus three expression builders both `CRUDSpeech` and `CRUDReport` use: `get_match_tsquery` (the tsquery for the index match and for ranking), `get_match_filter` (the index match, plus an exact-form regex check on the text column when the query has quotes) and `get_headline`. Report title search reads the stored `title_tsv` column and speech search the stored `transcript_tsv` column, so both build only the query side. The configuration is a SQL literal, never a bound parameter. The rule dates from when title search filtered through an expression index, which the planner matches only when the expression is identical. The module holds constants and expression builders only; it is not a CRUD class and must not grow a session or a statement.
 
 ## A missing record is the caller's decision, not CRUD's
 
