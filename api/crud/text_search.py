@@ -6,7 +6,7 @@ from utils.search_query import (
     get_group_websearch_query,
     get_positive_websearch_query,
     get_quoted_websearch_query,
-    get_search_query,
+    get_search_query_groups,
     get_stemmed_websearch_query,
     get_websearch_query,
     is_quote_in_query,
@@ -23,7 +23,7 @@ def get_match_tsquery(query: str) -> ColumnElement:
     if not is_quote_in_query(query):
         return func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
     return func.websearch_to_tsquery(
-        TEXT_SEARCH_CONFIGURATION, get_websearch_query(get_search_query(query).groups)
+        TEXT_SEARCH_CONFIGURATION, get_websearch_query(get_search_query_groups(query))
     )
 
 
@@ -68,16 +68,15 @@ def get_match_filter(
             false(),
             *[
                 _get_group_match(group, tsv_column, text_column)
-                for group in get_search_query(query).groups
+                for group in get_search_query_groups(query)
             ],
         ),
     )
 
 
 def get_headline(query: str, text_column: ColumnElement, options: str) -> ColumnElement:
-    groups = get_search_query(query).groups
-    quoted_websearch_query = get_quoted_websearch_query(groups)
-    if not is_quote_in_query(query) or quoted_websearch_query == "":
+    groups = get_search_query_groups(query)
+    if not is_quote_in_query(query) or get_quoted_websearch_query(groups) == "":
         return func.ts_headline(
             TEXT_SEARCH_CONFIGURATION, text_column, get_match_tsquery(query), options
         )

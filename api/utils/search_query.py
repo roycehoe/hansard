@@ -27,11 +27,6 @@ class SearchQueryGroup:
     terms: tuple[SearchQueryTerm, ...]
 
 
-@dataclass(frozen=True)
-class SearchQuery:
-    groups: tuple[SearchQueryGroup, ...]
-
-
 def _get_words(text: str) -> tuple[str, ...]:
     return tuple(
         trimmed_word
@@ -44,7 +39,7 @@ def _is_group_searchable(terms: tuple[SearchQueryTerm, ...]) -> bool:
     return any(not term.is_excluded for term in terms)
 
 
-def get_search_query(query: str) -> SearchQuery:
+def get_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
     groups = []
     terms = []
     is_next_term_excluded = False
@@ -80,9 +75,7 @@ def get_search_query(query: str) -> SearchQuery:
                 SearchQueryTerm(words=words, is_quoted=False, is_excluded=is_excluded)
             )
     groups.append(SearchQueryGroup(terms=tuple(terms)))
-    return SearchQuery(
-        groups=tuple(group for group in groups if _is_group_searchable(group.terms))
-    )
+    return tuple(group for group in groups if _is_group_searchable(group.terms))
 
 
 def is_quote_in_query(query: str) -> bool:

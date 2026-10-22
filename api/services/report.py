@@ -23,7 +23,7 @@ from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.search_query import (
     get_quoted_words,
-    get_search_query,
+    get_search_query_groups,
     get_stemmed_websearch_query,
 )
 from utils.speaker_label import is_shared_role_speaker_label
@@ -144,7 +144,7 @@ def get_report_matched_words(
     report_slug: str, words: str, session: Session
 ) -> GetReportMatchedWordsResponse:
     report = _get_validated_report(report_slug, session)
-    groups = get_search_query(words).groups
+    groups = get_search_query_groups(words)
     quoted_words = set(get_quoted_words(groups))
     stemmed_websearch_query = get_stemmed_websearch_query(groups)
     if stemmed_websearch_query == "":

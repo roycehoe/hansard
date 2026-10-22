@@ -1,7 +1,6 @@
 import pytest
 
 from utils.search_query import (
-    SearchQuery,
     SearchQueryGroup,
     SearchQueryTerm,
     get_exact_form_pattern,
@@ -9,7 +8,7 @@ from utils.search_query import (
     get_positive_websearch_query,
     get_quoted_websearch_query,
     get_quoted_words,
-    get_search_query,
+    get_search_query_groups,
     get_stemmed_websearch_query,
     get_websearch_query,
     is_quote_in_query,
@@ -45,31 +44,25 @@ def test_the_websearch_query_keeps_the_user_s_operators(
     query: str, expected_websearch_query: str
 ) -> None:
     assert (
-        get_websearch_query(get_search_query(query).groups) == expected_websearch_query
+        get_websearch_query(get_search_query_groups(query)) == expected_websearch_query
     )
 
 
 def test_a_query_is_split_into_or_groups_of_terms() -> None:
-    assert get_search_query('housing -flats OR "public housing"') == SearchQuery(
-        groups=(
-            SearchQueryGroup(
-                terms=(
-                    SearchQueryTerm(
-                        words=("housing",), is_quoted=False, is_excluded=False
-                    ),
-                    SearchQueryTerm(
-                        words=("flats",), is_quoted=False, is_excluded=True
-                    ),
-                )
-            ),
-            SearchQueryGroup(
-                terms=(
-                    SearchQueryTerm(
-                        words=("public", "housing"), is_quoted=True, is_excluded=False
-                    ),
-                )
-            ),
-        )
+    assert get_search_query_groups('housing -flats OR "public housing"') == (
+        SearchQueryGroup(
+            terms=(
+                SearchQueryTerm(words=("housing",), is_quoted=False, is_excluded=False),
+                SearchQueryTerm(words=("flats",), is_quoted=False, is_excluded=True),
+            )
+        ),
+        SearchQueryGroup(
+            terms=(
+                SearchQueryTerm(
+                    words=("public", "housing"), is_quoted=True, is_excluded=False
+                ),
+            )
+        ),
     )
 
 
@@ -88,26 +81,26 @@ def test_a_query_is_split_into_or_groups_of_terms() -> None:
 def test_a_quoted_term_becomes_an_exact_form_pattern(
     query: str, expected_pattern: str
 ) -> None:
-    first_term = get_search_query(query).groups[0].terms[0]
+    first_term = get_search_query_groups(query)[0].terms[0]
 
     assert get_exact_form_pattern(first_term.words) == expected_pattern
 
 
 def test_the_quoted_websearch_query_keeps_only_positive_quoted_terms() -> None:
-    groups = get_search_query('"public housing" OR "flats" grants -"House"').groups
+    groups = get_search_query_groups('"public housing" OR "flats" grants -"House"')
 
     assert get_quoted_websearch_query(groups) == '"public housing" OR "flats"'
 
 
 def test_the_stemmed_and_positive_websearch_queries_split_on_quoting() -> None:
-    groups = get_search_query('"housing" grants OR flats -rent').groups
+    groups = get_search_query_groups('"housing" grants OR flats -rent')
 
     assert get_stemmed_websearch_query(groups) == "grants OR flats"
     assert get_positive_websearch_query(groups) == '"housing" OR grants OR flats'
 
 
 def test_quoted_words_are_lowercased_and_exclude_negated_terms() -> None:
-    groups = get_search_query('"Public Housing" grants -"House"').groups
+    groups = get_search_query_groups('"Public Housing" grants -"House"')
 
     assert get_quoted_words(groups) == ["public", "housing"]
 
@@ -122,6 +115,6 @@ def test_a_query_without_a_quote_character_is_not_detected() -> None:
 
 
 def test_a_group_query_drops_excluded_quoted_terms_only() -> None:
-    group = get_search_query('housing -"House" -flats').groups[0]
+    group = get_search_query_groups('housing -"House" -flats')[0]
 
     assert get_group_websearch_query(group.terms) == "housing -flats"
