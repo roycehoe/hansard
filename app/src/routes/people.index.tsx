@@ -25,7 +25,11 @@ import {
 } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildWordStartPattern } from '@/lib/highlight'
-import { mapFilterToSearchValue } from '@/lib/utils'
+import {
+  isEveryWordMatched,
+  mapFilterToSearchValue,
+  splitIntoWords,
+} from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
@@ -37,27 +41,9 @@ const peopleSearchSchema = z.object({
   name: z.string().optional(),
 })
 
-const WORD_SEPARATOR = /[^\p{L}\p{N}]+/u
-
-function splitIntoWords(text: string): string[] {
-  return text
-    .toLowerCase()
-    .split(WORD_SEPARATOR)
-    .filter((word) => word !== '')
-}
-
 function splitIntoConstituencyWords(text: string): string[] {
   return splitIntoWords(text).filter(
     (word) => !CONSTITUENCY_SUFFIX_WORDS.has(word)
-  )
-}
-
-function isEveryWordMatched(
-  searchWords: string[],
-  textWords: string[]
-): boolean {
-  return searchWords.every((searchWord) =>
-    textWords.some((textWord) => textWord.startsWith(searchWord))
   )
 }
 

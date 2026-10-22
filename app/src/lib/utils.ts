@@ -84,6 +84,24 @@ export function mapFilterToSearchValue(value: string): string | undefined {
   return value === FILTER_ALL || value === '' ? undefined : value
 }
 
+const WORD_SEPARATOR = /[^\p{L}\p{N}]+/u
+
+export function splitIntoWords(text: string): string[] {
+  return text
+    .toLowerCase()
+    .split(WORD_SEPARATOR)
+    .filter((word) => word !== '')
+}
+
+export function isEveryWordMatched(
+  searchWords: string[],
+  textWords: string[]
+): boolean {
+  return searchWords.every((searchWord) =>
+    textWords.some((textWord) => textWord.startsWith(searchWord))
+  )
+}
+
 export function getSortWithoutWords(sort: SearchSort | undefined): SearchSort {
   return sort === SearchSort.OLDEST ? SearchSort.OLDEST : SearchSort.DATE
 }
