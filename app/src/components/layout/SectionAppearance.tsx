@@ -15,6 +15,7 @@ import {
 } from '@/constants/appearance/enums'
 import { useAppearance } from '@/hooks/useAppearance'
 import { useTheme } from '@/hooks/useTheme'
+import { useMatch } from '@tanstack/react-router'
 import { useId } from 'react'
 
 interface SectionAppearanceProps {
@@ -25,6 +26,8 @@ export function SectionAppearance({ isPhone }: SectionAppearanceProps) {
   const { appearance, changeAppearance } = useAppearance()
   const { colourChoice, setColourChoice } = useTheme()
   const columnNumbersSwitchId = useId()
+  const isReportPage =
+    useMatch({ from: '/reports/$reportSlug', shouldThrow: false }) !== undefined
 
   function chooseTextSize(textSize: string) {
     changeAppearance({ textSize: textSize as TextSize })
@@ -50,14 +53,16 @@ export function SectionAppearance({ isPhone }: SectionAppearanceProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <FieldsetAppearanceChoice
-        legend="Text"
-        value={appearance.textSize}
-        options={TEXT_SIZE_DROPDOWN_OPTIONS}
-        isSegmented={isPhone}
-        onChange={chooseTextSize}
-      />
-      {!isPhone && (
+      {isReportPage && (
+        <FieldsetAppearanceChoice
+          legend="Text"
+          value={appearance.textSize}
+          options={TEXT_SIZE_DROPDOWN_OPTIONS}
+          isSegmented={isPhone}
+          onChange={chooseTextSize}
+        />
+      )}
+      {isReportPage && !isPhone && (
         <FieldsetAppearanceChoice
           legend="Width"
           value={appearance.width}
@@ -73,29 +78,30 @@ export function SectionAppearance({ isPhone }: SectionAppearanceProps) {
         isSegmented={isPhone}
         onChange={chooseColour}
       />
-      {isPhone ? (
-        <div className="border-separator flex min-h-11 items-center justify-between border-t pt-1.5">
-          <Label
-            htmlFor={columnNumbersSwitchId}
-            className="text-base font-normal"
-          >
-            Column numbers
-          </Label>
-          <Switch
-            id={columnNumbersSwitchId}
-            checked={appearance.columnNumbers === ColumnNumbers.SHOW}
-            onCheckedChange={switchColumnNumbers}
+      {isReportPage &&
+        (isPhone ? (
+          <div className="border-separator flex min-h-11 items-center justify-between border-t pt-1.5">
+            <Label
+              htmlFor={columnNumbersSwitchId}
+              className="text-base font-normal"
+            >
+              Column numbers
+            </Label>
+            <Switch
+              id={columnNumbersSwitchId}
+              checked={appearance.columnNumbers === ColumnNumbers.SHOW}
+              onCheckedChange={switchColumnNumbers}
+            />
+          </div>
+        ) : (
+          <FieldsetAppearanceChoice
+            legend="Column numbers"
+            value={appearance.columnNumbers}
+            options={COLUMN_NUMBERS_DROPDOWN_OPTIONS}
+            isSegmented={false}
+            onChange={chooseColumnNumbers}
           />
-        </div>
-      ) : (
-        <FieldsetAppearanceChoice
-          legend="Column numbers"
-          value={appearance.columnNumbers}
-          options={COLUMN_NUMBERS_DROPDOWN_OPTIONS}
-          isSegmented={false}
-          onChange={chooseColumnNumbers}
-        />
-      )}
+        ))}
     </div>
   )
 }
