@@ -29,3 +29,11 @@ class CRUDRefreshRun:
             .order_by(RefreshRun.started_at.desc())
         )
         return self.session.exec(statement).first()
+
+    def get_latest_with_finished_at(self) -> Optional[RefreshRun]:
+        statement = (
+            select(RefreshRun)
+            .where(RefreshRun.finished_at.is_not(None))
+            .order_by(RefreshRun.finished_at.desc())
+        )
+        return self.session.exec(statement).first()
