@@ -157,6 +157,8 @@ The models in `database/` declare no relationships today. Services join by ids w
 
 `crud/text_search.py` holds `TEXT_SEARCH_CONFIGURATION` (`literal_column("'english'")`), `EXACT_TEXT_SEARCH_CONFIGURATION` (`literal_column("'simple'")`), `HEADLINE_OPTIONS` and `HIGHLIGHT_ALL_OPTIONS`, plus three expression builders both `CRUDSpeech` and `CRUDReport` use: `get_match_tsquery` (the tsquery for the index match and for ranking), `get_match_filter` (the index match, plus an exact-form regex check on the text column when the query has quotes) and `get_headline`. Report title search reads the stored `title_tsv` column and speech search the stored `transcript_tsv` column, so both build only the query side. The configuration is a SQL literal, never a bound parameter. The rule dates from when title search filtered through an expression index, which the planner matches only when the expression is identical. The module holds constants and expression builders only; it is not a CRUD class and must not grow a session or a statement.
 
+`crud/location_name.py` holds `get_folded_location_name`, the SQL expression that folds a seat name (runs of spaces and hyphens to one space, trimmed, a trailing GRC or SMC dropped, lower-cased). `CRUDMembership.get_all_by_location_name` and the seat filter in `CRUDSpeech` both compare through it, so they always agree on what a seat is called. Like `text_search.py`, it holds an expression builder only, never a session or a statement.
+
 ## A missing record is the caller's decision, not CRUD's
 
 A `get` returns `Optional[Model]`. CRUD reports what the database holds; whether absence is an error depends on the caller's context, and CRUD does not know it. The caller, a validator, or the service, checks and raises.

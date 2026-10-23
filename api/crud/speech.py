@@ -5,7 +5,7 @@ from sqlalchemy import ColumnElement, Date, Float, Select, func, literal
 from sqlalchemy.orm import aliased
 from sqlmodel import Session, select
 
-from crud.membership import _get_folded_location_name
+from crud.location_name import get_folded_location_name
 from crud.text_search import (
     HEADLINE_OPTIONS,
     HIGHLIGHT_ALL_OPTIONS,
@@ -94,8 +94,8 @@ def _get_location_name_filters(location_name: Optional[str]) -> list[ColumnEleme
         )
         .join(Sitting, Sitting.id == Attendance.sitting_id)
         .where(
-            _get_folded_location_name(Attendance.location_name)
-            == _get_folded_location_name(literal(location_name))
+            get_folded_location_name(Attendance.location_name)
+            == get_folded_location_name(literal(location_name))
         )
         .group_by(Attendance.speaker_id)
         .subquery()
