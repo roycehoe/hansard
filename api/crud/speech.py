@@ -112,6 +112,14 @@ def _get_location_name_filters(location_name: Optional[str]) -> list[ColumnEleme
     ]
 
 
+def _get_excluded_speaker_filters(
+    excluded_speaker_pattern: Optional[str],
+) -> list[ColumnElement]:
+    if excluded_speaker_pattern is None:
+        return []
+    return [~Speech.speaker.regexp_match(excluded_speaker_pattern)]
+
+
 def _get_midnight(day: date) -> datetime:
     return datetime.combine(day, time.min)
 
@@ -124,6 +132,7 @@ def _get_query_filters(
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
     location_name: Optional[str],
+    excluded_speaker_pattern: Optional[str],
     excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
@@ -140,6 +149,7 @@ def _get_query_filters(
     if membership_ids is not None:
         filters.append(Speech.speaker_id.in_(membership_ids))
     filters.extend(_get_location_name_filters(location_name))
+    filters.extend(_get_excluded_speaker_filters(excluded_speaker_pattern))
     if excluded_report_ids:
         filters.append(Speech.report_id.not_in(excluded_report_ids))
     if report_ids is not None:
@@ -241,6 +251,7 @@ class CRUDSpeech:
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         location_name: Optional[str],
+        excluded_speaker_pattern: Optional[str],
         excluded_report_ids: list[int],
         report_ids: Optional[list[int]],
         sort: SearchSort,
@@ -261,6 +272,7 @@ class CRUDSpeech:
             report_type,
             membership_ids,
             location_name,
+            excluded_speaker_pattern,
             excluded_report_ids,
             report_ids,
         )
@@ -320,6 +332,7 @@ class CRUDSpeech:
         self,
         membership_ids: list[int],
         location_name: Optional[str],
+        excluded_speaker_pattern: Optional[str],
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -337,6 +350,7 @@ class CRUDSpeech:
             )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name))
+            .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
             .where(
                 *_get_report_filters(
                     parliament_number,
@@ -362,6 +376,7 @@ class CRUDSpeech:
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         location_name: Optional[str],
+        excluded_speaker_pattern: Optional[str],
         excluded_report_ids: list[int],
         report_ids: Optional[list[int]],
         limit: int,
@@ -374,6 +389,7 @@ class CRUDSpeech:
             report_type,
             membership_ids,
             location_name,
+            excluded_speaker_pattern,
             excluded_report_ids,
             report_ids,
         )
@@ -423,6 +439,7 @@ class CRUDSpeech:
         self,
         membership_ids: list[int],
         location_name: Optional[str],
+        excluded_speaker_pattern: Optional[str],
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -438,6 +455,7 @@ class CRUDSpeech:
             )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name))
+            .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
             .where(
                 *_get_report_filters(
                     parliament_number,
@@ -462,6 +480,7 @@ class CRUDSpeech:
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         location_name: Optional[str],
+        excluded_speaker_pattern: Optional[str],
         excluded_report_ids: list[int],
         report_ids: list[int],
     ) -> dict[int, int]:
@@ -479,6 +498,7 @@ class CRUDSpeech:
                     report_type,
                     membership_ids,
                     location_name,
+                    excluded_speaker_pattern,
                     excluded_report_ids,
                     report_ids,
                 )
@@ -519,6 +539,7 @@ class CRUDSpeech:
         self,
         membership_ids: list[int],
         location_name: Optional[str],
+        excluded_speaker_pattern: Optional[str],
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -533,6 +554,7 @@ class CRUDSpeech:
             )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name))
+            .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
             .where(
                 *_get_report_filters(
                     parliament_number,
