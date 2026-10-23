@@ -12,6 +12,7 @@ import { Link } from '@tanstack/react-router'
 interface RowSpeechProps {
   speech: SpeechData
   isContinuation: boolean
+  previousSpeechKind: SpeechKind | null
   reportSlug: string
   reportTitle: string
   sittingDate: string
@@ -41,9 +42,26 @@ function getTranscriptStyle(speech: SpeechData): TranscriptStyle {
   }
 }
 
+function isStageDirection(kind: SpeechKind | null): boolean {
+  return kind === SpeechKind.PROCEDURAL || kind === SpeechKind.CHAMBER_EVENT
+}
+
+function getRowMarginClass(
+  speech: SpeechData,
+  previousSpeechKind: SpeechKind | null,
+  isContinuation: boolean
+): string {
+  if (isStageDirection(previousSpeechKind)) {
+    if (isStageDirection(speech.kind)) return 'mt-1'
+    if (speech.kind === SpeechKind.DOCUMENT_TEXT) return 'mt-2'
+  }
+  return isContinuation ? 'mt-3' : 'mt-6'
+}
+
 export function RowSpeech({
   speech,
   isContinuation,
+  previousSpeechKind,
   reportSlug,
   reportTitle,
   sittingDate,
@@ -119,7 +137,7 @@ export function RowSpeech({
       tabIndex={-1}
       className={cn(
         'group focus-visible:ring-ring focus-visible:ring-offset-background flex scroll-mt-24 flex-col rounded-sm outline-hidden first-of-type:mt-0 focus-visible:ring-2 focus-visible:ring-offset-2 sm:flex-row sm:gap-2',
-        isContinuation ? 'mt-3' : 'mt-6'
+        getRowMarginClass(speech, previousSpeechKind, isContinuation)
       )}
     >
       <div className="max-w-[70ch] min-w-0 sm:flex-1">

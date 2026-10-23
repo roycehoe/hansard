@@ -100,6 +100,9 @@ export function ListSpeeches({
               getPreviousSpeakerLabel(report.speeches, index) ===
                 speech.speaker_label
             }
+            previousSpeechKind={
+              index > 0 ? report.speeches[index - 1].kind : null
+            }
             reportSlug={report.report_slug}
             reportTitle={report.title}
             sittingDate={report.sitting_date}
