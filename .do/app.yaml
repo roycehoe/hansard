@@ -62,7 +62,7 @@ services:
         value: ""
       - key: VITE_ANALYTICS_URL
         scope: BUILD_TIME
-        value: ""
+        value: https://royceinbox.goatcounter.com/count
 jobs:
   - name: refresh
     kind: SCHEDULED
