@@ -127,7 +127,7 @@ export function PopoverPersonFilter({
               Loading people…
             </div>
           )}
-          {persons.isError && (
+          {persons.isLoadingError && (
             <div className="flex flex-row items-center gap-2 p-3 text-sm">
               <TriangleAlert
                 aria-hidden="true"

@@ -25,7 +25,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 export const Route = createFileRoute('/sittings/$sittingDate')({
   component: function PageSitting() {
     const { sittingDate } = Route.useParams()
-    const { data, isLoading, isError, error, refetch, isRefetching } =
+    const { data, isLoading, isLoadingError, error, refetch, isRefetching } =
       useGetSitting({ sitting_date: sittingDate })
     const refresh = useGetRefresh()
     useDocumentTitle(
@@ -38,7 +38,7 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
 
     if (isLoading) return <SkeletonSitting />
     if (
-      isError &&
+      isLoadingError &&
       error instanceof ApiError &&
       error.status === HTTP_NOT_FOUND
     ) {
@@ -49,7 +49,7 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
         />
       )
     }
-    if (isError || !data) {
+    if (isLoadingError || !data) {
       return (
         <NoticeErrorSitting onRetry={retrySitting} isRetrying={isRefetching} />
       )

@@ -37,7 +37,7 @@ export const Route = createFileRoute('/coverage/')({
 
     function renderSummary() {
       if (coverage.isLoading) return <SkeletonCoverageSummary />
-      if (coverage.isError || !coverage.data) {
+      if (coverage.isLoadingError || !coverage.data) {
         return (
           <NoticeErrorCoverage
             onRetry={retryCoverage}

@@ -91,13 +91,13 @@ export const Route = createFileRoute('/people/$personSlug')({
     if (!(personId >= 1)) return <NoticeNotFoundPerson />
     if (person.isLoading) return <SkeletonPerson />
     if (
-      person.isError &&
+      person.isLoadingError &&
       person.error instanceof ApiError &&
       person.error.status === HTTP_NOT_FOUND
     ) {
       return <NoticeNotFoundPerson />
     }
-    if (person.isError || !person.data) {
+    if (person.isLoadingError || !person.data) {
       return (
         <NoticeErrorPerson
           onRetry={retryPerson}

@@ -44,7 +44,7 @@ export const Route = createFileRoute('/sittings/')({
 
     function renderBody() {
       if (activeQuery.isLoading) return renderSkeleton()
-      if (activeQuery.isError) {
+      if (activeQuery.isLoadingError) {
         return (
           <NoticeErrorSittings
             onRetry={retrySittings}

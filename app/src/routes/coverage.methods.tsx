@@ -92,7 +92,7 @@ export const Route = createFileRoute('/coverage/methods')({
     function renderTextGathered() {
       if (coverage.isLoading)
         return <SkeletonCoverageSection tableRowCount={0} />
-      if (coverage.isError || !coverage.data) {
+      if (coverage.isLoadingError || !coverage.data) {
         return (
           <NoticeErrorCoverage
             onRetry={retryCoverage}
@@ -144,7 +144,7 @@ export const Route = createFileRoute('/coverage/methods')({
         return (
           <SkeletonCoverageSection tableRowCount={COUNTS_SKELETON_ROW_COUNT} />
         )
-      if (coverage.isError || !coverage.data) return null
+      if (coverage.isLoadingError || !coverage.data) return null
 
       const coverageData = coverage.data
 
@@ -214,7 +214,7 @@ export const Route = createFileRoute('/coverage/methods')({
         return (
           <SkeletonCoverageSection tableRowCount={YEARS_SKELETON_ROW_COUNT} />
         )
-      if (coverage.isError || !coverage.data) return null
+      if (coverage.isLoadingError || !coverage.data) return null
 
       const coverageData = coverage.data
       if (

@@ -147,7 +147,7 @@ export const Route = createFileRoute('/people/')({
     const nameWords = splitIntoWords(typedName)
     const constituencyWords = splitIntoConstituencyWords(typedConstituency)
     const isLoading = parliaments.isLoading || persons.isLoading
-    const isError = parliaments.isError || persons.isError
+    const isLoadingError = parliaments.isLoadingError || persons.isLoadingError
     const isRefetching = parliaments.isRefetching || persons.isRefetching
 
     function retryPeople() {
@@ -174,7 +174,7 @@ export const Route = createFileRoute('/people/')({
 
     function renderBody() {
       if (isLoading) return <SkeletonPersons />
-      if (isError || !parliaments.data || !persons.data) {
+      if (isLoadingError || !parliaments.data || !persons.data) {
         return (
           <NoticeErrorPersons onRetry={retryPeople} isRetrying={isRefetching} />
         )

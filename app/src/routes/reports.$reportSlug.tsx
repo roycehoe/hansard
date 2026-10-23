@@ -76,8 +76,15 @@ export const Route = createFileRoute('/reports/$reportSlug')({
   component: function PageReport() {
     const { reportSlug } = Route.useParams()
     const { hl, s, q } = Route.useSearch()
-    const { data, isLoading, isError, error, refetch, isRefetching } =
-      useGetReport({ report_slug: reportSlug, s, q })
+    const {
+      data,
+      isLoading,
+      isError,
+      isLoadingError,
+      error,
+      refetch,
+      isRefetching,
+    } = useGetReport({ report_slug: reportSlug, s, q })
     const highlightTerms = parseHighlightTerms(hl ?? '')
     const { data: matchedWordsResponse } = useGetReportMatchedWords({
       report_slug: reportSlug,
@@ -91,16 +98,17 @@ export const Route = createFileRoute('/reports/$reportSlug')({
 
     if (isLoading) return <SkeletonReport />
     if (
-      isError &&
+      isLoadingError &&
       error instanceof ApiError &&
       error.status === HTTP_NOT_FOUND
     ) {
       return <NoticeNotFoundReport />
     }
+    // A takedown must hide a report already on screen, so a 410 wins over cached data.
     if (isError && error instanceof ApiError && error.status === HTTP_GONE) {
       return <NoticeRemovedReport />
     }
-    if (isError || !data) {
+    if (isLoadingError || !data) {
       return (
         <NoticeErrorReport onRetry={retryReport} isRetrying={isRefetching} />
       )

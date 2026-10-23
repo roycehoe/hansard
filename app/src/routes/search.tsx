@@ -204,7 +204,7 @@ export const Route = createFileRoute('/search')({
 
     function renderForm() {
       if (parliaments.isLoading) return <SkeletonFormSearch />
-      if (parliaments.isError || !parliaments.data) {
+      if (parliaments.isLoadingError || !parliaments.data) {
         return (
           <NoticeErrorParliaments
             onRetry={retryParliaments}

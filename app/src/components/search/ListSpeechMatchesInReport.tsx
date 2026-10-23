@@ -65,7 +65,7 @@ export function ListSpeechMatchesInReport({
         </li>
       ))
     }
-    if (reportMatches.isError) {
+    if (reportMatches.isLoadingError) {
       return (
         <li className="flex flex-wrap items-center gap-4">
           <div className="flex flex-row gap-4">

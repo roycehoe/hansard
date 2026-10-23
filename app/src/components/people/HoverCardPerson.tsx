@@ -61,7 +61,7 @@ function CardPersonSummary({ personId, personSlug }: CardPersonSummaryProps) {
       </div>
     )
   }
-  if (person.isError || !person.data) {
+  if (person.isLoadingError || !person.data) {
     return (
       <p className="text-muted-foreground text-sm">The details did not load.</p>
     )

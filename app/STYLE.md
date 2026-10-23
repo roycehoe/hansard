@@ -209,7 +209,7 @@ A page loader has the shape of the page it stands in for: the header, headings, 
 
 ```typescript
 // Good
-const { data, isLoading, isError } = useGetPerson({ person_slug })
+const { data, isLoading, isLoadingError } = useGetPerson({ person_slug })
 
 if (isLoading) return <SkeletonPerson />
 ```
@@ -536,25 +536,27 @@ Render inline errors with `TriangleAlert` and the message text, both in `text-de
 
 Any user action that could resolve the error must clear it first — see [Mutation Error Pattern](#mutation-error-pattern) for the clearing behaviour.
 
-The `TriangleAlert` + `text-destructive` treatment above is for **inline** errors — a failed mutation inside a form or dialog. A **failed page-level fetch** (a query's `isError`) uses an error notice instead — see [Error Notices](#error-notices).
+The `TriangleAlert` + `text-destructive` treatment above is for **inline** errors — a failed mutation inside a form or dialog. A **failed page-level fetch** (a query's `isLoadingError`) uses an error notice instead — see [Error Notices](#error-notices).
 
 ## Error Notices
 
-When a page-level query fails (`isError`), render a dedicated `Notice{Error}{Feature}` component — never inline the fallback JSX in the page/`Index` component, and never reuse the inline [Error Display](#error-display) treatment for a full-page state. The error notice is a sibling to the feature's empty-state notice (e.g. `NoticeErrorSpeeches` next to `NoticeEmptySpeeches`) and shares its centred layout, so the error and empty states sit identically in the page.
+When a page-level query fails with no data to show (`isLoadingError`), render a dedicated `Notice{Error}{Feature}` component — never inline the fallback JSX in the page/`Index` component, and never reuse the inline [Error Display](#error-display) treatment for a full-page state. The error notice is a sibling to the feature's empty-state notice (e.g. `NoticeErrorSpeeches` next to `NoticeEmptySpeeches`) and shares its centred layout, so the error and empty states sit identically in the page.
 
 The page component owns the query and branches on its flags — the notice only renders and reports intent back up:
 
 ```tsx
-const { data, isLoading, isError, refetch, isRefetching } =
+const { data, isLoading, isLoadingError, refetch, isRefetching } =
   useGetSittingSpeeches({ sitting_id })
 
 if (isLoading) return <SkeletonSitting />
-if (isError) {
+if (isLoadingError) {
   return (
     <NoticeErrorSpeeches onRetry={() => refetch()} isRetrying={isRefetching} />
   )
 }
 ```
+
+**Branch on `isLoadingError`, never `isError`.** `isError` is also true when a background refetch fails on a query that still holds data. The query keeps that state the next time a page mounts it, until its refetch succeeds, so a page that branches on `isError` flashes the error notice over data it already has. `isLoadingError` is true only when there is no data to show. The one exception is a check that must hide data already on screen, such as the 410 for a report taken down.
 
 **Retry is the primary action.** A failed fetch is usually transient, so the notice must let the user recover in place rather than only navigating away. Expose retry via an `onRetry: () => void` prop wired to the query's `refetch`, and an `isRetrying: boolean` prop wired to `isRefetching` — the notice never calls the API hook itself, exactly as a form receives mutation state from its parent.
 
