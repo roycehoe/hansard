@@ -1,7 +1,7 @@
 from datetime import date, datetime, time, timedelta
 from typing import Optional
 
-from sqlalchemy import ColumnElement, Float, Select, func
+from sqlalchemy import ColumnElement, Date, Float, Select, func, literal
 from sqlalchemy.orm import aliased
 from sqlmodel import Session, select
 
@@ -13,13 +13,18 @@ from crud.text_search import (
     get_match_filter,
     get_match_tsquery,
 )
+from database.attendance import Attendance
 from database.report import Report
+from database.sitting import Sitting
 from database.speech import Speech
 from enums import ReportType, SearchSort
 
 _ONE_DAY = timedelta(days=1)
 _BEFORE_FIRST_SITTING = datetime(1900, 1, 1)
 _AFTER_LAST_SITTING = datetime(2100, 1, 1)
+_SITTING_DATE_FORMAT = "DD-MM-YYYY"
+_LOCATION_NAME_SUFFIX_PATTERN = r"\s+(GRC|SMC)$"
+_CASE_INSENSITIVE = "i"
 
 
 def _get_report_filters(
@@ -77,6 +82,45 @@ def _get_parliament_sitting_date_filters(
     ]
 
 
+def _get_location_name_without_suffix(location_name: ColumnElement) -> ColumnElement:
+    return func.lower(
+        func.regexp_replace(
+            location_name, _LOCATION_NAME_SUFFIX_PATTERN, "", _CASE_INSENSITIVE
+        )
+    )
+
+
+def _get_location_name_filters(location_name: Optional[str]) -> list[ColumnElement]:
+    if location_name is None:
+        return []
+    sitting_date = func.to_date(Sitting.sitting_date, _SITTING_DATE_FORMAT, type_=Date)
+    # NOTE: a Membership spans a whole Parliament, and some sat for two seats within one, so a speech counts only between the first and last sitting its Membership attended for the location
+    membership_spans_at_location = (
+        select(
+            Attendance.speaker_id,
+            func.min(sitting_date).label("first_sitting_date"),
+            func.max(sitting_date).label("last_sitting_date"),
+        )
+        .join(Sitting, Sitting.id == Attendance.sitting_id)
+        .where(
+            _get_location_name_without_suffix(Attendance.location_name)
+            == _get_location_name_without_suffix(literal(location_name))
+        )
+        .group_by(Attendance.speaker_id)
+        .subquery()
+    )
+    return [
+        select(membership_spans_at_location.c.speaker_id)
+        .where(membership_spans_at_location.c.speaker_id == Speech.speaker_id)
+        .where(Speech.sitting_date >= membership_spans_at_location.c.first_sitting_date)
+        .where(
+            Speech.sitting_date
+            < membership_spans_at_location.c.last_sitting_date + _ONE_DAY
+        )
+        .exists()
+    ]
+
+
 def _get_midnight(day: date) -> datetime:
     return datetime.combine(day, time.min)
 
@@ -88,6 +132,7 @@ def _get_query_filters(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
+    location_name: Optional[str],
     excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
@@ -103,6 +148,7 @@ def _get_query_filters(
         filters.append(Report.report_type == report_type)
     if membership_ids is not None:
         filters.append(Speech.speaker_id.in_(membership_ids))
+    filters.extend(_get_location_name_filters(location_name))
     if excluded_report_ids:
         filters.append(Speech.report_id.not_in(excluded_report_ids))
     if report_ids is not None:
@@ -203,6 +249,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
+        location_name: Optional[str],
         excluded_report_ids: list[int],
         report_ids: Optional[list[int]],
         sort: SearchSort,
@@ -222,6 +269,7 @@ class CRUDSpeech:
             date_to,
             report_type,
             membership_ids,
+            location_name,
             excluded_report_ids,
             report_ids,
         )
@@ -280,6 +328,7 @@ class CRUDSpeech:
     def get_all_by_membership_ids_filtered(
         self,
         membership_ids: list[int],
+        location_name: Optional[str],
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -296,6 +345,7 @@ class CRUDSpeech:
                 _is_report_filtered(parliament_number, date_from, date_to, report_type),
             )
             .where(Speech.speaker_id.in_(membership_ids))
+            .where(*_get_location_name_filters(location_name))
             .where(
                 *_get_report_filters(
                     parliament_number,
@@ -320,6 +370,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
+        location_name: Optional[str],
         excluded_report_ids: list[int],
         report_ids: Optional[list[int]],
         limit: int,
@@ -331,6 +382,7 @@ class CRUDSpeech:
             date_to,
             report_type,
             membership_ids,
+            location_name,
             excluded_report_ids,
             report_ids,
         )
@@ -379,6 +431,7 @@ class CRUDSpeech:
     def get_count_by_membership_ids_filtered(
         self,
         membership_ids: list[int],
+        location_name: Optional[str],
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -393,6 +446,7 @@ class CRUDSpeech:
                 _is_report_filtered(parliament_number, date_from, date_to, report_type),
             )
             .where(Speech.speaker_id.in_(membership_ids))
+            .where(*_get_location_name_filters(location_name))
             .where(
                 *_get_report_filters(
                     parliament_number,
@@ -416,6 +470,7 @@ class CRUDSpeech:
         date_to: Optional[date],
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
+        location_name: Optional[str],
         excluded_report_ids: list[int],
         report_ids: list[int],
     ) -> dict[int, int]:
@@ -432,6 +487,7 @@ class CRUDSpeech:
                     date_to,
                     report_type,
                     membership_ids,
+                    location_name,
                     excluded_report_ids,
                     report_ids,
                 )
@@ -471,6 +527,7 @@ class CRUDSpeech:
     def get_report_id_to_speech_count_by_membership_ids_filtered(
         self,
         membership_ids: list[int],
+        location_name: Optional[str],
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -484,6 +541,7 @@ class CRUDSpeech:
                 _is_report_filtered(parliament_number, date_from, date_to, report_type),
             )
             .where(Speech.speaker_id.in_(membership_ids))
+            .where(*_get_location_name_filters(location_name))
             .where(
                 *_get_report_filters(
                     parliament_number,

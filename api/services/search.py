@@ -35,8 +35,16 @@ MAX_SEARCH_PAGE = 50
 
 
 def _get_membership_ids(
-    person_id: Optional[int], session: Session
+    person_id: Optional[int], constituency: Optional[str], session: Session
 ) -> Optional[list[int]]:
+    if constituency is not None:
+        return [
+            membership.id
+            for membership in CRUDMembership(session).get_all_by_location_name(
+                constituency
+            )
+            if person_id is None or membership.person_id == person_id
+        ]
     if person_id is None:
         return None
     return [
@@ -75,6 +83,7 @@ def _get_speeches(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
+    constituency: Optional[str],
     excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
     sort: SearchSort,
@@ -97,6 +106,7 @@ def _get_speeches(
             )
         return CRUDSpeech(session).get_all_by_membership_ids_filtered(
             membership_ids,
+            constituency,
             parliament_number,
             date_from,
             date_to,
@@ -114,6 +124,7 @@ def _get_speeches(
         date_to,
         report_type,
         membership_ids,
+        constituency,
         excluded_report_ids,
         report_ids,
         sort,
@@ -168,6 +179,7 @@ def _get_speech_match_count(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
+    constituency: Optional[str],
     excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
     session: Session,
@@ -185,6 +197,7 @@ def _get_speech_match_count(
             )
         return CRUDSpeech(session).get_count_by_membership_ids_filtered(
             membership_ids,
+            constituency,
             parliament_number,
             date_from,
             date_to,
@@ -200,6 +213,7 @@ def _get_speech_match_count(
         date_to,
         report_type,
         membership_ids,
+        constituency,
         excluded_report_ids,
         report_ids,
         _MAX_COUNTED_MATCHES + 1,
@@ -245,6 +259,7 @@ def _get_report_id_to_speech_match_count(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
+    constituency: Optional[str],
     excluded_report_ids: list[int],
     report_ids: list[int],
     session: Session,
@@ -263,6 +278,7 @@ def _get_report_id_to_speech_match_count(
             session
         ).get_report_id_to_speech_count_by_membership_ids_filtered(
             membership_ids,
+            constituency,
             parliament_number,
             date_from,
             date_to,
@@ -277,6 +293,7 @@ def _get_report_id_to_speech_match_count(
         date_to,
         report_type,
         membership_ids,
+        constituency,
         excluded_report_ids,
         report_ids,
     )
@@ -316,6 +333,7 @@ def search_speeches(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     person_id: Optional[int],
+    constituency: Optional[str],
     report_slug: Optional[str],
     sort: SearchSort,
     page: int,
@@ -323,7 +341,7 @@ def search_speeches(
     session: Session,
 ) -> SearchSpeechesResponse:
     with hold_search_slot():
-        membership_ids = _get_membership_ids(person_id, session)
+        membership_ids = _get_membership_ids(person_id, constituency, session)
         excluded_report_ids = _get_taken_down_report_ids(session)
         report_ids = _get_report_ids(report_slug, session)
         speeches = _get_speeches(
@@ -333,6 +351,7 @@ def search_speeches(
             date_to,
             report_type,
             membership_ids,
+            constituency,
             excluded_report_ids,
             report_ids,
             sort,
@@ -350,6 +369,7 @@ def search_speeches(
                 date_to,
                 report_type,
                 membership_ids,
+                constituency,
                 excluded_report_ids,
                 report_ids,
                 session,
@@ -389,6 +409,7 @@ def search_speeches(
             date_to,
             report_type,
             membership_ids,
+            constituency,
             excluded_report_ids,
             sorted(report_id_to_report),
             session,

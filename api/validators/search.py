@@ -16,6 +16,7 @@ def validate_can_search_speeches(
     date_to: Optional[date],
     report_type: Optional[ReportType],
     person_id: Optional[int],
+    constituency: Optional[str],
 ) -> None:
     if (
         query.strip() == ""
@@ -24,6 +25,7 @@ def validate_can_search_speeches(
         and date_to is None
         and report_type is None
         and person_id is None
+        and constituency is None
     ):
         raise SearchFilterRequiredException
     if is_query_only_excluded_words(query):

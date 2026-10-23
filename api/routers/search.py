@@ -14,6 +14,7 @@ _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
 _MAX_QUERY_LENGTH = 200
 _MAX_REPORT_SLUG_LENGTH = 200
+_MAX_CONSTITUENCY_LENGTH = 100
 _EARLIEST_SEARCH_DATE = date(1900, 1, 1)
 _LATEST_SEARCH_DATE = date(2100, 12, 31)
 
@@ -32,6 +33,9 @@ def search_speeches(
     ),
     report_type: Optional[ReportType] = None,
     person_id: Optional[int] = Query(default=None, ge=1),
+    constituency: Optional[str] = Query(
+        default=None, min_length=1, max_length=_MAX_CONSTITUENCY_LENGTH
+    ),
     report_slug: Optional[str] = Query(
         default=None, alias="report", max_length=_MAX_REPORT_SLUG_LENGTH
     ),
@@ -41,7 +45,13 @@ def search_speeches(
     session: Session = Depends(get_search_session),
 ) -> SearchSpeechesResponse:
     validate_can_search_speeches(
-        query, parliament_number, date_from, date_to, report_type, person_id
+        query,
+        parliament_number,
+        date_from,
+        date_to,
+        report_type,
+        person_id,
+        constituency,
     )
     return search_service.search_speeches(
         query,
@@ -50,6 +60,7 @@ def search_speeches(
         date_to,
         report_type,
         person_id,
+        constituency,
         report_slug,
         sort,
         page,

@@ -1,11 +1,22 @@
 from typing import Optional
 
-from sqlalchemy import func
+from sqlalchemy import ColumnElement, func, literal
 from sqlmodel import Session, select
 
 from database.attendance import Attendance
 from database.speaker import Speaker
 from utils.like_pattern import escape_like_pattern
+
+_LOCATION_NAME_SUFFIX_PATTERN = r"\s+(GRC|SMC)$"
+_CASE_INSENSITIVE = "i"
+
+
+def _get_location_name_without_suffix(location_name: ColumnElement) -> ColumnElement:
+    return func.lower(
+        func.regexp_replace(
+            location_name, _LOCATION_NAME_SUFFIX_PATTERN, "", _CASE_INSENSITIVE
+        )
+    )
 
 
 class CRUDMembership:
@@ -33,6 +44,14 @@ class CRUDMembership:
             .where(Speaker.person_id.in_(person_ids))
             .order_by(Speaker.person_id, Speaker.parliament_number)
         )
+        return list(self.session.exec(statement).all())
+
+    def get_all_by_location_name(self, location_name: str) -> list[Speaker]:
+        membership_ids_at_location = select(Attendance.speaker_id).where(
+            _get_location_name_without_suffix(Attendance.location_name)
+            == _get_location_name_without_suffix(literal(location_name))
+        )
+        statement = select(Speaker).where(Speaker.id.in_(membership_ids_at_location))
         return list(self.session.exec(statement).all())
 
     def get_all_filtered(
