@@ -1,6 +1,10 @@
 import { PageHeader } from '@/components/layout/PageHeader'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import type { FormEvent } from 'react'
 
 const HOME_LINKS = [
   {
@@ -23,9 +27,40 @@ const HOME_LINKS = [
 export const Route = createFileRoute('/')({
   component: function PageHome() {
     useDocumentTitle()
+    const navigate = useNavigate()
+
+    function findMember(event: FormEvent<HTMLFormElement>) {
+      event.preventDefault()
+      const constituency = String(
+        new FormData(event.currentTarget).get('constituency') ?? ''
+      ).trim()
+      if (constituency === '') return
+      void navigate({ to: '/people', search: { constituency } })
+    }
+
     return (
       <div className="space-y-8">
         <PageHeader title="Singapore's parliamentary debates since 1955" />
+        <form
+          role="search"
+          aria-label="Find your MP"
+          onSubmit={findMember}
+          className="flex max-w-md flex-col gap-2"
+        >
+          <Label htmlFor="find-member">Find your MP</Label>
+          <div className="flex gap-2">
+            <Input
+              id="find-member"
+              type="search"
+              name="constituency"
+              aria-describedby="find-member-hint"
+            />
+            <Button type="submit">Find</Button>
+          </div>
+          <p id="find-member-hint" className="text-muted-foreground text-sm">
+            Enter your constituency, such as Ang Mo Kio.
+          </p>
+        </form>
         <ul>
           {HOME_LINKS.map((item) => (
             <li
