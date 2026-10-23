@@ -3,6 +3,7 @@ import { HoverCardPerson } from '@/components/people/HoverCardPerson'
 import { ActionBarSpeechCopy } from '@/components/reports/ActionBarSpeechCopy'
 import { PopoverInferredCredit } from '@/components/reports/PopoverInferredCredit'
 import { TextTranscript } from '@/components/reports/TextTranscript'
+import { TooltipColumnNote } from '@/components/reports/TooltipColumnNote'
 import { COLUMN_MARKER_APPEARANCE_CLASS_NAME } from '@/constants/appearance/constants'
 import { SPEAKER_NOT_RECORDED_LABEL } from '@/constants/reports/constants'
 import { SpeechKind, TranscriptStyle } from '@/constants/reports/enums'
@@ -134,6 +135,28 @@ export function RowSpeech({
     )
   }
 
+  function renderColumnMarker(columnStart: number) {
+    if (speech.column_note !== null) {
+      return (
+        <TooltipColumnNote
+          columnStart={columnStart}
+          columnNote={speech.column_note}
+          columnSuggested={speech.column_suggested}
+        />
+      )
+    }
+    return (
+      <span
+        className={cn(
+          'text-muted-foreground text-xs leading-7 tabular-nums',
+          COLUMN_MARKER_APPEARANCE_CLASS_NAME
+        )}
+      >
+        col. {columnStart}
+      </span>
+    )
+  }
+
   return (
     <article
       id={`s${speech.ordinal}`}
@@ -145,16 +168,8 @@ export function RowSpeech({
     >
       {hasColumnMarkers && (
         <div className="in-data-[columns=hide]:hidden sm:w-16 sm:shrink-0 sm:text-right">
-          {typeof speech.column_start === 'number' && (
-            <span
-              className={cn(
-                'text-muted-foreground text-xs leading-7 tabular-nums',
-                COLUMN_MARKER_APPEARANCE_CLASS_NAME
-              )}
-            >
-              col. {speech.column_start}
-            </span>
-          )}
+          {typeof speech.column_start === 'number' &&
+            renderColumnMarker(speech.column_start)}
         </div>
       )}
       <div className="max-w-[70ch] min-w-0 in-data-[width=wide]:max-w-none sm:flex-1">

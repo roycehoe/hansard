@@ -1,4 +1,4 @@
-import { ReportType } from '@/constants/reports/enums'
+import { ColumnNote, ReportType } from '@/constants/reports/enums'
 
 export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
   [ReportType.ORAL_ANSWER]: 'Oral answer',
@@ -262,6 +262,13 @@ export const INFERRED_CREDIT_METHOD_TEXT =
   'The archive credits the person who held that role at the time. It works this out from the dates each person held the office, or from where the record of the sitting names who held it.'
 export const INFERRED_CREDIT_CAVEAT_TEXT =
   'If the role changed hands and the record does not say so, this credit can be wrong.'
+
+export const COLUMN_NOTE_TOOLTIP_DELAY_MS = 500
+export const COLUMN_NOTE_LABELS: Record<ColumnNote, string> = {
+  [ColumnNote.LIKELY_MISPRINT]: 'likely a misprint',
+  [ColumnNote.SPEAKER_NAMED_IN_COLUMN_BEFORE]: 'where the speaker is named',
+  [ColumnNote.PRINTED_WITH_L_FOR_1]: 'printed with a letter l',
+}
 
 export const SPEECH_ANCHOR_MAX_LENGTH = 200
 export const SPEECH_LINK_NOTICE_ID = 'speech-link-notice'
