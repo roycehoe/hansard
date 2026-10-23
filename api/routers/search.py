@@ -17,14 +17,23 @@ _MAX_REPORT_SLUG_LENGTH = 200
 _MAX_CONSTITUENCY_LENGTH = 100
 _EARLIEST_SEARCH_DATE = date(1900, 1, 1)
 _LATEST_SEARCH_DATE = date(2100, 12, 31)
+_MAX_INTEGER_COLUMN_VALUE = 2_147_483_647
+_NO_NUL_BYTE_PATTERN = r"^[^\x00]*$"
 
 router = APIRouter(prefix="/search", tags=["search"])
 
 
 @router.get("/speeches", status_code=200)
 def search_speeches(
-    query: str = Query(default="", alias="q", max_length=_MAX_QUERY_LENGTH),
-    parliament_number: Optional[int] = Query(default=None, ge=0),
+    query: str = Query(
+        default="",
+        alias="q",
+        max_length=_MAX_QUERY_LENGTH,
+        pattern=_NO_NUL_BYTE_PATTERN,
+    ),
+    parliament_number: Optional[int] = Query(
+        default=None, ge=0, le=_MAX_INTEGER_COLUMN_VALUE
+    ),
     date_from: Optional[date] = Query(
         default=None, ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
     ),
@@ -32,12 +41,18 @@ def search_speeches(
         default=None, ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
     ),
     report_type: Optional[ReportType] = None,
-    person_id: Optional[int] = Query(default=None, ge=1),
+    person_id: Optional[int] = Query(default=None, ge=1, le=_MAX_INTEGER_COLUMN_VALUE),
     constituency: Optional[str] = Query(
-        default=None, min_length=1, max_length=_MAX_CONSTITUENCY_LENGTH
+        default=None,
+        min_length=1,
+        max_length=_MAX_CONSTITUENCY_LENGTH,
+        pattern=_NO_NUL_BYTE_PATTERN,
     ),
     report_slug: Optional[str] = Query(
-        default=None, alias="report", max_length=_MAX_REPORT_SLUG_LENGTH
+        default=None,
+        alias="report",
+        max_length=_MAX_REPORT_SLUG_LENGTH,
+        pattern=_NO_NUL_BYTE_PATTERN,
     ),
     sort: SearchSort = SearchSort.RELEVANCE,
     page: int = Query(default=1, ge=1, le=search_service.MAX_SEARCH_PAGE),
@@ -71,8 +86,15 @@ def search_speeches(
 
 @router.get("/reports", status_code=200)
 def search_reports(
-    query: str = Query(default="", alias="q", max_length=_MAX_QUERY_LENGTH),
-    parliament_number: Optional[int] = Query(default=None, ge=0),
+    query: str = Query(
+        default="",
+        alias="q",
+        max_length=_MAX_QUERY_LENGTH,
+        pattern=_NO_NUL_BYTE_PATTERN,
+    ),
+    parliament_number: Optional[int] = Query(
+        default=None, ge=0, le=_MAX_INTEGER_COLUMN_VALUE
+    ),
     date_from: Optional[date] = Query(
         default=None, ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
     ),

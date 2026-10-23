@@ -13,13 +13,16 @@ from services import person as person_service
 
 _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
+_MAX_INTEGER_COLUMN_VALUE = 2_147_483_647
 
 router = APIRouter(prefix="/people", tags=["people"])
 
 
 @router.get("", status_code=200)
 def get_all_persons(
-    parliament_number: Optional[int] = Query(default=None, ge=0),
+    parliament_number: Optional[int] = Query(
+        default=None, ge=0, le=_MAX_INTEGER_COLUMN_VALUE
+    ),
     party: Optional[str] = Query(default=None, min_length=1),
     name: Optional[str] = Query(default=None, min_length=1),
     constituency: Optional[str] = Query(default=None, min_length=1),
