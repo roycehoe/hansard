@@ -56,7 +56,7 @@ export function TextTranscript({
       className={cn(
         'font-serif leading-7',
         transcriptStyle === TranscriptStyle.MUTED &&
-          'text-muted-foreground text-sm italic',
+          'text-muted-foreground text-sm italic in-data-[text-size=large]:text-lg in-data-[text-size=large]:leading-8 in-data-[text-size=small]:text-xs in-data-[text-size=small]:leading-6',
         transcriptStyle === TranscriptStyle.STAGE_DIRECTION &&
           'text-muted-foreground pl-12 text-base italic',
         transcriptStyle === TranscriptStyle.FOOTNOTE &&
