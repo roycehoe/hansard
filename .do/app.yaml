@@ -69,7 +69,7 @@ jobs:
     github:
       repo: roycehoe/hansard-scraper
       branch: master
-      deploy_on_push: false
+      deploy_on_push: true
     dockerfile_path: Dockerfile
     run_command: sh refresh.sh
     instance_size_slug: apps-s-1vcpu-2gb
