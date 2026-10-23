@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import Response, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import DataError, SQLAlchemyError
 from sqlmodel import Session
 from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException
@@ -43,10 +43,12 @@ def _get_page_preview(
             return preview_service.get_preview(
                 path, speech_ordinal_text, speech_anchor_text, session
             )
+    except DataError:
+        return preview_service.get_not_found_preview()
     except SQLAlchemyError:
         return preview_service.get_default_preview()
     except ValueError:
-        return preview_service.get_default_preview()
+        return preview_service.get_not_found_preview()
 
 
 def _get_preview_url(site_url: Optional[str], path: str) -> Optional[str]:
@@ -61,13 +63,7 @@ class FrontendFiles(StaticFiles):
         self.site_url = site_url
         self.index_html = (directory / _INDEX_FILE).read_text()
 
-    def _get_preview_tags_html(
-        self,
-        path: str,
-        speech_ordinal_text: Optional[str],
-        speech_anchor_text: Optional[str],
-    ) -> str:
-        preview = _get_page_preview(path, speech_ordinal_text, speech_anchor_text)
+    def _get_preview_tags_html(self, preview: PreviewData) -> str:
         return get_preview_tags_html(
             preview.title,
             preview.description,
@@ -81,14 +77,19 @@ class FrontendFiles(StaticFiles):
         if bot_name is not None:
             preview_fetch_service.count_preview_fetch(bot_name, scope[_PATH_KEY])
         query_params = request.query_params
-        preview_tags_html = await run_in_threadpool(
-            self._get_preview_tags_html,
+        preview = await run_in_threadpool(
+            _get_page_preview,
             scope[_PATH_KEY],
             query_params.get(_SPEECH_ORDINAL_PARAMETER),
             query_params.get(_SPEECH_ANCHOR_PARAMETER),
         )
         return HTMLResponse(
-            get_index_html_with_preview_tags(self.index_html, preview_tags_html),
+            get_index_html_with_preview_tags(
+                self.index_html, self._get_preview_tags_html(preview)
+            ),
+            status_code=(
+                status.HTTP_200_OK if preview.is_found else status.HTTP_404_NOT_FOUND
+            ),
             headers={_CACHE_CONTROL_HEADER: _INDEX_CACHE_CONTROL},
         )
 

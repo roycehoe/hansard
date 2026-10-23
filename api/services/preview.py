@@ -33,6 +33,8 @@ _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
 _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
 _HOME_PATH = "/"
+_URL_SEPARATOR = "/"
+_UNTITLED_PAGE_PATHS = (_HOME_PATH, "/design", "/palette", "/researchers")
 _COVERAGE_PATH = "/coverage"
 _METHODS_PATH = "/coverage/methods"
 _SEARCH_PATH = "/search"
@@ -65,6 +67,17 @@ def get_default_preview() -> PreviewData:
         description=_DEFAULT_DESCRIPTION,
         preview_type=PreviewType.WEBSITE,
         path=_HOME_PATH,
+        is_found=True,
+    )
+
+
+def get_not_found_preview() -> PreviewData:
+    return PreviewData(
+        title=_DEFAULT_TITLE,
+        description=_DEFAULT_DESCRIPTION,
+        preview_type=PreviewType.WEBSITE,
+        path=_HOME_PATH,
+        is_found=False,
     )
 
 
@@ -84,14 +97,17 @@ def _get_fixed_page_title(path: str) -> Optional[str]:
 
 def _get_fixed_preview(path: str) -> PreviewData:
     title = _get_fixed_page_title(path)
-    if title is None:
+    if title is not None:
+        return PreviewData(
+            title=title,
+            description=_DEFAULT_DESCRIPTION,
+            preview_type=PreviewType.WEBSITE,
+            path=path,
+            is_found=True,
+        )
+    if path in _UNTITLED_PAGE_PATHS:
         return get_default_preview()
-    return PreviewData(
-        title=title,
-        description=_DEFAULT_DESCRIPTION,
-        preview_type=PreviewType.WEBSITE,
-        path=path,
-    )
+    return get_not_found_preview()
 
 
 def _get_speech_ordinal(speech_ordinal_text: Optional[str]) -> Optional[int]:
@@ -122,6 +138,7 @@ def _get_report_preview(report: Report) -> PreviewData:
         description=f"From the sitting of {sitting_date_label}. {_NOT_OFFICIAL}",
         preview_type=PreviewType.ARTICLE,
         path=_get_report_path(report),
+        is_found=True,
     )
 
 
@@ -157,18 +174,20 @@ def _get_speech_preview(
         description=f"{get_transcript_quote(linked_speech.transcript)} {_NOT_OFFICIAL}",
         preview_type=PreviewType.ARTICLE,
         path=f"{_get_report_path(report)}?{query}",
+        is_found=True,
     )
 
 
 def _get_person_preview(person_id: int, session: Session) -> PreviewData:
     person = CRUDPerson(session).get(person_id)
     if person is None:
-        return get_default_preview()
+        return get_not_found_preview()
     return PreviewData(
         title=person.canonical_name,
         description=_PERSON_DESCRIPTION,
         preview_type=PreviewType.WEBSITE,
         path=f"/people/{person.id}-{get_person_slug(person.canonical_name)}",
+        is_found=True,
     )
 
 
@@ -177,7 +196,7 @@ def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
         datetime.combine(sitting_date, time.min)
     )
     if not reports:
-        return get_default_preview()
+        return get_not_found_preview()
     report_count = len(reports)
     word = _REPORT_WORD if report_count == 1 else _REPORTS_WORD
     return PreviewData(
@@ -185,6 +204,7 @@ def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
         description=f"{report_count:,} {word}. {_NOT_OFFICIAL}",
         preview_type=PreviewType.WEBSITE,
         path=f"/sittings/{sitting_date.isoformat()}",
+        is_found=True,
     )
 
 
@@ -195,7 +215,7 @@ def _get_uncached_preview(
     if report_match is not None:
         report = _get_report_by_slug(report_match.group(1), session)
         if report is None:
-            return get_default_preview()
+            return get_not_found_preview()
         if speech_ordinal is None or speech_anchor == _EMPTY_ANCHOR:
             return _get_report_preview(report)
         return _get_speech_preview(report, speech_ordinal, speech_anchor, session)
@@ -205,7 +225,7 @@ def _get_uncached_preview(
     sitting_match = _SITTING_PATH.match(path)
     if sitting_match is not None:
         return _get_sitting_preview(date.fromisoformat(sitting_match.group(1)), session)
-    return get_default_preview()
+    return get_not_found_preview()
 
 
 def _is_database_path(path: str) -> bool:
@@ -239,18 +259,19 @@ def get_preview(
     session: Session,
 ) -> PreviewData:
     global _cache_key_to_cached_preview
-    if not _is_database_path(path):
-        return _get_fixed_preview(path)
+    page_path = path.rstrip(_URL_SEPARATOR) or _HOME_PATH
+    if not _is_database_path(page_path):
+        return _get_fixed_preview(page_path)
     speech_ordinal = _get_speech_ordinal(speech_ordinal_text)
     speech_anchor = (
         _EMPTY_ANCHOR
         if speech_anchor_text is None
         else get_speech_anchor(speech_anchor_text)
     )
-    cache_key = (path, speech_ordinal, speech_anchor)
+    cache_key = (page_path, speech_ordinal, speech_anchor)
     cached_preview = _cache_key_to_cached_preview.get(cache_key)
     if cached_preview is not None and monotonic() < cached_preview.expires_at:
         return cached_preview.preview
-    preview = _get_uncached_preview(path, speech_ordinal, speech_anchor, session)
+    preview = _get_uncached_preview(page_path, speech_ordinal, speech_anchor, session)
     _cache_key_to_cached_preview = _get_cache_with_preview(cache_key, preview)
     return preview

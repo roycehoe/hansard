@@ -8,3 +8,4 @@ class PreviewData(BaseModel):
     description: str
     preview_type: PreviewType
     path: str
+    is_found: bool
