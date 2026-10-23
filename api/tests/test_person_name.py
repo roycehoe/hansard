@@ -1,9 +1,11 @@
+from typing import Optional
+
 import pytest
 
 from utils.person_name import get_name_match_rank, get_normalised_name_words
 
 
-def _get_rank(query: str, name: str) -> int | None:
+def _get_rank(query: str, name: str) -> Optional[int]:
     return get_name_match_rank(
         get_normalised_name_words(query), get_normalised_name_words(name)
     )
