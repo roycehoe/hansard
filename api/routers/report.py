@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 
-from database.engine import get_session
+from database.engine import get_search_session, get_session
 from schemas.report import GetReportMatchedWordsResponse, GetReportResponse
 from services import report as report_service
 
@@ -31,6 +31,6 @@ def get_report(
 def get_report_matched_words(
     report_slug: str,
     words: str = Query(alias="q", max_length=_MAX_WORDS_LENGTH),
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_search_session),
 ) -> GetReportMatchedWordsResponse:
     return report_service.get_report_matched_words(report_slug, words, session)

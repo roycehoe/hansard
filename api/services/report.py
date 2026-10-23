@@ -10,6 +10,7 @@ from database.speech import Speech
 from enums import SpeechLinkStatus
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from middleware.membership import get_membership_id_to_person
+from middleware.search_slot import hold_search_slot
 from middleware.takedown import is_report_id_taken_down
 from schemas.report import (
     GetReportMatchedWordsResponse,
@@ -143,17 +144,18 @@ def get_report(
 def get_report_matched_words(
     report_slug: str, words: str, session: Session
 ) -> GetReportMatchedWordsResponse:
-    report = _get_validated_report(report_slug, session)
-    groups = get_search_query_groups(words)
-    quoted_words = set(get_quoted_words(groups))
-    stemmed_websearch_query = get_stemmed_websearch_query(groups)
-    if stemmed_websearch_query == "":
-        return GetReportMatchedWordsResponse(words=sorted(quoted_words))
-    marked_transcripts = CRUDSpeech(
-        session
-    ).get_all_marked_transcripts_by_report_id_and_query(
-        report.id, stemmed_websearch_query
-    )
-    return GetReportMatchedWordsResponse(
-        words=sorted(quoted_words | set(get_marked_words(marked_transcripts)))
-    )
+    with hold_search_slot():
+        report = _get_validated_report(report_slug, session)
+        groups = get_search_query_groups(words)
+        quoted_words = set(get_quoted_words(groups))
+        stemmed_websearch_query = get_stemmed_websearch_query(groups)
+        if stemmed_websearch_query == "":
+            return GetReportMatchedWordsResponse(words=sorted(quoted_words))
+        marked_transcripts = CRUDSpeech(
+            session
+        ).get_all_marked_transcripts_by_report_id_and_query(
+            report.id, stemmed_websearch_query
+        )
+        return GetReportMatchedWordsResponse(
+            words=sorted(quoted_words | set(get_marked_words(marked_transcripts)))
+        )
