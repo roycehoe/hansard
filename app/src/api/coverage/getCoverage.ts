@@ -8,6 +8,22 @@ export interface YearCoverageData {
   text_report_count: number
 }
 
+export interface ParliamentGroupFiguresData {
+  first_parliament_number: number
+  last_parliament_number: number
+  linked_row_count: number
+  speaker_label_row_count: number
+  row_count: number
+  named_linked_share: number
+  all_linked_share: number
+  text_share: number
+}
+
+export interface AttributionFiguresData {
+  measured_on: string
+  groups: ParliamentGroupFiguresData[]
+}
+
 export interface GetCoverageResponse {
   report_count: number
   text_report_count: number
@@ -24,6 +40,7 @@ export interface GetCoverageResponse {
   text_last_sitting_date: string | null
   attendance_last_sitting_date: string | null
   years: YearCoverageData[]
+  attribution: AttributionFiguresData | null
 }
 
 async function getCoverageResponse(): Promise<GetCoverageResponse> {

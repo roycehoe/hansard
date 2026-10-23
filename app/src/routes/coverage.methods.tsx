@@ -1,5 +1,4 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
-import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { SkeletonCoverageSection } from '@/components/coverage/SkeletonCoverageSection'
 import { TableAttributionParliaments } from '@/components/coverage/TableAttributionParliaments'
@@ -83,9 +82,8 @@ export const Route = createFileRoute('/coverage/methods')({
   component: function PageCoverageMethods() {
     useDocumentTitle('Data quality and methods')
     const coverage = useGetCoverage()
-    const refresh = useGetRefresh()
     const { measuredOn: attributionMeasuredOn, rows: attributionRows } =
-      buildAttributionFigures(refresh.data)
+      buildAttributionFigures(coverage.data)
 
     function retryCoverage() {
       void coverage.refetch()

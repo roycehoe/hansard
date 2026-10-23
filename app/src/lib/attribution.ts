@@ -1,7 +1,7 @@
 import type {
-  GetRefreshResponse,
+  GetCoverageResponse,
   ParliamentGroupFiguresData,
-} from '@/api/refresh/getRefresh'
+} from '@/api/coverage/getCoverage'
 import { LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER } from '@/constants/constants'
 import {
   ATTRIBUTION_BY_PARLIAMENT,
@@ -51,9 +51,9 @@ function buildLiveRow(group: ParliamentGroupFiguresData): AttributionRow {
 }
 
 export function buildAttributionFigures(
-  refresh: GetRefreshResponse | undefined
+  coverage: GetCoverageResponse | undefined
 ): AttributionFigures {
-  const figures = refresh?.figures ?? null
+  const figures = coverage?.attribution ?? null
   if (figures === null) return CONSTANT_ATTRIBUTION_FIGURES
 
   return {
