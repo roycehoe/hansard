@@ -228,6 +228,7 @@ export function FormSearch({
       <Input
         id="search-constituency"
         type="search"
+        form={SEARCH_FORM_ID}
         aria-describedby={constituencyHintId}
         {...register('constituency')}
       />
@@ -306,6 +307,7 @@ export function FormSearch({
       <Input
         id="search-from"
         type="date"
+        form={SEARCH_FORM_ID}
         {...register('from', { onBlur: applyChangedDatesOnDesktop })}
       />
     </div>
@@ -317,6 +319,7 @@ export function FormSearch({
       <Input
         id="search-to"
         type="date"
+        form={SEARCH_FORM_ID}
         {...register('to', { onBlur: applyChangedDatesOnDesktop })}
       />
     </div>
