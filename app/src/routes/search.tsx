@@ -18,6 +18,7 @@ import { ListSpeechMatches } from '@/components/search/ListSpeechMatches'
 import { NoticeErrorParliaments } from '@/components/search/NoticeErrorParliaments'
 import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
 import { NoticeErrorSearchBusy } from '@/components/search/NoticeErrorSearchBusy'
+import { NoticeErrorSearchExcludedWordsOnly } from '@/components/search/NoticeErrorSearchExcludedWordsOnly'
 import { NoticeErrorSearchTimedOut } from '@/components/search/NoticeErrorSearchTimedOut'
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
 import { SkeletonFormSearch } from '@/components/search/SkeletonFormSearch'
@@ -49,6 +50,7 @@ import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import {
   getSortWithoutWords,
+  isSearchExcludedWordsOnlyError,
   isSearchTimedOutError,
   mapFilterToSearchValue,
   removeConstituencySuffix,
@@ -255,6 +257,8 @@ export const Route = createFileRoute('/search')({
       if (speeches.isLoadingError || !speeches.data) {
         if (isSearchTimedOutError(speeches.error))
           return <NoticeErrorSearchTimedOut />
+        if (isSearchExcludedWordsOnlyError(speeches.error))
+          return <NoticeErrorSearchExcludedWordsOnly />
         if (isSearchBusyError(speeches.error)) {
           return (
             <NoticeErrorSearchBusy
@@ -304,6 +308,8 @@ export const Route = createFileRoute('/search')({
       if (reports.isLoadingError || !reports.data) {
         if (isSearchTimedOutError(reports.error))
           return <NoticeErrorSearchTimedOut />
+        if (isSearchExcludedWordsOnlyError(reports.error))
+          return <NoticeErrorSearchExcludedWordsOnly />
         if (isSearchBusyError(reports.error)) {
           return (
             <NoticeErrorSearchBusy

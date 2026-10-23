@@ -14,6 +14,7 @@ import { TEXTLESS_ASSENT_FIRST_SITTING } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
   PROXY_ORIGINAL_STATUS_HEADER,
+  SEARCH_EXCLUDED_WORDS_ONLY_ERROR_CODE,
   SEARCH_TIMED_OUT_ERROR_CODE,
 } from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
@@ -184,4 +185,9 @@ export function isSearchTimedOutError(error: Error | null): boolean {
   if (!(error instanceof ApiError)) return false
   if (isServiceUnavailableReplacedByProxy(error)) return true
   return hasApiErrorCode(error.body, SEARCH_TIMED_OUT_ERROR_CODE)
+}
+
+export function isSearchExcludedWordsOnlyError(error: Error | null): boolean {
+  if (!(error instanceof ApiError)) return false
+  return hasApiErrorCode(error.body, SEARCH_EXCLUDED_WORDS_ONLY_ERROR_CODE)
 }

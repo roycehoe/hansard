@@ -48,5 +48,7 @@ export const SEARCH_WORDS_INPUT_ID = 'search-q'
 export const CLEAR_FILTERS_LABEL = 'Clear filters'
 
 export const SEARCH_TIMED_OUT_ERROR_CODE = 'search.timed_out'
+export const SEARCH_EXCLUDED_WORDS_ONLY_ERROR_CODE =
+  'search.excluded_words_only'
 
 export const PROXY_ORIGINAL_STATUS_HEADER = 'x-do-orig-status'
