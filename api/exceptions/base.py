@@ -11,6 +11,7 @@ class ErrorCode(StrEnum):
     REPORT_TAKEN_DOWN = "report.taken_down"
     SITTING_NOT_FOUND = "sitting.not_found"
     PERSON_NOT_FOUND = "person.not_found"
+    SITEMAP_NOT_FOUND = "sitemap.not_found"
     SEARCH_TIMED_OUT = "search.timed_out"
     SEARCH_FILTER_REQUIRED = "search.filter_required"
     SEARCH_BUSY = "search.busy"
@@ -38,6 +39,9 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ),
     ErrorCode.PERSON_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Person not found."
+    ),
+    ErrorCode.SITEMAP_NOT_FOUND: ErrorSpec(
+        status.HTTP_404_NOT_FOUND, "Sitemap not found."
     ),
     ErrorCode.SEARCH_TIMED_OUT: ErrorSpec(
         status.HTTP_503_SERVICE_UNAVAILABLE,

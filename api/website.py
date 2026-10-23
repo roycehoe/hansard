@@ -6,9 +6,12 @@ from fastapi import FastAPI
 
 from main import app as api_app
 from middleware.basic_auth import BasicAuthMiddleware
-from middleware.cache_fill import fill_coverage_and_parliament_caches_after_each_refresh
+from middleware.cache_fill import (
+    fill_coverage_parliament_and_sitemap_caches_after_each_refresh,
+)
 from middleware.frontend import FrontendFiles
 from middleware.takedown import TakedownMiddleware
+from routers import sitemap
 from settings import WebsiteSettings
 
 website_settings = WebsiteSettings()
@@ -18,7 +21,8 @@ website_settings = WebsiteSettings()
 @asynccontextmanager
 async def _fill_caches_at_startup(_: FastAPI) -> AsyncIterator[None]:
     Thread(
-        target=fill_coverage_and_parliament_caches_after_each_refresh, daemon=True
+        target=fill_coverage_parliament_and_sitemap_caches_after_each_refresh,
+        daemon=True,
     ).start()
     yield
 
@@ -42,6 +46,7 @@ if not website_settings.is_public_mode:
         password=website_settings.basic_auth_password,
     )
 
+app.include_router(sitemap.router)
 app.mount("/api", api_app)
 app.mount(
     "/",

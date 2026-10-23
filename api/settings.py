@@ -16,6 +16,7 @@ class AppSettings(BaseSettings):
 
     database_url: str
     takedown_report_slugs: str = ""
+    site_url: Optional[str] = None
     is_public_mode: bool = Field(default=False, validation_alias="PUBLIC_MODE")
 
     @field_validator("is_public_mode", mode="before")

@@ -138,6 +138,22 @@ class CRUDReport:
         statement = select(Report.id).where(Report.report_id.in_(report_ids))
         return list(self.session.exec(statement).all())
 
+    def get_all_report_ids_not_in_report_ids(
+        self, excluded_report_ids: list[str]
+    ) -> list[str]:
+        statement = (
+            select(Report.report_id)
+            .where(Report.report_id.not_in(excluded_report_ids))
+            .order_by(Report.sitting_date.desc(), Report.id)
+        )
+        return list(self.session.exec(statement).all())
+
+    def get_all_sitting_dates(self) -> list[datetime]:
+        statement = (
+            select(Report.sitting_date).distinct().order_by(Report.sitting_date.desc())
+        )
+        return list(self.session.exec(statement).all())
+
     def get_all_ids_by_ids(
         self, report_ids: list[int], limit: int, offset: int
     ) -> list[int]:
