@@ -16,6 +16,9 @@ class CRUDMembership:
         statement = select(Speaker).where(Speaker.id.in_(membership_ids))
         return list(self.session.exec(statement).all())
 
+    def get_all(self) -> list[Speaker]:
+        return list(self.session.exec(select(Speaker)).all())
+
     def get_all_by_person_id(self, person_id: int) -> list[Speaker]:
         statement = (
             select(Speaker)
@@ -37,7 +40,7 @@ class CRUDMembership:
         parliament_number: Optional[int],
         is_legislative_assembly: Optional[bool],
         party: Optional[str],
-        name: Optional[str],
+        person_ids: Optional[list[int]],
         location_name: Optional[str],
     ) -> list[Speaker]:
         filters = []
@@ -47,10 +50,8 @@ class CRUDMembership:
             filters.append(Speaker.is_legislative_assembly == is_legislative_assembly)
         if party is not None:
             filters.append(Speaker.party == party)
-        if name is not None:
-            filters.append(
-                Speaker.name.ilike(f"%{escape_like_pattern(name)}%", escape="\\")
-            )
+        if person_ids is not None:
+            filters.append(Speaker.person_id.in_(person_ids))
         if location_name is not None:
             membership_ids_at_location = select(Attendance.speaker_id).where(
                 Attendance.location_name.ilike(
