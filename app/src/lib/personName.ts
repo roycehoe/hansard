@@ -1,16 +1,39 @@
 const NON_WORD_RUN = /[^\p{L}\p{N}]+/gu
 const INITIAL_RUN = /(?<![\p{L}\p{N}])\p{L}(?: \p{L})+(?![\p{L}\p{N}])/gu
 const WORD_SEPARATOR = ' '
+const PERSON_TITLE_WORDS = new Set([
+  'mr',
+  'mrs',
+  'ms',
+  'miss',
+  'mdm',
+  'madam',
+  'dr',
+  'prof',
+  'assoc',
+  'encik',
+  'inche',
+])
 const EXACT_RANK = 0
 const SAME_WORDS_RANK = 1
 const WORD_PREFIXES_RANK = 2
 
+function getTitleStrippedWords(words: string[]): string[] {
+  let start = 0
+  let end = words.length
+  while (start < end && PERSON_TITLE_WORDS.has(words[start])) start += 1
+  while (end > start && PERSON_TITLE_WORDS.has(words[end - 1])) end -= 1
+  return words.slice(start, end)
+}
+
 function getNormalisedNameWords(name: string): string[] {
   const spaced = name.toLowerCase().replace(NON_WORD_RUN, WORD_SEPARATOR).trim()
-  return spaced
-    .replace(INITIAL_RUN, (run) => run.split(WORD_SEPARATOR).join(''))
-    .split(WORD_SEPARATOR)
-    .filter((word) => word !== '')
+  return getTitleStrippedWords(
+    spaced
+      .replace(INITIAL_RUN, (run) => run.split(WORD_SEPARATOR).join(''))
+      .split(WORD_SEPARATOR)
+      .filter((word) => word !== '')
+  )
 }
 
 function getNameMatchRank(

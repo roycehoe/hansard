@@ -20,6 +20,30 @@ describe('getPersonNameMatchRank', () => {
     ).toBe(2)
   })
 
+  it('matches Dr Tan Cheng Bock to Tan Cheng Bock', () => {
+    expect(
+      getPersonNameMatchRank('Dr Tan Cheng Bock', ['Tan Cheng Bock'])
+    ).toBe(0)
+  })
+
+  it('matches Dr Lee with or without a title in the stored name', () => {
+    expect(getPersonNameMatchRank('Dr Lee', ['Lee Siew Choh'])).toBe(2)
+    expect(
+      getPersonNameMatchRank('Dr Lee', ['Lee Siew Choh', 'Lee Siew Choh, Dr'])
+    ).toBe(2)
+  })
+
+  it('matches nobody on a title alone', () => {
+    expect(getPersonNameMatchRank('dr', ['Lee Siew Choh, Dr'])).toBeUndefined()
+  })
+
+  it('keeps Bin as a name part', () => {
+    expect(getPersonNameMatchRank('Bin', ['Mohd Ariff Bin Suradi'])).toBe(2)
+    expect(
+      getPersonNameMatchRank('Haji', ['Mohd Ariff Bin Suradi'])
+    ).toBeUndefined()
+  })
+
   it('returns undefined for an empty query', () => {
     expect(getPersonNameMatchRank('', ['Lee Siew Choh'])).toBeUndefined()
     expect(getPersonNameMatchRank('  ', ['Lee Siew Choh'])).toBeUndefined()
