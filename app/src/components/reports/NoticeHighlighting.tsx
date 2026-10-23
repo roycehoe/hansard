@@ -19,6 +19,7 @@ export function NoticeHighlighting({
       <Link
         to="/reports/$reportSlug"
         params={{ reportSlug }}
+        search={(previous) => ({ ...previous, hl: undefined })}
         hash={hash}
         className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
       >
