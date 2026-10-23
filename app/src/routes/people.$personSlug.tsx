@@ -1,6 +1,7 @@
 import { ApiError } from '@/api/client'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetPersonReports } from '@/api/people/getPersonReports'
+import { ButtonCopyLink } from '@/components/layout/ButtonCopyLink'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import { TextSource } from '@/components/layout/TextSource'
@@ -120,11 +121,16 @@ export const Route = createFileRoute('/people/$personSlug')({
               : `Also recorded as: ${nameVariants}`
           }
           actions={
-            <Button asChild variant="outline">
-              <Link to="/search" search={{ person: data.person_id }}>
-                Search this person's speeches
-              </Link>
-            </Button>
+            <>
+              <ButtonCopyLink
+                path={`/people/${data.person_id}-${data.person_slug}`}
+              />
+              <Button asChild variant="outline">
+                <Link to="/search" search={{ person: data.person_id }}>
+                  Search this person's speeches
+                </Link>
+              </Button>
+            </>
           }
           breadcrumb={
             <Breadcrumb>

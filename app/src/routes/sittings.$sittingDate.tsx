@@ -1,6 +1,7 @@
 import { ApiError } from '@/api/client'
 import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { useGetSitting } from '@/api/sittings/getSitting'
+import { ButtonCopyLink } from '@/components/layout/ButtonCopyLink'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { TextSource } from '@/components/layout/TextSource'
 import { ListAttendance } from '@/components/sittings/ListAttendance'
@@ -70,6 +71,11 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
         <PageHeader
           title={`Sitting of ${formattedDate}`}
           description={description}
+          actions={
+            <ButtonCopyLink
+              path={`/sittings/${encodeURIComponent(data.sitting_date)}`}
+            />
+          }
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
