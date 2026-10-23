@@ -14,6 +14,7 @@ import { TEXTLESS_ASSENT_FIRST_SITTING } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
   PROXY_ORIGINAL_STATUS_HEADER,
+  SEARCH_CONSTITUENCY_NOT_FOUND_ERROR_CODE,
   SEARCH_EXCLUDED_WORDS_ONLY_ERROR_CODE,
   SEARCH_TIMED_OUT_ERROR_CODE,
 } from '@/constants/search/constants'
@@ -190,4 +191,11 @@ export function isSearchTimedOutError(error: Error | null): boolean {
 export function isSearchExcludedWordsOnlyError(error: Error | null): boolean {
   if (!(error instanceof ApiError)) return false
   return hasApiErrorCode(error.body, SEARCH_EXCLUDED_WORDS_ONLY_ERROR_CODE)
+}
+
+export function isSearchConstituencyNotFoundError(
+  error: Error | null
+): boolean {
+  if (!(error instanceof ApiError)) return false
+  return hasApiErrorCode(error.body, SEARCH_CONSTITUENCY_NOT_FOUND_ERROR_CODE)
 }

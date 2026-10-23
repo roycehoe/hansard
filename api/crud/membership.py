@@ -7,14 +7,23 @@ from database.attendance import Attendance
 from database.speaker import Speaker
 from utils.like_pattern import escape_like_pattern
 
-_LOCATION_NAME_SUFFIX_PATTERN = r"\s+(GRC|SMC)$"
+_LOCATION_NAME_SEPARATOR_PATTERN = r"[[:space:]-]+"
+_LOCATION_NAME_SUFFIX_PATTERN = r"[[:space:]](GRC|SMC)$"
+_REPLACE_ALL = "g"
 _CASE_INSENSITIVE = "i"
 
 
-def _get_location_name_without_suffix(location_name: ColumnElement) -> ColumnElement:
+def _get_folded_location_name(location_name: ColumnElement) -> ColumnElement:
     return func.lower(
         func.regexp_replace(
-            location_name, _LOCATION_NAME_SUFFIX_PATTERN, "", _CASE_INSENSITIVE
+            func.btrim(
+                func.regexp_replace(
+                    location_name, _LOCATION_NAME_SEPARATOR_PATTERN, " ", _REPLACE_ALL
+                )
+            ),
+            _LOCATION_NAME_SUFFIX_PATTERN,
+            "",
+            _CASE_INSENSITIVE,
         )
     )
 
@@ -48,8 +57,8 @@ class CRUDMembership:
 
     def get_all_by_location_name(self, location_name: str) -> list[Speaker]:
         membership_ids_at_location = select(Attendance.speaker_id).where(
-            _get_location_name_without_suffix(Attendance.location_name)
-            == _get_location_name_without_suffix(literal(location_name))
+            _get_folded_location_name(Attendance.location_name)
+            == _get_folded_location_name(literal(location_name))
         )
         statement = select(Speaker).where(Speaker.id.in_(membership_ids_at_location))
         return list(self.session.exec(statement).all())

@@ -11,6 +11,7 @@ from database.report import Report
 from database.speech import Speech
 from enums import ReportType, SearchSort
 from exceptions.report import ReportNotFoundException
+from exceptions.search import SearchConstituencyNotFoundException
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
 from middleware.takedown import (
@@ -38,11 +39,14 @@ def _get_membership_ids(
     person_id: Optional[int], constituency: Optional[str], session: Session
 ) -> Optional[list[int]]:
     if constituency is not None:
+        memberships_at_location = CRUDMembership(session).get_all_by_location_name(
+            constituency
+        )
+        if not memberships_at_location:
+            raise SearchConstituencyNotFoundException
         return [
             membership.id
-            for membership in CRUDMembership(session).get_all_by_location_name(
-                constituency
-            )
+            for membership in memberships_at_location
             if person_id is None or membership.person_id == person_id
         ]
     if person_id is None:

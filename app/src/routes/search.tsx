@@ -20,6 +20,7 @@ import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
 import { NoticeErrorSearchBusy } from '@/components/search/NoticeErrorSearchBusy'
 import { NoticeErrorSearchExcludedWordsOnly } from '@/components/search/NoticeErrorSearchExcludedWordsOnly'
 import { NoticeErrorSearchTimedOut } from '@/components/search/NoticeErrorSearchTimedOut'
+import { NoticeSearchConstituencyNotFound } from '@/components/search/NoticeSearchConstituencyNotFound'
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
 import { SkeletonFormSearch } from '@/components/search/SkeletonFormSearch'
 import { SkeletonSearchResults } from '@/components/search/SkeletonSearchResults'
@@ -50,6 +51,7 @@ import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import {
   getSortWithoutWords,
+  isSearchConstituencyNotFoundError,
   isSearchExcludedWordsOnlyError,
   isSearchTimedOutError,
   mapFilterToSearchValue,
@@ -255,6 +257,12 @@ export const Route = createFileRoute('/search')({
       if (speeches.isLoading)
         return <SkeletonSearchResults rowCount={SEARCH_SKELETON_ROW_COUNT} />
       if (speeches.isLoadingError || !speeches.data) {
+        if (isSearchConstituencyNotFoundError(speeches.error))
+          return (
+            <NoticeSearchConstituencyNotFound
+              constituency={constituency ?? ''}
+            />
+          )
         if (isSearchTimedOutError(speeches.error))
           return <NoticeErrorSearchTimedOut />
         if (isSearchExcludedWordsOnlyError(speeches.error))

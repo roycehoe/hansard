@@ -19,3 +19,8 @@ class SearchFilterRequiredException(AppHttpExceptionBase):
 class SearchExcludedWordsOnlyException(AppHttpExceptionBase):
     def __init__(self):
         super().__init__(ErrorCode.SEARCH_EXCLUDED_WORDS_ONLY)
+
+
+class SearchConstituencyNotFoundException(AppHttpExceptionBase):
+    def __init__(self):
+        super().__init__(ErrorCode.SEARCH_CONSTITUENCY_NOT_FOUND)

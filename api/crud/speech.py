@@ -5,6 +5,7 @@ from sqlalchemy import ColumnElement, Date, Float, Select, func, literal
 from sqlalchemy.orm import aliased
 from sqlmodel import Session, select
 
+from crud.membership import _get_folded_location_name
 from crud.text_search import (
     HEADLINE_OPTIONS,
     HIGHLIGHT_ALL_OPTIONS,
@@ -23,8 +24,6 @@ _ONE_DAY = timedelta(days=1)
 _BEFORE_FIRST_SITTING = datetime(1900, 1, 1)
 _AFTER_LAST_SITTING = datetime(2100, 1, 1)
 _SITTING_DATE_FORMAT = "DD-MM-YYYY"
-_LOCATION_NAME_SUFFIX_PATTERN = r"\s+(GRC|SMC)$"
-_CASE_INSENSITIVE = "i"
 
 
 def _get_report_filters(
@@ -82,14 +81,6 @@ def _get_parliament_sitting_date_filters(
     ]
 
 
-def _get_location_name_without_suffix(location_name: ColumnElement) -> ColumnElement:
-    return func.lower(
-        func.regexp_replace(
-            location_name, _LOCATION_NAME_SUFFIX_PATTERN, "", _CASE_INSENSITIVE
-        )
-    )
-
-
 def _get_location_name_filters(location_name: Optional[str]) -> list[ColumnElement]:
     if location_name is None:
         return []
@@ -103,8 +94,8 @@ def _get_location_name_filters(location_name: Optional[str]) -> list[ColumnEleme
         )
         .join(Sitting, Sitting.id == Attendance.sitting_id)
         .where(
-            _get_location_name_without_suffix(Attendance.location_name)
-            == _get_location_name_without_suffix(literal(location_name))
+            _get_folded_location_name(Attendance.location_name)
+            == _get_folded_location_name(literal(location_name))
         )
         .group_by(Attendance.speaker_id)
         .subquery()
