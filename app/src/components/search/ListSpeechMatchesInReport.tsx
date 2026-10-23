@@ -124,7 +124,7 @@ export function ListSpeechMatchesInReport({
                 s: speech.ordinal,
                 q: speech.anchor === '' ? undefined : speech.anchor,
               }}
-              hash={speech.anchor === '' ? `s${speech.ordinal}` : undefined}
+              hash={`s${speech.ordinal}`}
               className="group focus-visible:ring-ring focus-visible:ring-offset-background block space-y-1 rounded-sm outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
             >
               {speech.speaker_label !== '' && (
