@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-from time import monotonic
 from typing import Optional
 
 from sqlmodel import Session
@@ -13,17 +11,8 @@ from crud.speech import CRUDSpeech
 from schemas.coverage import GetCoverageResponse, YearCoverageData
 from utils.sitting_date import get_date_from_datetime
 
-_CACHE_TTL_SECONDS = 60 * 60
-
-
-@dataclass(frozen=True)
-class _CachedCoverage:
-    expires_at: float
-    coverage: GetCoverageResponse
-
-
-# NOTE: replaced whole and never mutated, so a request thread never reads a half-written entry
-_cached_coverage: Optional[_CachedCoverage] = None
+# NOTE: replaced whole and never mutated, so a request thread never reads a half-written answer
+_cached_coverage: Optional[GetCoverageResponse] = None
 
 
 def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
@@ -66,11 +55,16 @@ def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
     )
 
 
+def fill_coverage_cache(session: Session) -> None:
+    global _cached_coverage
+    _cached_coverage = _get_uncached_coverage(session)
+
+
 def get_coverage(session: Session) -> GetCoverageResponse:
     global _cached_coverage
     cached_coverage = _cached_coverage
-    if cached_coverage is not None and monotonic() < cached_coverage.expires_at:
-        return cached_coverage.coverage
+    if cached_coverage is not None:
+        return cached_coverage
     coverage = _get_uncached_coverage(session)
-    _cached_coverage = _CachedCoverage(monotonic() + _CACHE_TTL_SECONDS, coverage)
+    _cached_coverage = coverage
     return coverage
