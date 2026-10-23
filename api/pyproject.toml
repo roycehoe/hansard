@@ -28,4 +28,5 @@ select = ["I", "F"]
 pythonpath = ["."]
 markers = [
     "database: needs the scratch database",
+    "schema_drift: selects every column the models declare, from a database built from the scraper's models",
 ]
