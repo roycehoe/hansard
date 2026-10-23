@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 from main import app as api_app
 from middleware.basic_auth import BasicAuthMiddleware
-from middleware.cache_fill import fill_coverage_and_parliament_caches
+from middleware.cache_fill import fill_coverage_and_parliament_caches_after_each_refresh
 from middleware.frontend import FrontendFiles
 from middleware.takedown import TakedownMiddleware
 from settings import WebsiteSettings
@@ -17,7 +17,9 @@ website_settings = WebsiteSettings()
 # NOTE: the fill runs on a thread so the platform's health check never waits for it; the lifespan is here, not in main.py, because Starlette does not run a mounted app's lifespan
 @asynccontextmanager
 async def _fill_caches_at_startup(_: FastAPI) -> AsyncIterator[None]:
-    Thread(target=fill_coverage_and_parliament_caches, daemon=True).start()
+    Thread(
+        target=fill_coverage_and_parliament_caches_after_each_refresh, daemon=True
+    ).start()
     yield
 
 
