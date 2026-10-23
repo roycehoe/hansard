@@ -1,3 +1,4 @@
+export const ANALYTICS_SITE_URL = 'https://www.goatcounter.com/'
 export const ANALYTICS_SCRIPT_URL = 'https://gc.zgo.at/count.v5.js'
 export const ANALYTICS_SCRIPT_INTEGRITY =
   'sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ'

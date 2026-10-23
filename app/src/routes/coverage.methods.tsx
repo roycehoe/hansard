@@ -14,6 +14,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { ANALYTICS_SITE_URL } from '@/constants/analytics/constants'
 import {
   ABSENCE_DEFINITION,
   ANALYTICS_URL,
@@ -567,12 +568,21 @@ export const Route = createFileRoute('/coverage/methods')({
               Visitor counts
             </h2>
             <p>
-              The site counts visits with GoatCounter. It sets no cookies and
-              stores no IP addresses or other personal data. For each visit it
-              records the page address, the site the visitor came from, the
-              browser, the screen size, and the country and region. Search words
-              are never sent. Copy link and Cite are counted when used, without
-              the text copied.
+              The site counts visits with{' '}
+              <a
+                href={ANALYTICS_SITE_URL}
+                className={LINK_CLASS_NAME}
+                target="_blank"
+                rel="noreferrer"
+              >
+                GoatCounter
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+              . It sets no cookies and stores no IP addresses or other personal
+              data. For each visit it records the page address, the site the
+              visitor came from, the browser, the screen size, and the country
+              and region. Search words are never sent. Copy link and Cite are
+              counted when used, without the text copied.
             </p>
           </section>
         )}
