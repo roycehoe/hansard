@@ -526,9 +526,9 @@ export const Route = createFileRoute('/coverage/methods')({
             Citing and linking
           </h2>
           <p>
-            Copied citations have no column number, because the archive does not
-            hold column numbers. A court document needs one. Find the passage in
-            the{' '}
+            Copied citations have no column number. The site shows a column
+            number beside a speech only where the record prints one. A court
+            document needs one. Find the passage in the{' '}
             <a
               href={OFFICIAL_RECORD_SEARCH_URL}
               className={LINK_CLASS_NAME}
