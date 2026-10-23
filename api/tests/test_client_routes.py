@@ -18,13 +18,15 @@ _URL_SEPARATOR = "/"
 
 def _get_static_route_paths() -> list[str]:
     paths = []
-    for route_file in sorted(_ROUTES_PATH.glob("*.tsx")):
-        stem = route_file.stem
+    for route_file in sorted(_ROUTES_PATH.rglob("*.tsx")):
+        stem = route_file.relative_to(_ROUTES_PATH).with_suffix("").as_posix()
         if stem == _ROOT_ROUTE_STEM or _DYNAMIC_SEGMENT_MARK in stem:
             continue
         segments = [
             segment
-            for segment in stem.split(_STEM_SEPARATOR)
+            for segment in stem.replace(_URL_SEPARATOR, _STEM_SEPARATOR).split(
+                _STEM_SEPARATOR
+            )
             if segment != _INDEX_SEGMENT
         ]
         paths.append(_URL_SEPARATOR + _URL_SEPARATOR.join(segments))
@@ -39,6 +41,10 @@ def frontend_client(tmp_path: Path) -> TestClient:
             routes=[Mount("/", frontend.FrontendFiles(tmp_path, None), name="frontend")]
         )
     )
+
+
+def test_the_routes_folder_has_static_routes() -> None:
+    assert _get_static_route_paths()
 
 
 @pytest.mark.parametrize("path", _get_static_route_paths())
