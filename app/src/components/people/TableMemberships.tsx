@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/table'
 import { formatParliament } from '@/lib/format'
 import { getMembershipToPartyNote } from '@/lib/utils'
+import { Link } from '@tanstack/react-router'
+import { Fragment } from 'react'
 
 interface TableMembershipsProps {
   memberships: PersonMembershipData[]
@@ -52,7 +54,18 @@ export function TableMemberships({ memberships }: TableMembershipsProps) {
                 />
               </TableCell>
               <TableCell className="whitespace-normal">
-                {membership.constituencies.join(', ')}
+                {membership.constituencies.map((constituency, index) => (
+                  <Fragment key={constituency}>
+                    {index > 0 && ', '}
+                    <Link
+                      to="/search"
+                      search={{ constituency }}
+                      className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                      {constituency}
+                    </Link>
+                  </Fragment>
+                ))}
               </TableCell>
             </TableRow>
           ))}

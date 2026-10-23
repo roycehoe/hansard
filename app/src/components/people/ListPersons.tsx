@@ -72,10 +72,16 @@ export function ListPersons({
                     {membership.constituencies.map((constituency) => (
                       <Fragment key={constituency}>
                         {', '}
-                        <TextHighlighted
-                          text={constituency}
-                          pattern={constituencyPattern}
-                        />
+                        <Link
+                          to="/search"
+                          search={{ constituency }}
+                          className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                        >
+                          <TextHighlighted
+                            text={constituency}
+                            pattern={constituencyPattern}
+                          />
+                        </Link>
                       </Fragment>
                     ))}
                     {`, ${membership.party}`}
