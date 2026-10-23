@@ -71,7 +71,7 @@ jobs:
       branch: master
       deploy_on_push: false
     dockerfile_path: Dockerfile
-    run_command: python refresh.py
+    run_command: sh refresh.sh
     instance_size_slug: apps-s-1vcpu-2gb
     schedule:
       cron: "0 20 * * *"
