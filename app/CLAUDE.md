@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `app/` is the React frontend for Hansard, a web app for browsing Singapore Parliament Hansard records. The data lives in a Postgres database owned by a separate scraper repo. `api/` (a sibling of `app/`) is a read-only FastAPI backend that serves that data. This frontend talks only to `api/`.
 
-There are no tests, no Playwright, no Storybook and no auth.
+Tests are unit tests on the pure functions in `src/lib/`, next to the code as `<name>.test.ts`. There are no component tests, no Playwright, no Storybook and no auth.
 
 **Stack**
 
@@ -29,6 +29,7 @@ pnpm install     # install dependencies
 pnpm dev         # Vite dev server
 pnpm build       # tsc, then vite build
 pnpm lint        # ESLint
+pnpm test        # unit tests, one run
 pnpm format      # Prettier
 pnpm palette     # regenerate src/palette.css from src/palette/palette.ts
 pnpm contrast    # check the generated tokens are current and every colour pair meets WCAG AA

@@ -12,6 +12,7 @@
     "prebuild": "tsr generate",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "vitest run",
     "format": "prettier --write .",
     "palette": "node scripts/generate-palette.ts",
     "contrast": "node scripts/generate-palette.ts --check && node scripts/contrast.ts",
