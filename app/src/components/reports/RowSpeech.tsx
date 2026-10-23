@@ -3,6 +3,7 @@ import { HoverCardPerson } from '@/components/people/HoverCardPerson'
 import { ActionBarSpeechCopy } from '@/components/reports/ActionBarSpeechCopy'
 import { PopoverInferredCredit } from '@/components/reports/PopoverInferredCredit'
 import { TextTranscript } from '@/components/reports/TextTranscript'
+import { COLUMN_MARKER_APPEARANCE_CLASS_NAME } from '@/constants/appearance/constants'
 import { SPEAKER_NOT_RECORDED_LABEL } from '@/constants/reports/constants'
 import { SpeechKind, TranscriptStyle } from '@/constants/reports/enums'
 import { buildSpeechCitation } from '@/lib/citation'
@@ -19,6 +20,7 @@ interface RowSpeechProps {
   volumeNumber: number
   parliamentNumber: number
   officialRecordUrl: string
+  hasColumnMarkers: boolean
   highlightPattern?: RegExp
 }
 
@@ -68,6 +70,7 @@ export function RowSpeech({
   volumeNumber,
   parliamentNumber,
   officialRecordUrl,
+  hasColumnMarkers,
   highlightPattern,
 }: RowSpeechProps) {
   const hasSpeakerLabel = speech.speaker_label !== ''
@@ -140,7 +143,21 @@ export function RowSpeech({
         getRowMarginClass(speech, previousSpeechKind, isContinuation)
       )}
     >
-      <div className="max-w-[70ch] min-w-0 sm:flex-1">
+      {hasColumnMarkers && (
+        <div className="in-data-[columns=hide]:hidden sm:w-16 sm:shrink-0 sm:text-right">
+          {typeof speech.column_start === 'number' && (
+            <span
+              className={cn(
+                'text-muted-foreground text-xs leading-7 tabular-nums',
+                COLUMN_MARKER_APPEARANCE_CLASS_NAME
+              )}
+            >
+              col. {speech.column_start}
+            </span>
+          )}
+        </div>
+      )}
+      <div className="max-w-[70ch] min-w-0 in-data-[width=wide]:max-w-none sm:flex-1">
         <TextTranscript
           transcript={speech.transcript}
           label={renderSpeakerLabel()}

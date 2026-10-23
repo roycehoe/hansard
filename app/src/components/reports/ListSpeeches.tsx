@@ -73,6 +73,9 @@ export function ListSpeeches({
       ? report.speech_link.ordinal
       : null
   const highlightPattern = buildHighlightPattern(highlightWords)
+  const hasColumnMarkers = report.speeches.some(
+    (speech) => typeof speech.column_start === 'number'
+  )
 
   return (
     <section aria-labelledby="speeches-heading">
@@ -109,6 +112,7 @@ export function ListSpeeches({
             volumeNumber={report.volume_number}
             parliamentNumber={report.parliament_number}
             officialRecordUrl={report.official_record_url}
+            hasColumnMarkers={hasColumnMarkers}
             highlightPattern={highlightPattern}
           />
         </Fragment>

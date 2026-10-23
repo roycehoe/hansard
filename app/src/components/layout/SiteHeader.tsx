@@ -1,4 +1,4 @@
-import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { PopoverAppearance } from '@/components/layout/PopoverAppearance'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -71,7 +71,7 @@ export function SiteHeader() {
               <Search />
             </Button>
           </form>
-          <ThemeToggle />
+          <PopoverAppearance />
         </div>
       </div>
     </header>

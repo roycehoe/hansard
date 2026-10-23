@@ -1,4 +1,5 @@
 import { TextHighlighted } from '@/components/reports/TextHighlighted'
+import { TRANSCRIPT_APPEARANCE_CLASS_NAME } from '@/constants/appearance/constants'
 import {
   TranscriptSegmentKind,
   TranscriptStyle,
@@ -21,6 +22,11 @@ export function TextTranscript({
   highlightPattern,
 }: TextTranscriptProps) {
   const segments = parseTranscriptInline(transcript)
+
+  const isSizedByAppearance =
+    transcriptStyle === TranscriptStyle.BODY ||
+    transcriptStyle === TranscriptStyle.QUOTED ||
+    transcriptStyle === TranscriptStyle.STAGE_DIRECTION
 
   const content = (
     <>
@@ -57,7 +63,8 @@ export function TextTranscript({
           'text-muted-foreground before:bg-separator font-sans text-sm leading-5 before:mb-2 before:block before:h-px before:w-12',
         transcriptStyle === TranscriptStyle.BODY && 'text-base',
         transcriptStyle === TranscriptStyle.QUOTED &&
-          'border-separator border-l-2 pl-4 text-base'
+          'border-separator border-l-2 pl-4 text-base',
+        isSizedByAppearance && TRANSCRIPT_APPEARANCE_CLASS_NAME
       )}
     >
       {content}

@@ -16,6 +16,17 @@
             matchMedia('(prefers-color-scheme: dark)').matches)
         document.documentElement.classList.toggle('dark', isDark)
       } catch {}
+      try {
+        const appearance = JSON.parse(
+          localStorage.getItem('appearance') ?? '{}'
+        )
+        const root = document.documentElement
+        if (appearance.textSize) root.dataset.textSize = appearance.textSize
+        if (appearance.width) root.dataset.width = appearance.width
+        if (appearance.columnNumbers) {
+          root.dataset.columns = appearance.columnNumbers
+        }
+      } catch {}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

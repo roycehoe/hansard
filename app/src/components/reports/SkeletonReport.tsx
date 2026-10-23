@@ -20,7 +20,7 @@ export function SkeletonReport() {
           </div>
         ))}
       </div>
-      <div className="max-w-[70ch] space-y-6">
+      <div className="max-w-[70ch] space-y-6 in-data-[width=wide]:max-w-none">
         {Array.from({ length: SPEECH_COUNT }, (_, speechIndex) => (
           <div key={speechIndex} className="space-y-2">
             <Skeleton className="h-4 w-full" />

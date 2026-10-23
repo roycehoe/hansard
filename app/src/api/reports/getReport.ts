@@ -23,6 +23,7 @@ export interface SpeechData {
   person_name: string
   is_shared_role_credit: boolean
   anchor: string
+  column_start?: number | null
 }
 
 export interface SpeechLinkData {
