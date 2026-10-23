@@ -8,7 +8,7 @@ The site only reads. Its data comes from the Postgres database that [roycehoe/ha
 
 The site is live at [hansard.fancybinary.sg](https://hansard.fancybinary.sg) and has been open to everyone since 20 October 2026.
 
-The archive covers 22 April 1955 to 7 October 2026, including the 15th Parliament. How often the site credits a speech to the wrong person, and what else is missing, is on the site's "Data quality and methods" page at `/coverage/methods`. The attribution figures, their method and the known limits of the data are in the [hansard-scraper README](https://github.com/roycehoe/hansard-scraper#how-accurate-the-speaker-links-are).
+The dates the archive covers and its counts are on the site's [coverage page](https://hansard.fancybinary.sg/coverage). How often the site credits a speech to the wrong person, and what else is missing, is on the "Data quality and methods" page at [`/coverage/methods`](https://hansard.fancybinary.sg/coverage/methods), with the attribution figures, their method and the known limits of the data.
 
 ## How it was built
 
