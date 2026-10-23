@@ -27,6 +27,7 @@ from utils.markdown_text import strip_markdown
 from utils.marked_words import get_headline_without_nested_marks
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
+from utils.speech_link import get_speech_anchor
 from utils.transcript_snippet import get_transcript_snippet
 
 _MAX_COUNTED_MATCHES = 1_000
@@ -303,6 +304,7 @@ def _get_speech_match_data(
         else "",
         person_name=person.canonical_name if person is not None else "",
         snippet=snippet,
+        anchor=get_speech_anchor(speech.transcript),
         report_match_count=report_match_count,
     )
 

@@ -19,6 +19,7 @@ class SpeechMatchData(BaseModel):
     person_slug: str
     person_name: str
     snippet: str
+    anchor: str
     report_match_count: int
 
 
