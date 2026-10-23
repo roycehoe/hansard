@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from enums import SpeechKind, SpeechLinkStatus
+from enums import ColumnNote, SpeechKind, SpeechLinkStatus
 
 
 class SpeechData(BaseModel):
@@ -16,6 +16,9 @@ class SpeechData(BaseModel):
     person_name: str
     is_shared_role_credit: bool
     anchor: str
+    column_start: Optional[int]
+    column_note: Optional[ColumnNote]
+    column_suggested: Optional[int]
 
 
 class SpeechLinkData(BaseModel):

@@ -65,6 +65,9 @@ def _get_speech_data(
             person_name="",
             is_shared_role_credit=False,
             anchor=anchor,
+            column_start=speech.column_start,
+            column_note=speech.column_note,
+            column_suggested=speech.column_suggested,
         )
     return SpeechData(
         ordinal=speech.ordinal,
@@ -76,6 +79,9 @@ def _get_speech_data(
         person_name=person.canonical_name,
         is_shared_role_credit=is_shared_role_speaker_label(speech.speaker or ""),
         anchor=anchor,
+        column_start=speech.column_start,
+        column_note=speech.column_note,
+        column_suggested=speech.column_suggested,
     )
 
 

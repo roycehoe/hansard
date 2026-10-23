@@ -40,6 +40,12 @@ export enum SpeechKind {
   UNCLASSIFIED = 'UNCLASSIFIED',
 }
 
+export enum ColumnNote {
+  LIKELY_MISPRINT = 'LIKELY_MISPRINT',
+  SPEAKER_NAMED_IN_COLUMN_BEFORE = 'SPEAKER_NAMED_IN_COLUMN_BEFORE',
+  PRINTED_WITH_L_FOR_1 = 'PRINTED_WITH_L_FOR_1',
+}
+
 export enum SpeechLinkStatus {
   FOUND = 'found',
   MOVED = 'moved',

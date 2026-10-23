@@ -1,5 +1,6 @@
 import { apiGet } from '@/api/client'
 import type {
+  ColumnNote,
   ReportType,
   SpeechKind,
   SpeechLinkStatus,
@@ -23,7 +24,9 @@ export interface SpeechData {
   person_name: string
   is_shared_role_credit: boolean
   anchor: string
-  column_start?: number | null
+  column_start: number | null
+  column_note: ColumnNote | null
+  column_suggested: number | null
 }
 
 export interface SpeechLinkData {
