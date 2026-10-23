@@ -23,12 +23,20 @@ function isHighlightableWord(word: string): boolean {
 }
 
 export function parseHighlightTerms(query: string): string[] {
+  let isNextTermExcluded = false
   const terms = Array.from(query.matchAll(HIGHLIGHT_TERM_PATTERN)).flatMap(
     ([token, excludedPrefix, quotedWords]) => {
-      if (quotedWords === undefined) {
-        return isHighlightableWord(token) ? [token] : []
+      const isExcluded =
+        isNextTermExcluded || excludedPrefix === EXCLUDED_WORD_PREFIX
+      if (quotedWords === undefined && token === EXCLUDED_WORD_PREFIX) {
+        isNextTermExcluded = true
+        return []
       }
-      if (excludedPrefix === EXCLUDED_WORD_PREFIX) return []
+      isNextTermExcluded = false
+      if (quotedWords === undefined) {
+        return !isExcluded && isHighlightableWord(token) ? [token] : []
+      }
+      if (isExcluded) return []
       return quotedWords
         .split(/\s+/)
         .filter(isHighlightableWord)
