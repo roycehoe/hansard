@@ -1,11 +1,6 @@
-from collections.abc import Generator
-from contextlib import contextmanager
 from datetime import date
-from threading import BoundedSemaphore
 from typing import Optional
 
-from psycopg.errors import QueryCanceled
-from sqlalchemy.exc import OperationalError
 from sqlmodel import Session
 
 from crud.membership import CRUDMembership
@@ -16,8 +11,8 @@ from database.report import Report
 from database.speech import Speech
 from enums import ReportType, SearchSort
 from exceptions.report import ReportNotFoundException
-from exceptions.search import SearchBusyException, SearchTimedOutException
 from middleware.membership import get_membership_id_to_person
+from middleware.search_slot import hold_search_slot
 from middleware.takedown import (
     get_taken_down_report_id_candidates,
     is_report_id_taken_down,
@@ -36,19 +31,6 @@ from utils.transcript_snippet import get_transcript_snippet
 
 _MAX_COUNTED_MATCHES = 1_000
 MAX_SEARCH_PAGE = 50
-_MAX_RUNNING_SEARCHES = 3
-
-_search_slots = BoundedSemaphore(_MAX_RUNNING_SEARCHES)
-
-
-@contextmanager
-def _hold_search_slot() -> Generator[None, None, None]:
-    if not _search_slots.acquire(blocking=False):
-        raise SearchBusyException
-    try:
-        yield
-    finally:
-        _search_slots.release()
 
 
 def _get_membership_ids(
@@ -85,7 +67,7 @@ def _get_report_ids(
     return [_get_validated_report(report_slug, session).id]
 
 
-def _get_validated_speeches(
+def _get_speeches(
     query: str,
     parliament_number: Optional[int],
     date_from: Optional[date],
@@ -99,22 +81,9 @@ def _get_validated_speeches(
     offset: int,
     session: Session,
 ) -> list[Speech]:
-    try:
-        if query.strip() == "":
-            if membership_ids is None:
-                return CRUDSpeech(session).get_all_filtered(
-                    parliament_number,
-                    date_from,
-                    date_to,
-                    report_type,
-                    excluded_report_ids,
-                    report_ids,
-                    sort,
-                    limit,
-                    offset,
-                )
-            return CRUDSpeech(session).get_all_by_membership_ids_filtered(
-                membership_ids,
+    if query.strip() == "":
+        if membership_ids is None:
+            return CRUDSpeech(session).get_all_filtered(
                 parliament_number,
                 date_from,
                 date_to,
@@ -125,26 +94,34 @@ def _get_validated_speeches(
                 limit,
                 offset,
             )
-        return CRUDSpeech(session).get_all_by_query_filtered(
-            query,
+        return CRUDSpeech(session).get_all_by_membership_ids_filtered(
+            membership_ids,
             parliament_number,
             date_from,
             date_to,
             report_type,
-            membership_ids,
             excluded_report_ids,
             report_ids,
             sort,
             limit,
             offset,
         )
-    except OperationalError as error:
-        if isinstance(error.orig, QueryCanceled):
-            raise SearchTimedOutException
-        raise
+    return CRUDSpeech(session).get_all_by_query_filtered(
+        query,
+        parliament_number,
+        date_from,
+        date_to,
+        report_type,
+        membership_ids,
+        excluded_report_ids,
+        report_ids,
+        sort,
+        limit,
+        offset,
+    )
 
 
-def _get_validated_reports(
+def _get_reports(
     query: str,
     parliament_number: Optional[int],
     date_from: Optional[date],
@@ -157,21 +134,8 @@ def _get_validated_reports(
     offset: int,
     session: Session,
 ) -> list[Report]:
-    try:
-        if query.strip() == "":
-            return CRUDReport(session).get_all_filtered(
-                parliament_number,
-                date_from,
-                date_to,
-                report_type,
-                is_text_available,
-                excluded_report_ids,
-                sort,
-                limit,
-                offset,
-            )
-        return CRUDReport(session).get_all_by_title_query_filtered(
-            query,
+    if query.strip() == "":
+        return CRUDReport(session).get_all_filtered(
             parliament_number,
             date_from,
             date_to,
@@ -182,13 +146,21 @@ def _get_validated_reports(
             limit,
             offset,
         )
-    except OperationalError as error:
-        if isinstance(error.orig, QueryCanceled):
-            raise SearchTimedOutException
-        raise
+    return CRUDReport(session).get_all_by_title_query_filtered(
+        query,
+        parliament_number,
+        date_from,
+        date_to,
+        report_type,
+        is_text_available,
+        excluded_report_ids,
+        sort,
+        limit,
+        offset,
+    )
 
 
-def _get_validated_speech_match_count(
+def _get_speech_match_count(
     query: str,
     parliament_number: Optional[int],
     date_from: Optional[date],
@@ -199,20 +171,9 @@ def _get_validated_speech_match_count(
     report_ids: Optional[list[int]],
     session: Session,
 ) -> int:
-    try:
-        if query.strip() == "":
-            if membership_ids is None:
-                return CRUDSpeech(session).get_count_filtered(
-                    parliament_number,
-                    date_from,
-                    date_to,
-                    report_type,
-                    excluded_report_ids,
-                    report_ids,
-                    _MAX_COUNTED_MATCHES + 1,
-                )
-            return CRUDSpeech(session).get_count_by_membership_ids_filtered(
-                membership_ids,
+    if query.strip() == "":
+        if membership_ids is None:
+            return CRUDSpeech(session).get_count_filtered(
                 parliament_number,
                 date_from,
                 date_to,
@@ -221,24 +182,30 @@ def _get_validated_speech_match_count(
                 report_ids,
                 _MAX_COUNTED_MATCHES + 1,
             )
-        return CRUDSpeech(session).get_count_by_query_filtered(
-            query,
+        return CRUDSpeech(session).get_count_by_membership_ids_filtered(
+            membership_ids,
             parliament_number,
             date_from,
             date_to,
             report_type,
-            membership_ids,
             excluded_report_ids,
             report_ids,
             _MAX_COUNTED_MATCHES + 1,
         )
-    except OperationalError as error:
-        if isinstance(error.orig, QueryCanceled):
-            raise SearchTimedOutException
-        raise
+    return CRUDSpeech(session).get_count_by_query_filtered(
+        query,
+        parliament_number,
+        date_from,
+        date_to,
+        report_type,
+        membership_ids,
+        excluded_report_ids,
+        report_ids,
+        _MAX_COUNTED_MATCHES + 1,
+    )
 
 
-def _get_validated_report_match_count(
+def _get_report_match_count(
     query: str,
     parliament_number: Optional[int],
     date_from: Optional[date],
@@ -248,19 +215,8 @@ def _get_validated_report_match_count(
     excluded_report_ids: list[int],
     session: Session,
 ) -> int:
-    try:
-        if query.strip() == "":
-            return CRUDReport(session).get_count_filtered(
-                parliament_number,
-                date_from,
-                date_to,
-                report_type,
-                is_text_available,
-                excluded_report_ids,
-                _MAX_COUNTED_MATCHES + 1,
-            )
-        return CRUDReport(session).get_count_by_title_query_filtered(
-            query,
+    if query.strip() == "":
+        return CRUDReport(session).get_count_filtered(
             parliament_number,
             date_from,
             date_to,
@@ -269,13 +225,19 @@ def _get_validated_report_match_count(
             excluded_report_ids,
             _MAX_COUNTED_MATCHES + 1,
         )
-    except OperationalError as error:
-        if isinstance(error.orig, QueryCanceled):
-            raise SearchTimedOutException
-        raise
+    return CRUDReport(session).get_count_by_title_query_filtered(
+        query,
+        parliament_number,
+        date_from,
+        date_to,
+        report_type,
+        is_text_available,
+        excluded_report_ids,
+        _MAX_COUNTED_MATCHES + 1,
+    )
 
 
-def _get_validated_report_id_to_speech_match_count(
+def _get_report_id_to_speech_match_count(
     query: str,
     parliament_number: Optional[int],
     date_from: Optional[date],
@@ -286,21 +248,9 @@ def _get_validated_report_id_to_speech_match_count(
     report_ids: list[int],
     session: Session,
 ) -> dict[int, int]:
-    try:
-        if query.strip() == "":
-            if membership_ids is None:
-                return CRUDSpeech(session).get_report_id_to_speech_count_filtered(
-                    parliament_number,
-                    date_from,
-                    date_to,
-                    report_type,
-                    excluded_report_ids,
-                    report_ids,
-                )
-            return CRUDSpeech(
-                session
-            ).get_report_id_to_speech_count_by_membership_ids_filtered(
-                membership_ids,
+    if query.strip() == "":
+        if membership_ids is None:
+            return CRUDSpeech(session).get_report_id_to_speech_count_filtered(
                 parliament_number,
                 date_from,
                 date_to,
@@ -308,20 +258,27 @@ def _get_validated_report_id_to_speech_match_count(
                 excluded_report_ids,
                 report_ids,
             )
-        return CRUDSpeech(session).get_report_id_to_speech_count_by_query_filtered(
-            query,
+        return CRUDSpeech(
+            session
+        ).get_report_id_to_speech_count_by_membership_ids_filtered(
+            membership_ids,
             parliament_number,
             date_from,
             date_to,
             report_type,
-            membership_ids,
             excluded_report_ids,
             report_ids,
         )
-    except OperationalError as error:
-        if isinstance(error.orig, QueryCanceled):
-            raise SearchTimedOutException
-        raise
+    return CRUDSpeech(session).get_report_id_to_speech_count_by_query_filtered(
+        query,
+        parliament_number,
+        date_from,
+        date_to,
+        report_type,
+        membership_ids,
+        excluded_report_ids,
+        report_ids,
+    )
 
 
 def _get_speech_match_data(
@@ -363,11 +320,11 @@ def search_speeches(
     page_size: int,
     session: Session,
 ) -> SearchSpeechesResponse:
-    with _hold_search_slot():
+    with hold_search_slot():
         membership_ids = _get_membership_ids(person_id, session)
         excluded_report_ids = _get_taken_down_report_ids(session)
         report_ids = _get_report_ids(report_slug, session)
-        speeches = _get_validated_speeches(
+        speeches = _get_speeches(
             query,
             parliament_number,
             date_from,
@@ -384,7 +341,7 @@ def search_speeches(
         match_count = (
             len(speeches)
             if page == 1 and len(speeches) <= page_size
-            else _get_validated_speech_match_count(
+            else _get_speech_match_count(
                 query,
                 parliament_number,
                 date_from,
@@ -423,7 +380,7 @@ def search_speeches(
             )
             if not is_report_id_taken_down(report.report_id)
         }
-        report_id_to_match_count = _get_validated_report_id_to_speech_match_count(
+        report_id_to_match_count = _get_report_id_to_speech_match_count(
             query,
             parliament_number,
             date_from,
@@ -477,9 +434,9 @@ def search_reports(
     page_size: int,
     session: Session,
 ) -> SearchReportsResponse:
-    with _hold_search_slot():
+    with hold_search_slot():
         excluded_report_ids = _get_taken_down_report_ids(session)
-        reports = _get_validated_reports(
+        reports = _get_reports(
             query,
             parliament_number,
             date_from,
@@ -495,7 +452,7 @@ def search_reports(
         match_count = (
             len(reports)
             if page == 1 and len(reports) <= page_size
-            else _get_validated_report_match_count(
+            else _get_report_match_count(
                 query,
                 parliament_number,
                 date_from,
