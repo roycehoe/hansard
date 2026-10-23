@@ -152,6 +152,9 @@ export const Route = createFileRoute('/reports/$reportSlug')({
                 data.volume_number,
                 data.parliament_number
               )}
+              reportTitle={data.title}
+              reportSlug={data.report_slug}
+              officialRecordUrl={data.official_record_url}
             />
           }
         />

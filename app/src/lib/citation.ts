@@ -16,7 +16,8 @@ const OFFICE_LABEL_PREFIX = 'The '
 const NAME_BRACKET_TITLE =
   /^(?:Mr|Mrs|Ms|Miss|Mdm|Madam|Dr|Prof|Assoc|Er|BG|RAdm|LG|Col|LTC|MG|Cdre|Encik|Inche|Haji|Hajjah|Tuan|Tun|Dato|Datuk|Sir|Rev|Capt|Maj|Cdr|Lt)[ .]/
 const ACTING_FOR_BRACKET = /^(?:for(?:the)?|on behalf of)\b/i
-const PRESIDING_OFFICE = /^(?:(?:Mr|Madam|Mdm) )?(?:Deputy )?(?:Speaker|Chairman)$/
+const PRESIDING_OFFICE =
+  /^(?:(?:Mr|Madam|Mdm) )?(?:Deputy )?(?:Speaker|Chairman)$/
 const NAME_DOT = /\./g
 const PARLIAMENT_CITATION_TITLE =
   'Singapore Parliamentary Debates, Official Report'
@@ -143,12 +144,20 @@ export function buildReportCitation(
   return `${getCitationTitle(parliamentNumber)} (${formatSittingDate(sittingDate)}) vol ${volumeNumber}`
 }
 
+export function buildReportPermalink(reportSlug: string): string {
+  return `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}`
+}
+
+export function buildPagePermalink(path: string): string {
+  return `${window.location.origin}${path}`
+}
+
 export function buildSpeechPermalink(
   reportSlug: string,
   ordinal: number,
   anchor: string
 ): string {
-  const reportUrl = `${window.location.origin}/reports/${encodeURIComponent(reportSlug)}`
+  const reportUrl = buildReportPermalink(reportSlug)
   if (anchor === '') return `${reportUrl}#s${ordinal}`
   const searchParams = new URLSearchParams({ s: String(ordinal), q: anchor })
   return `${reportUrl}?${searchParams.toString()}`
@@ -174,4 +183,14 @@ export function buildSpeechCite(
   retrievedOn: string
 ): string {
   return `"${reportTitle}", ${speechCitation}. Retrieved from ${permalink} on ${retrievedOn}. Original: ${officialRecordUrl}`
+}
+
+export function buildReportCite(
+  reportCitation: string,
+  reportTitle: string,
+  reportSlug: string,
+  officialRecordUrl: string,
+  retrievedOn: string
+): string {
+  return `"${reportTitle}", ${reportCitation}. Retrieved from ${buildReportPermalink(reportSlug)} on ${retrievedOn}. Original: ${officialRecordUrl}`
 }
