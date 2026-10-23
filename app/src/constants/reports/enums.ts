@@ -49,6 +49,8 @@ export enum SpeechLinkStatus {
 export enum TranscriptStyle {
   BODY = 'body',
   MUTED = 'muted',
+  STAGE_DIRECTION = 'stage-direction',
+  FOOTNOTE = 'footnote',
   QUOTED = 'quoted',
   HEADING = 'heading',
 }

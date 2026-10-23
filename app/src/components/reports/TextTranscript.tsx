@@ -51,6 +51,10 @@ export function TextTranscript({
         'font-serif leading-7',
         transcriptStyle === TranscriptStyle.MUTED &&
           'text-muted-foreground text-sm italic',
+        transcriptStyle === TranscriptStyle.STAGE_DIRECTION &&
+          'text-muted-foreground pl-12 text-base italic',
+        transcriptStyle === TranscriptStyle.FOOTNOTE &&
+          'text-muted-foreground before:bg-separator font-sans text-sm leading-5 before:mb-2 before:block before:h-px before:w-12',
         transcriptStyle === TranscriptStyle.BODY && 'text-base',
         transcriptStyle === TranscriptStyle.QUOTED &&
           'border-separator border-l-2 pl-4 text-base'

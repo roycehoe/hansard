@@ -27,8 +27,9 @@ function getTranscriptStyle(speech: SpeechData): TranscriptStyle {
       return TranscriptStyle.BODY
     case SpeechKind.PROCEDURAL:
     case SpeechKind.CHAMBER_EVENT:
+      return TranscriptStyle.STAGE_DIRECTION
     case SpeechKind.EDITORIAL_NOTE:
-      return TranscriptStyle.MUTED
+      return TranscriptStyle.FOOTNOTE
     case SpeechKind.DOCUMENT_TEXT:
       return TranscriptStyle.QUOTED
     case SpeechKind.HEADING:
