@@ -43,6 +43,76 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run pytest -m "not database"
 
+  schema-drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: hansard_launch
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U user -d hansard_launch"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: roycehoe/hansard-scraper
+          ref: master
+          path: scraper
+      - name: Install the rum extension into the database container
+        run: docker exec ${{ job.services.postgres.id }} sh -c "apt-get update && apt-get install -y --no-install-recommends postgresql-17-rum"
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Install the psycopg2 build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev gcc
+      - name: Install Poetry
+        run: pipx install poetry==2.4.1
+      - name: Install the scraper dependencies
+        working-directory: scraper
+        run: poetry install --no-root --no-interaction
+      - name: Create the scraper tables from its models
+        working-directory: scraper
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5435/hansard_launch
+        run: |
+          poetry run python -c "
+          import os
+          from sqlalchemy import create_engine, text
+          from sqlmodel import SQLModel
+          import database.attendance
+          import database.hansard_sitting_date_response
+          import database.hansard_website_response
+          import database.party_affiliation
+          import database.person
+          import database.refresh_run
+          import database.report
+          import database.sitting
+          import database.speaker
+          import database.speech
+          engine = create_engine(os.environ['DATABASE_URL'])
+          with engine.begin() as connection:
+              connection.execute(text('CREATE EXTENSION IF NOT EXISTS rum'))
+          SQLModel.metadata.create_all(engine)
+          "
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          version: "0.13.0"
+      - name: Install the API dependencies
+        working-directory: api
+        run: uv sync --frozen
+      - name: Select every column the API models declare
+        working-directory: api
+        run: uv run pytest -m schema_drift
+
   deploy:
     needs: [app, api]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
