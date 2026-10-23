@@ -21,11 +21,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { FILTER_ALL } from '@/constants/constants'
+import { FILTER_ALL, PHONE_MEDIA_QUERY } from '@/constants/constants'
 import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
-  PHONE_MEDIA_QUERY,
   SEARCH_FORM_ID,
   SEARCH_SORT_DROPDOWN_OPTIONS,
   SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS,

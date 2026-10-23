@@ -25,6 +25,8 @@ export const NUMBER_LOCALE = 'en-SG'
 
 export const FILTER_ALL = 'all'
 
+export const PHONE_MEDIA_QUERY = '(width < 32rem)'
+
 export const LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 
 export const LEGISLATIVE_ASSEMBLY_LABEL = 'Legislative Assembly'

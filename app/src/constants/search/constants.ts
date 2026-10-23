@@ -6,8 +6,6 @@ export const SEARCH_SORT_DROPDOWN_OPTIONS = [
   { value: SearchSort.OLDEST, label: 'Oldest first' },
 ]
 
-export const PHONE_MEDIA_QUERY = '(width < 32rem)'
-
 export const SEARCH_FORM_ID = 'search-form'
 
 export const SEARCH_WORDS_MAX_LENGTH = 200
