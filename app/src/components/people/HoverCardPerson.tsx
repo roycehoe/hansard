@@ -21,6 +21,8 @@ const CLOSE_DELAY_MS = 150
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
+const SKELETON_VALUE_CLASS_NAME = 'flex h-5 items-center'
+
 interface HoverCardPersonProps {
   children: ReactNode
   personId: number
@@ -53,12 +55,7 @@ function CardPersonSummary({ personId, personSlug }: CardPersonSummaryProps) {
 
   if (person.isLoading) {
     return (
-      <div className="space-y-3">
-        <Skeleton className="h-5 w-40" />
-        <Skeleton className="h-4 w-48" />
-        <Skeleton className="h-4 w-36" />
-        <Skeleton className="h-4 w-52" />
-      </div>
+      <SkeletonCardPersonSummary personId={personId} personSlug={personSlug} />
     )
   }
   if (person.isLoadingError || !person.data) {
@@ -106,6 +103,14 @@ function CardPersonSummary({ personId, personSlug }: CardPersonSummaryProps) {
         )}
         <dt className="text-muted-foreground">Speeches</dt>
         <dd>{speechCount.toLocaleString(NUMBER_LOCALE)}</dd>
+        {reports.isLoading && (
+          <>
+            <dt className="text-muted-foreground">Last spoke</dt>
+            <dd className={SKELETON_VALUE_CLASS_NAME}>
+              <Skeleton className="h-3.5 w-28" />
+            </dd>
+          </>
+        )}
         {latestReport !== undefined && (
           <>
             <dt className="text-muted-foreground">Last spoke</dt>
@@ -113,22 +118,62 @@ function CardPersonSummary({ personId, personSlug }: CardPersonSummaryProps) {
           </>
         )}
       </dl>
-      <div className="border-separator flex flex-wrap gap-x-4 gap-y-1 border-t pt-2">
-        <Link
-          to="/people/$personSlug"
-          params={{ personSlug: `${personId}-${personSlug}` }}
-          className={LINK_CLASS_NAME}
-        >
-          View profile
-        </Link>
-        <Link
-          to="/search"
-          search={{ person: personId }}
-          className={LINK_CLASS_NAME}
-        >
-          Search this person's speeches
-        </Link>
-      </div>
+      <ActionBarPerson personId={personId} personSlug={personSlug} />
+    </div>
+  )
+}
+
+function SkeletonCardPersonSummary({
+  personId,
+  personSlug,
+}: CardPersonSummaryProps) {
+  return (
+    <div className="space-y-3 text-sm">
+      <Skeleton className="my-0.5 h-5 w-44" />
+      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
+        <dt className="text-muted-foreground">Party</dt>
+        <dd className={SKELETON_VALUE_CLASS_NAME}>
+          <Skeleton className="h-3.5 w-34" />
+        </dd>
+        <dt className="text-muted-foreground">Seat</dt>
+        <dd className={SKELETON_VALUE_CLASS_NAME}>
+          <Skeleton className="h-3.5 w-22" />
+        </dd>
+        <dt className="text-muted-foreground">Served</dt>
+        <dd className={SKELETON_VALUE_CLASS_NAME}>
+          <Skeleton className="h-3.5 w-38" />
+        </dd>
+        <dt className="text-muted-foreground">Speeches</dt>
+        <dd className={SKELETON_VALUE_CLASS_NAME}>
+          <Skeleton className="h-3.5 w-12" />
+        </dd>
+        <dt className="text-muted-foreground">Last spoke</dt>
+        <dd className={SKELETON_VALUE_CLASS_NAME}>
+          <Skeleton className="h-3.5 w-28" />
+        </dd>
+      </dl>
+      <ActionBarPerson personId={personId} personSlug={personSlug} />
+    </div>
+  )
+}
+
+function ActionBarPerson({ personId, personSlug }: CardPersonSummaryProps) {
+  return (
+    <div className="border-separator flex flex-wrap gap-x-4 gap-y-1 border-t pt-2">
+      <Link
+        to="/people/$personSlug"
+        params={{ personSlug: `${personId}-${personSlug}` }}
+        className={LINK_CLASS_NAME}
+      >
+        View profile
+      </Link>
+      <Link
+        to="/search"
+        search={{ person: personId }}
+        className={LINK_CLASS_NAME}
+      >
+        Search this person's speeches
+      </Link>
     </div>
   )
 }
