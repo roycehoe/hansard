@@ -54,6 +54,7 @@ const formSchema = z
     from: z.string(),
     to: z.string(),
     person: z.number().int().min(1).nullable(),
+    constituency: z.string(),
     sort: z.enum(SearchSort),
   })
   .refine(
@@ -63,7 +64,8 @@ const formSchema = z
       values.type !== FILTER_ALL ||
       values.from !== '' ||
       values.to !== '' ||
-      values.person !== null,
+      values.person !== null ||
+      values.constituency.trim() !== '',
     { error: 'Enter search words or choose a filter.', path: ['q'] }
   )
 
@@ -74,6 +76,7 @@ function countActiveFilters(values: FormSearchValues): number {
     values.from !== '',
     values.to !== '',
     values.person !== null,
+    values.constituency.trim() !== '',
   ].filter(Boolean).length
 }
 
@@ -215,6 +218,25 @@ export function FormSearch({
       </div>
     )
   }
+
+  const constituencyHintId = 'search-constituency-hint'
+
+  const constituencyField = (
+    <div className="flex w-full flex-col gap-2 md:w-56">
+      <div className="flex h-6 items-center">
+        <Label htmlFor="search-constituency">Constituency</Label>
+      </div>
+      <Input
+        id="search-constituency"
+        type="search"
+        aria-describedby={constituencyHintId}
+        {...register('constituency')}
+      />
+      <p id={constituencyHintId} className="text-muted-foreground text-sm">
+        Boundaries change between elections.
+      </p>
+    </div>
+  )
 
   const parliamentField = (
     <div className="flex w-full flex-col gap-2 sm:w-72">
@@ -377,6 +399,7 @@ export function FormSearch({
                 </SheetHeader>
                 <div className="flex flex-col gap-4 overflow-y-auto px-4">
                   {renderPersonField(choosePersonInSheet)}
+                  {constituencyField}
                   {parliamentField}
                   {typeField}
                   {fromField}
@@ -397,6 +420,7 @@ export function FormSearch({
           <div className="flex w-full flex-col gap-4 md:flex-row md:items-start">
             {wordsField}
             {renderPersonField(choosePerson)}
+            {constituencyField}
           </div>
           {parliamentField}
           {typeField}

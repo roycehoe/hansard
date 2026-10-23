@@ -6,7 +6,10 @@ import {
   HTTP_GATEWAY_TIMEOUT,
   HTTP_SERVICE_UNAVAILABLE,
 } from '@/constants/constants'
-import { LATEST_MEMBERSHIP_PARLIAMENT_NUMBER } from '@/constants/people/constants'
+import {
+  CONSTITUENCY_SUFFIX_WORDS,
+  LATEST_MEMBERSHIP_PARLIAMENT_NUMBER,
+} from '@/constants/people/constants'
 import { TEXTLESS_ASSENT_FIRST_SITTING } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
@@ -111,6 +114,15 @@ export function isEveryWordMatched(
   return searchWords.every((searchWord) =>
     textWords.some((textWord) => textWord.startsWith(searchWord))
   )
+}
+
+export function removeConstituencySuffix(constituency: string): string {
+  const words = constituency.trim().split(/\s+/)
+  const lastWord = words[words.length - 1].toLowerCase()
+  if (words.length === 1 || !CONSTITUENCY_SUFFIX_WORDS.has(lastWord)) {
+    return words.join(' ')
+  }
+  return words.slice(0, -1).join(' ')
 }
 
 export function getSortWithoutWords(sort: SearchSort | undefined): SearchSort {

@@ -11,6 +11,7 @@ export interface GetSearchSpeechesRequest {
   date_to?: string
   report_type?: ReportType
   person_id?: number
+  constituency?: string
   sort?: SearchSort
 }
 
@@ -56,6 +57,7 @@ async function getSearchSpeechesResponse(
       date_to: request.date_to,
       report_type: request.report_type,
       person_id: request.person_id,
+      constituency: request.constituency,
       sort: request.sort,
       page,
     })}`
@@ -75,6 +77,7 @@ export function useGetSearchSpeeches(
       request?.date_to,
       request?.report_type,
       request?.person_id,
+      request?.constituency,
       request?.sort,
     ],
     placeholderData: keepPreviousData,

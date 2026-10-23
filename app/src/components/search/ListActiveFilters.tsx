@@ -12,7 +12,8 @@ import { useRef } from 'react'
 
 const PERSON_NAME_FALLBACK = 'this person'
 
-type FilterKey = 'parliament' | 'type' | 'from' | 'to' | 'person'
+type FilterKey =
+  'parliament' | 'type' | 'from' | 'to' | 'person' | 'constituency'
 
 interface ActiveFilter {
   key: FilterKey
@@ -25,7 +26,9 @@ interface ListActiveFiltersProps {
 
 export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
   const navigate = useNavigate()
-  const { parliament, type, from, to, person } = useSearch({ from: '/search' })
+  const { parliament, type, from, to, person, constituency } = useSearch({
+    from: '/search',
+  })
   const { data: personDetail } = useGetPerson({ person_id: person ?? 0 })
   const removeButtons = useRef<Map<FilterKey, HTMLButtonElement>>(new Map())
 
@@ -46,6 +49,12 @@ export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
     filters.push({
       key: 'person',
       label: `Person: ${personDetail?.canonical_name ?? PERSON_NAME_FALLBACK}`,
+    })
+  }
+  if (constituency !== undefined) {
+    filters.push({
+      key: 'constituency',
+      label: `Constituency: ${constituency}`,
     })
   }
 

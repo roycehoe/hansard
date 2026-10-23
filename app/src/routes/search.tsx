@@ -51,17 +51,22 @@ import {
   getSortWithoutWords,
   isSearchTimedOutError,
   mapFilterToSearchValue,
+  removeConstituencySuffix,
 } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 
 function getSpeechesHeading(
   hasWords: boolean,
-  personName: string | undefined
+  personName: string | undefined,
+  constituency: string | undefined
 ): string {
   if (hasWords) return SPEECH_MATCHES_HEADING
-  if (personName === undefined) return SPEECHES_HEADING
-  return `${SPEECHES_HEADING} by ${personName}`
+  if (personName !== undefined) return `${SPEECHES_HEADING} by ${personName}`
+  if (constituency !== undefined) {
+    return `${SPEECHES_HEADING} by members for ${constituency}`
+  }
+  return SPEECHES_HEADING
 }
 
 function isSearchBusyError(error: Error | null): boolean {
@@ -75,6 +80,7 @@ const searchSearchSchema = z.object({
   to: z.iso.date().optional().catch(undefined),
   type: z.enum(ReportType).optional(),
   person: z.coerce.number().int().min(1).optional(),
+  constituency: z.string().trim().min(1).optional().catch(undefined),
   sort: z.enum(SearchSort).optional(),
   tab: z.enum(SearchTab).optional().catch(undefined),
 })
@@ -86,7 +92,7 @@ const NEXT_PAGE_SKELETON_ROW_COUNT = 3
 export const Route = createFileRoute('/search')({
   validateSearch: searchSearchSchema,
   component: function PageSearch() {
-    const { q, parliament, from, to, type, person, sort, tab } =
+    const { q, parliament, from, to, type, person, constituency, sort, tab } =
       Route.useSearch()
     const navigate = useNavigate()
     const parliaments = useGetAllParliaments()
@@ -94,23 +100,30 @@ export const Route = createFileRoute('/search')({
     const words = q?.trim() ?? ''
     const hasWords = words !== ''
     const hasPerson = person !== undefined
+    const hasConstituency = constituency !== undefined
     const hasFilter =
       parliament !== undefined ||
       !!from ||
       !!to ||
       type !== undefined ||
-      hasPerson
+      hasPerson ||
+      hasConstituency
     const isWordsTooLong = words.length > SEARCH_WORDS_MAX_LENGTH
     const canSearch = (hasWords || hasFilter) && !isWordsTooLong
-    const canSearchReports = canSearch && (hasWords || !hasPerson)
+    const canSearchReports =
+      canSearch && (hasWords || (!hasPerson && !hasConstituency))
     const resultSort = hasWords ? sort : getSortWithoutWords(sort)
     const personName = personDetail.data?.canonical_name
-    const speechesHeading = getSpeechesHeading(hasWords, personName)
+    const speechesHeading = getSpeechesHeading(
+      hasWords,
+      personName,
+      constituency
+    )
     const reportsHeading = hasWords ? TITLE_MATCHES_HEADING : REPORTS_HEADING
     useDocumentTitle(
       ...(hasWords
         ? [words, 'Search']
-        : hasPerson
+        : hasPerson || hasConstituency
           ? [speechesHeading, 'Search']
           : ['Search'])
     )
@@ -121,6 +134,10 @@ export const Route = createFileRoute('/search')({
       date_to: to,
       report_type: type,
       person_id: person,
+      constituency:
+        constituency === undefined
+          ? undefined
+          : removeConstituencySuffix(constituency),
       sort: resultSort,
     }
     const speeches = useGetSearchSpeeches(
@@ -164,6 +181,7 @@ export const Route = createFileRoute('/search')({
           to: mapFilterToSearchValue(values.to),
           type: values.type === FILTER_ALL ? undefined : values.type,
           person: values.person ?? undefined,
+          constituency: mapFilterToSearchValue(values.constituency.trim()),
           sort: values.sort,
           tab,
         },
@@ -222,6 +240,7 @@ export const Route = createFileRoute('/search')({
             from: from ?? '',
             to: to ?? '',
             person: person ?? null,
+            constituency: constituency ?? '',
             sort: sort ?? SearchSort.RELEVANCE,
           }}
           parliaments={parliaments.data.parliaments}
