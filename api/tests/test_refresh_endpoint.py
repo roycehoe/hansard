@@ -11,6 +11,7 @@ from sqlmodel import text
 
 from database.engine import engine
 from enums import RefreshRunStatus
+from services import coverage as coverage_service
 from settings import settings
 
 pytestmark = pytest.mark.database
@@ -99,9 +100,24 @@ def test_a_seeded_succeeded_run_shows_in_the_refresh_response(
     body = response.json()
     assert body["latest_sitting_date"] == "2026-10-14"
     assert body["last_checked_date"] == "2100-01-01"
-    assert body["figures"]["measured_on"] == "2100-01-01"
-    assert len(body["figures"]["groups"]) == 1
-    group = body["figures"]["groups"][0]
+    assert "figures" not in body
+    assert response.headers["cache-control"] == "public, max-age=3600"
+
+
+def test_a_seeded_succeeded_run_shows_in_the_coverage_attribution(
+    api_client: TestClient,
+    seeded_refresh_run_id: int,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(coverage_service, "_cached_coverage", None)
+
+    response = api_client.get("/coverage")
+
+    assert response.status_code == status.HTTP_200_OK
+    attribution = response.json()["attribution"]
+    assert attribution["measured_on"] == "2100-01-01"
+    assert len(attribution["groups"]) == 1
+    group = attribution["groups"][0]
     assert group["first_parliament_number"] == 0
     assert group["last_parliament_number"] == 11
     assert group["linked_row_count"] == 90
@@ -110,7 +126,6 @@ def test_a_seeded_succeeded_run_shows_in_the_refresh_response(
     assert group["named_linked_share"] == pytest.approx(0.9)
     assert group["all_linked_share"] == pytest.approx(0.45)
     assert group["text_share"] == pytest.approx(0.75)
-    assert response.headers["cache-control"] == "public, max-age=3600"
 
 
 def test_the_refresh_response_is_empty_without_a_succeeded_run(
@@ -134,5 +149,4 @@ def test_the_refresh_response_is_empty_without_a_succeeded_run(
     assert response.json() == {
         "latest_sitting_date": None,
         "last_checked_date": None,
-        "figures": None,
     }

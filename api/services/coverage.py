@@ -1,18 +1,114 @@
+from datetime import date, datetime, timezone
 from typing import Optional
 
+from psycopg.errors import InsufficientPrivilege, UndefinedTable
+from pydantic import ValidationError
+from sqlalchemy.exc import ProgrammingError
 from sqlmodel import Session
 
 from crud.attendance import CRUDAttendance
 from crud.membership import CRUDMembership
 from crud.person import CRUDPerson
+from crud.refresh_run import CRUDRefreshRun
 from crud.report import CRUDReport
 from crud.sitting import CRUDSitting
 from crud.speech import CRUDSpeech
-from schemas.coverage import GetCoverageResponse, YearCoverageData
+from enums import RefreshRunStatus
+from schemas.coverage import (
+    AttributionFiguresData,
+    GetCoverageResponse,
+    ParliamentGroupFiguresData,
+    YearCoverageData,
+)
+from schemas.refresh import RefreshRunFiguresData, RefreshRunGroupData
+from utils.parliament_group import (
+    get_first_parliament_number,
+    get_last_parliament_number,
+)
+from utils.singapore_date import get_singapore_date
 from utils.sitting_date import get_date_from_datetime
+
+_FIGURES_JSON_TYPE = "object"
 
 # NOTE: replaced whole and never mutated, so a request thread never reads a half-written answer
 _cached_coverage: Optional[GetCoverageResponse] = None
+
+
+def _get_measured_on(measured_at: datetime) -> date:
+    if measured_at.tzinfo is None:
+        return get_singapore_date(measured_at.replace(tzinfo=timezone.utc))
+    return get_singapore_date(measured_at)
+
+
+def _get_group_data(
+    stored_group: RefreshRunGroupData,
+) -> Optional[ParliamentGroupFiguresData]:
+    first_parliament_number = get_first_parliament_number(stored_group.group)
+    if first_parliament_number is None:
+        return None
+    speaker_label_row_count = (
+        stored_group.linked_row_count + stored_group.named_unlinked_row_count
+    )
+    try:
+        return ParliamentGroupFiguresData(
+            first_parliament_number=first_parliament_number,
+            last_parliament_number=get_last_parliament_number(stored_group.group),
+            linked_row_count=stored_group.linked_row_count,
+            speaker_label_row_count=speaker_label_row_count,
+            row_count=stored_group.row_count,
+            named_linked_share=stored_group.linked_row_count / speaker_label_row_count,
+            all_linked_share=stored_group.linked_row_count / stored_group.row_count,
+            text_share=stored_group.linked_character_count
+            / stored_group.body_character_count,
+        )
+    except ZeroDivisionError:
+        return None
+
+
+# NOTE: bad figures from the scraper count as no figures, so the app falls back to its constants
+def _get_validated_stored_figures(
+    figures: Optional[dict[str, object]],
+) -> Optional[RefreshRunFiguresData]:
+    try:
+        return RefreshRunFiguresData.model_validate(figures)
+    except ValidationError:
+        return None
+
+
+def _get_attribution_data(
+    figures: Optional[dict[str, object]],
+) -> Optional[AttributionFiguresData]:
+    stored_figures = _get_validated_stored_figures(figures)
+    if stored_figures is None:
+        return None
+    groups = [
+        group_data
+        for group_data in map(_get_group_data, stored_figures.groups)
+        if group_data is not None
+    ]
+    if len(groups) == 0:
+        return None
+    return AttributionFiguresData(
+        measured_on=_get_measured_on(stored_figures.measured_at), groups=groups
+    )
+
+
+def _get_attribution(session: Session) -> Optional[AttributionFiguresData]:
+    try:
+        run_with_figures = CRUDRefreshRun(
+            session
+        ).get_latest_by_status_and_figures_type(
+            RefreshRunStatus.SUCCEEDED, _FIGURES_JSON_TYPE
+        )
+    except ProgrammingError as error:
+        if isinstance(error.orig, UndefinedTable):
+            return None
+        if isinstance(error.orig, InsufficientPrivilege):
+            return None
+        raise
+    if run_with_figures is None:
+        return None
+    return _get_attribution_data(run_with_figures.figures)
 
 
 def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
@@ -52,6 +148,8 @@ def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
             session
         ).get_max_sitting_date_with_attendance(),
         years=years,
+        # NOTE: read last, because a failed read of refresh_run leaves the session's transaction aborted
+        attribution=_get_attribution(session),
     )
 
 
