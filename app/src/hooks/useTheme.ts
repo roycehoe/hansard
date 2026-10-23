@@ -1,5 +1,6 @@
 import {
   DARK_SCHEME_MEDIA_QUERY,
+  NO_TRANSITIONS_CSS,
   THEME_STORAGE_KEY,
 } from '@/constants/appearance/constants'
 import { ColourChoice } from '@/constants/appearance/enums'
@@ -48,13 +49,23 @@ function storeColourChoice(choice: ColourChoice) {
   }
 }
 
+function toggleDarkClassWithoutTransitions(isDark: boolean) {
+  const style = document.createElement('style')
+  style.textContent = NO_TRANSITIONS_CSS
+  document.head.appendChild(style)
+  document.documentElement.classList.toggle('dark', isDark)
+  // Forces the new colours to apply while transitions are still off, so every element switches in the same frame.
+  document.body.getBoundingClientRect()
+  requestAnimationFrame(() => style.remove())
+}
+
 export function setColourChoice(choice: ColourChoice) {
   colourChoice = choice
   const isDark =
     choice === ColourChoice.DARK ||
     (choice === ColourChoice.AUTOMATIC &&
       matchMedia(DARK_SCHEME_MEDIA_QUERY).matches)
-  document.documentElement.classList.toggle('dark', isDark)
+  toggleDarkClassWithoutTransitions(isDark)
   storeColourChoice(choice)
   listeners.forEach((listener) => listener())
 }

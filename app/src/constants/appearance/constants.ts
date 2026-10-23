@@ -11,6 +11,9 @@ export const THEME_STORAGE_KEY = 'theme'
 
 export const DARK_SCHEME_MEDIA_QUERY = '(prefers-color-scheme: dark)'
 
+export const NO_TRANSITIONS_CSS =
+  '*,*::before,*::after{transition:none!important}'
+
 export const TEXT_SIZE_DROPDOWN_OPTIONS = [
   { value: TextSize.SMALL, label: 'Small' },
   { value: TextSize.STANDARD, label: 'Standard' },
