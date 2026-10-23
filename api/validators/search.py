@@ -2,7 +2,11 @@ from datetime import date
 from typing import Optional
 
 from enums import ReportType
-from exceptions.search import SearchFilterRequiredException
+from exceptions.search import (
+    SearchExcludedWordsOnlyException,
+    SearchFilterRequiredException,
+)
+from utils.search_query import is_query_only_excluded_words
 
 
 def validate_can_search_speeches(
@@ -22,6 +26,8 @@ def validate_can_search_speeches(
         and person_id is None
     ):
         raise SearchFilterRequiredException
+    if is_query_only_excluded_words(query):
+        raise SearchExcludedWordsOnlyException
 
 
 def validate_can_search_reports(
@@ -41,3 +47,5 @@ def validate_can_search_reports(
         and is_text_available is None
     ):
         raise SearchFilterRequiredException
+    if is_query_only_excluded_words(query):
+        raise SearchExcludedWordsOnlyException

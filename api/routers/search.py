@@ -14,6 +14,8 @@ _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
 _MAX_QUERY_LENGTH = 200
 _MAX_REPORT_SLUG_LENGTH = 200
+_EARLIEST_SEARCH_DATE = date(1900, 1, 1)
+_LATEST_SEARCH_DATE = date(2100, 12, 31)
 
 router = APIRouter(prefix="/search", tags=["search"])
 
@@ -22,8 +24,12 @@ router = APIRouter(prefix="/search", tags=["search"])
 def search_speeches(
     query: str = Query(default="", alias="q", max_length=_MAX_QUERY_LENGTH),
     parliament_number: Optional[int] = Query(default=None, ge=0),
-    date_from: Optional[date] = None,
-    date_to: Optional[date] = None,
+    date_from: Optional[date] = Query(
+        default=None, ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
+    ),
+    date_to: Optional[date] = Query(
+        default=None, ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
+    ),
     report_type: Optional[ReportType] = None,
     person_id: Optional[int] = Query(default=None, ge=1),
     report_slug: Optional[str] = Query(
@@ -56,8 +62,12 @@ def search_speeches(
 def search_reports(
     query: str = Query(default="", alias="q", max_length=_MAX_QUERY_LENGTH),
     parliament_number: Optional[int] = Query(default=None, ge=0),
-    date_from: Optional[date] = None,
-    date_to: Optional[date] = None,
+    date_from: Optional[date] = Query(
+        default=None, ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
+    ),
+    date_to: Optional[date] = Query(
+        default=None, ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
+    ),
     report_type: Optional[ReportType] = None,
     is_text_available: Optional[bool] = None,
     sort: SearchSort = SearchSort.RELEVANCE,

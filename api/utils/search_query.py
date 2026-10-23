@@ -39,7 +39,7 @@ def _is_group_searchable(terms: tuple[SearchQueryTerm, ...]) -> bool:
     return any(not term.is_excluded for term in terms)
 
 
-def get_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
+def _get_all_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
     groups = []
     terms = []
     is_next_term_excluded = False
@@ -75,7 +75,22 @@ def get_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
                 SearchQueryTerm(words=words, is_quoted=False, is_excluded=is_excluded)
             )
     groups.append(SearchQueryGroup(terms=tuple(terms)))
-    return tuple(group for group in groups if _is_group_searchable(group.terms))
+    return tuple(groups)
+
+
+def get_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
+    return tuple(
+        group
+        for group in _get_all_search_query_groups(query)
+        if _is_group_searchable(group.terms)
+    )
+
+
+def is_query_only_excluded_words(query: str) -> bool:
+    terms = [
+        term for group in _get_all_search_query_groups(query) for term in group.terms
+    ]
+    return terms != [] and all(term.is_excluded for term in terms)
 
 
 def is_quote_in_query(query: str) -> bool:

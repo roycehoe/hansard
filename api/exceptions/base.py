@@ -14,6 +14,7 @@ class ErrorCode(StrEnum):
     SEARCH_TIMED_OUT = "search.timed_out"
     SEARCH_FILTER_REQUIRED = "search.filter_required"
     SEARCH_BUSY = "search.busy"
+    SEARCH_EXCLUDED_WORDS_ONLY = "search.excluded_words_only"
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,6 +50,10 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ErrorCode.SEARCH_BUSY: ErrorSpec(
         status.HTTP_429_TOO_MANY_REQUESTS,
         "Search is busy. Try again in a moment.",
+    ),
+    ErrorCode.SEARCH_EXCLUDED_WORDS_ONLY: ErrorSpec(
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "The search has only excluded words.",
     ),
 }
 

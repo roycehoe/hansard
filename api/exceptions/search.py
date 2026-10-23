@@ -14,3 +14,8 @@ class SearchBusyException(AppHttpExceptionBase):
 class SearchFilterRequiredException(AppHttpExceptionBase):
     def __init__(self):
         super().__init__(ErrorCode.SEARCH_FILTER_REQUIRED)
+
+
+class SearchExcludedWordsOnlyException(AppHttpExceptionBase):
+    def __init__(self):
+        super().__init__(ErrorCode.SEARCH_EXCLUDED_WORDS_ONLY)
