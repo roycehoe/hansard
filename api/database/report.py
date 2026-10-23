@@ -22,4 +22,6 @@ class Report(SQLModel, table=True):
     report_type: str
     html_file_name: Optional[str] = None
     markdown_content: Optional[str] = None
+    column_start: Optional[int] = None
+    column_end: Optional[int] = None
     report_version: str

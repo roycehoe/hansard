@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import ENUM, TSVECTOR
 from sqlalchemy.orm import deferred
 from sqlmodel import Field, SQLModel
 
-from enums import SpeechKind
+from enums import ColumnNote, SpeechKind
 
 
 class Speech(SQLModel, table=True):
@@ -21,5 +21,11 @@ class Speech(SQLModel, table=True):
     # NOTE: a deferred class attribute, so reading a Speech never loads the vector
     transcript_tsv: ClassVar = deferred(Column(TSVECTOR))
     sitting_date: NaiveDatetime
+    column_start: Optional[int] = None
+    column_note: Optional[ColumnNote] = Field(
+        default=None,
+        sa_type=ENUM(ColumnNote, name="columnnote", create_type=False),
+    )
+    column_suggested: Optional[int] = None
     report_id: Optional[int] = None
     speaker_id: Optional[int] = None

@@ -43,6 +43,12 @@ class SpeechKind(StrEnum):
     UNCLASSIFIED = "UNCLASSIFIED"
 
 
+class ColumnNote(StrEnum):
+    LIKELY_MISPRINT = "LIKELY_MISPRINT"
+    SPEAKER_NAMED_IN_COLUMN_BEFORE = "SPEAKER_NAMED_IN_COLUMN_BEFORE"
+    PRINTED_WITH_L_FOR_1 = "PRINTED_WITH_L_FOR_1"
+
+
 class DatePrecision(StrEnum):
     DAY = "DAY"
     MONTH = "MONTH"
