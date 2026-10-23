@@ -202,6 +202,17 @@ export const Route = createFileRoute('/people/')({
             )}
             onChange={applyFilters}
           />
+          {parliament !== undefined && constituencyWords.length > 0 && (
+            <p className="text-sm">
+              <Link
+                to="/people"
+                search={{ party, constituency, name }}
+                className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+              >
+                Include past members
+              </Link>
+            </p>
+          )}
           <ListPersons
             persons={filterPersonsByMembershipAndName(
               persons.data.persons,

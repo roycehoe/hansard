@@ -2,6 +2,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { LATEST_MEMBERSHIP_PARLIAMENT_NUMBER } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import type { FormEvent } from 'react'
@@ -35,7 +36,13 @@ export const Route = createFileRoute('/')({
         new FormData(event.currentTarget).get('constituency') ?? ''
       ).trim()
       if (constituency === '') return
-      void navigate({ to: '/people', search: { constituency } })
+      void navigate({
+        to: '/people',
+        search: {
+          constituency,
+          parliament: LATEST_MEMBERSHIP_PARLIAMENT_NUMBER,
+        },
+      })
     }
 
     return (
