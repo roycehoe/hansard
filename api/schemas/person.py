@@ -34,6 +34,7 @@ class PersonData(BaseModel):
     person_id: int
     person_slug: str
     canonical_name: str
+    name_variants: list[str]
     memberships: list[MembershipData]
 
 

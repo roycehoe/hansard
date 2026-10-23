@@ -191,6 +191,13 @@ def get_all_persons(
                 person_id=person.id,
                 person_slug=get_person_slug(person.canonical_name),
                 canonical_name=person.canonical_name,
+                name_variants=sorted(
+                    {
+                        membership.name
+                        for membership in person_id_to_memberships.get(person.id, [])
+                        if membership.name != person.canonical_name
+                    }
+                ),
                 memberships=[
                     MembershipData(
                         parliament_number=membership.parliament_number,

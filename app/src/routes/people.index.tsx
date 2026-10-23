@@ -25,6 +25,7 @@ import {
 } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildWordStartPattern } from '@/lib/highlight'
+import { getPersonNameMatchRank } from '@/lib/personName'
 import {
   isEveryWordMatched,
   mapFilterToSearchValue,
@@ -72,12 +73,16 @@ function filterPersonsByMembershipAndName(
   persons: PersonData[],
   parliament: number | undefined,
   party: string | undefined,
-  nameWords: string[],
+  typedName: string,
   constituencyWords: string[]
 ): PersonData[] {
   return persons.filter(
     (person) =>
-      isEveryWordMatched(nameWords, splitIntoWords(person.canonical_name)) &&
+      (typedName.trim() === '' ||
+        getPersonNameMatchRank(typedName, [
+          person.canonical_name,
+          ...person.name_variants,
+        ]) !== undefined) &&
       person.memberships.some((membership) =>
         isMatchingMembership(membership, parliament, party, constituencyWords)
       )
@@ -218,7 +223,7 @@ export const Route = createFileRoute('/people/')({
               persons.data.persons,
               parliament,
               party,
-              nameWords,
+              typedName,
               constituencyWords
             )}
             namePattern={buildWordStartPattern(nameWords)}

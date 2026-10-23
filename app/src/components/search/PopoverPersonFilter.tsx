@@ -15,7 +15,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipSummary } from '@/lib/format'
-import { isEveryWordMatched, splitIntoWords } from '@/lib/utils'
+import { getPersonNameMatchRank } from '@/lib/personName'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { useState } from 'react'
@@ -35,9 +35,13 @@ export function PopoverPersonFilter({
   const [typedName, setTypedName] = useState<string>('')
   const persons = useGetAllPersons({})
   const chosenPerson = useGetPerson({ person_id: value ?? 0 })
-  const nameWords = splitIntoWords(typedName)
-  const matches = (persons.data?.persons ?? []).filter((person) =>
-    isEveryWordMatched(nameWords, splitIntoWords(person.canonical_name))
+  const matches = (persons.data?.persons ?? []).filter(
+    (person) =>
+      typedName.trim() === '' ||
+      getPersonNameMatchRank(typedName, [
+        person.canonical_name,
+        ...person.name_variants,
+      ]) !== undefined
   )
   const emptyLine =
     persons.isSuccess && matches.length === 0

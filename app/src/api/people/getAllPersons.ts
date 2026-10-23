@@ -23,6 +23,7 @@ export interface PersonData {
   person_id: number
   person_slug: string
   canonical_name: string
+  name_variants: string[]
   memberships: MembershipData[]
 }
 

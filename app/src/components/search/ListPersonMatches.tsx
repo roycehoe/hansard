@@ -4,6 +4,7 @@ import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
 import { formatMembershipParliaments, getMembershipParties } from '@/lib/format'
+import { getPersonNameMatchRank } from '@/lib/personName'
 import {
   cn,
   getPersonsMembershipToPartyNote,
@@ -40,6 +41,30 @@ function getMembershipConstituencies(memberships: MembershipData[]): string[] {
   ]
 }
 
+function getPersonsMatchingName(
+  persons: PersonData[],
+  words: string
+): PersonData[] {
+  return persons
+    .map((person) => ({
+      person,
+      rank: getPersonNameMatchRank(words, [
+        person.canonical_name,
+        ...person.name_variants,
+      ]),
+    }))
+    .filter(
+      (match): match is { person: PersonData; rank: number } =>
+        match.rank !== undefined
+    )
+    .sort(
+      (a, b) =>
+        a.rank - b.rank ||
+        a.person.canonical_name.localeCompare(b.person.canonical_name)
+    )
+    .map((match) => match.person)
+}
+
 interface ListPersonMatchesProps {
   words: string
   hasPerson: boolean
@@ -53,31 +78,31 @@ export function ListPersonMatches({
     !hasPerson &&
     words.length >= PERSON_MATCHES_MIN_WORDS_LENGTH &&
     !SEARCH_OPERATOR_PATTERN.test(words)
-  const personsByName = useGetAllPersons(
-    canMatchPeople ? { name: words } : undefined
-  )
+  const allPersons = useGetAllPersons(canMatchPeople ? {} : undefined)
   const personsByConstituency = useGetAllPersons(
     canMatchPeople ? { constituency: words } : undefined
   )
 
   if (
     !canMatchPeople ||
-    personsByName.isLoading ||
+    allPersons.isLoading ||
     personsByConstituency.isLoading
   ) {
     return null
   }
+  const personsByName = getPersonsMatchingName(
+    allPersons.data?.persons ?? [],
+    words
+  )
   const matches = getPersonsMergedById(
-    personsByName.data?.persons ?? [],
+    personsByName,
     personsByConstituency.data?.persons ?? []
   )
   if (matches.length === 0) return null
 
   const membershipToPartyNote = getPersonsMembershipToPartyNote(matches)
   const peopleSearch =
-    personsByName.data?.persons.length === 0
-      ? { constituency: words }
-      : { name: words }
+    personsByName.length === 0 ? { constituency: words } : { name: words }
 
   return (
     <section aria-labelledby="person-matches-heading" className="space-y-4">
