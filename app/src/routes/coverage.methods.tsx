@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import {
   ABSENCE_DEFINITION,
+  ANALYTICS_URL,
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
   TEXT_NOT_IN_ARCHIVE_LABEL,
@@ -553,6 +554,28 @@ export const Route = createFileRoute('/coverage/methods')({
             checked link and a link to the Official Report.
           </p>
         </section>
+
+        {ANALYTICS_URL && (
+          <section
+            aria-labelledby="visitor-counts-heading"
+            className="space-y-4"
+          >
+            <h2
+              id="visitor-counts-heading"
+              className={SECTION_HEADING_CLASS_NAME}
+            >
+              Visitor counts
+            </h2>
+            <p>
+              The site counts visits with GoatCounter. It sets no cookies and
+              stores no IP addresses or other personal data. For each visit it
+              records the page address, the site the visitor came from, the
+              browser, the screen size, and the country and region. Search words
+              are never sent. Copy link and Cite are counted when used, without
+              the text copied.
+            </p>
+          </section>
+        )}
 
         <p className="text-muted-foreground border-separator border-t pt-6 text-sm">
           Last revised {formatSittingDate(METHODS_LAST_REVISED)}.
