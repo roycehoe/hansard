@@ -1,5 +1,5 @@
 import json
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from datetime import date, datetime, timezone
 
 import pytest
@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql.elements import TextClause
 from sqlmodel import text
 
+from crud.refresh_run import CRUDRefreshRun
 from database.engine import engine
 from enums import RefreshRunStatus
 from services import coverage as coverage_service
@@ -126,6 +127,34 @@ def test_a_seeded_succeeded_run_shows_in_the_coverage_attribution(
     assert group["named_linked_share"] == pytest.approx(0.9)
     assert group["all_linked_share"] == pytest.approx(0.45)
     assert group["text_share"] == pytest.approx(0.75)
+
+
+def _read_a_missing_table(crud_refresh_run: CRUDRefreshRun, *_: object) -> None:
+    crud_refresh_run.session.execute(text("SELECT * FROM no_such_refresh_run"))
+
+
+def _time_out(crud_refresh_run: CRUDRefreshRun, *_: object) -> None:
+    crud_refresh_run.session.execute(text("SET LOCAL statement_timeout = 1"))
+    crud_refresh_run.session.execute(text("SELECT pg_sleep(1)"))
+
+
+@pytest.mark.parametrize("failing_read", [_read_a_missing_table, _time_out])
+def test_coverage_keeps_its_counts_when_refresh_run_cannot_be_read(
+    api_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    failing_read: Callable[..., None],
+) -> None:
+    monkeypatch.setattr(coverage_service, "_cached_coverage", None)
+    monkeypatch.setattr(
+        CRUDRefreshRun, "get_latest_by_status_and_figures_type", failing_read
+    )
+
+    response = api_client.get("/coverage")
+
+    assert response.status_code == status.HTTP_200_OK
+    body = response.json()
+    assert body["attribution"] is None
+    assert body["speech_count"] > 0
 
 
 def test_the_refresh_response_is_empty_without_a_succeeded_run(

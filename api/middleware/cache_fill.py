@@ -16,8 +16,8 @@ _REFRESH_RUN_CHECK_INTERVAL_SECONDS = 15 * 60
 
 # NOTE: one session each, so a failure in one leaves the other's transaction clean
 def _fill_coverage_parliament_and_sitemap_caches() -> None:
-    with Session(engine) as session:
-        coverage_service.fill_coverage_cache(session)
+    with Session(engine) as session, Session(engine) as refresh_run_session:
+        coverage_service.fill_coverage_cache(session, refresh_run_session)
     with Session(engine) as session:
         parliament_service.fill_all_parliaments_cache(session)
     with Session(engine) as session:

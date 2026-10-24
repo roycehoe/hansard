@@ -51,9 +51,9 @@ function buildLiveRow(group: ParliamentGroupFiguresData): AttributionRow {
 }
 
 export function buildAttributionFigures(
-  coverage: GetCoverageResponse | undefined
+  coverage: GetCoverageResponse
 ): AttributionFigures {
-  const figures = coverage?.attribution ?? null
+  const figures = coverage.attribution
   if (figures === null) return CONSTANT_ATTRIBUTION_FIGURES
 
   return {

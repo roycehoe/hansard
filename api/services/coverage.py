@@ -3,7 +3,7 @@ from typing import Optional
 
 from psycopg.errors import InsufficientPrivilege, UndefinedTable
 from pydantic import ValidationError
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlmodel import Session
 
 from crud.attendance import CRUDAttendance
@@ -93,10 +93,12 @@ def _get_attribution_data(
     )
 
 
-def _get_attribution(session: Session) -> Optional[AttributionFiguresData]:
+def _get_attribution(
+    refresh_run_session: Session,
+) -> Optional[AttributionFiguresData]:
     try:
         run_with_figures = CRUDRefreshRun(
-            session
+            refresh_run_session
         ).get_latest_by_status_and_figures_type(
             RefreshRunStatus.SUCCEEDED, _FIGURES_JSON_TYPE
         )
@@ -106,12 +108,17 @@ def _get_attribution(session: Session) -> Optional[AttributionFiguresData]:
         if isinstance(error.orig, InsufficientPrivilege):
             return None
         raise
+    except OperationalError:
+        # NOTE: a dropped connection or a timeout on this read leaves the counts standing, and the app shows its hand-kept figures
+        return None
     if run_with_figures is None:
         return None
     return _get_attribution_data(run_with_figures.figures)
 
 
-def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
+def _get_uncached_coverage(
+    session: Session, refresh_run_session: Session
+) -> GetCoverageResponse:
     year_to_report_count = CRUDReport(session).get_year_to_report_count()
     year_to_text_report_count = CRUDReport(session).get_year_to_text_report_count()
     years = [
@@ -148,21 +155,20 @@ def _get_uncached_coverage(session: Session) -> GetCoverageResponse:
             session
         ).get_max_sitting_date_with_attendance(),
         years=years,
-        # NOTE: read last, because a failed read of refresh_run leaves the session's transaction aborted
-        attribution=_get_attribution(session),
+        attribution=_get_attribution(refresh_run_session),
     )
 
 
-def fill_coverage_cache(session: Session) -> None:
+def fill_coverage_cache(session: Session, refresh_run_session: Session) -> None:
     global _cached_coverage
-    _cached_coverage = _get_uncached_coverage(session)
+    _cached_coverage = _get_uncached_coverage(session, refresh_run_session)
 
 
-def get_coverage(session: Session) -> GetCoverageResponse:
+def get_coverage(session: Session, refresh_run_session: Session) -> GetCoverageResponse:
     global _cached_coverage
     cached_coverage = _cached_coverage
     if cached_coverage is not None:
         return cached_coverage
-    coverage = _get_uncached_coverage(session)
+    coverage = _get_uncached_coverage(session, refresh_run_session)
     _cached_coverage = coverage
     return coverage

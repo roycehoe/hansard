@@ -71,6 +71,8 @@ const COUNTS_SKELETON_ROW_COUNT = 10
 
 const YEARS_SKELETON_ROW_COUNT = 8
 
+const ATTRIBUTION_SKELETON_ROW_COUNT = 5
+
 const TERM_LIST_CLASS_NAME =
   'grid gap-x-8 gap-y-2 text-sm sm:grid-cols-[14rem_1fr]'
 
@@ -82,8 +84,6 @@ export const Route = createFileRoute('/coverage/methods')({
   component: function PageCoverageMethods() {
     useDocumentTitle('Data quality and methods')
     const coverage = useGetCoverage()
-    const { measuredOn: attributionMeasuredOn, rows: attributionRows } =
-      buildAttributionFigures(coverage.data)
 
     function retryCoverage() {
       void coverage.refetch()
@@ -206,6 +206,66 @@ export const Route = createFileRoute('/coverage/methods')({
             </div>
           </dl>
         </section>
+      )
+    }
+
+    function renderAttributionFigures() {
+      if (coverage.isLoading)
+        return (
+          <SkeletonCoverageSection
+            tableRowCount={ATTRIBUTION_SKELETON_ROW_COUNT}
+          />
+        )
+      if (coverage.isLoadingError || !coverage.data) return null
+
+      const { measuredOn, rows } = buildAttributionFigures(coverage.data)
+
+      return (
+        <>
+          <h3 className={SUBHEADING_CLASS_NAME}>
+            How many paragraphs are credited to a person
+          </h3>
+          <p className="text-muted-foreground text-sm">
+            Measured on {formatSittingDate(measuredOn)}. These shares change
+            only when they are measured again, so they can trail the counts
+            under What the archive holds.
+          </p>
+          <p>
+            These figures count paragraphs credited to a person. They do not
+            show whether the credit is right. Only the sample check above tests
+            that.
+          </p>
+          <dl className="max-w-prose space-y-3 text-sm">
+            <div className="space-y-1">
+              <dt className="font-medium">With a speaker label, credited</dt>
+              <dd className="text-muted-foreground">
+                Paragraphs that print a speaker&apos;s name and are credited to
+                a named person. Labels for members as a group, such as
+                &quot;hon. Member&quot;, and stage directions are left out.
+              </dd>
+            </div>
+            <div className="space-y-1">
+              <dt className="font-medium">All, credited</dt>
+              <dd className="text-muted-foreground">
+                Paragraphs credited to a named person, out of all paragraphs,
+                including procedural lines and others with no speaker label.
+              </dd>
+            </div>
+            <div className="space-y-1">
+              <dt className="font-medium">Text share</dt>
+              <dd className="text-muted-foreground">
+                Characters of text in credited paragraphs, out of all the text
+                in reports, including reports whose text could not be split into
+                paragraphs.
+              </dd>
+            </div>
+          </dl>
+          <p className="text-muted-foreground text-sm">
+            The Parliament 12 row covers the whole Parliament, before and after
+            10 September 2012.
+          </p>
+          <TableAttributionParliaments rows={rows} />
+        </>
       )
     }
 
@@ -335,47 +395,7 @@ export const Route = createFileRoute('/coverage/methods')({
             procedural lines, editorial notes and stage directions. The earlier
             check came before the repair, so it does not cover those lines.
           </p>
-          <h3 className={SUBHEADING_CLASS_NAME}>
-            How many paragraphs are credited to a person
-          </h3>
-          <p className="text-muted-foreground text-sm">
-            Measured on {formatSittingDate(attributionMeasuredOn)}.
-          </p>
-          <p>
-            These figures count paragraphs credited to a person. They do not
-            show whether the credit is right. Only the sample check above tests
-            that.
-          </p>
-          <dl className="max-w-prose space-y-3 text-sm">
-            <div className="space-y-1">
-              <dt className="font-medium">With a speaker label, credited</dt>
-              <dd className="text-muted-foreground">
-                Paragraphs that print a speaker&apos;s name and are credited to
-                a named person. Labels for members as a group, such as
-                &quot;hon. Member&quot;, and stage directions are left out.
-              </dd>
-            </div>
-            <div className="space-y-1">
-              <dt className="font-medium">All, credited</dt>
-              <dd className="text-muted-foreground">
-                Paragraphs credited to a named person, out of all paragraphs,
-                including procedural lines and others with no speaker label.
-              </dd>
-            </div>
-            <div className="space-y-1">
-              <dt className="font-medium">Text share</dt>
-              <dd className="text-muted-foreground">
-                Characters of text in credited paragraphs, out of all the text
-                in reports, including reports whose text could not be split into
-                paragraphs.
-              </dd>
-            </div>
-          </dl>
-          <p className="text-muted-foreground text-sm">
-            The Parliament 12 row covers the whole Parliament, before and after
-            10 September 2012.
-          </p>
-          <TableAttributionParliaments rows={attributionRows} />
+          {renderAttributionFigures()}
         </section>
 
         {renderYears()}
