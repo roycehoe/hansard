@@ -4,6 +4,7 @@ from utils.search_query import (
     SearchQueryGroup,
     SearchQueryTerm,
     get_exact_form_pattern,
+    get_excluded_term_groups,
     get_group_websearch_query,
     get_positive_websearch_query,
     get_quoted_websearch_query,
@@ -118,3 +119,28 @@ def test_a_group_query_drops_excluded_quoted_terms_only() -> None:
     group = get_search_query_groups('housing -"House" -flats')[0]
 
     assert get_group_websearch_query(group.terms) == "housing -flats"
+
+
+def test_excluded_term_groups_keep_only_the_excluded_terms_of_each_group() -> None:
+    assert get_excluded_term_groups('-housing -"public flats" OR tax -grants') == (
+        SearchQueryGroup(
+            terms=(
+                SearchQueryTerm(words=("housing",), is_quoted=False, is_excluded=True),
+                SearchQueryTerm(
+                    words=("public", "flats"), is_quoted=True, is_excluded=True
+                ),
+            )
+        ),
+        SearchQueryGroup(
+            terms=(
+                SearchQueryTerm(words=("grants",), is_quoted=False, is_excluded=True),
+            )
+        ),
+    )
+
+
+@pytest.mark.parametrize("query", ["", "housing", "housing OR tax"])
+def test_a_query_with_no_excluded_word_has_no_excluded_term_groups(
+    query: str,
+) -> None:
+    assert get_excluded_term_groups(query) == ()

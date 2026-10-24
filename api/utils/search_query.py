@@ -93,6 +93,14 @@ def is_query_only_excluded_words(query: str) -> bool:
     return terms != [] and all(term.is_excluded for term in terms)
 
 
+def get_excluded_term_groups(query: str) -> tuple[SearchQueryGroup, ...]:
+    return tuple(
+        SearchQueryGroup(terms=tuple(term for term in group.terms if term.is_excluded))
+        for group in _get_all_search_query_groups(query)
+        if any(term.is_excluded for term in group.terms)
+    )
+
+
 def is_quote_in_query(query: str) -> bool:
     return any(quote in query for quote in _QUOTE_CHARACTERS)
 

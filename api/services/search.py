@@ -28,6 +28,7 @@ from utils.markdown_text import strip_markdown
 from utils.marked_words import get_headline_without_nested_marks
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
+from utils.search_query import is_query_only_excluded_words
 from utils.speech_link import get_speech_anchor
 from utils.transcript_snippet import get_transcript_snippet
 
@@ -63,6 +64,10 @@ def _get_excluded_speaker_pattern(constituency: Optional[str]) -> Optional[str]:
         return None
     # NOTE: lines spoken from the chair are credited to the presiding member, so without this a Speaker's seat opens on procedure such as "Go ahead." instead of what its members said; the person filter keeps them
     return _CHAIR_SPEAKER_LABEL_PATTERN
+
+
+def _is_query_without_search_words(query: str) -> bool:
+    return query.strip() == "" or is_query_only_excluded_words(query)
 
 
 def _get_taken_down_report_ids(session: Session) -> list[int]:
@@ -103,7 +108,7 @@ def _get_speeches(
     offset: int,
     session: Session,
 ) -> list[Speech]:
-    if query.strip() == "":
+    if _is_query_without_search_words(query):
         if membership_ids is None:
             return CRUDSpeech(session).get_all_filtered(
                 parliament_number,
@@ -120,6 +125,7 @@ def _get_speeches(
             membership_ids,
             constituency,
             _get_excluded_speaker_pattern(constituency),
+            query,
             parliament_number,
             date_from,
             date_to,
@@ -198,7 +204,7 @@ def _get_speech_match_count(
     report_ids: Optional[list[int]],
     session: Session,
 ) -> int:
-    if query.strip() == "":
+    if _is_query_without_search_words(query):
         if membership_ids is None:
             return CRUDSpeech(session).get_count_filtered(
                 parliament_number,
@@ -213,6 +219,7 @@ def _get_speech_match_count(
             membership_ids,
             constituency,
             _get_excluded_speaker_pattern(constituency),
+            query,
             parliament_number,
             date_from,
             date_to,
@@ -280,7 +287,7 @@ def _get_report_id_to_speech_match_count(
     report_ids: list[int],
     session: Session,
 ) -> dict[int, int]:
-    if query.strip() == "":
+    if _is_query_without_search_words(query):
         if membership_ids is None:
             return CRUDSpeech(session).get_report_id_to_speech_count_filtered(
                 parliament_number,
@@ -296,6 +303,7 @@ def _get_report_id_to_speech_match_count(
             membership_ids,
             constituency,
             _get_excluded_speaker_pattern(constituency),
+            query,
             parliament_number,
             date_from,
             date_to,
@@ -394,7 +402,7 @@ def search_speeches(
             )
         )
         page_speeches = speeches[:page_size]
-        if query.strip() == "":
+        if _is_query_without_search_words(query):
             speech_id_to_snippet = {
                 speech.id: get_transcript_snippet(strip_markdown(speech.transcript))
                 for speech in page_speeches

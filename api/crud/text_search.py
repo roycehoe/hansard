@@ -2,7 +2,9 @@ from sqlalchemy import ColumnElement, and_, false, func, literal_column, not_, o
 
 from utils.search_query import (
     SearchQueryGroup,
+    SearchQueryTerm,
     get_exact_form_pattern,
+    get_excluded_term_groups,
     get_group_websearch_query,
     get_positive_websearch_query,
     get_quoted_websearch_query,
@@ -17,6 +19,7 @@ EXACT_TEXT_SEARCH_CONFIGURATION = literal_column("'simple'")
 HEADLINE_OPTIONS = "StartSel=<mark>, StopSel=</mark>, MaxWords=35, MinWords=15"
 HIGHLIGHT_ALL_OPTIONS = "StartSel=<mark>, StopSel=</mark>, HighlightAll=true"
 _CASE_INSENSITIVE = "i"
+_WORD_SEPARATOR = " "
 
 
 def get_match_tsquery(query: str) -> ColumnElement:
@@ -72,6 +75,41 @@ def get_match_filter(
             ],
         ),
     )
+
+
+def _get_excluded_term_match(
+    term: SearchQueryTerm, tsv_column: ColumnElement, text_column: ColumnElement
+) -> ColumnElement:
+    if term.is_quoted:
+        return text_column.regexp_match(
+            get_exact_form_pattern(term.words), flags=_CASE_INSENSITIVE
+        )
+    return tsv_column.op("@@")(
+        func.websearch_to_tsquery(
+            TEXT_SEARCH_CONFIGURATION, _WORD_SEPARATOR.join(term.words)
+        )
+    )
+
+
+def get_excluded_words_filters(
+    query: str, tsv_column: ColumnElement, text_column: ColumnElement
+) -> list[ColumnElement]:
+    groups = get_excluded_term_groups(query)
+    if groups == ():
+        return []
+    return [
+        or_(
+            *[
+                and_(
+                    *[
+                        not_(_get_excluded_term_match(term, tsv_column, text_column))
+                        for term in group.terms
+                    ]
+                )
+                for group in groups
+            ]
+        )
+    ]
 
 
 def get_headline(query: str, text_column: ColumnElement, options: str) -> ColumnElement:

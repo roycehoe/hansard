@@ -49,6 +49,7 @@ import {
 } from '@/constants/search/constants'
 import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { isQueryOnlyExcludedWords } from '@/lib/searchQuery'
 import {
   getSortWithoutWords,
   isSearchConstituencyNotFoundError,
@@ -102,9 +103,11 @@ export const Route = createFileRoute('/search')({
     const parliaments = useGetAllParliaments()
     const personDetail = useGetPerson({ person_id: person ?? 0 })
     const words = q?.trim() ?? ''
-    const hasWords = words !== ''
     const hasPerson = person !== undefined
     const hasConstituency = constituency !== undefined
+    const hasWords =
+      words !== '' &&
+      !(isQueryOnlyExcludedWords(words) && (hasPerson || hasConstituency))
     const hasFilter =
       parliament !== undefined ||
       !!from ||

@@ -10,6 +10,7 @@ from crud.text_search import (
     HEADLINE_OPTIONS,
     HIGHLIGHT_ALL_OPTIONS,
     TEXT_SEARCH_CONFIGURATION,
+    get_excluded_words_filters,
     get_headline,
     get_match_filter,
     get_match_tsquery,
@@ -333,6 +334,7 @@ class CRUDSpeech:
         membership_ids: list[int],
         location_name: Optional[str],
         excluded_speaker_pattern: Optional[str],
+        excluded_words_query: str,
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -351,6 +353,11 @@ class CRUDSpeech:
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name))
             .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
+            .where(
+                *get_excluded_words_filters(
+                    excluded_words_query, Speech.transcript_tsv, Speech.transcript
+                )
+            )
             .where(
                 *_get_report_filters(
                     parliament_number,
@@ -440,6 +447,7 @@ class CRUDSpeech:
         membership_ids: list[int],
         location_name: Optional[str],
         excluded_speaker_pattern: Optional[str],
+        excluded_words_query: str,
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -456,6 +464,11 @@ class CRUDSpeech:
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name))
             .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
+            .where(
+                *get_excluded_words_filters(
+                    excluded_words_query, Speech.transcript_tsv, Speech.transcript
+                )
+            )
             .where(
                 *_get_report_filters(
                     parliament_number,
@@ -540,6 +553,7 @@ class CRUDSpeech:
         membership_ids: list[int],
         location_name: Optional[str],
         excluded_speaker_pattern: Optional[str],
+        excluded_words_query: str,
         parliament_number: Optional[int],
         date_from: Optional[date],
         date_to: Optional[date],
@@ -555,6 +569,11 @@ class CRUDSpeech:
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name))
             .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
+            .where(
+                *get_excluded_words_filters(
+                    excluded_words_query, Speech.transcript_tsv, Speech.transcript
+                )
+            )
             .where(
                 *_get_report_filters(
                     parliament_number,

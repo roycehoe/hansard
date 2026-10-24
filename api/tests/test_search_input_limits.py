@@ -46,3 +46,21 @@ def test_excluded_words_only_answers_422_with_its_error_code(
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"]["error_code"] == "search.excluded_words_only"
+
+
+@pytest.mark.parametrize(
+    ("path", "params"),
+    [
+        ("/search/speeches", {"parliament_number": 12}),
+        ("/search/speeches", {"date_from": "2000-01-01"}),
+        ("/search/speeches", {"report_type": "oral-answer"}),
+        ("/search/reports", {"parliament_number": 12}),
+    ],
+)
+def test_excluded_words_only_with_no_person_or_seat_still_answers_422(
+    api_client: TestClient, path: str, params: dict[str, object]
+) -> None:
+    response = api_client.get(path, params={"q": "-housing", **params})
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert response.json()["detail"]["error_code"] == "search.excluded_words_only"

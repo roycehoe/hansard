@@ -28,7 +28,11 @@ def validate_can_search_speeches(
         and constituency is None
     ):
         raise SearchFilterRequiredException
-    if is_query_only_excluded_words(query):
+    if (
+        is_query_only_excluded_words(query)
+        and person_id is None
+        and constituency is None
+    ):
         raise SearchExcludedWordsOnlyException
 
 
