@@ -4,7 +4,7 @@ import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
 import { formatMembershipParliaments, getMembershipParties } from '@/lib/format'
-import { getPersonNameMatchRank } from '@/lib/personName'
+import { getPersonNameMatches } from '@/lib/personName'
 import {
   cn,
   getPersonsMembershipToPartyNote,
@@ -45,18 +45,7 @@ function getPersonsMatchingName(
   persons: PersonData[],
   words: string
 ): PersonData[] {
-  return persons
-    .map((person) => ({
-      person,
-      rank: getPersonNameMatchRank(words, [
-        person.canonical_name,
-        ...person.name_variants,
-      ]),
-    }))
-    .filter(
-      (match): match is { person: PersonData; rank: number } =>
-        match.rank !== undefined
-    )
+  return getPersonNameMatches(words, persons)
     .sort(
       (a, b) =>
         a.rank - b.rank ||

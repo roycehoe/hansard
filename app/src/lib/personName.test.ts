@@ -1,4 +1,5 @@
-import { getPersonNameMatchRank } from '@/lib/personName'
+import type { PersonData } from '@/api/people/getAllPersons'
+import { getPersonNameMatches, getPersonNameMatchRank } from '@/lib/personName'
 import { describe, expect, it } from 'vitest'
 
 describe('getPersonNameMatchRank', () => {
@@ -78,5 +79,52 @@ describe('getPersonNameMatchRank', () => {
 
   it('takes the lowest rank over all names', () => {
     expect(getPersonNameMatchRank('Lee', ['Lee Siew Choh', 'Lee'])).toBe(0)
+  })
+})
+
+describe('getPersonNameMatches', () => {
+  const persons: PersonData[] = [
+    'Lee Kuan Yew',
+    'Goh Chok Tong',
+    'J B Jeyaretnam',
+    'Tan Cheng Bock',
+    'Teo Ai Nam',
+    'Ng Eng Hen',
+    'N. Govindasamy',
+    'Amrin Amin',
+    'Abdul Aziz Bin Haji Karim',
+  ].map((name, index) => ({
+    person_id: index,
+    person_slug: '',
+    canonical_name: name,
+    name_variants: [],
+    memberships: [],
+  }))
+
+  function getMatchedNames(query: string): string[] {
+    return getPersonNameMatches(query, persons).map(
+      ({ person }) => person.canonical_name
+    )
+  }
+
+  it('matches a 3-letter acronym below word matches', () => {
+    expect(getPersonNameMatches('lky', persons)).toEqual([
+      { person: persons[0], rank: 3 },
+    ])
+    expect(getMatchedNames('Mr GCT')).toEqual(['Goh Chok Tong'])
+  })
+
+  it('splits a stored initial run into its letters', () => {
+    expect(getMatchedNames('jbj')).toEqual(['J B Jeyaretnam'])
+  })
+
+  it('matches no 2-letter or 5-letter acronym', () => {
+    expect(getMatchedNames('aa')).toEqual([])
+    expect(getMatchedNames('aabhk')).toEqual([])
+  })
+
+  it('keeps word matches when the query is also an acronym', () => {
+    expect(getMatchedNames('tan')).toEqual(['Tan Cheng Bock'])
+    expect(getMatchedNames('ng')).toEqual(['Ng Eng Hen'])
   })
 })

@@ -15,7 +15,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipSummary } from '@/lib/format'
-import { getPersonNameMatchRank } from '@/lib/personName'
+import { getPersonNameMatches } from '@/lib/personName'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { useState } from 'react'
@@ -35,14 +35,11 @@ export function PopoverPersonFilter({
   const [typedName, setTypedName] = useState<string>('')
   const persons = useGetAllPersons({})
   const chosenPerson = useGetPerson({ person_id: value ?? 0 })
-  const matches = (persons.data?.persons ?? []).filter(
-    (person) =>
-      typedName.trim() === '' ||
-      getPersonNameMatchRank(typedName, [
-        person.canonical_name,
-        ...person.name_variants,
-      ]) !== undefined
-  )
+  const allPersons = persons.data?.persons ?? []
+  const matches =
+    typedName.trim() === ''
+      ? allPersons
+      : getPersonNameMatches(typedName, allPersons).map(({ person }) => person)
   const emptyLine =
     persons.isSuccess && matches.length === 0
       ? 'No people match this name.'

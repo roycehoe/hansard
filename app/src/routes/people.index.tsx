@@ -25,7 +25,7 @@ import {
 } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildWordStartPattern } from '@/lib/highlight'
-import { getPersonNameMatchRank } from '@/lib/personName'
+import { getPersonNameMatches } from '@/lib/personName'
 import {
   isEveryWordMatched,
   mapFilterToSearchValue,
@@ -76,16 +76,14 @@ function filterPersonsByMembershipAndName(
   typedName: string,
   constituencyWords: string[]
 ): PersonData[] {
-  return persons.filter(
-    (person) =>
-      (typedName.trim() === '' ||
-        getPersonNameMatchRank(typedName, [
-          person.canonical_name,
-          ...person.name_variants,
-        ]) !== undefined) &&
-      person.memberships.some((membership) =>
-        isMatchingMembership(membership, parliament, party, constituencyWords)
-      )
+  const personsByName =
+    typedName.trim() === ''
+      ? persons
+      : getPersonNameMatches(typedName, persons).map(({ person }) => person)
+  return personsByName.filter((person) =>
+    person.memberships.some((membership) =>
+      isMatchingMembership(membership, parliament, party, constituencyWords)
+    )
   )
 }
 

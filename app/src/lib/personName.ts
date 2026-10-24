@@ -1,3 +1,5 @@
+import type { PersonData } from '@/api/people/getAllPersons'
+
 const NON_WORD_RUN = /[^\p{L}\p{N}]+/gu
 const INITIAL_RUN = /(?<![\p{L}\p{N}])\p{L}(?: \p{L})+(?![\p{L}\p{N}])/gu
 const WORD_SEPARATOR = ' '
@@ -17,6 +19,8 @@ const PERSON_TITLE_WORDS = new Set([
 const EXACT_RANK = 0
 const SAME_WORDS_RANK = 1
 const WORD_PREFIXES_RANK = 2
+const ACRONYM_RANK = 3
+const ACRONYM_QUERY_WORD = /^\p{L}{3,4}$/u
 
 function getTitleStrippedWords(words: string[]): string[] {
   let start = 0
@@ -35,8 +39,12 @@ function joinInitialRun(run: string): string {
   return run.split(WORD_SEPARATOR).join('')
 }
 
+function getSpacedName(name: string): string {
+  return name.toLowerCase().replace(NON_WORD_RUN, WORD_SEPARATOR).trim()
+}
+
 function getNormalisedName(name: string): NormalisedName {
-  const spaced = name.toLowerCase().replace(NON_WORD_RUN, WORD_SEPARATOR).trim()
+  const spaced = getSpacedName(name)
   return {
     words: getTitleStrippedWords(
       spaced
@@ -109,4 +117,40 @@ export function getPersonNameMatchRank(
     )
     .filter((rank) => rank !== undefined)
   return ranks.length === 0 ? undefined : Math.min(...ranks)
+}
+
+function getAcronym(name: string): string {
+  return getTitleStrippedWords(
+    getSpacedName(name)
+      .split(WORD_SEPARATOR)
+      .filter((word) => word !== '')
+  )
+    .map((word) => [...word][0])
+    .join('')
+}
+
+function getPersonNames(person: PersonData): string[] {
+  return [person.canonical_name, ...person.name_variants]
+}
+
+// Acronyms such as "lky" count only when the query matches nobody by words,
+// so a query that names someone keeps exactly its word matches.
+export function getPersonNameMatches(
+  query: string,
+  persons: PersonData[]
+): { person: PersonData; rank: number }[] {
+  const wordMatches = persons.flatMap((person) => {
+    const rank = getPersonNameMatchRank(query, getPersonNames(person))
+    return rank === undefined ? [] : [{ person, rank }]
+  })
+  if (wordMatches.length > 0) return wordMatches
+  const queryWords = getNormalisedName(query).words
+  if (queryWords.length !== 1 || !ACRONYM_QUERY_WORD.test(queryWords[0])) {
+    return []
+  }
+  return persons
+    .filter((person) =>
+      getPersonNames(person).some((name) => getAcronym(name) === queryWords[0])
+    )
+    .map((person) => ({ person, rank: ACRONYM_RANK }))
 }
