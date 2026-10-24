@@ -42,6 +42,8 @@ A deploy restarts the process, which empties the in-memory caches of preview tag
 
 If an entry holds `/`, `?` or a space, the site does not start and the deployment fails, with the entry's number in the deploy log. The platform rolls back to the last deployment that worked. Fix the secret and re-run the jobs.
 
+If the deploy fails at the build, check the `refresh` image in the deploy log. A hansard deploy builds it from `hansard-scraper` master, so a scraper that does not import blocks every hansard deploy, and the old version stays live.
+
 Change the list only through the GitHub secret. A value saved in the DigitalOcean dashboard lasts until the next push to `master`, whose deploy writes the secret over it and shows the hidden reports again.
 
 ## Researchers form
