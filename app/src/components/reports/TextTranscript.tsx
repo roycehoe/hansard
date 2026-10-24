@@ -54,16 +54,16 @@ export function TextTranscript({
   return (
     <p
       className={cn(
-        'font-serif leading-7',
+        'font-serif',
         transcriptStyle === TranscriptStyle.MUTED &&
-          'text-muted-foreground text-sm italic in-data-[text-size=large]:text-lg in-data-[text-size=large]:leading-8 in-data-[text-size=small]:text-xs in-data-[text-size=small]:leading-6',
+          'text-muted-foreground text-sm leading-7 italic in-data-[text-size=large]:text-lg in-data-[text-size=large]:leading-8 in-data-[text-size=small]:text-xs in-data-[text-size=small]:leading-6',
         transcriptStyle === TranscriptStyle.STAGE_DIRECTION &&
-          'text-muted-foreground pl-12 text-base italic',
+          'text-muted-foreground pl-12 text-base leading-7 italic',
         transcriptStyle === TranscriptStyle.FOOTNOTE &&
           'text-muted-foreground before:bg-separator font-sans text-sm leading-5 before:mb-2 before:block before:h-px before:w-12',
-        transcriptStyle === TranscriptStyle.BODY && 'text-base',
+        transcriptStyle === TranscriptStyle.BODY && 'text-base leading-7',
         transcriptStyle === TranscriptStyle.QUOTED &&
-          'border-separator border-l-2 pl-4 text-base',
+          'border-separator border-l-2 pl-4 text-base leading-7',
         isSizedByAppearance && TRANSCRIPT_APPEARANCE_CLASS_NAME
       )}
     >
