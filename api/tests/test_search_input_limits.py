@@ -25,7 +25,6 @@ _NUL_BYTE = "\x00"
         ("/people/1/reports", {"page": _HUGE_INTEGER}),
         ("/people", {"party": f"a{_NUL_BYTE}"}),
         ("/people", {"constituency": f"a{_NUL_BYTE}"}),
-        ("/people", {"name": f"a{_NUL_BYTE}"}),
         ("/reports/a%00", {}),
         ("/reports/a%00/matched-words", {"q": "housing"}),
         ("/reports/a/matched-words", {"q": f"housing{_NUL_BYTE}"}),

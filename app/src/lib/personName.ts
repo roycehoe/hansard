@@ -60,7 +60,6 @@ function getNameMatchRank(
   return undefined
 }
 
-// Port of api/utils/person_name.py. Keep the two in step.
 export function getPersonNameMatchRank(
   query: string,
   names: string[]

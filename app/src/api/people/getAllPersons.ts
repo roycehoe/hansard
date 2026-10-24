@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query'
 export interface GetAllPersonsRequest {
   parliament_number?: number
   party?: string
-  name?: string
   constituency?: string
 }
 
@@ -38,7 +37,6 @@ async function getAllPersonsResponse(
     `/people${buildQueryString({
       parliament_number: request.parliament_number,
       party: request.party,
-      name: request.name,
       constituency: request.constituency,
     })}`
   )
@@ -51,7 +49,6 @@ export function useGetAllPersons(request: GetAllPersonsRequest | undefined) {
       'list',
       request?.parliament_number,
       request?.party,
-      request?.name,
       request?.constituency,
     ],
     queryFn: () => getAllPersonsResponse(request!),

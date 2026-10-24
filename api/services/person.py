@@ -26,7 +26,6 @@ from schemas.person import (
     PersonMembershipData,
     PersonReportData,
 )
-from utils.person_name import get_name_match_rank, get_normalised_name_words
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
 
@@ -90,40 +89,16 @@ def _get_membership_id_to_party_affiliations(
     return membership_id_to_party_affiliations
 
 
-def _get_person_id_to_name_match_rank(name: str, session: Session) -> dict[int, int]:
-    query_words = get_normalised_name_words(name)
-    person_id_to_names: dict[int, list[str]] = {
-        person.id: [person.canonical_name] for person in CRUDPerson(session).get_all()
-    }
-    for membership in CRUDMembership(session).get_all():
-        if membership.person_id in person_id_to_names:
-            person_id_to_names[membership.person_id].append(membership.name)
-    person_id_to_name_match_rank: dict[int, int] = {}
-    for person_id, names in person_id_to_names.items():
-        for person_name in names:
-            rank = get_name_match_rank(
-                query_words, get_normalised_name_words(person_name)
-            )
-            if rank is not None:
-                person_id_to_name_match_rank[person_id] = min(
-                    rank, person_id_to_name_match_rank.get(person_id, rank)
-                )
-    return person_id_to_name_match_rank
-
-
 def _get_matching_memberships(
     parliament_number: Optional[int],
     party: Optional[str],
-    person_ids: Optional[list[int]],
     constituency: Optional[str],
     session: Session,
 ) -> list[Speaker]:
     if parliament_number == _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER:
-        return CRUDMembership(session).get_all_filtered(
-            None, True, party, person_ids, constituency
-        )
+        return CRUDMembership(session).get_all_filtered(None, True, party, constituency)
     return CRUDMembership(session).get_all_filtered(
-        parliament_number, None, party, person_ids, constituency
+        parliament_number, None, party, constituency
     )
 
 
@@ -148,21 +123,11 @@ def _get_parliament_number_to_speech_count(
 def get_all_persons(
     parliament_number: Optional[int],
     party: Optional[str],
-    name: Optional[str],
     constituency: Optional[str],
     session: Session,
 ) -> GetAllPersonsResponse:
-    person_id_to_name_match_rank = (
-        None if name is None else _get_person_id_to_name_match_rank(name, session)
-    )
     matching_memberships = _get_matching_memberships(
-        parliament_number,
-        party,
-        None
-        if person_id_to_name_match_rank is None
-        else list(person_id_to_name_match_rank),
-        constituency,
-        session,
+        parliament_number, party, constituency, session
     )
     person_ids = sorted(
         {
@@ -172,8 +137,6 @@ def get_all_persons(
         }
     )
     persons = CRUDPerson(session).get_by_ids(person_ids)
-    if person_id_to_name_match_rank is not None:
-        persons.sort(key=lambda person: person_id_to_name_match_rank[person.id])
     memberships = CRUDMembership(session).get_all_by_person_ids(person_ids)
     membership_ids = [membership.id for membership in memberships]
     membership_id_to_party_affiliations = _get_membership_id_to_party_affiliations(

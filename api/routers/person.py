@@ -27,16 +27,13 @@ def get_all_persons(
     party: Optional[str] = Query(
         default=None, min_length=1, pattern=_NO_NUL_BYTE_PATTERN
     ),
-    name: Optional[str] = Query(
-        default=None, min_length=1, pattern=_NO_NUL_BYTE_PATTERN
-    ),
     constituency: Optional[str] = Query(
         default=None, min_length=1, pattern=_NO_NUL_BYTE_PATTERN
     ),
     session: Session = Depends(get_session),
 ) -> GetAllPersonsResponse:
     return person_service.get_all_persons(
-        parliament_number, party, name, constituency, session
+        parliament_number, party, constituency, session
     )
 
 
