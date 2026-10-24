@@ -81,6 +81,7 @@ export function RowSpeech({
         sittingDate,
         volumeNumber,
         parliamentNumber,
+        speech.column_start,
         speech.speaker_label,
         speech.person_name
       )

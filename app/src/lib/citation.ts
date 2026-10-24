@@ -167,12 +167,19 @@ export function buildSpeechCitation(
   sittingDate: string,
   volumeNumber: number,
   parliamentNumber: number,
+  columnStart: number | null,
   speakerLabel: string,
   personName: string
 ): string {
   const { name, office } = parseSpeakerLabel(speakerLabel, personName)
   const attribution = [name, office].filter((part) => part !== '').join(', ')
-  return `${buildReportCitation(sittingDate, volumeNumber, parliamentNumber)} (${attribution})`
+  const reportCitation = buildReportCitation(
+    sittingDate,
+    volumeNumber,
+    parliamentNumber
+  )
+  const column = columnStart === null ? '' : ` at col ${columnStart}`
+  return `${reportCitation}${column} (${attribution})`
 }
 
 export function buildSpeechCite(

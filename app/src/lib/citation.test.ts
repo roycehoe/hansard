@@ -216,6 +216,7 @@ describe('buildSpeechCitation', () => {
         '2023-02-14',
         3,
         14,
+        null,
         'The Minister for Finance (Mr Lawrence Wong)',
         ''
       )
@@ -225,14 +226,30 @@ describe('buildSpeechCitation', () => {
   })
 
   it('shows only the name for a member with no office', () => {
-    expect(buildSpeechCitation('2023-02-14', 3, 14, 'Mr Leon Perera', '')).toBe(
-      `${PARLIAMENT_TITLE} (14 February 2023) vol 3 (Mr Leon Perera)`
-    )
+    expect(
+      buildSpeechCitation('2023-02-14', 3, 14, null, 'Mr Leon Perera', '')
+    ).toBe(`${PARLIAMENT_TITLE} (14 February 2023) vol 3 (Mr Leon Perera)`)
   })
 
   it('shows only the office when the label has no name', () => {
-    expect(buildSpeechCitation('2023-02-14', 3, 14, 'Mr Speaker', '')).toBe(
-      `${PARLIAMENT_TITLE} (14 February 2023) vol 3 (Mr Speaker)`
+    expect(
+      buildSpeechCitation('2023-02-14', 3, 14, null, 'Mr Speaker', '')
+    ).toBe(`${PARLIAMENT_TITLE} (14 February 2023) vol 3 (Mr Speaker)`)
+  })
+
+  it('adds the column after the volume where the row has one', () => {
+    expect(
+      buildSpeechCitation('2009-05-29', 86, 11, 698, 'Mr Seah Kian Peng', '')
+    ).toBe(
+      `${PARLIAMENT_TITLE} (29 May 2009) vol 86 at col 698 (Mr Seah Kian Peng)`
+    )
+  })
+
+  it('cites the column a Legislative Assembly row prints', () => {
+    expect(
+      buildSpeechCitation('1957-09-12', 3, 0, 1205, 'Mr Lim Yew Hock', '')
+    ).toBe(
+      `${LEGISLATIVE_ASSEMBLY_TITLE} (12 September 1957) vol 3 at col 1205 (Mr Lim Yew Hock)`
     )
   })
 })

@@ -526,9 +526,12 @@ export const Route = createFileRoute('/coverage/methods')({
             Citing and linking
           </h2>
           <p>
-            Copied citations have no column number. The site shows a column
-            number beside a speech only where the record prints one. A court
-            document needs one. Find the passage in the{' '}
+            The site shows a column number beside a paragraph only where the
+            record prints one. Cite on a paragraph adds that number after the
+            volume, as the record prints it, even where the site marks it as a
+            likely misprint. Copy citation on a report adds no column number. A
+            court document needs one. Where a citation has none, find the
+            passage in the{' '}
             <a
               href={OFFICIAL_RECORD_SEARCH_URL}
               className={LINK_CLASS_NAME}
