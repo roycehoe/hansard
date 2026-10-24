@@ -55,6 +55,27 @@ describe('getPersonNameMatchRank', () => {
     expect(getPersonNameMatchRank('Tan Ch', ['Tan Cheng Bock'])).toBe(2)
   })
 
+  it('matches dotted, spaced and undotted initials to given names', () => {
+    expect(getPersonNameMatchRank('Lee K.Y.', ['Lee Kuan Yew'])).toBe(2)
+    expect(getPersonNameMatchRank('Lee K. Y.', ['Lee Kuan Yew'])).toBe(2)
+    expect(getPersonNameMatchRank('Lee K Y', ['Lee Kuan Yew'])).toBe(2)
+    expect(getPersonNameMatchRank('K.Y. Lee', ['Lee Kuan Yew'])).toBe(2)
+    expect(
+      getPersonNameMatchRank('J. B. Jeyaretnam', ['Joshua Benjamin Jeyaretnam'])
+    ).toBe(2)
+  })
+
+  it('matches initials only to names in order and side by side', () => {
+    expect(getPersonNameMatchRank('Lee Y.K.', ['Lee Kuan Yew'])).toBeUndefined()
+    expect(
+      getPersonNameMatchRank('Lee K.Y.', ['Lee Kuan Hock Yew'])
+    ).toBeUndefined()
+  })
+
+  it('reads letters typed as one word as a word, not initials', () => {
+    expect(getPersonNameMatchRank('Lee KY', ['Lee Kuan Yew'])).toBeUndefined()
+  })
+
   it('takes the lowest rank over all names', () => {
     expect(getPersonNameMatchRank('Lee', ['Lee Siew Choh', 'Lee'])).toBe(0)
   })
