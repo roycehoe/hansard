@@ -114,7 +114,7 @@ jobs:
         run: uv run pytest -m schema_drift
 
   deploy:
-    needs: [app, api]
+    needs: [app, api, schema-drift]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
