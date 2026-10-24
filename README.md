@@ -1,26 +1,38 @@
-# Hansard
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/banner-dark.svg">
+  <img alt="Singapore Parliamentary Record" src="docs/images/banner-light.svg">
+</picture>
 
-A website for reading Singapore's parliamentary record by sitting, by Report and by person. It is not an official Parliament site. The Official Report on [SPRS](https://sprs.parl.gov.sg/search/) is the authoritative record, and each Report page links to its copy there.
+The website at [hansard.fancybinary.sg](https://hansard.fancybinary.sg) takes each Report from Singapore's Official Report and shows it as speeches. It links each speech to the person who gave it, when the speaker label is enough to tell who spoke.
 
-The site only reads. Its data comes from the Postgres database that [roycehoe/hansard-scraper](https://github.com/roycehoe/hansard-scraper) builds from SPRS, and the API connects through a role that can only `SELECT`.
+[Open the site](https://hansard.fancybinary.sg) · [Coverage](https://hansard.fancybinary.sg/coverage) · [Data quality and methods](https://hansard.fancybinary.sg/coverage/methods)
 
-## Status
+- The site is live and has been public since 20 October 2026.
+- It is not an official Parliament site. The Official Report on [SPRS](https://sprs.parl.gov.sg/search/) is the authoritative record, and each Report page links to its copy there.
+- The data comes from [roycehoe/hansard-scraper](https://github.com/roycehoe/hansard-scraper). This site only reads it.
 
-The site is live at [hansard.fancybinary.sg](https://hansard.fancybinary.sg) and has been open to everyone since 20 October 2026.
+## Try it
 
-The dates the archive covers and its counts are on the site's [coverage page](https://hansard.fancybinary.sg/coverage). How often the site credits a speech to the wrong person, and what else is missing, is on the "Data quality and methods" page at [`/coverage/methods`](https://hansard.fancybinary.sg/coverage/methods), with the attribution figures, their method and the known limits of the data.
+- [Find your MP](https://hansard.fancybinary.sg/people?constituency=Ang%20Mo%20Kio&parliament=15). Enter a constituency on the home page to list who sits for it in the latest Parliament.
+- [A sitting](https://hansard.fancybinary.sg/sittings/2024-03-06) lists its Reports, then who was present and who was absent.
+- [A Report](https://hansard.fancybinary.sg/reports/written-answer-16079) shows the text as speeches. Each speech has Copy link, Cite and Report an error beside it, and the Source line links to the Report on SPRS.
+- [A speech link](https://hansard.fancybinary.sg/reports/written-answer-16079?s=1&q=asked+the+minister+for+manpower+a+apart+from) opens one speech.
+- [A person's page](https://hansard.fancybinary.sg/people/399-louis-ng-kok-kwang) lists their memberships, their speeches and attendance in each Parliament, and every Report they spoke in.
+- [Search](https://hansard.fancybinary.sg/search?q=heat%20stress) covers speeches and Report titles, with filters for Parliament, dates, Report type, person and constituency.
 
-## How it was built
-
-AI coding tools wrote most of the code. Royce Hoe planned the work and answers for it. [docs/how-this-was-built.md](docs/how-this-was-built.md) gives the commit history and the audits that checked the output, including one that says the project is not done.
+<!-- screenshot: a Report page with speeches linked to members, the Copy link, Cite and Report an error buttons showing beside one speech, and the Source line at the foot, https://hansard.fancybinary.sg/reports/written-answer-16079 -->
 
 ## Report an error
 
-Email royceinbox@hotmail.com, or use the "Report an error" link beside any speech. To report in public, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml). Each fix is logged in [docs/corrections.md](docs/corrections.md).
+Email royceinbox@hotmail.com, or use the "Report an error" link beside any speech, which opens an email with that speech's link filled in. To report in public, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml).
+
+## How it was built
+
+[docs/how-this-was-built.md](docs/how-this-was-built.md) describes how the code was written and the audits that checked it.
 
 ## Run it locally
 
-You need Node 24 with pnpm, Python 3.15 with uv, and a copy of the scraper's database. The hansard-scraper README explains how to build one.
+To run it you need Node 24 with pnpm, Python 3.15 with uv, and a copy of the scraper's database. The [hansard-scraper README](https://github.com/roycehoe/hansard-scraper#setup) explains how to build one.
 
 ```bash
 # API, from api/
@@ -32,15 +44,15 @@ pnpm install
 pnpm dev                                           # http://localhost:5173
 ```
 
-The deployed site is one container that serves the frontend at `/` and the API at `/api`.
+The deployed site is one container that serves the frontend at `/` and the API at `/api`. When the app and API checks pass on `master`, CI deploys it to DigitalOcean App Platform, which builds the [Dockerfile](Dockerfile) as [.do/app.yaml](.do/app.yaml) specifies.
 
 ```bash
 docker build -t hansard-web .
 docker run -p 8080:8080 -e DATABASE_URL=... -e BASIC_AUTH_USERNAME=... -e BASIC_AUTH_PASSWORD=... hansard-web
 ```
 
-Conventions for each part are in `app/CLAUDE.md` and `api/CLAUDE.md`.
+Conventions for each part are in [app/CLAUDE.md](app/CLAUDE.md) and [api/CLAUDE.md](api/CLAUDE.md).
 
 ## Licence
 
-The code is under the [MIT licence](LICENSE). The licence covers the code in this repository, not the text of the Official Reports, which belongs to the Parliament of Singapore.
+The code is under the [MIT licence](LICENSE).
