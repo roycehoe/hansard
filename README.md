@@ -20,7 +20,10 @@ The website at [hansard.fancybinary.sg](https://hansard.fancybinary.sg) takes ea
 - [A person's page](https://hansard.fancybinary.sg/people/399-louis-ng-kok-kwang) lists their memberships, their speeches and attendance in each Parliament, and every Report they spoke in.
 - [Search](https://hansard.fancybinary.sg/search?q=heat%20stress) covers speeches and Report titles, with filters for Parliament, dates, Report type, person and constituency.
 
-<!-- screenshot: a Report page with speeches linked to members, the Copy link, Cite and Report an error buttons showing beside one speech, and the Source line at the foot, https://hansard.fancybinary.sg/reports/written-answer-16079 -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/report-dark.png">
+  <img alt="A Report page: a written answer from 6 March 2024, split into speeches, with each speaker's name linked to their page" src="docs/images/report-light.png">
+</picture>
 
 ## Report an error
 
