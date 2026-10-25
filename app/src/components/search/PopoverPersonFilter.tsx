@@ -1,5 +1,6 @@
 import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { useGetPerson } from '@/api/people/getPerson'
+import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -16,6 +17,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipSummary } from '@/lib/format'
 import { getPersonNameMatches } from '@/lib/personName'
+import { isSittingMember } from '@/lib/utils'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { useState } from 'react'
@@ -112,7 +114,12 @@ export function PopoverPersonFilter({
                 onSelect={choosePerson}
                 className="flex-col items-start gap-0"
               >
-                <span>{person.canonical_name}</span>
+                <span className="flex items-center gap-2">
+                  {person.canonical_name}
+                  {isSittingMember(person.memberships) && (
+                    <BadgeSittingMember />
+                  )}
+                </span>
                 <span className="text-muted-foreground text-xs">
                   {formatMembershipSummary(person.memberships)}
                 </span>
