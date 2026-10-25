@@ -45,15 +45,18 @@ export function formatParliamentOption(parliament: ParliamentData): string {
   return `${formatParliament(parliament.parliament_number)} (${years})`
 }
 
-export function formatMembershipParliaments(
-  memberships: MembershipData[]
-): string {
-  const parliamentNumbers = memberships.map(
-    (membership) => membership.parliament_number
-  )
+export function formatParliamentRange(parliamentNumbers: number[]): string {
   const first = formatParliament(Math.min(...parliamentNumbers))
   const last = formatParliament(Math.max(...parliamentNumbers))
   return first === last ? first : `${first} to ${last}`
+}
+
+export function formatMembershipParliaments(
+  memberships: MembershipData[]
+): string {
+  return formatParliamentRange(
+    memberships.map((membership) => membership.parliament_number)
+  )
 }
 
 export function getMembershipParties(memberships: MembershipData[]): string[] {

@@ -1,4 +1,5 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
+import { PopoverConstituencyFilter } from '@/components/search/PopoverConstituencyFilter'
 import { PopoverFieldHint } from '@/components/search/PopoverFieldHint'
 import { PopoverPersonFilter } from '@/components/search/PopoverPersonFilter'
 import { Badge } from '@/components/ui/badge'
@@ -142,6 +143,15 @@ export function FormSearch({
     void handleSubmit(submitSearch)()
   }
 
+  function chooseConstituencyInSheet(constituency: string) {
+    setValue('constituency', constituency)
+  }
+
+  function chooseConstituency(constituency: string) {
+    setValue('constituency', constituency)
+    void handleSubmit(submitSearch)()
+  }
+
   function applyFiltersOnDesktop() {
     if (isPhone) return
     void handleSubmit(submitSearch)()
@@ -225,24 +235,31 @@ export function FormSearch({
     )
   }
 
-  const constituencyField = (
-    <div className="flex w-full flex-col gap-2 md:w-56">
-      <div className="flex h-6 items-center gap-1">
-        <Label htmlFor="search-constituency">Constituency</Label>
-        <PopoverFieldHint
-          icon={Info}
-          label="Constituency boundaries"
-          hint={CONSTITUENCY_HINT_TEXT}
+  function renderConstituencyField(onChange: (constituency: string) => void) {
+    return (
+      <div className="flex w-full flex-col gap-2 md:w-56">
+        <div className="flex h-6 items-center gap-1">
+          <Label htmlFor="search-constituency">Constituency</Label>
+          <PopoverFieldHint
+            icon={Info}
+            label="Constituency boundaries"
+            hint={CONSTITUENCY_HINT_TEXT}
+          />
+        </div>
+        <Controller
+          control={control}
+          name="constituency"
+          render={({ field }) => (
+            <PopoverConstituencyFilter
+              id="search-constituency"
+              value={field.value}
+              onChange={onChange}
+            />
+          )}
         />
       </div>
-      <Input
-        id="search-constituency"
-        type="search"
-        form={SEARCH_FORM_ID}
-        {...register('constituency')}
-      />
-    </div>
-  )
+    )
+  }
 
   const parliamentField = (
     <div className="flex w-full flex-col gap-2 sm:w-72">
@@ -407,7 +424,7 @@ export function FormSearch({
                 </SheetHeader>
                 <div className="flex flex-col gap-4 overflow-y-auto px-4">
                   {renderPersonField(choosePersonInSheet)}
-                  {constituencyField}
+                  {renderConstituencyField(chooseConstituencyInSheet)}
                   {parliamentField}
                   {typeField}
                   {fromField}
@@ -428,7 +445,7 @@ export function FormSearch({
           <div className="flex w-full flex-col gap-4 md:flex-row md:items-start">
             {wordsField}
             {renderPersonField(choosePerson)}
-            {constituencyField}
+            {renderConstituencyField(chooseConstituency)}
           </div>
           {parliamentField}
           {typeField}

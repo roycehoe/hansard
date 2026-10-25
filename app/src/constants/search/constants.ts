@@ -18,6 +18,14 @@ export const SEARCH_TIPS_TEXT = `Put a word in quotes to find only that form, so
 
 export const CONSTITUENCY_HINT_TEXT = 'Boundaries change between elections.'
 
+export const NON_PLACE_CONSTITUENCIES = new Set([
+  'Acting',
+  'Nominated',
+  'Nominated Member',
+  'Non-Constituency Member',
+  'ex-officio',
+])
+
 export const FIELD_HINT_CLOSE_DELAY_MS = 150
 
 export const SNIPPET_MARK_START = '<mark>'
