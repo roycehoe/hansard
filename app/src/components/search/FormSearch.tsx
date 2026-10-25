@@ -114,6 +114,9 @@ export function FormSearch({
   const [isInvalidSubmit, setIsInvalidSubmit] = useState<boolean>(false)
   const activeFilterCount = countActiveFilters(defaultValues)
   const hasWords = useWatch({ control, name: 'q' }).trim() !== ''
+  const parliament = useWatch({ control, name: 'parliament' })
+  const parliamentNumber =
+    parliament === FILTER_ALL ? undefined : Number(parliament)
   const sortOptions = hasWords
     ? SEARCH_SORT_DROPDOWN_OPTIONS
     : SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS
@@ -227,6 +230,7 @@ export function FormSearch({
             <PopoverPersonFilter
               id="search-person"
               value={field.value ?? undefined}
+              parliamentNumber={parliamentNumber}
               onChange={onChange}
             />
           )}
@@ -253,6 +257,7 @@ export function FormSearch({
             <PopoverConstituencyFilter
               id="search-constituency"
               value={field.value}
+              parliamentNumber={parliamentNumber}
               onChange={onChange}
             />
           )}

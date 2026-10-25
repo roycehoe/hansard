@@ -14,7 +14,11 @@ import {
 } from '@/components/ui/popover'
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
-import { getConstituencies, getConstituencyMatches } from '@/lib/constituency'
+import {
+  filterConstituenciesByParliament,
+  getConstituencies,
+  getConstituencyMatches,
+} from '@/lib/constituency'
 import { formatParliamentRange } from '@/lib/format'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
@@ -23,12 +27,14 @@ import { useState } from 'react'
 interface PopoverConstituencyFilterProps {
   id: string
   value: string
+  parliamentNumber: number | undefined
   onChange: (constituency: string) => void
 }
 
 export function PopoverConstituencyFilter({
   id,
   value,
+  parliamentNumber,
   onChange,
 }: PopoverConstituencyFilterProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -36,7 +42,10 @@ export function PopoverConstituencyFilter({
   const persons = useGetAllPersons({})
   const matches = getConstituencyMatches(
     typedName,
-    getConstituencies(persons.data?.persons ?? [])
+    filterConstituenciesByParliament(
+      getConstituencies(persons.data?.persons ?? []),
+      parliamentNumber
+    )
   )
   const emptyLine =
     persons.isSuccess && matches.length === 0

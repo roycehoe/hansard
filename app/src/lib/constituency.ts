@@ -35,6 +35,16 @@ export function getConstituencies(persons: PersonData[]): ConstituencyData[] {
     .sort((first, second) => first.name.localeCompare(second.name))
 }
 
+export function filterConstituenciesByParliament(
+  constituencies: ConstituencyData[],
+  parliamentNumber: number | undefined
+): ConstituencyData[] {
+  if (parliamentNumber === undefined) return constituencies
+  return constituencies.filter((constituency) =>
+    constituency.parliamentNumbers.includes(parliamentNumber)
+  )
+}
+
 export function getConstituencyMatches(
   query: string,
   constituencies: ConstituencyData[]

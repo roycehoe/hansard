@@ -96,6 +96,18 @@ export function isSittingMember(
   )
 }
 
+export function filterPersonsByParliament(
+  persons: PersonData[],
+  parliamentNumber: number | undefined
+): PersonData[] {
+  if (parliamentNumber === undefined) return persons
+  return persons.filter((person) =>
+    person.memberships.some(
+      (membership) => membership.parliament_number === parliamentNumber
+    )
+  )
+}
+
 export function mapFilterToSearchValue(value: string): string | undefined {
   return value === FILTER_ALL || value === '' ? undefined : value
 }
