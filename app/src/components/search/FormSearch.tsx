@@ -1,6 +1,6 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
+import { PopoverFieldHint } from '@/components/search/PopoverFieldHint'
 import { PopoverPersonFilter } from '@/components/search/PopoverPersonFilter'
-import { PopoverSearchTips } from '@/components/search/PopoverSearchTips'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,9 +25,11 @@ import { FILTER_ALL, PHONE_MEDIA_QUERY } from '@/constants/constants'
 import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
+  CONSTITUENCY_HINT_TEXT,
   SEARCH_FORM_ID,
   SEARCH_SORT_DROPDOWN_OPTIONS,
   SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS,
+  SEARCH_TIPS_TEXT,
   SEARCH_WORDS_INPUT_ID,
   SEARCH_WORDS_MAX_LENGTH,
   SEARCH_WORDS_TOO_LONG_ERROR,
@@ -37,6 +39,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatParliamentOption } from '@/lib/format'
 import { getSortWithoutWords } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { CircleHelp, Info } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
@@ -180,7 +183,11 @@ export function FormSearch({
     <div className="flex flex-1 flex-col gap-2">
       <div className="flex h-6 items-center gap-1">
         <Label htmlFor={SEARCH_WORDS_INPUT_ID}>Search words</Label>
-        <PopoverSearchTips />
+        <PopoverFieldHint
+          icon={CircleHelp}
+          label="Search tips"
+          hint={SEARCH_TIPS_TEXT}
+        />
       </div>
       <Input
         id={SEARCH_WORDS_INPUT_ID}
@@ -218,23 +225,22 @@ export function FormSearch({
     )
   }
 
-  const constituencyHintId = 'search-constituency-hint'
-
   const constituencyField = (
     <div className="flex w-full flex-col gap-2 md:w-56">
-      <div className="flex h-6 items-center">
+      <div className="flex h-6 items-center gap-1">
         <Label htmlFor="search-constituency">Constituency</Label>
+        <PopoverFieldHint
+          icon={Info}
+          label="Constituency boundaries"
+          hint={CONSTITUENCY_HINT_TEXT}
+        />
       </div>
       <Input
         id="search-constituency"
         type="search"
         form={SEARCH_FORM_ID}
-        aria-describedby={constituencyHintId}
         {...register('constituency')}
       />
-      <p id={constituencyHintId} className="text-muted-foreground text-sm">
-        Boundaries change between elections.
-      </p>
     </div>
   )
 

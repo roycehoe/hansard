@@ -4,19 +4,26 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  SEARCH_TIPS_CLOSE_DELAY_MS,
-  SEARCH_TIPS_TEXT,
-} from '@/constants/search/constants'
-import { CircleHelp } from 'lucide-react'
+import { FIELD_HINT_CLOSE_DELAY_MS } from '@/constants/search/constants'
+import type { LucideIcon } from 'lucide-react'
 import type { FocusEvent, MouseEvent, PointerEvent } from 'react'
 import { useEffect, useId, useRef, useState } from 'react'
 
-export function PopoverSearchTips() {
+interface PopoverFieldHintProps {
+  icon: LucideIcon
+  label: string
+  hint: string
+}
+
+export function PopoverFieldHint({
+  icon: Icon,
+  label,
+  hint,
+}: PopoverFieldHintProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const closeTimeoutRef = useRef<number | undefined>(undefined)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const tipsId = useId()
+  const hintId = useId()
 
   function cancelClose() {
     window.clearTimeout(closeTimeoutRef.current)
@@ -28,7 +35,7 @@ export function PopoverSearchTips() {
     cancelClose()
     closeTimeoutRef.current = window.setTimeout(
       closeUnlessButtonFocused,
-      SEARCH_TIPS_CLOSE_DELAY_MS
+      FIELD_HINT_CLOSE_DELAY_MS
     )
   }
 
@@ -76,15 +83,15 @@ export function PopoverSearchTips() {
           type="button"
           variant="quiet"
           size="icon-xs"
-          aria-label="Search tips"
-          aria-describedby={tipsId}
+          aria-label={label}
+          aria-describedby={hintId}
           onPointerEnter={openOnMouseEnter}
           onPointerLeave={closeOnMouseLeave}
           onFocus={openOnFocus}
           onBlur={closeOnBlur}
           onClick={openOnClick}
         >
-          <CircleHelp aria-hidden="true" />
+          <Icon aria-hidden="true" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -96,10 +103,10 @@ export function PopoverSearchTips() {
         onOpenAutoFocus={keepFocusOnButton}
         onCloseAutoFocus={keepFocusOnButton}
       >
-        {SEARCH_TIPS_TEXT}
+        {hint}
       </PopoverContent>
-      <span id={tipsId} className="sr-only">
-        {SEARCH_TIPS_TEXT}
+      <span id={hintId} className="sr-only">
+        {hint}
       </span>
     </Popover>
   )
