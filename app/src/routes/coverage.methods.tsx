@@ -184,16 +184,16 @@ export const Route = createFileRoute('/coverage/methods')({
               <dt className="font-medium">Membership</dt>
               <dd className="text-muted-foreground">
                 One person&apos;s seat in one Parliament. The count also
-                includes {coverageData.non_member_membership_count} entries for Governors and
-                Presidents, who were not members.
+                includes {coverageData.non_member_membership_count} entries for
+                Governors and Presidents, who were not members.
               </dd>
             </div>
             <div className="space-y-1">
               <dt className="font-medium">People</dt>
               <dd className="text-muted-foreground">
                 Each person counted once across every Parliament, including{' '}
-                {coverageData.non_member_person_count} Governors and Presidents who were
-                never members.
+                {coverageData.non_member_person_count} Governors and Presidents
+                who were never members.
               </dd>
             </div>
             <div className="space-y-1">
