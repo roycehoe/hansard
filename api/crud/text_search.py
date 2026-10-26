@@ -23,10 +23,15 @@ _WORD_SEPARATOR = " "
 
 
 def get_match_tsquery(query: str) -> ColumnElement:
-    if not is_quote_in_query(query):
+    groups = get_search_query_groups(query)
+    # NOTE: Postgres reads "housing or -other" as housing OR NOT other, which matches nearly every row, so a query with an excluded term is rebuilt from the groups that have a positive term
+    is_rebuilt = is_quote_in_query(query) or (
+        groups != () and get_excluded_term_groups(query) != ()
+    )
+    if not is_rebuilt:
         return func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
     return func.websearch_to_tsquery(
-        TEXT_SEARCH_CONFIGURATION, get_websearch_query(get_search_query_groups(query))
+        TEXT_SEARCH_CONFIGURATION, get_websearch_query(groups)
     )
 
 

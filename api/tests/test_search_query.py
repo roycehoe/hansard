@@ -144,3 +144,10 @@ def test_a_query_with_no_excluded_word_has_no_excluded_term_groups(
     query: str,
 ) -> None:
     assert get_excluded_term_groups(query) == ()
+
+
+def test_a_group_of_only_excluded_words_is_left_out_of_the_websearch_query() -> None:
+    groups = get_search_query_groups("housing or -other")
+
+    assert len(groups) == 1
+    assert get_websearch_query(groups) == "housing"
