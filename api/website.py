@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from threading import Thread
 
 from fastapi import FastAPI
+from fastapi.middleware.gzip import GZipMiddleware
 
 from main import app as api_app
 from middleware.basic_auth import BasicAuthMiddleware
@@ -13,6 +14,8 @@ from middleware.frontend import FrontendFiles
 from middleware.takedown import TakedownMiddleware
 from routers import sitemap
 from settings import WebsiteSettings
+
+_GZIP_COMPRESSION_LEVEL = 4
 
 website_settings = WebsiteSettings()
 
@@ -45,6 +48,8 @@ if not website_settings.is_public_mode:
         username=website_settings.basic_auth_username,
         password=website_settings.basic_auth_password,
     )
+
+app.add_middleware(GZipMiddleware, compresslevel=_GZIP_COMPRESSION_LEVEL)
 
 app.include_router(sitemap.router)
 app.mount("/api", api_app)

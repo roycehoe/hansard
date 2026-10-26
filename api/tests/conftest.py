@@ -43,3 +43,14 @@ def reset_response_cache(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.fixture
 def api_client() -> TestClient:
     return TestClient(app)
+
+
+@pytest.fixture(scope="session")
+def website_client(tmp_path_factory: pytest.TempPathFactory) -> TestClient:
+    frontend_dist_path = tmp_path_factory.mktemp("frontend_dist")
+    (frontend_dist_path / "index.html").write_text("<html><head></head></html>")
+    os.environ["FRONTEND_DIST_PATH"] = str(frontend_dist_path)
+    os.environ["PUBLIC_MODE"] = "true"
+    import website
+
+    return TestClient(website.app)
