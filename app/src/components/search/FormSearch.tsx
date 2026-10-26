@@ -28,6 +28,8 @@ import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
   CONSTITUENCY_HINT_TEXT,
+  FIRST_SITTING_DATE,
+  SEARCH_DATE_OUT_OF_RANGE_ERROR,
   SEARCH_FORM_ID,
   SEARCH_SORT_DROPDOWN_OPTIONS,
   SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS,
@@ -40,13 +42,24 @@ import { SearchSort } from '@/constants/search/enums'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatParliamentOption } from '@/lib/format'
 import { filterParliamentsByMembership } from '@/lib/membershipFilter'
+import { getSearchDateError } from '@/lib/searchQuery'
 import { getSortWithoutWords } from '@/lib/utils'
 import type { MembershipFilters } from '@/types/search/interfaces'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
 import { CircleHelp, Info } from 'lucide-react'
 import { useState } from 'react'
-import { Controller, useForm, useWatch } from 'react-hook-form'
+import {
+  Controller,
+  type FieldErrors,
+  useForm,
+  useWatch,
+} from 'react-hook-form'
 import { z } from 'zod'
+
+function getToday(): string {
+  return format(new Date(), 'yyyy-MM-dd')
+}
 
 const formSchema = z
   .object({
@@ -57,8 +70,16 @@ const formSchema = z
       }),
     parliament: z.string(),
     type: z.union([z.literal(FILTER_ALL), z.enum(ReportType)]),
-    from: z.string(),
-    to: z.string(),
+    from: z
+      .string()
+      .refine((value) => getSearchDateError(value, getToday()) === undefined, {
+        error: SEARCH_DATE_OUT_OF_RANGE_ERROR,
+      }),
+    to: z
+      .string()
+      .refine((value) => getSearchDateError(value, getToday()) === undefined, {
+        error: SEARCH_DATE_OUT_OF_RANGE_ERROR,
+      }),
     person: z.number().int().min(1).nullable(),
     constituency: z.string(),
     sort: z.enum(SearchSort),
@@ -147,7 +168,10 @@ export function FormSearch({
     setIsFiltersOpen(false)
   }
 
-  function closeFiltersOnInvalidSubmit() {
+  function closeFiltersOnInvalidSubmit(
+    invalidFields: FieldErrors<FormSearchValues>
+  ) {
+    if (invalidFields.from || invalidFields.to) return
     setIsInvalidSubmit(true)
     closeFilters()
   }
@@ -353,9 +377,18 @@ export function FormSearch({
       <Input
         id="search-from"
         type="date"
+        min={FIRST_SITTING_DATE}
+        max={getToday()}
+        aria-invalid={errors.from ? true : undefined}
+        aria-describedby={errors.from ? 'search-from-error' : undefined}
         form={SEARCH_FORM_ID}
         {...register('from', { onBlur: applyChangedDatesOnDesktop })}
       />
+      {errors.from && (
+        <p id="search-from-error" className="text-destructive text-sm">
+          {errors.from.message}
+        </p>
+      )}
     </div>
   )
 
@@ -365,9 +398,18 @@ export function FormSearch({
       <Input
         id="search-to"
         type="date"
+        min={FIRST_SITTING_DATE}
+        max={getToday()}
+        aria-invalid={errors.to ? true : undefined}
+        aria-describedby={errors.to ? 'search-to-error' : undefined}
         form={SEARCH_FORM_ID}
         {...register('to', { onBlur: applyChangedDatesOnDesktop })}
       />
+      {errors.to && (
+        <p id="search-to-error" className="text-destructive text-sm">
+          {errors.to.message}
+        </p>
+      )}
     </div>
   )
 

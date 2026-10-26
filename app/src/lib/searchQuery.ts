@@ -1,3 +1,8 @@
+import {
+  FIRST_SITTING_DATE,
+  SEARCH_DATE_OUT_OF_RANGE_ERROR,
+} from '@/constants/search/constants'
+
 const SEARCH_TOKEN_PATTERN = /(-?)"([^"]*)"?|[^\s"]+/g
 const CURLY_QUOTES = /[“”]/g
 const QUOTE = '"'
@@ -32,4 +37,14 @@ export function isQueryOnlyExcludedWords(query: string): boolean {
     if (WORD_CHARACTER.test(bareToken)) termExclusions.push(isExcluded)
   }
   return termExclusions.length > 0 && termExclusions.every(Boolean)
+}
+
+export function getSearchDateError(
+  date: string,
+  today: string
+): string | undefined {
+  if (date === '') return undefined
+  return date < FIRST_SITTING_DATE || date > today
+    ? SEARCH_DATE_OUT_OF_RANGE_ERROR
+    : undefined
 }

@@ -10,6 +10,11 @@ export const SEARCH_FORM_ID = 'search-form'
 
 export const SEARCH_WORDS_MAX_LENGTH = 200
 
+export const FIRST_SITTING_DATE = '1955-04-22'
+
+export const SEARCH_DATE_OUT_OF_RANGE_ERROR =
+  'Use a date from 22 April 1955 to today.'
+
 export const SEARCH_WORDS_TOO_LONG_ERROR = `Use ${SEARCH_WORDS_MAX_LENGTH} characters or fewer.`
 
 export const SEARCH_WORDS_TOO_LONG_NOTICE = `Search words are limited to ${SEARCH_WORDS_MAX_LENGTH} characters. Shorten them and search again.`
