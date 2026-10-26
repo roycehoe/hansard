@@ -13,6 +13,7 @@ import {
 } from '@/constants/reports/constants'
 import { SpeechKind, SpeechLinkStatus } from '@/constants/reports/enums'
 import { buildHighlightPattern } from '@/lib/highlight'
+import { isLinkedSpeech } from '@/lib/linkedSpeech'
 import { Fragment, useEffect } from 'react'
 
 interface ListSpeechesProps {
@@ -103,6 +104,11 @@ export function ListSpeeches({
               getPreviousSpeakerLabel(report.speeches, index) ===
                 speech.speaker_label
             }
+            isLinkedTarget={isLinkedSpeech(
+              speech.ordinal,
+              report.speech_link,
+              window.location.hash
+            )}
             previousSpeechKind={
               index > 0 ? report.speeches[index - 1].kind : null
             }

@@ -14,6 +14,7 @@ import { Link } from '@tanstack/react-router'
 interface RowSpeechProps {
   speech: SpeechData
   isContinuation: boolean
+  isLinkedTarget: boolean
   previousSpeechKind: SpeechKind | null
   reportSlug: string
   reportTitle: string
@@ -64,6 +65,7 @@ function getRowMarginClass(
 export function RowSpeech({
   speech,
   isContinuation,
+  isLinkedTarget,
   previousSpeechKind,
   reportSlug,
   reportTitle,
@@ -101,7 +103,9 @@ export function RowSpeech({
     if (!hasSpeakerLabel) return undefined
     if (isContinuation) {
       return (
-        <span className="sr-only">{speech.speaker_label}, continued: </span>
+        <span className={isLinkedTarget ? 'font-semibold' : 'sr-only'}>
+          {speech.speaker_label}, continued:{' '}
+        </span>
       )
     }
     if (speech.person_id === null) {
