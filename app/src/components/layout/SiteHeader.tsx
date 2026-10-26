@@ -42,7 +42,7 @@ export function SiteHeader() {
               <li key={item.label}>
                 <Link
                   to={item.to}
-                  className="text-primary hover:text-primary-hover data-[status=active]:border-primary focus-visible:ring-ring focus-visible:ring-offset-background inline-block rounded-sm border-b-2 border-transparent py-1 text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 data-[status=active]:font-medium"
+                  className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background inline-block rounded-sm py-1 text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 data-[status=active]:font-medium"
                 >
                   {item.label}
                 </Link>
