@@ -1,3 +1,4 @@
+import logging
 from time import sleep
 from typing import Optional
 
@@ -13,15 +14,39 @@ from services import sitemap as sitemap_service
 
 _REFRESH_RUN_CHECK_INTERVAL_SECONDS = 15 * 60
 
+logger = logging.getLogger(__name__)
 
-# NOTE: one session each, so a failure in one leaves the other's transaction clean
-def _fill_coverage_parliament_and_sitemap_caches() -> None:
+
+def _fill_coverage_cache() -> None:
     with Session(engine) as session, Session(engine) as refresh_run_session:
         coverage_service.fill_coverage_cache(session, refresh_run_session)
+
+
+def _fill_parliament_cache() -> None:
     with Session(engine) as session:
         parliament_service.fill_all_parliaments_cache(session)
+
+
+def _fill_sitemap_cache() -> None:
     with Session(engine) as session:
         sitemap_service.fill_sitemap_cache(session)
+
+
+# NOTE: one session each, so a failure in one leaves the other's transaction clean. Each fill runs in its own try so a failure does not stop the others, and the first failure is raised after all three have run, so the callers still retry at the next check
+def _fill_coverage_parliament_and_sitemap_caches() -> None:
+    errors_to_raise: list[Exception] = []
+    for fill_cache in (
+        _fill_coverage_cache,
+        _fill_parliament_cache,
+        _fill_sitemap_cache,
+    ):
+        try:
+            fill_cache()
+        except Exception as error_to_raise:  # noqa: BLE001 a failed fill must not stop the other fills
+            logger.exception("cache fill failed fill=%s", fill_cache.__name__)
+            errors_to_raise.append(error_to_raise)
+    if errors_to_raise:
+        raise errors_to_raise[0]
 
 
 def _get_latest_finished_run_id() -> Optional[int]:
