@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { isConstituency } from '@/lib/constituency'
 import { formatParliament } from '@/lib/format'
 import { getMembershipToPartyNote } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
@@ -57,13 +58,17 @@ export function TableMemberships({ memberships }: TableMembershipsProps) {
                 {membership.constituencies.map((constituency, index) => (
                   <Fragment key={constituency}>
                     {index > 0 && ', '}
-                    <Link
-                      to="/search"
-                      search={{ constituency }}
-                      className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
-                    >
-                      {constituency}
-                    </Link>
+                    {isConstituency(constituency) ? (
+                      <Link
+                        to="/search"
+                        search={{ constituency }}
+                        className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                      >
+                        {constituency}
+                      </Link>
+                    ) : (
+                      constituency
+                    )}
                   </Fragment>
                 ))}
               </TableCell>

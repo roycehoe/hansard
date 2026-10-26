@@ -1,5 +1,9 @@
 import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
-import { getConstituencies, getConstituencyMatches } from '@/lib/constituency'
+import {
+  getConstituencies,
+  getConstituencyMatches,
+  isConstituency,
+} from '@/lib/constituency'
 import { describe, expect, it } from 'vitest'
 
 function buildMembership(
@@ -104,5 +108,17 @@ describe('getConstituencyMatches', () => {
 
   it('matches every seat on an empty query', () => {
     expect(getMatchNames('')).toHaveLength(3)
+  })
+})
+
+describe('isConstituency', () => {
+  it('is false for names that are not seats', () => {
+    expect(isConstituency('Nominated Member')).toBe(false)
+    expect(isConstituency('Non-Constituency Member')).toBe(false)
+    expect(isConstituency('ex-officio')).toBe(false)
+  })
+
+  it('is true for a seat', () => {
+    expect(isConstituency('Tampines GRC')).toBe(true)
   })
 })

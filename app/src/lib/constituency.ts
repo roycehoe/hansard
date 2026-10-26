@@ -4,18 +4,20 @@ import { NON_PLACE_CONSTITUENCIES } from '@/constants/search/constants'
 import { isEveryWordMatched, splitIntoWords } from '@/lib/utils'
 import type { ConstituencyData } from '@/types/search/interfaces'
 
+export function isConstituency(locationName: string): boolean {
+  return !NON_PLACE_CONSTITUENCIES.has(locationName)
+}
+
 export function getConstituencies(persons: PersonData[]): ConstituencyData[] {
   const constituencyToParliamentNumbers = new Map<string, Set<number>>()
   const seats = persons.flatMap((person) =>
     person.memberships
       .filter((membership) => membership.is_member)
       .flatMap((membership) =>
-        membership.constituencies
-          .filter((name) => !NON_PLACE_CONSTITUENCIES.has(name))
-          .map((name) => ({
-            name,
-            parliamentNumber: membership.parliament_number,
-          }))
+        membership.constituencies.filter(isConstituency).map((name) => ({
+          name,
+          parliamentNumber: membership.parliament_number,
+        }))
       )
   )
   seats.forEach((seat) => {
