@@ -24,8 +24,6 @@ const LINK_CLASS_NAME =
 
 const UNDERLINED_LINK_CLASS_NAME = `${LINK_CLASS_NAME} underline underline-offset-4`
 
-const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
-
 export const Route = createFileRoute('/coverage/')({
   component: function PageCoverage() {
     useDocumentTitle('Coverage')
@@ -54,23 +52,15 @@ export const Route = createFileRoute('/coverage/')({
         return null
 
       return (
-        <div className="space-y-2">
-          <p>
-            It covers the Legislative Assembly and Parliament from{' '}
-            {formatSittingDate(coverageData.first_sitting_date)} to{' '}
-            {formatSittingDate(coverageData.last_sitting_date)}.
-          </p>
-          <p>
-            The archive holds{' '}
-            {coverageData.report_count.toLocaleString(NUMBER_LOCALE)} reports
-            from {coverageData.sitting_count.toLocaleString(NUMBER_LOCALE)}{' '}
-            sittings, and{' '}
-            {coverageData.person_count.toLocaleString(NUMBER_LOCALE)} people.
-            The reports hold{' '}
-            {coverageData.speech_count.toLocaleString(NUMBER_LOCALE)}{' '}
-            paragraphs.
-          </p>
-        </div>
+        <p>
+          It covers the Legislative Assembly and Parliament from{' '}
+          {formatSittingDate(coverageData.first_sitting_date)} to{' '}
+          {formatSittingDate(coverageData.last_sitting_date)}, with{' '}
+          {coverageData.report_count.toLocaleString(NUMBER_LOCALE)} reports from{' '}
+          {coverageData.sitting_count.toLocaleString(NUMBER_LOCALE)} sittings,{' '}
+          {coverageData.speech_count.toLocaleString(NUMBER_LOCALE)} paragraphs
+          and {coverageData.person_count.toLocaleString(NUMBER_LOCALE)} people.
+        </p>
       )
     }
 
@@ -95,72 +85,47 @@ export const Route = createFileRoute('/coverage/')({
           }
         />
 
-        <div className="max-w-3xl space-y-8">
-          <div className="space-y-4">
-            <p>
-              This is an unofficial archive of Singapore&apos;s parliamentary
-              debates since 1955.{' '}
-              <Link to="/search" className={LINK_CLASS_NAME}>
-                Search the debates
-              </Link>{' '}
-              or{' '}
-              <Link to="/people" className={LINK_CLASS_NAME}>
-                browse the people who spoke
-              </Link>
-              .
-            </p>
+        <div className="max-w-3xl space-y-4">
+          <p>
+            This is an unofficial archive of Singapore&apos;s parliamentary
+            debates since 1955.{' '}
+            <Link to="/search" className={LINK_CLASS_NAME}>
+              Search the debates
+            </Link>{' '}
+            or{' '}
+            <Link to="/people" className={LINK_CLASS_NAME}>
+              browse the people who spoke
+            </Link>
+            .
+          </p>
 
-            {renderSummary()}
+          {renderSummary()}
 
-            <p>
-              <Link to="/coverage/methods" className={LINK_CLASS_NAME}>
-                Data quality and methods
-              </Link>{' '}
-              has how far the text can be trusted, the full counts, reports by
-              year, the known gaps and how to cite the record.
-            </p>
-          </div>
-
-          <div className="space-y-8">
-            <section
-              id="about-the-text"
-              aria-labelledby="about-the-text-heading"
-              className="space-y-4"
+          <p id="about-the-text">
+            The text here is copied from the{' '}
+            <a
+              href={OFFICIAL_RECORD_SEARCH_URL}
+              className={LINK_CLASS_NAME}
+              target="_blank"
+              rel="noreferrer"
             >
-              <h2
-                id="about-the-text-heading"
-                className={SECTION_HEADING_CLASS_NAME}
-              >
-                About the text
-              </h2>
-              <p>
-                The text here is copied from the{' '}
-                <a
-                  href={OFFICIAL_RECORD_SEARCH_URL}
-                  className={LINK_CLASS_NAME}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Official Report
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </a>{' '}
-                and can differ from it. Check the Official Report before you
-                quote it.
-              </p>
-            </section>
+              Official Report
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>{' '}
+            and can differ from it. Check the Official Report before you quote
+            it.
+          </p>
 
-            <section aria-labelledby="build-heading" className="space-y-4">
-              <h2 id="build-heading" className={SECTION_HEADING_CLASS_NAME}>
-                How the archive is built
-              </h2>
-              <p>
-                The archive copies every report from the Official Report on the
-                Parliament of Singapore&apos;s website. It splits each report
-                wherever a new speaker begins, and matches each speaker&apos;s
-                name to a person where it can.
-              </p>
-            </section>
-          </div>
+          <p>
+            The archive copies each report from the Parliament of
+            Singapore&apos;s website, splits it where a new speaker begins and
+            matches each speaker to a person where it can.{' '}
+            <Link to="/coverage/methods" className={LINK_CLASS_NAME}>
+              Data quality and methods
+            </Link>{' '}
+            covers how far to trust the text, the full counts, the known gaps
+            and how to cite.
+          </p>
         </div>
 
         <div className="border-separator text-muted-foreground space-y-2 border-t pt-6 text-sm">
