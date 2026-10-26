@@ -1,4 +1,5 @@
 import { ApiError } from '@/api/client'
+import { NoticeErrorPage } from '@/components/layout/NoticeErrorPage'
 import { NoticeNotFoundPage } from '@/components/layout/NoticeNotFoundPage'
 import { Toaster } from '@/components/ui/sonner'
 import {
@@ -30,6 +31,7 @@ const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
   defaultNotFoundComponent: NoticeNotFoundPage,
+  defaultErrorComponent: NoticeErrorPage,
   scrollRestoration: true,
 })
 
