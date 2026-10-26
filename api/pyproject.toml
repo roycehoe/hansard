@@ -28,5 +28,6 @@ select = ["I", "F"]
 pythonpath = ["."]
 markers = [
     "database: needs the scratch database",
+    "contract: compares the OpenAPI response schemas with the frontend interfaces; needs Node and app/node_modules, no database",
     "schema_drift: selects every column the models declare, from a database built from the scraper's models",
 ]
