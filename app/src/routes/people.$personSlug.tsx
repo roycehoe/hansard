@@ -125,7 +125,7 @@ export const Route = createFileRoute('/people/$personSlug')({
               <ButtonCopyLink
                 path={`/people/${data.person_id}-${data.person_slug}`}
               />
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" size="sm">
                 <Link to="/search" search={{ person: data.person_id }}>
                   Search this person's speeches
                 </Link>
