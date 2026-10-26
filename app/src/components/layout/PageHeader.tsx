@@ -21,7 +21,10 @@ export function PageHeader({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h1 className="font-serif text-2xl font-semibold break-words lg:text-3xl">
+            <h1
+              tabIndex={-1}
+              className="font-serif text-2xl font-semibold break-words outline-hidden lg:text-3xl"
+            >
               {title}
             </h1>
             {badge}

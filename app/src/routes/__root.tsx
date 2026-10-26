@@ -17,7 +17,8 @@ export const Route = createRootRoute({
         <SiteHeader />
         <main
           id="main"
-          className="max-w-page-xl mx-auto w-full flex-1 px-5 py-8 sm:px-6 md:px-7"
+          tabIndex={-1}
+          className="max-w-page-xl mx-auto w-full flex-1 px-5 py-8 outline-hidden sm:px-6 md:px-7"
         >
           <Outlet />
         </main>

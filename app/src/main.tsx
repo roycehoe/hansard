@@ -7,6 +7,10 @@ import {
   HTTP_SERVER_ERROR_MIN,
 } from '@/constants/constants'
 import { countPageView, loadAnalytics } from '@/lib/analytics'
+import {
+  moveFocusToPageHeading,
+  shouldMoveFocusToPageHeading,
+} from '@/lib/navigationFocus'
 import { isSearchTimedOutError } from '@/lib/utils'
 import { routeTree } from '@/routeTree.gen'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -49,8 +53,20 @@ function countResolvedNavigation(event: RouterEvents['onResolved']): void {
   countPageView(toLocation.pathname, toLocation.searchStr)
 }
 
+function moveFocusAfterNavigation(event: RouterEvents['onResolved']): void {
+  if (event.fromLocation === undefined) return
+  const { toLocation } = event
+  const shouldMove = shouldMoveFocusToPageHeading({
+    pathChanged: event.pathChanged,
+    hash: toLocation.hash,
+    searchParams: toLocation.search,
+  })
+  if (shouldMove) requestAnimationFrame(moveFocusToPageHeading)
+}
+
 loadAnalytics()
 router.subscribe('onResolved', countResolvedNavigation)
+router.subscribe('onResolved', moveFocusAfterNavigation)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
