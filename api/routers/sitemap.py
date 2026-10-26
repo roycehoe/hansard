@@ -9,7 +9,7 @@ _XML_MEDIA_TYPE = "application/xml"
 router = APIRouter(tags=["sitemap"])
 
 
-@router.get("/sitemap.xml", status_code=200)
+@router.api_route("/sitemap.xml", methods=["GET", "HEAD"], status_code=200)
 def get_sitemap_index(session: Session = Depends(get_session)) -> Response:
     return Response(
         sitemap_service.get_sitemap_xml(
@@ -19,7 +19,7 @@ def get_sitemap_index(session: Session = Depends(get_session)) -> Response:
     )
 
 
-@router.get("/sitemap-{file_stem}.xml", status_code=200)
+@router.api_route("/sitemap-{file_stem}.xml", methods=["GET", "HEAD"], status_code=200)
 def get_sitemap_file(
     file_stem: str, session: Session = Depends(get_session)
 ) -> Response:

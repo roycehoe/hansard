@@ -54,3 +54,14 @@ def test_an_unknown_slug_or_path_answers_404(
     response = site_client.get(path)
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.parametrize("path", ["/sitemap.xml", "/sitemap-reports-1.xml"])
+def test_a_head_request_for_a_sitemap_answers_xml_with_no_body(
+    site_client: TestClient, path: str
+) -> None:
+    response = site_client.head(path)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["content-type"].startswith("application/xml")
+    assert response.content == b""
