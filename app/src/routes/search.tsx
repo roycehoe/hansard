@@ -117,8 +117,9 @@ export const Route = createFileRoute('/search')({
       hasConstituency
     const isWordsTooLong = words.length > SEARCH_WORDS_MAX_LENGTH
     const canSearch = (hasWords || hasFilter) && !isWordsTooLong
+    // NOTE: a report title carries no seat, so a seat filter leaves only the speeches
     const canSearchReports =
-      canSearch && (hasWords || (!hasPerson && !hasConstituency))
+      canSearch && !hasConstituency && (hasWords || !hasPerson)
     const resultSort = hasWords ? sort : getSortWithoutWords(sort)
     const personName = personDetail.data?.canonical_name
     const speechesHeading = getSpeechesHeading(
