@@ -169,7 +169,7 @@ export function RowSpeech({
       className={cn(
         'group focus-visible:ring-ring focus-visible:ring-offset-background flex scroll-mt-24 flex-col rounded-sm outline-hidden first-of-type:mt-0 focus-visible:ring-2 focus-visible:ring-offset-2 sm:flex-row sm:gap-2',
         getRowMarginClass(speech, previousSpeechKind, isContinuation),
-        isLinkedTarget && 'linked-speech'
+        isLinkedTarget && 'bg-accent animate-linked-speech-fade'
       )}
     >
       {hasColumnMarkers && (
