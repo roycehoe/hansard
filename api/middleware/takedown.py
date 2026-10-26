@@ -15,7 +15,11 @@ _TAKEN_DOWN_REPORT_SLUGS = get_taken_down_report_slugs(settings.takedown_report_
 
 
 def is_report_slug_taken_down(report_slug: str) -> bool:
-    return get_normalised_report_slug(report_slug) in _TAKEN_DOWN_REPORT_SLUGS
+    folded_report_slug = get_normalised_report_slug(report_slug).casefold()
+    return any(
+        folded_report_slug == taken_down_report_slug.casefold()
+        for taken_down_report_slug in _TAKEN_DOWN_REPORT_SLUGS
+    )
 
 
 def is_report_id_taken_down(report_id: str) -> bool:

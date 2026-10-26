@@ -73,3 +73,26 @@ def test_a_page_that_is_not_hidden_answers_200(
     response = page_client.get(path)
 
     assert response.status_code == status.HTTP_200_OK
+
+
+def test_a_listed_slug_in_another_case_hides_the_page_and_the_report_id(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "index.html").write_text("<html></html>")
+    monkeypatch.setattr(
+        takedown, "_TAKEN_DOWN_REPORT_SLUGS", frozenset({"Written-Answer-11589"})
+    )
+    client = TestClient(
+        Starlette(
+            routes=[Route("/{path:path}", _get_page)],
+            middleware=[
+                Middleware(takedown.TakedownMiddleware, frontend_dist_path=tmp_path)
+            ],
+        )
+    )
+
+    assert client.get("/reports/written-answer-11589").status_code == (
+        status.HTTP_410_GONE
+    )
+    assert takedown.is_report_id_taken_down("written-answer-11589#")
+    assert not takedown.is_report_id_taken_down("written-answer-11590#")
