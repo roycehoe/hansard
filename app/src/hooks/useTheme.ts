@@ -70,6 +70,14 @@ export function setColourChoice(choice: ColourChoice) {
   listeners.forEach((listener) => listener())
 }
 
+if (typeof matchMedia === 'function') {
+  matchMedia(DARK_SCHEME_MEDIA_QUERY).addEventListener('change', (event) => {
+    if (colourChoice !== ColourChoice.AUTOMATIC) return
+    toggleDarkClassWithoutTransitions(event.matches)
+    listeners.forEach((listener) => listener())
+  })
+}
+
 export function useTheme() {
   const theme = useSyncExternalStore(subscribe, readTheme, (): Theme => 'light')
   const currentColourChoice = useSyncExternalStore(
