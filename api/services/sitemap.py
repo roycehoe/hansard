@@ -15,6 +15,7 @@ from utils.sitemap_xml import get_sitemap_index_xml, get_urlset_xml
 SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
 _MAX_URLS_PER_FILE = 20_000
 _URL_SEPARATOR = "/"
+_ROBOTS_TXT_LINES = ("User-agent: *", "Disallow: /search", "Allow: /")
 
 # NOTE: replaced whole and never mutated, so a request thread never reads a half-written answer
 _cached_file_name_to_xml: Optional[dict[str, str]] = None
@@ -86,3 +87,10 @@ def get_sitemap_xml(file_name: str, session: Session) -> str:
     if xml is None:
         raise SitemapNotFoundException
     return xml
+
+
+def get_robots_txt() -> str:
+    lines = list(_ROBOTS_TXT_LINES)
+    if settings.site_url is not None:
+        lines.append(f"Sitemap: {settings.site_url.rstrip(_URL_SEPARATOR)}/sitemap.xml")
+    return "\n".join(lines) + "\n"

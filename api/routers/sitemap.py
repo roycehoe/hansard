@@ -5,6 +5,7 @@ from database.engine import get_session
 from services import sitemap as sitemap_service
 
 _XML_MEDIA_TYPE = "application/xml"
+_TEXT_MEDIA_TYPE = "text/plain"
 _CACHE_CONTROL_HEADER = "Cache-Control"
 _CACHE_CONTROL = "public, max-age=3600"
 
@@ -31,3 +32,8 @@ def get_sitemap_file(
         media_type=_XML_MEDIA_TYPE,
         headers={_CACHE_CONTROL_HEADER: _CACHE_CONTROL},
     )
+
+
+@router.api_route("/robots.txt", methods=["GET", "HEAD"], status_code=200)
+def get_robots_txt() -> Response:
+    return Response(sitemap_service.get_robots_txt(), media_type=_TEXT_MEDIA_TYPE)
