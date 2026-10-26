@@ -123,11 +123,14 @@ export function FormFilterPersons({
       <PopoverConstituencyFilter
         id="filter-persons-constituency"
         value={values.constituency}
-        parliamentNumber={
-          values.parliament === FILTER_ALL
-            ? undefined
-            : Number(values.parliament)
-        }
+        filters={{
+          parliamentNumber:
+            values.parliament === FILTER_ALL
+              ? undefined
+              : Number(values.parliament),
+          personId: undefined,
+          constituency: '',
+        }}
         onChange={changeConstituency}
       />
     </div>

@@ -14,12 +14,10 @@ import {
 } from '@/components/ui/popover'
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
-import {
-  filterConstituenciesByParliament,
-  getConstituencies,
-  getConstituencyMatches,
-} from '@/lib/constituency'
+import { getConstituencies, getConstituencyMatches } from '@/lib/constituency'
 import { formatParliamentRange } from '@/lib/format'
+import { filterConstituenciesByMembership } from '@/lib/membershipFilter'
+import type { MembershipFilters } from '@/types/search/interfaces'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { useState } from 'react'
@@ -27,30 +25,34 @@ import { useState } from 'react'
 interface PopoverConstituencyFilterProps {
   id: string
   value: string
-  parliamentNumber: number | undefined
+  filters: MembershipFilters
   onChange: (constituency: string) => void
 }
 
 export function PopoverConstituencyFilter({
   id,
   value,
-  parliamentNumber,
+  filters,
   onChange,
 }: PopoverConstituencyFilterProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [typedName, setTypedName] = useState<string>('')
   const persons = useGetAllPersons({})
+  const allPersons = persons.data?.persons ?? []
   const matches = getConstituencyMatches(
     typedName,
-    filterConstituenciesByParliament(
-      getConstituencies(persons.data?.persons ?? []),
-      parliamentNumber
+    filterConstituenciesByMembership(
+      getConstituencies(allPersons),
+      allPersons,
+      filters
     )
   )
+  const noMatchesLine =
+    typedName.trim() === ''
+      ? 'No constituencies match the other filters'
+      : 'No constituencies match this name'
   const emptyLine =
-    persons.isSuccess && matches.length === 0
-      ? 'No constituencies match this name.'
-      : null
+    persons.isSuccess && matches.length === 0 ? `${noMatchesLine}.` : null
 
   function changeOpen(nextIsOpen: boolean) {
     setIsOpen(nextIsOpen)
@@ -70,7 +72,7 @@ export function PopoverConstituencyFilter({
 
   function renderAnnouncement() {
     if (!persons.isSuccess) return ''
-    if (matches.length === 0) return 'No constituencies match this name'
+    if (matches.length === 0) return noMatchesLine
     return `${matches.length.toLocaleString(NUMBER_LOCALE)} ${matches.length === 1 ? 'constituency matches' : 'constituencies match'}`
   }
 

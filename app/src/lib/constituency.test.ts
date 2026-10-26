@@ -1,9 +1,5 @@
 import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
-import {
-  filterConstituenciesByParliament,
-  getConstituencies,
-  getConstituencyMatches,
-} from '@/lib/constituency'
+import { getConstituencies, getConstituencyMatches } from '@/lib/constituency'
 import { describe, expect, it } from 'vitest'
 
 function buildMembership(
@@ -108,28 +104,5 @@ describe('getConstituencyMatches', () => {
 
   it('matches every seat on an empty query', () => {
     expect(getMatchNames('')).toHaveLength(3)
-  })
-})
-
-describe('filterConstituenciesByParliament', () => {
-  const constituencies = getConstituencies([
-    buildPerson([
-      buildMembership(7, ['Pasir Panjang']),
-      buildMembership(15, ['Pasir Ris-Changi']),
-    ]),
-  ])
-
-  it('keeps seats held in the chosen Parliament', () => {
-    expect(
-      filterConstituenciesByParliament(constituencies, 7).map(
-        (constituency) => constituency.name
-      )
-    ).toEqual(['Pasir Panjang'])
-  })
-
-  it('keeps every seat when no Parliament is chosen', () => {
-    expect(
-      filterConstituenciesByParliament(constituencies, undefined)
-    ).toHaveLength(2)
   })
 })

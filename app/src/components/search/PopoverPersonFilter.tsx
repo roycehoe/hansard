@@ -16,8 +16,10 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipSummary } from '@/lib/format'
+import { filterPersonsByMembership } from '@/lib/membershipFilter'
 import { getPersonNameMatches } from '@/lib/personName'
-import { filterPersonsByParliament, isSittingMember } from '@/lib/utils'
+import { isSittingMember } from '@/lib/utils'
+import type { MembershipFilters } from '@/types/search/interfaces'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { useState } from 'react'
@@ -25,23 +27,23 @@ import { useState } from 'react'
 interface PopoverPersonFilterProps {
   id: string
   value: number | undefined
-  parliamentNumber: number | undefined
+  filters: MembershipFilters
   onChange: (personId: number) => void
 }
 
 export function PopoverPersonFilter({
   id,
   value,
-  parliamentNumber,
+  filters,
   onChange,
 }: PopoverPersonFilterProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [typedName, setTypedName] = useState<string>('')
   const persons = useGetAllPersons({})
   const chosenPerson = useGetPerson({ person_id: value ?? 0 })
-  const listedPersons = filterPersonsByParliament(
+  const listedPersons = filterPersonsByMembership(
     persons.data?.persons ?? [],
-    parliamentNumber
+    filters
   )
   const matches =
     typedName.trim() === ''
@@ -49,10 +51,12 @@ export function PopoverPersonFilter({
       : getPersonNameMatches(typedName, listedPersons).map(
           ({ person }) => person
         )
+  const noMatchesLine =
+    typedName.trim() === ''
+      ? 'No people match the other filters'
+      : 'No people match this name'
   const emptyLine =
-    persons.isSuccess && matches.length === 0
-      ? 'No people match this name.'
-      : null
+    persons.isSuccess && matches.length === 0 ? `${noMatchesLine}.` : null
 
   function getTriggerLabel(): string {
     if (value === undefined) return 'Any person'
@@ -78,7 +82,7 @@ export function PopoverPersonFilter({
 
   function renderAnnouncement() {
     if (!persons.isSuccess) return ''
-    if (matches.length === 0) return 'No people match this name'
+    if (matches.length === 0) return noMatchesLine
     return `${matches.length.toLocaleString(NUMBER_LOCALE)} ${matches.length === 1 ? 'person matches' : 'people match'}`
   }
 

@@ -1,4 +1,5 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
+import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { PopoverConstituencyFilter } from '@/components/search/PopoverConstituencyFilter'
 import { PopoverFieldHint } from '@/components/search/PopoverFieldHint'
 import { PopoverPersonFilter } from '@/components/search/PopoverPersonFilter'
@@ -38,7 +39,9 @@ import {
 import { SearchSort } from '@/constants/search/enums'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatParliamentOption } from '@/lib/format'
+import { filterParliamentsByMembership } from '@/lib/membershipFilter'
 import { getSortWithoutWords } from '@/lib/utils'
+import type { MembershipFilters } from '@/types/search/interfaces'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CircleHelp, Info } from 'lucide-react'
 import { useState } from 'react'
@@ -115,8 +118,23 @@ export function FormSearch({
   const activeFilterCount = countActiveFilters(defaultValues)
   const hasWords = useWatch({ control, name: 'q' }).trim() !== ''
   const parliament = useWatch({ control, name: 'parliament' })
-  const parliamentNumber =
-    parliament === FILTER_ALL ? undefined : Number(parliament)
+  const personId = useWatch({ control, name: 'person' })
+  const constituency = useWatch({ control, name: 'constituency' })
+  const membershipFilters: MembershipFilters = {
+    parliamentNumber:
+      parliament === FILTER_ALL ? undefined : Number(parliament),
+    personId: personId ?? undefined,
+    constituency: constituency.trim(),
+  }
+  const persons = useGetAllPersons({})
+  const listedParliaments =
+    persons.data === undefined
+      ? parliaments
+      : filterParliamentsByMembership(
+          parliaments,
+          persons.data.persons,
+          membershipFilters
+        )
   const sortOptions = hasWords
     ? SEARCH_SORT_DROPDOWN_OPTIONS
     : SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS
@@ -230,7 +248,7 @@ export function FormSearch({
             <PopoverPersonFilter
               id="search-person"
               value={field.value ?? undefined}
-              parliamentNumber={parliamentNumber}
+              filters={membershipFilters}
               onChange={onChange}
             />
           )}
@@ -257,7 +275,7 @@ export function FormSearch({
             <PopoverConstituencyFilter
               id="search-constituency"
               value={field.value}
-              parliamentNumber={parliamentNumber}
+              filters={membershipFilters}
               onChange={onChange}
             />
           )}
@@ -284,7 +302,7 @@ export function FormSearch({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={FILTER_ALL}>All Parliaments</SelectItem>
-              {parliaments.map((parliament) => (
+              {listedParliaments.map((parliament) => (
                 <SelectItem
                   key={parliament.parliament_number}
                   value={String(parliament.parliament_number)}
