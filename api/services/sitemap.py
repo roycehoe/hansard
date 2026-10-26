@@ -27,7 +27,7 @@ def _get_file_name(kind: str, file_number: int) -> str:
 def _get_kind_to_paths(session: Session) -> dict[str, list[str]]:
     sitting_dates = CRUDReport(session).get_all_sitting_dates()
     persons = CRUDPerson(session).get_all()
-    report_ids = CRUDReport(session).get_all_report_ids_not_in_report_ids(
+    report_ids = CRUDReport(session).get_all_report_ids_with_text_not_in_report_ids(
         get_taken_down_report_id_candidates()
     )
     return {
