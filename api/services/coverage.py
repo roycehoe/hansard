@@ -136,6 +136,8 @@ def _get_uncached_coverage(
         linked_speech_count=CRUDSpeech(session).get_count_with_membership_id(),
         person_count=CRUDPerson(session).get_count(),
         membership_count=CRUDMembership(session).get_count(),
+        non_member_membership_count=CRUDMembership(session).get_non_member_count(),
+        non_member_person_count=CRUDMembership(session).get_never_member_person_count(),
         sitting_count=CRUDSitting(session).get_count(),
         attendance_count=CRUDAttendance(session).get_count(),
         linked_attendance_count=CRUDAttendance(session).get_count_with_membership_id(),

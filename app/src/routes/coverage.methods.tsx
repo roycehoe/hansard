@@ -39,8 +39,6 @@ import {
   METHODS_LAST_REVISED,
   METHODS_TERMS_SECTION_ID,
   NO_TEXT_BY_DESIGN_REPORT_COUNT,
-  NON_MEMBER_MEMBERSHIP_COUNT,
-  NON_MEMBER_PERSON_COUNT,
   PARLIAMENT_FIFTEEN_FIRST_SITTING,
   PARLIAMENT_FOURTEEN_DISSOLVED,
   PARLIAMENT_FOURTEEN_LAST_SITTING,
@@ -186,7 +184,7 @@ export const Route = createFileRoute('/coverage/methods')({
               <dt className="font-medium">Membership</dt>
               <dd className="text-muted-foreground">
                 One person&apos;s seat in one Parliament. The count also
-                includes {NON_MEMBER_MEMBERSHIP_COUNT} entries for Governors and
+                includes {coverageData.non_member_membership_count} entries for Governors and
                 Presidents, who were not members.
               </dd>
             </div>
@@ -194,7 +192,7 @@ export const Route = createFileRoute('/coverage/methods')({
               <dt className="font-medium">People</dt>
               <dd className="text-muted-foreground">
                 Each person counted once across every Parliament, including{' '}
-                {NON_MEMBER_PERSON_COUNT} Governors and Presidents who were
+                {coverageData.non_member_person_count} Governors and Presidents who were
                 never members.
               </dd>
             </div>

@@ -31,6 +31,8 @@ export interface GetCoverageResponse {
   linked_speech_count: number
   person_count: number
   membership_count: number
+  non_member_membership_count: number
+  non_member_person_count: number
   sitting_count: number
   attendance_count: number
   linked_attendance_count: number

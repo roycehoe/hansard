@@ -33,6 +33,8 @@ class GetCoverageResponse(BaseModel):
     linked_speech_count: int
     person_count: int
     membership_count: int
+    non_member_membership_count: int
+    non_member_person_count: int
     sitting_count: int
     attendance_count: int
     linked_attendance_count: int
