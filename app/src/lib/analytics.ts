@@ -27,6 +27,7 @@ declare global {
 }
 
 let isAnalyticsScriptAdded = false
+const countedPaths = new Set<string>()
 
 function getReferrerWithoutQuery(referrer: string): string | undefined {
   try {
@@ -65,8 +66,13 @@ function sendCount(options: GoatCounterCountOptions): void {
   navigator.sendBeacon(countUrl.toString())
 }
 
-export function getCountedPath(pathname: string, searchStr: string): string {
+export function getCountedPath(
+  pathname: string,
+  searchStr: string,
+  isPathAlreadyCounted: boolean
+): string {
   if (!pathname.startsWith(QUERY_COUNTED_PATH_PREFIX)) return pathname
+  if (isPathAlreadyCounted) return pathname
   const searchParams = new URLSearchParams(searchStr)
   const keptParams = new URLSearchParams()
   for (const key of COUNTED_REPORT_QUERY_KEYS) {
@@ -78,7 +84,9 @@ export function getCountedPath(pathname: string, searchStr: string): string {
 }
 
 export function countPageView(pathname: string, searchStr: string): void {
-  sendCount({ path: getCountedPath(pathname, searchStr) })
+  const isPathAlreadyCounted = countedPaths.has(pathname)
+  countedPaths.add(pathname)
+  sendCount({ path: getCountedPath(pathname, searchStr, isPathAlreadyCounted) })
 }
 
 export function countEvent(name: AnalyticsEvent): void {
