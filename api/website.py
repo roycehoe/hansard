@@ -11,6 +11,7 @@ from middleware.cache_fill import (
     fill_coverage_parliament_and_sitemap_caches_after_each_refresh,
 )
 from middleware.frontend import FrontendFiles
+from middleware.security_headers import SecurityHeadersMiddleware
 from middleware.takedown import TakedownMiddleware
 from routers import sitemap
 from settings import WebsiteSettings
@@ -50,6 +51,8 @@ if not website_settings.is_public_mode:
     )
 
 app.add_middleware(GZipMiddleware, compresslevel=_GZIP_COMPRESSION_LEVEL)
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(sitemap.router)
 app.mount("/api", api_app)
