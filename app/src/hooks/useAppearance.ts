@@ -15,7 +15,7 @@ export interface Appearance {
 const DEFAULT_APPEARANCE: Appearance = {
   textSize: TextSize.STANDARD,
   width: ContentWidth.STANDARD,
-  columnNumbers: ColumnNumbers.SHOW,
+  columnNumbers: ColumnNumbers.HIDE,
 }
 
 const listeners = new Set<() => void>()

@@ -173,7 +173,7 @@ export function RowSpeech({
       )}
     >
       {hasColumnMarkers && (
-        <div className="in-data-[columns=hide]:hidden sm:w-16 sm:shrink-0 sm:text-right">
+        <div className="hidden in-data-[columns=show]:block sm:w-16 sm:shrink-0 sm:text-right">
           {typeof speech.column_start === 'number' &&
             renderColumnMarker(speech.column_start)}
         </div>
