@@ -12,7 +12,7 @@ A web app for browsing Singapore Parliament Hansard records. The data comes from
 |------|-----------|-------------|
 | `app/` | Frontend: React 19, TypeScript, Vite, Tailwind 4, shadcn, TanStack | `app/CLAUDE.md`, `app/STYLE.md` |
 | `api/` | Backend: Python 3.15, FastAPI, SQLModel, read-only against the scraper database | `api/CLAUDE.md`, `api/STYLE.md`, `api/STYLE-RULINGS.md` |
-| `docs/` | Palette (`docs/palette.md`, `docs/palette-preview.html`, source photos under `docs/palette/sources/`) | |
+| `docs/` | Palette, indexes, takedown and corrections notes, and the ADRs. `docs/README.md` says what each file is for. | `docs/README.md` |
 | `docs/adr/` | Architecture decision records. Read these before changing how the API touches the database or how the site is branded. | |
 | `plans/` | Local feature briefs and pipeline state. Gitignored, so not in the repository. | |
 
