@@ -273,5 +273,6 @@ def get_preview(
     if cached_preview is not None and monotonic() < cached_preview.expires_at:
         return cached_preview.preview
     preview = _get_uncached_preview(page_path, speech_ordinal, speech_anchor, session)
-    _cache_key_to_cached_preview = _get_cache_with_preview(cache_key, preview)
+    if preview.is_found:
+        _cache_key_to_cached_preview = _get_cache_with_preview(cache_key, preview)
     return preview
