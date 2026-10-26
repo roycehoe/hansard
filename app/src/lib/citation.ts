@@ -19,6 +19,7 @@ const ACTING_FOR_BRACKET = /^(?:for(?:the)?|on behalf of)\b/i
 const PRESIDING_OFFICE =
   /^(?:(?:Mr|Madam|Mdm) )?(?:Deputy )?(?:Speaker|Chairman)$/
 const NAME_DOT = /\./g
+const DOUBLE_QUOTE = /"/g
 const PARLIAMENT_CITATION_TITLE =
   'Singapore Parliamentary Debates, Official Report'
 const LEGISLATIVE_ASSEMBLY_CITATION_TITLE =
@@ -182,6 +183,10 @@ export function buildSpeechCitation(
   return `${reportCitation}${column} (${attribution})`
 }
 
+function quoteTitle(title: string): string {
+  return `"${title.replace(DOUBLE_QUOTE, "'")}"`
+}
+
 export function buildSpeechCite(
   speechCitation: string,
   reportTitle: string,
@@ -189,7 +194,7 @@ export function buildSpeechCite(
   officialRecordUrl: string,
   retrievedOn: string
 ): string {
-  return `"${reportTitle}", ${speechCitation}. Retrieved from ${permalink} on ${retrievedOn}. Original: ${officialRecordUrl}`
+  return `${quoteTitle(reportTitle)}, ${speechCitation}. Retrieved from ${permalink} on ${retrievedOn}. Original: ${officialRecordUrl}`
 }
 
 export function buildReportCite(
@@ -199,5 +204,5 @@ export function buildReportCite(
   officialRecordUrl: string,
   retrievedOn: string
 ): string {
-  return `"${reportTitle}", ${reportCitation}. Retrieved from ${buildReportPermalink(reportSlug)} on ${retrievedOn}. Original: ${officialRecordUrl}`
+  return `${quoteTitle(reportTitle)}, ${reportCitation}. Retrieved from ${buildReportPermalink(reportSlug)} on ${retrievedOn}. Original: ${officialRecordUrl}`
 }

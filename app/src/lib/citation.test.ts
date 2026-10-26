@@ -270,6 +270,19 @@ describe('buildSpeechCite', () => {
   })
 })
 
+describe('citation titles with double quotes', () => {
+  it('uses single quotes inside the wrapping quotes', () => {
+    const title = 'Motion on "Dignity" Bill'
+    const expected = `"Motion on 'Dignity' Bill", CITATION.`
+    expect(buildSpeechCite('CITATION', title, 'p', 'o', 'd')).toContain(
+      expected
+    )
+    expect(buildReportCite('CITATION', title, 'x', 'o', 'd')).toContain(
+      expected
+    )
+  })
+})
+
 describe('buildReportCite', () => {
   it('builds the permalink from the slug', () => {
     expect(
