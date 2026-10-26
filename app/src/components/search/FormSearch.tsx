@@ -300,6 +300,7 @@ export function FormSearch({
               id="search-constituency"
               value={field.value}
               filters={membershipFilters}
+              isSeatTypeListed={false}
               onChange={onChange}
             />
           )}

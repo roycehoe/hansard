@@ -2,6 +2,7 @@ import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
 import {
   getConstituencies,
   getConstituencyMatches,
+  getSeatTypes,
   isConstituency,
 } from '@/lib/constituency'
 import { describe, expect, it } from 'vitest'
@@ -78,6 +79,28 @@ describe('getConstituencies', () => {
       buildPerson([buildMembership(9, ['Pasir Ris'])]),
     ]).map((constituency) => constituency.name)
     expect(names).toEqual(['Aljunied', 'Pasir Ris', 'Potong Pasir'])
+  })
+})
+
+describe('getSeatTypes', () => {
+  it('collects the Nominated and Non-Constituency seats with their Parliaments', () => {
+    expect(
+      getSeatTypes([
+        buildPerson([
+          buildMembership(14, ['Non-Constituency Member']),
+          buildMembership(15, ['Nominated Member']),
+          buildMembership(0, ['Acting', 'Nominated', 'ex-officio']),
+          buildMembership(15, ['Ang Mo Kio']),
+        ]),
+      ])
+    ).toEqual([
+      { name: 'Nominated Member', parliamentNumbers: [15], isCurrent: true },
+      {
+        name: 'Non-Constituency Member',
+        parliamentNumbers: [14],
+        isCurrent: false,
+      },
+    ])
   })
 })
 

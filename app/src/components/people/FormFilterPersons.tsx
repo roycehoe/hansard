@@ -131,6 +131,7 @@ export function FormFilterPersons({
           personId: undefined,
           constituency: '',
         }}
+        isSeatTypeListed
         onChange={changeConstituency}
       />
     </div>

@@ -14,7 +14,11 @@ import {
 } from '@/components/ui/popover'
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
-import { getConstituencies, getConstituencyMatches } from '@/lib/constituency'
+import {
+  getConstituencies,
+  getConstituencyMatches,
+  getSeatTypes,
+} from '@/lib/constituency'
 import { formatParliamentRange } from '@/lib/format'
 import { filterConstituenciesByMembership } from '@/lib/membershipFilter'
 import type { MembershipFilters } from '@/types/search/interfaces'
@@ -26,6 +30,7 @@ interface PopoverConstituencyFilterProps {
   id: string
   value: string
   filters: MembershipFilters
+  isSeatTypeListed: boolean
   onChange: (constituency: string) => void
 }
 
@@ -33,6 +38,7 @@ export function PopoverConstituencyFilter({
   id,
   value,
   filters,
+  isSeatTypeListed,
   onChange,
 }: PopoverConstituencyFilterProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -42,7 +48,9 @@ export function PopoverConstituencyFilter({
   const matches = getConstituencyMatches(
     typedName,
     filterConstituenciesByMembership(
-      getConstituencies(allPersons),
+      isSeatTypeListed
+        ? [...getSeatTypes(allPersons), ...getConstituencies(allPersons)]
+        : getConstituencies(allPersons),
       allPersons,
       filters
     )

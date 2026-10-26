@@ -31,6 +31,11 @@ export const NON_PLACE_CONSTITUENCIES = new Set([
   'ex-officio',
 ])
 
+export const SEAT_TYPE_NAMES = new Set([
+  'Nominated Member',
+  'Non-Constituency Member',
+])
+
 export const FIELD_HINT_CLOSE_DELAY_MS = 150
 
 export const SNIPPET_MARK_START = '<mark>'

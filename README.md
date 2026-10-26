@@ -13,7 +13,7 @@ The website at [hansard.fancybinary.sg](https://hansard.fancybinary.sg) takes ea
 
 ## Try it
 
-- [Find your MP](https://hansard.fancybinary.sg/people?constituency=Ang%20Mo%20Kio&parliament=15). Enter a constituency on the home page to list who sits for it in the latest Parliament.
+- [Find your MP](https://hansard.fancybinary.sg/people?constituency=Ang%20Mo%20Kio&parliament=15). Pick a constituency on /people to list who sat for it in the latest Parliament.
 - [A sitting](https://hansard.fancybinary.sg/sittings/2024-03-06) lists its reports, then who was present and who was absent.
 - [A report](https://hansard.fancybinary.sg/reports/written-answer-16079) shows the text as speeches. Each speech has Copy link, Cite and Report an error beside it, and the Source line links to the report on SPRS.
 - [A speech link](https://hansard.fancybinary.sg/reports/written-answer-16079?s=1&q=asked+the+minister+for+manpower+a+apart+from) opens one speech.
