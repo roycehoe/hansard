@@ -14,8 +14,8 @@ export function ListPersonReports({ reports }: ListPersonReportsProps) {
     return (
       <NoticeEmpty
         icon={FileText}
-        title="No reports with speeches"
-        description="No speeches by this person are in the archive yet."
+        title="No reports with paragraphs"
+        description="No paragraphs by this person are in the archive yet."
       />
     )
   }
@@ -43,7 +43,7 @@ export function ListPersonReports({ reports }: ListPersonReportsProps) {
           <BadgeReportType reportType={report.report_type} />
           <span className="text-muted-foreground text-sm">
             {report.speech_count}{' '}
-            {report.speech_count === 1 ? 'speech' : 'speeches'}
+            {report.speech_count === 1 ? 'paragraph' : 'paragraphs'}
           </span>
         </li>
       ))}

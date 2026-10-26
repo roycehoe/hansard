@@ -62,5 +62,5 @@ export const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor('speaker', { header: 'Person' }),
-  columnHelper.accessor('speechCount', { header: 'Speeches' }),
+  columnHelper.accessor('speechCount', { header: 'Paragraphs' }),
 ])

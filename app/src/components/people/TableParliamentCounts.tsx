@@ -26,7 +26,7 @@ export function TableParliamentCounts({
     <div className="space-y-4">
       <Table>
         <TableCaption className="sr-only">
-          Speeches and attendance by Parliament
+          Paragraphs and attendance by Parliament
         </TableCaption>
         <TableHeader>
           <TableRow>
@@ -34,7 +34,7 @@ export function TableParliamentCounts({
               Parliament
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
-              Speeches
+              Paragraphs
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
               Present

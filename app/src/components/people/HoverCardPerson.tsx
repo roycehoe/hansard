@@ -101,7 +101,7 @@ function CardPersonSummary({ personId, personSlug }: CardPersonSummaryProps) {
             <dd>{formatMembershipParliaments(data.memberships)}</dd>
           </>
         )}
-        <dt className="text-muted-foreground">Speeches</dt>
+        <dt className="text-muted-foreground">Paragraphs</dt>
         <dd>{speechCount.toLocaleString(NUMBER_LOCALE)}</dd>
         {reports.isLoading && (
           <>
@@ -143,7 +143,7 @@ function SkeletonCardPersonSummary({
         <dd className={SKELETON_VALUE_CLASS_NAME}>
           <Skeleton className="h-3.5 w-38" />
         </dd>
-        <dt className="text-muted-foreground">Speeches</dt>
+        <dt className="text-muted-foreground">Paragraphs</dt>
         <dd className={SKELETON_VALUE_CLASS_NAME}>
           <Skeleton className="h-3.5 w-12" />
         </dd>

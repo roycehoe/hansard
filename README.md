@@ -17,7 +17,7 @@ The website at [hansard.fancybinary.sg](https://hansard.fancybinary.sg) takes ea
 - [A sitting](https://hansard.fancybinary.sg/sittings/2024-03-06) lists its Reports, then who was present and who was absent.
 - [A Report](https://hansard.fancybinary.sg/reports/written-answer-16079) shows the text as speeches. Each speech has Copy link, Cite and Report an error beside it, and the Source line links to the Report on SPRS.
 - [A speech link](https://hansard.fancybinary.sg/reports/written-answer-16079?s=1&q=asked+the+minister+for+manpower+a+apart+from) opens one speech.
-- [A person's page](https://hansard.fancybinary.sg/people/399-louis-ng-kok-kwang) lists their memberships, their speeches and attendance in each Parliament, and every Report they spoke in.
+- [A person's page](https://hansard.fancybinary.sg/people/399-louis-ng-kok-kwang) lists their memberships, their paragraphs and attendance in each Parliament, and every Report they spoke in.
 - [Search](https://hansard.fancybinary.sg/search?q=heat%20stress) covers speeches and Report titles, with filters for Parliament, dates, Report type, person and constituency.
 
 <picture>
