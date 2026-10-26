@@ -95,7 +95,7 @@ export const Route = createFileRoute('/coverage/')({
           }
         />
 
-        <div className="max-w-prose space-y-8">
+        <div className="max-w-3xl space-y-8">
           <div className="space-y-4">
             <p>
               This is an unofficial archive of Singapore&apos;s parliamentary
