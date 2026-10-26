@@ -831,7 +831,7 @@ Disable all form inputs while `isPending` — not just the submit button. This p
 
 ### Filter forms
 
-A filter or sort control applies as soon as its value changes, with no Apply button. A date field applies on blur, and only when its value changed. Free-text words sent to the API wait for Enter or the Search button. Words that filter a list already loaded in the page, such as Name and Constituency on /people, apply as they are typed, and those boxes have no Search button. On a phone, where filters sit in a sheet over the results, the sheet's "Show results" button applies them.
+A filter or sort control applies as soon as its value changes, with no Apply button. A date field applies on blur, and only when its value changed. Free-text words sent to the API wait for Enter or the Search button. Words that filter a list already loaded in the page, such as Name on /people, apply as they are typed, and those boxes have no Search button. On a phone, where filters sit in a sheet over the results, the sheet's "Show results" button applies them. On /people they apply as they change, so the button only closes the sheet.
 
 ---
 
