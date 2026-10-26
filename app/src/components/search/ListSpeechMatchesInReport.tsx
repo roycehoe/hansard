@@ -119,11 +119,7 @@ export function ListSpeechMatchesInReport({
             <Link
               to="/reports/$reportSlug"
               params={{ reportSlug: speech.report_slug }}
-              search={{
-                hl: highlightWords,
-                s: speech.ordinal,
-                q: speech.anchor === '' ? undefined : speech.anchor,
-              }}
+              search={{ hl: highlightWords }}
               hash={`s${speech.ordinal}`}
               hashScrollIntoView={false}
               className="group focus-visible:ring-ring focus-visible:ring-offset-background block space-y-1 rounded-sm outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
