@@ -1,4 +1,5 @@
 import { ApiError } from '@/api/client'
+import { NoticeNotFoundPage } from '@/components/layout/NoticeNotFoundPage'
 import { Toaster } from '@/components/ui/sonner'
 import {
   DEFAULT_QUERY_RETRY_COUNT,
@@ -28,6 +29,7 @@ const queryClient = new QueryClient({
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
+  defaultNotFoundComponent: NoticeNotFoundPage,
   scrollRestoration: true,
 })
 
