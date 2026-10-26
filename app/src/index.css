@@ -123,6 +123,12 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@keyframes linked-speech-fade {
+  to {
+    background-color: transparent;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring;
@@ -137,6 +143,18 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .linked-speech {
+    background-color: var(--highlight);
+    animation: linked-speech-fade 2s ease-out 1.5s forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .linked-speech {
+      animation: none;
     }
   }
 }
