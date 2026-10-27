@@ -27,12 +27,14 @@ function SkeletonTableSection() {
 export function SkeletonPerson() {
   return (
     <div className="space-y-8">
-      <SkeletonPageHeader hasDescription />
+      <SkeletonPageHeader
+        hasDescription
+        actions={<Skeleton className="h-9 w-56" />}
+      />
       <SkeletonTableSection />
       <SkeletonTableSection />
       <div className="space-y-4">
         <Skeleton className="h-7 w-28" />
-        <Skeleton className="h-9 w-full max-w-md" />
         <SkeletonReportRows />
       </div>
     </div>

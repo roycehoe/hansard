@@ -6,7 +6,6 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import { TextSource } from '@/components/layout/TextSource'
 import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
-import { FormSearchPersonSpeeches } from '@/components/people/FormSearchPersonSpeeches'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
 import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
@@ -23,6 +22,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { isSittingMember, parsePersonSlug } from '@/lib/utils'
@@ -125,6 +125,13 @@ export const Route = createFileRoute('/people/$personSlug')({
               path={`/people/${data.person_id}-${data.person_slug}`}
             />
           }
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to="/search" search={{ person: data.person_id }}>
+                Search this person's speeches
+              </Link>
+            </Button>
+          }
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -168,7 +175,6 @@ export const Route = createFileRoute('/people/$personSlug')({
           <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
             Reports
           </h2>
-          <FormSearchPersonSpeeches personId={data.person_id} />
           {renderReports()}
         </section>
         <TextSource sittingDate={null} officialRecordUrl={null} />
