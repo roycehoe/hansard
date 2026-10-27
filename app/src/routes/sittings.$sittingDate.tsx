@@ -71,7 +71,7 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
         <PageHeader
           title={`Sitting of ${formattedDate}`}
           description={description}
-          actions={
+          titleAction={
             <ButtonCopyLink
               path={`/sittings/${encodeURIComponent(data.sitting_date)}`}
             />

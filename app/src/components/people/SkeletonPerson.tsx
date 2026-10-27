@@ -27,15 +27,7 @@ function SkeletonTableSection() {
 export function SkeletonPerson() {
   return (
     <div className="space-y-8">
-      <SkeletonPageHeader
-        hasDescription
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Skeleton className="h-9 w-28" />
-            <Skeleton className="h-9 w-56" />
-          </div>
-        }
-      />
+      <SkeletonPageHeader hasDescription />
       <SkeletonTableSection />
       <SkeletonTableSection />
       <div className="space-y-4">

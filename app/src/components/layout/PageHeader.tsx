@@ -5,6 +5,7 @@ interface PageHeaderProps {
   description?: string
   breadcrumb?: ReactNode
   actions?: ReactNode
+  titleAction?: ReactNode
   badge?: ReactNode
 }
 
@@ -13,6 +14,7 @@ export function PageHeader({
   description,
   breadcrumb,
   actions,
+  titleAction,
   badge,
 }: PageHeaderProps) {
   return (
@@ -27,6 +29,7 @@ export function PageHeader({
             >
               {title}
             </h1>
+            {titleAction}
             {badge}
           </div>
           {description && (

@@ -1,4 +1,9 @@
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { AnalyticsEvent } from '@/constants/analytics/enums'
 import { countEvent } from '@/lib/analytics'
 import { buildPagePermalink } from '@/lib/citation'
@@ -20,9 +25,19 @@ export function ButtonCopyLink({ path }: ButtonCopyLinkProps) {
   }
 
   return (
-    <Button type="button" variant="outline" size="sm" onClick={copyPageLink}>
-      <Link2 aria-hidden="true" />
-      Copy link
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="quiet"
+          size="icon-sm"
+          onClick={copyPageLink}
+          aria-label="Copy link"
+        >
+          <Link2 aria-hidden="true" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Copy link</TooltipContent>
+    </Tooltip>
   )
 }

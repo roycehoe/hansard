@@ -22,7 +22,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
 import { HTTP_NOT_FOUND } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { isSittingMember, parsePersonSlug } from '@/lib/utils'
@@ -120,17 +119,10 @@ export const Route = createFileRoute('/people/$personSlug')({
               ? undefined
               : `Also recorded as: ${nameVariants}`
           }
-          actions={
-            <>
-              <ButtonCopyLink
-                path={`/people/${data.person_id}-${data.person_slug}`}
-              />
-              <Button asChild variant="outline" size="sm">
-                <Link to="/search" search={{ person: data.person_id }}>
-                  Search this person's speeches
-                </Link>
-              </Button>
-            </>
+          titleAction={
+            <ButtonCopyLink
+              path={`/people/${data.person_id}-${data.person_slug}`}
+            />
           }
           breadcrumb={
             <Breadcrumb>
