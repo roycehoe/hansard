@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import { TextSource } from '@/components/layout/TextSource'
 import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
+import { FormSearchPersonSpeeches } from '@/components/people/FormSearchPersonSpeeches'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
 import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
@@ -167,6 +168,7 @@ export const Route = createFileRoute('/people/$personSlug')({
           <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
             Reports
           </h2>
+          <FormSearchPersonSpeeches personId={data.person_id} />
           {renderReports()}
         </section>
         <TextSource sittingDate={null} officialRecordUrl={null} />
