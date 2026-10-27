@@ -378,6 +378,7 @@ export function FormSearch({
       <Input
         id="search-from"
         type="date"
+        className="appearance-none [&::-webkit-date-and-time-value]:text-left"
         min={FIRST_SITTING_DATE}
         max={getToday()}
         aria-invalid={errors.from ? true : undefined}
@@ -399,6 +400,7 @@ export function FormSearch({
       <Input
         id="search-to"
         type="date"
+        className="appearance-none [&::-webkit-date-and-time-value]:text-left"
         min={FIRST_SITTING_DATE}
         max={getToday()}
         aria-invalid={errors.to ? true : undefined}
