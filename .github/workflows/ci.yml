@@ -144,7 +144,7 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - name: Smoke test the deployed site
         env:
-          SITE: https://hansard.fancybinary.sg
+          SITE: https://openhansard.sg
         run: |
           failed=0
           for path in \

@@ -5,6 +5,22 @@ domains:
     type: PRIMARY
   - domain: hansard.fancybinary.sg
     type: ALIAS
+ingress:
+  rules:
+    - match:
+        authority:
+          exact: hansard.fancybinary.sg
+        path:
+          prefix: /
+      redirect:
+        authority: openhansard.sg
+        scheme: https
+        redirect_code: 301
+    - match:
+        path:
+          prefix: /
+      component:
+        name: web
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
@@ -31,8 +47,6 @@ services:
         operator: GREATER_THAN
         value: 85
         window: FIVE_MINUTES
-    routes:
-      - path: /
     envs:
       - key: DATABASE_URL
         scope: RUN_TIME
@@ -55,7 +69,7 @@ services:
         value: ${TAKEDOWN_REPORT_SLUGS}
       - key: SITE_URL
         scope: RUN_TIME
-        value: https://hansard.fancybinary.sg
+        value: https://openhansard.sg
       - key: VITE_CONTACT_EMAIL
         scope: BUILD_TIME
         value: royceinbox@hotmail.com
