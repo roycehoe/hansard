@@ -1,8 +1,10 @@
 name: hansard
 region: sgp
 domains:
-  - domain: hansard.fancybinary.sg
+  - domain: openhansard.sg
     type: PRIMARY
+  - domain: hansard.fancybinary.sg
+    type: ALIAS
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
