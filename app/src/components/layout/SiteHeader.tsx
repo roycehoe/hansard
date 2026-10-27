@@ -31,7 +31,7 @@ export function SiteHeader() {
           to="/"
           className="text-foreground focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-serif text-2xl font-semibold outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
         >
-          Hansard
+          Open Hansard
         </Link>
         <nav
           aria-label="Main"

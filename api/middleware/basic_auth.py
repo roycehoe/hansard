@@ -8,7 +8,7 @@ from starlette.types import ASGIApp
 _HEALTH_PATH = "/api/health"
 _AUTHORIZATION_HEADER = "authorization"
 _WWW_AUTHENTICATE_HEADER = "WWW-Authenticate"
-_AUTHENTICATE_HEADER = 'Basic realm="Hansard"'
+_AUTHENTICATE_HEADER = 'Basic realm="Open Hansard"'
 _ROBOTS_TAG_HEADER = "X-Robots-Tag"
 _NOINDEX = "noindex"
 _CACHE_CONTROL_HEADER = "Cache-Control"

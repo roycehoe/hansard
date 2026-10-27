@@ -59,5 +59,5 @@ def test_unauthorised_request_gets_a_401_with_no_cache_control() -> None:
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert "cache-control" not in response.headers
-    assert response.headers["www-authenticate"] == 'Basic realm="Hansard"'
+    assert response.headers["www-authenticate"] == 'Basic realm="Open Hansard"'
     assert response.headers["x-robots-tag"] == "noindex"

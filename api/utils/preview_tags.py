@@ -1,7 +1,7 @@
 from html import escape
 from typing import Optional
 
-_SITE_NAME = "Hansard"
+_SITE_NAME = "Open Hansard"
 _TITLE_SEPARATOR = " · "
 _TWITTER_CARD = "summary"
 _TAG_SEPARATOR = "\n    "

@@ -38,6 +38,6 @@ export const ABSENCE_DEFINITION =
 
 export const DEFAULT_QUERY_RETRY_COUNT = 3
 
-export const SITE_NAME = 'Hansard'
+export const SITE_NAME = 'Open Hansard'
 
 export const DOCUMENT_TITLE_SEPARATOR = ' · '

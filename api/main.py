@@ -22,7 +22,7 @@ _OPENAPI_URL = "/openapi.json"
 _GZIP_COMPRESSION_LEVEL = 4
 
 app = FastAPI(
-    title="Hansard API",
+    title="Open Hansard API",
     openapi_url=None if settings.is_public_mode else _OPENAPI_URL,
 )
 
