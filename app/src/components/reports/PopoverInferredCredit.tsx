@@ -12,7 +12,7 @@ import type { FocusEvent, MouseEvent, PointerEvent } from 'react'
 import { useEffect, useId, useRef, useState } from 'react'
 
 const TRIGGER_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background cursor-pointer rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+  'relative after:absolute after:-inset-y-2 after:-right-4 after:-left-1 text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background cursor-pointer rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
 interface PopoverInferredCreditProps {
   speakerLabel: string
