@@ -1,11 +1,11 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/banner-dark.svg">
-  <img alt="Singapore Parliamentary Record" src="docs/images/banner-light.svg">
+  <img alt="Open Hansard" src="docs/images/banner-light.svg">
 </picture>
 
-The website at [hansard.fancybinary.sg](https://hansard.fancybinary.sg) takes each report from Singapore's Official Report and shows it as speeches. It links each speech to the person who gave it, when the speaker label is enough to tell who spoke.
+The website at [openhansard.sg](https://openhansard.sg) takes each report from Singapore's Official Report and shows it as speeches. It links each speech to the person who gave it, when the speaker label is enough to tell who spoke.
 
-[Open the site](https://hansard.fancybinary.sg) · [Coverage](https://hansard.fancybinary.sg/coverage) · [Data quality and methods](https://hansard.fancybinary.sg/coverage/methods)
+[Open the site](https://openhansard.sg) · [Coverage](https://openhansard.sg/coverage) · [Data quality and methods](https://openhansard.sg/coverage/methods)
 
 - The site is live and has been public since 20 October 2026.
 - It is not an official Parliament site. The Official Report on [SPRS](https://sprs.parl.gov.sg/search/) is the authoritative record, and each report page links to its copy there.
@@ -13,12 +13,12 @@ The website at [hansard.fancybinary.sg](https://hansard.fancybinary.sg) takes ea
 
 ## Try it
 
-- [Find your MP](https://hansard.fancybinary.sg/people?constituency=Ang%20Mo%20Kio&parliament=15). Pick a constituency on /people to list who sat for it in the latest Parliament.
-- [A sitting](https://hansard.fancybinary.sg/sittings/2024-03-06) lists its reports, then who was present and who was absent.
-- [A report](https://hansard.fancybinary.sg/reports/written-answer-16079) shows the text as speeches. Each speech has Copy link, Cite and Report an error beside it, and the Source line links to the report on SPRS.
-- [A speech link](https://hansard.fancybinary.sg/reports/written-answer-16079?s=1&q=asked+the+minister+for+manpower+a+apart+from) opens one speech.
-- [A person's page](https://hansard.fancybinary.sg/people/399-louis-ng-kok-kwang) lists their memberships, their paragraphs and attendance in each Parliament, and every report they spoke in.
-- [Search](https://hansard.fancybinary.sg/search?q=heat%20stress) covers speeches and report titles, with filters for Parliament, dates, report type, person and constituency.
+- [Find your MP](https://openhansard.sg/people?constituency=Ang%20Mo%20Kio&parliament=15). Pick a constituency on /people to list who sat for it in the latest Parliament.
+- [A sitting](https://openhansard.sg/sittings/2024-03-06) lists its reports, then who was present and who was absent.
+- [A report](https://openhansard.sg/reports/written-answer-16079) shows the text as speeches. Each speech has Copy link, Cite and Report an error beside it, and the Source line links to the report on SPRS.
+- [A speech link](https://openhansard.sg/reports/written-answer-16079?s=1&q=asked+the+minister+for+manpower+a+apart+from) opens one speech.
+- [A person's page](https://openhansard.sg/people/399-louis-ng-kok-kwang) lists their memberships, their paragraphs and attendance in each Parliament, and every report they spoke in.
+- [Search](https://openhansard.sg/search?q=heat%20stress) covers speeches and report titles, with filters for Parliament, dates, report type, person and constituency.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/report-dark.png">
