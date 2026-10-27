@@ -4,7 +4,7 @@ Repo root. Thin by design: orientation plus the few facts that sit between the t
 
 ## What this is
 
-A web app for browsing Singapore Parliament Hansard records. The data comes from the Postgres database that `roycehoe/hansard-scraper` builds and owns. This repo reads it and never writes to it.
+Open Hansard is a web app at openhansard.sg for browsing Singapore Parliament Hansard records. The data comes from the Postgres database that `roycehoe/hansard-scraper` builds and owns. This repo reads it and never writes to it.
 
 ## Layout
 
