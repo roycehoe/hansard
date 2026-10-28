@@ -8,7 +8,7 @@ const SPEECH_COUNT = 4
 
 export function SkeletonReport() {
   return (
-    <div className="space-y-8">
+    <div className="min-h-screen space-y-8">
       <SkeletonPageHeader
         hasDescription={false}
         aboveTitle={<Skeleton className="h-6 w-40" />}
