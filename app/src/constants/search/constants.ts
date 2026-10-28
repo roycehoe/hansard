@@ -53,11 +53,6 @@ export const TITLE_MATCHES_HEADING = 'Title matches'
 
 export const REPORTS_HEADING = 'Reports'
 
-export const SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS = [
-  { value: SearchSort.DATE, label: 'Newest first' },
-  { value: SearchSort.OLDEST, label: 'Oldest first' },
-]
-
 export const EMPTY_WORDS_DESCRIPTION =
   'Common words such as "the" are ignored. Try different words or a wider date range.'
 

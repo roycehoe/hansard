@@ -6,11 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  SEARCH_SORT_DROPDOWN_OPTIONS,
-  SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS,
-} from '@/constants/search/constants'
-import type { SearchSort } from '@/constants/search/enums'
+import { SEARCH_SORT_DROPDOWN_OPTIONS } from '@/constants/search/constants'
+import { SearchSort } from '@/constants/search/enums'
 import { cn, getSortWithoutWords } from '@/lib/utils'
 
 interface FormSearchSortProps {
@@ -26,10 +23,6 @@ export function FormSearchSort({
   onChange,
   className,
 }: FormSearchSortProps) {
-  const sortOptions = hasWords
-    ? SEARCH_SORT_DROPDOWN_OPTIONS
-    : SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS
-
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       <Label htmlFor="search-sort">Sort</Label>
@@ -41,8 +34,12 @@ export function FormSearchSort({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {sortOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+          {SEARCH_SORT_DROPDOWN_OPTIONS.map((option) => (
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              disabled={!hasWords && option.value === SearchSort.RELEVANCE}
+            >
               {option.label}
             </SelectItem>
           ))}
