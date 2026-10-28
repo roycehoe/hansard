@@ -5,7 +5,6 @@ import { useGetReportMatchedWords } from '@/api/reports/getReportMatchedWords'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { TextSource } from '@/components/layout/TextSource'
 import { ButtonCopyCitation } from '@/components/reports/ButtonCopyCitation'
-import { ListAdjacentReports } from '@/components/reports/ListAdjacentReports'
 import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
@@ -180,10 +179,6 @@ export const Route = createFileRoute('/reports/$reportSlug')({
             report={data.referencing_oral_answer}
           />
         )}
-        <ListAdjacentReports
-          previousReport={data.previous_report}
-          nextReport={data.next_report}
-        />
         <TextSource
           sittingDate={data.sitting_date}
           officialRecordUrl={

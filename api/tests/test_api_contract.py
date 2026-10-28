@@ -71,7 +71,6 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
         f"{_PEOPLE_TYPES_FILE}::PartyAffiliationSourceReportData",
     ),
     ("GetReportResponse", f"{_REPORT_INTERFACES_FILE}::GetReportResponse"),
-    ("AdjacentReportData", f"{_REPORT_INTERFACES_FILE}::AdjacentReportData"),
     ("ReferencedReportData", f"{_REPORT_INTERFACES_FILE}::ReferencedReportData"),
     ("SpeechData", f"{_REPORT_INTERFACES_FILE}::SpeechData"),
     ("SpeechLinkData", f"{_REPORT_INTERFACES_FILE}::SpeechLinkData"),

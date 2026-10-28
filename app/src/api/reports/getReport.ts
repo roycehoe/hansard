@@ -34,11 +34,6 @@ export interface SpeechLinkData {
   ordinal: number | null
 }
 
-export interface AdjacentReportData {
-  report_slug: string
-  title: string
-}
-
 export interface ReferencedReportData {
   report_slug: string
   title: string
@@ -57,8 +52,6 @@ export interface GetReportResponse {
   is_text_available: boolean
   speeches: SpeechData[]
   speech_link: SpeechLinkData | null
-  previous_report: AdjacentReportData | null
-  next_report: AdjacentReportData | null
   referenced_written_answer: ReferencedReportData | null
   referencing_oral_answer: ReferencedReportData | null
 }

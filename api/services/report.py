@@ -13,7 +13,6 @@ from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
 from middleware.takedown import is_report_id_taken_down
 from schemas.report import (
-    AdjacentReportData,
     GetReportMatchedWordsResponse,
     GetReportResponse,
     ReferencedReportData,
@@ -108,12 +107,6 @@ def _get_speech_link_data(
     return SpeechLinkData(status=SpeechLinkStatus.MOVED, ordinal=linked_ordinal)
 
 
-def _get_adjacent_report_data(report: Report) -> AdjacentReportData:
-    return AdjacentReportData(
-        report_slug=get_report_slug(report.report_id), title=report.title
-    )
-
-
 def _get_referenced_report_data(
     title: str, report_type: ReportType, sitting_reports: list[Report]
 ) -> Optional[ReferencedReportData]:
@@ -154,9 +147,6 @@ def get_report(
         )
         if not is_report_id_taken_down(sitting_report.report_id)
     ]
-    report_index = [sitting_report.id for sitting_report in sitting_reports].index(
-        report.id
-    )
     return GetReportResponse(
         report_slug=get_report_slug(report.report_id),
         title=report.title,
@@ -180,16 +170,6 @@ def get_report(
         ],
         speech_link=_get_speech_link_data(
             ordinal_to_anchor, speech_ordinal, speech_anchor
-        ),
-        previous_report=(
-            _get_adjacent_report_data(sitting_reports[report_index - 1])
-            if report_index > 0
-            else None
-        ),
-        next_report=(
-            _get_adjacent_report_data(sitting_reports[report_index + 1])
-            if report_index < len(sitting_reports) - 1
-            else None
         ),
         referenced_written_answer=(
             _get_referenced_report_data(

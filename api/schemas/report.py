@@ -26,11 +26,6 @@ class SpeechLinkData(BaseModel):
     ordinal: Optional[int]
 
 
-class AdjacentReportData(BaseModel):
-    report_slug: str
-    title: str
-
-
 class ReferencedReportData(BaseModel):
     report_slug: str
     title: str
@@ -49,8 +44,6 @@ class GetReportResponse(BaseModel):
     is_text_available: bool
     speeches: list[SpeechData]
     speech_link: Optional[SpeechLinkData]
-    previous_report: Optional[AdjacentReportData]
-    next_report: Optional[AdjacentReportData]
     referenced_written_answer: Optional[ReferencedReportData]
     referencing_oral_answer: Optional[ReferencedReportData]
 
