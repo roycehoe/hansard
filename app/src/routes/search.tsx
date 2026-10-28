@@ -441,9 +441,13 @@ export const Route = createFileRoute('/search')({
             </TabsTrigger>
           </TabsList>
           <TabsContent value={SearchTab.SPEECHES}>
+            <h2 className="sr-only">{speechesHeading}</h2>
             {renderSpeeches()}
           </TabsContent>
-          <TabsContent value={SearchTab.TITLES}>{renderReports()}</TabsContent>
+          <TabsContent value={SearchTab.TITLES}>
+            <h2 className="sr-only">{reportsHeading}</h2>
+            {renderReports()}
+          </TabsContent>
         </Tabs>
       )
     }
