@@ -2,7 +2,7 @@ import { SkeletonPageHeader } from '@/components/layout/SkeletonPageHeader'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
-const METADATA_FACT_WIDTHS = ['w-32', 'w-28', 'w-20', 'w-20']
+const METADATA_FACT_WIDTHS = ['w-28', 'w-20', 'w-20']
 
 const SPEECH_COUNT = 4
 
