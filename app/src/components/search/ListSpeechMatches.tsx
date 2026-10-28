@@ -13,6 +13,7 @@ import {
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useMemo } from 'react'
 
 const EMPTY_WORDS_TITLE = 'No speech matches'
@@ -52,6 +53,7 @@ interface ListSpeechMatchesProps {
   highlightWords: string | undefined
   totalCount: number
   isTotalCapped: boolean
+  sortControl: ReactNode
 }
 
 export function ListSpeechMatches({
@@ -61,6 +63,7 @@ export function ListSpeechMatches({
   highlightWords,
   totalCount,
   isTotalCapped,
+  sortControl,
 }: ListSpeechMatchesProps) {
   const reportGroups = useMemo(
     () => groupSpeechMatchesByReport(resultPages),
@@ -86,6 +89,8 @@ export function ListSpeechMatches({
             isTotalCapped={isTotalCapped}
             singularNoun={hasWords ? 'speech match' : 'speech'}
             pluralNoun={hasWords ? 'speech matches' : 'speeches'}
+            hasWords={hasWords}
+            sortControl={sortControl}
           />
           <ol>
             {reportGroups.map((group) => (

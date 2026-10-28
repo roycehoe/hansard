@@ -1,5 +1,6 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
 import { useGetAllPersons } from '@/api/people/getAllPersons'
+import { FormSearchSort } from '@/components/search/FormSearchSort'
 import { PopoverConstituencyFilter } from '@/components/search/PopoverConstituencyFilter'
 import { PopoverFieldHint } from '@/components/search/PopoverFieldHint'
 import { PopoverPersonFilter } from '@/components/search/PopoverPersonFilter'
@@ -31,8 +32,6 @@ import {
   FIRST_SITTING_DATE,
   SEARCH_DATE_OUT_OF_RANGE_ERROR,
   SEARCH_FORM_ID,
-  SEARCH_SORT_DROPDOWN_OPTIONS,
-  SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS,
   SEARCH_TIPS_TEXT,
   SEARCH_WORDS_INPUT_ID,
   SEARCH_WORDS_MAX_LENGTH,
@@ -156,9 +155,6 @@ export function FormSearch({
           persons.data.persons,
           membershipFilters
         )
-  const sortOptions = hasWords
-    ? SEARCH_SORT_DROPDOWN_OPTIONS
-    : SEARCH_SORT_WITHOUT_WORDS_DROPDOWN_OPTIONS
 
   function choosePersonInSheet(personId: number) {
     setValue('person', personId)
@@ -417,35 +413,18 @@ export function FormSearch({
   )
 
   const sortField = (
-    <div className="flex w-full flex-col gap-2 sm:w-44">
-      <Label htmlFor="search-sort">Sort</Label>
-      <Controller
-        control={control}
-        name="sort"
-        render={({ field }) => (
-          <Select
-            value={hasWords ? field.value : getSortWithoutWords(field.value)}
-            onValueChange={changeSort}
-          >
-            <SelectTrigger
-              ref={field.ref}
-              id="search-sort"
-              className="w-full"
-              onBlur={field.onBlur}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {sortOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      />
-    </div>
+    <Controller
+      control={control}
+      name="sort"
+      render={({ field }) => (
+        <FormSearchSort
+          value={field.value}
+          hasWords={hasWords}
+          onChange={changeSort}
+          className="w-full sm:w-44"
+        />
+      )}
+    />
   )
 
   const filtersButtonLabel =
@@ -497,7 +476,6 @@ export function FormSearch({
                   {typeField}
                   {fromField}
                   {toField}
-                  {sortField}
                 </div>
                 <SheetFooter>
                   <Button type="submit" form={SEARCH_FORM_ID}>

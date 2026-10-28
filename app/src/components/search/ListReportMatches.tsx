@@ -11,6 +11,7 @@ import { formatParliament, formatSittingDate } from '@/lib/format'
 import { isTextPublished } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 const EMPTY_WORDS_TITLE = 'No title matches'
 const EMPTY_FILTERS_TITLE = 'No reports'
@@ -21,6 +22,7 @@ interface ListReportMatchesProps {
   highlightWords: string | undefined
   totalCount: number
   isTotalCapped: boolean
+  sortControl: ReactNode
 }
 
 export function ListReportMatches({
@@ -29,6 +31,7 @@ export function ListReportMatches({
   highlightWords,
   totalCount,
   isTotalCapped,
+  sortControl,
 }: ListReportMatchesProps) {
   return (
     <div className="space-y-4">
@@ -50,6 +53,8 @@ export function ListReportMatches({
             isTotalCapped={isTotalCapped}
             singularNoun={hasWords ? 'title match' : 'report'}
             pluralNoun={hasWords ? 'title matches' : 'reports'}
+            hasWords={hasWords}
+            sortControl={sortControl}
           />
           <ol>
             {results.map((result) => (

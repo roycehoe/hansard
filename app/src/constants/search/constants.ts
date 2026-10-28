@@ -21,6 +21,9 @@ export const SEARCH_WORDS_TOO_LONG_NOTICE = `Search words are limited to ${SEARC
 
 export const SEARCH_TIPS_TEXT = `Put a word in quotes to find only that form, so "housing" leaves out house. Several words in quotes are found together, in that order. Without quotes, searches also match other forms of a word. OR finds either word, and a minus sign leaves a word out. Up to ${SEARCH_WORDS_MAX_LENGTH} characters.`
 
+export const SEARCH_WORD_FORMS_NOTE =
+  'Words without quotes also match other forms, so housing finds house.'
+
 export const CONSTITUENCY_HINT_TEXT = 'Boundaries change between elections.'
 
 export const NON_PLACE_CONSTITUENCIES = new Set([

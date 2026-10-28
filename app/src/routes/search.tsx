@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import type { FormSearchValues } from '@/components/search/FormSearch'
 import { FormSearch } from '@/components/search/FormSearch'
+import { FormSearchSort } from '@/components/search/FormSearchSort'
 import { ListActiveFilters } from '@/components/search/ListActiveFilters'
 import { ListPersonMatches } from '@/components/search/ListPersonMatches'
 import { ListReportMatches } from '@/components/search/ListReportMatches'
@@ -37,6 +38,7 @@ import {
   FILTER_ALL,
   HTTP_TOO_MANY_REQUESTS,
   NUMBER_LOCALE,
+  PHONE_MEDIA_QUERY,
 } from '@/constants/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
@@ -49,6 +51,7 @@ import {
 } from '@/constants/search/constants'
 import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { isQueryOnlyExcludedWords } from '@/lib/searchQuery'
 import {
   getSortWithoutWords,
@@ -100,6 +103,7 @@ export const Route = createFileRoute('/search')({
     const { q, parliament, from, to, type, person, constituency, sort, tab } =
       Route.useSearch()
     const navigate = useNavigate()
+    const { isMatching: isPhone } = useMediaQuery(PHONE_MEDIA_QUERY)
     const parliaments = useGetAllParliaments()
     const personDetail = useGetPerson({ person_id: person ?? 0 })
     const words = q?.trim() ?? ''
@@ -120,7 +124,10 @@ export const Route = createFileRoute('/search')({
     // NOTE: a report title carries no seat, so a seat filter leaves only the speeches
     const canSearchReports =
       canSearch && !hasConstituency && (hasWords || !hasPerson)
-    const resultSort = hasWords ? sort : getSortWithoutWords(sort)
+    const defaultSort = hasPerson ? SearchSort.DATE : SearchSort.RELEVANCE
+    const resultSort = hasWords
+      ? (sort ?? defaultSort)
+      : getSortWithoutWords(sort)
     const personName = personDetail.data?.canonical_name
     const speechesHeading = getSpeechesHeading(
       hasWords,
@@ -190,7 +197,7 @@ export const Route = createFileRoute('/search')({
           type: values.type === FILTER_ALL ? undefined : values.type,
           person: values.person ?? undefined,
           constituency: mapFilterToSearchValue(values.constituency.trim()),
-          sort: values.sort,
+          sort: values.sort === (sort ?? defaultSort) ? sort : values.sort,
           tab,
         },
       })
@@ -228,6 +235,26 @@ export const Route = createFileRoute('/search')({
       })
     }
 
+    function changeSort(nextSort: string) {
+      void navigate({
+        to: '/search',
+        search: (previous) => ({ ...previous, sort: nextSort as SearchSort }),
+        resetScroll: false,
+      })
+    }
+
+    function renderSortControl() {
+      if (!isPhone) return undefined
+      return (
+        <FormSearchSort
+          value={resultSort}
+          hasWords={hasWords}
+          onChange={changeSort}
+          className="w-44"
+        />
+      )
+    }
+
     function renderForm() {
       if (parliaments.isLoading) return <SkeletonFormSearch />
       if (parliaments.isLoadingError || !parliaments.data) {
@@ -249,7 +276,7 @@ export const Route = createFileRoute('/search')({
             to: to ?? '',
             person: person ?? null,
             constituency: constituency ?? '',
-            sort: sort ?? SearchSort.RELEVANCE,
+            sort: sort ?? defaultSort,
           }}
           parliaments={parliaments.data.parliaments}
           onSubmit={applySearch}
@@ -297,6 +324,7 @@ export const Route = createFileRoute('/search')({
             highlightWords={hasWords ? words : undefined}
             totalCount={firstPage.total_count}
             isTotalCapped={firstPage.is_total_capped}
+            sortControl={renderSortControl()}
           />
           <PaginationInfiniteScroll
             hasNextPage={speeches.hasNextPage && !speeches.isPlaceholderData}
@@ -347,6 +375,7 @@ export const Route = createFileRoute('/search')({
             highlightWords={hasWords ? words : undefined}
             totalCount={firstPage.total_count}
             isTotalCapped={firstPage.is_total_capped}
+            sortControl={renderSortControl()}
           />
           <PaginationInfiniteScroll
             hasNextPage={reports.hasNextPage && !reports.isPlaceholderData}
