@@ -31,3 +31,4 @@ Read these before changing how the API touches the database, how the site is bra
 | `adr/0005-palette-from-the-chamber.md` | The palette comes from the debating chamber. |
 | `adr/0006-display-what-the-record-prints.md` | The site shows what the record prints, and our reading goes in a note. |
 | `adr/0007-site-name-and-dataset-name.md` | The website is Open Hansard, and the scraper's dataset keeps the name Singapore Parliamentary Record. |
+| `adr/0008-pages-render-on-the-client.md` | Pages render in the browser only. The server writes the head and never the page text. |
