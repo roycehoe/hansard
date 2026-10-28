@@ -74,10 +74,18 @@ export const Route = createFileRoute('/people/$personSlug')({
           />
         )
       }
+      const [firstPage] = reports.data.pages
       const personReports = reports.data.pages.flatMap((page) => page.reports)
       return (
         <div className="space-y-4">
           <ListPersonReports reports={personReports} />
+          {reports.hasNextPage && !reports.isFetchNextPageError && (
+            <p role="status" className="text-muted-foreground text-sm">
+              Showing {personReports.length.toLocaleString(NUMBER_LOCALE)} of{' '}
+              {firstPage.total_count.toLocaleString(NUMBER_LOCALE)}. More load
+              as you scroll.
+            </p>
+          )}
           <PaginationInfiniteScroll
             hasNextPage={reports.hasNextPage}
             isFetchingNextPage={reports.isFetchingNextPage}
