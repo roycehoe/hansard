@@ -10,7 +10,7 @@ interface ListParliamentsProps {
 export function ListParliaments({ parliaments }: ListParliamentsProps) {
   return (
     <ul>
-      {parliaments.map((parliament) => (
+      {[...parliaments].reverse().map((parliament) => (
         <li
           key={parliament.parliament_number}
           className="border-separator border-b py-3 last:border-b-0"
