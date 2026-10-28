@@ -10,6 +10,7 @@ import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
+import { NoticeReferencedReport } from '@/components/reports/NoticeReferencedReport'
 import { NoticeRemovedReport } from '@/components/reports/NoticeRemovedReport'
 import { NoticeTextNotPublished } from '@/components/reports/NoticeTextNotPublished'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
@@ -25,7 +26,11 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { HTTP_GONE, HTTP_NOT_FOUND } from '@/constants/constants'
-import { SPEECH_ANCHOR_MAX_LENGTH } from '@/constants/reports/constants'
+import {
+  REFERENCED_WRITTEN_ANSWER_LABEL,
+  REFERENCING_ORAL_ANSWER_LABEL,
+  SPEECH_ANCHOR_MAX_LENGTH,
+} from '@/constants/reports/constants'
 import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildReportCitation } from '@/lib/citation'
@@ -163,6 +168,18 @@ export const Route = createFileRoute('/reports/$reportSlug')({
         />
         <ListReportMetadata report={data} />
         {renderBody(data, highlightTerms, matchedWordsResponse?.words ?? [])}
+        {data.referenced_written_answer !== null && (
+          <NoticeReferencedReport
+            label={REFERENCED_WRITTEN_ANSWER_LABEL}
+            report={data.referenced_written_answer}
+          />
+        )}
+        {data.referencing_oral_answer !== null && (
+          <NoticeReferencedReport
+            label={REFERENCING_ORAL_ANSWER_LABEL}
+            report={data.referencing_oral_answer}
+          />
+        )}
         <ListAdjacentReports
           previousReport={data.previous_report}
           nextReport={data.next_report}

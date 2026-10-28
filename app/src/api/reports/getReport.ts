@@ -39,6 +39,12 @@ export interface AdjacentReportData {
   title: string
 }
 
+export interface ReferencedReportData {
+  report_slug: string
+  title: string
+  sitting_date: string
+}
+
 export interface GetReportResponse {
   report_slug: string
   title: string
@@ -54,6 +60,8 @@ export interface GetReportResponse {
   speech_link: SpeechLinkData | null
   previous_report: AdjacentReportData | null
   next_report: AdjacentReportData | null
+  referenced_written_answer: ReferencedReportData | null
+  referencing_oral_answer: ReferencedReportData | null
 }
 
 async function getReportResponse(

@@ -7,7 +7,7 @@ from crud.speech import CRUDSpeech
 from database.person import Person
 from database.report import Report
 from database.speech import Speech
-from enums import SpeechLinkStatus
+from enums import ReportType, SpeechLinkStatus
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
@@ -16,6 +16,7 @@ from schemas.report import (
     AdjacentReportData,
     GetReportMatchedWordsResponse,
     GetReportResponse,
+    ReferencedReportData,
     SpeechData,
     SpeechLinkData,
 )
@@ -23,6 +24,7 @@ from utils.marked_words import get_marked_words
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
+from utils.report_title import get_whitespace_collapsed_title
 from utils.search_query import (
     get_quoted_words,
     get_search_query_groups,
@@ -112,6 +114,30 @@ def _get_adjacent_report_data(report: Report) -> AdjacentReportData:
     )
 
 
+def _get_paired_report_data(
+    report: Report,
+    report_type: ReportType,
+    paired_report_type: ReportType,
+    sitting_reports: list[Report],
+) -> Optional[ReferencedReportData]:
+    if report.report_type != report_type:
+        return None
+    collapsed_title = get_whitespace_collapsed_title(report.title)
+    paired_reports = [
+        sitting_report
+        for sitting_report in sitting_reports
+        if sitting_report.report_type == paired_report_type
+        and get_whitespace_collapsed_title(sitting_report.title) == collapsed_title
+    ]
+    if len(paired_reports) != 1:
+        return None
+    return ReferencedReportData(
+        report_slug=get_report_slug(paired_reports[0].report_id),
+        title=paired_reports[0].title,
+        sitting_date=paired_reports[0].sitting_date.date(),
+    )
+
+
 def get_report(
     report_slug: str,
     speech_ordinal: Optional[int],
@@ -170,6 +196,18 @@ def get_report(
             _get_adjacent_report_data(sitting_reports[report_index + 1])
             if report_index < len(sitting_reports) - 1
             else None
+        ),
+        referenced_written_answer=_get_paired_report_data(
+            report,
+            ReportType.ORAL_ANSWER,
+            ReportType.WRITTEN_ANSWER_NA,
+            sitting_reports,
+        ),
+        referencing_oral_answer=_get_paired_report_data(
+            report,
+            ReportType.WRITTEN_ANSWER_NA,
+            ReportType.ORAL_ANSWER,
+            sitting_reports,
         ),
     )
 

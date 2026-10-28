@@ -31,6 +31,12 @@ class AdjacentReportData(BaseModel):
     title: str
 
 
+class ReferencedReportData(BaseModel):
+    report_slug: str
+    title: str
+    sitting_date: date
+
+
 class GetReportResponse(BaseModel):
     report_slug: str
     title: str
@@ -46,6 +52,8 @@ class GetReportResponse(BaseModel):
     speech_link: Optional[SpeechLinkData]
     previous_report: Optional[AdjacentReportData]
     next_report: Optional[AdjacentReportData]
+    referenced_written_answer: Optional[ReferencedReportData]
+    referencing_oral_answer: Optional[ReferencedReportData]
 
 
 class GetReportMatchedWordsResponse(BaseModel):

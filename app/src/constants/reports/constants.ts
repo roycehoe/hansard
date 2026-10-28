@@ -284,3 +284,6 @@ export const LOST_CHARACTER_DEFINITION =
 export const ADJACENT_REPORTS_NAV_LABEL = 'Reports in this sitting'
 export const PREVIOUS_REPORT_LABEL = 'Previous report'
 export const NEXT_REPORT_LABEL = 'Next report'
+
+export const REFERENCED_WRITTEN_ANSWER_LABEL = 'Related written answer'
+export const REFERENCING_ORAL_ANSWER_LABEL = 'Related oral answer'
