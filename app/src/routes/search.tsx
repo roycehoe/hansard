@@ -124,7 +124,7 @@ export const Route = createFileRoute('/search')({
     // NOTE: a report title carries no seat, so a seat filter leaves only the speeches
     const canSearchReports =
       canSearch && !hasConstituency && (hasWords || !hasPerson)
-    const defaultSort = hasPerson ? SearchSort.DATE : SearchSort.RELEVANCE
+    const defaultSort = SearchSort.DATE
     const resultSort = hasWords
       ? (sort ?? defaultSort)
       : getSortWithoutWords(sort)
