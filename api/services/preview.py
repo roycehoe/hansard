@@ -147,8 +147,8 @@ def _get_report_description(
         or first_speech.speaker == _EMPTY_LABEL
     ):
         return f"From the sitting of {sitting_date_label}. {_NOT_OFFICIAL}"
-    quote = get_paragraph_quote(first_speech.speaker, first_speech.transcript)
-    return f"{quote} {_NOT_OFFICIAL}"
+    paragraph_quote = get_paragraph_quote(first_speech.speaker, first_speech.transcript)
+    return f"{paragraph_quote} {_NOT_OFFICIAL}"
 
 
 def _get_report_preview(report: Report, session: Session) -> PreviewData:
