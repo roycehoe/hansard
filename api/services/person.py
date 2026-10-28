@@ -12,7 +12,7 @@ from database.person import Person
 from database.report import Report
 from database.speaker import Speaker
 from exceptions.person import PersonNotFoundException
-from middleware.takedown import is_report_id_taken_down
+from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
 from schemas.person import (
     GetAllPartiesResponse,
     GetAllPersonsResponse,
@@ -292,6 +292,11 @@ def get_person_reports(
         page=page,
         page_size=page_size,
         has_next_page=len(report_ids) > page_size,
+        total_count=len(
+            set(report_id_to_speech_count).difference(
+                get_taken_down_report_ids(session)
+            )
+        ),
     )
 
 

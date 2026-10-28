@@ -3,9 +3,11 @@ from pathlib import Path
 
 from fastapi import Request, Response, status
 from fastapi.responses import FileResponse
+from sqlmodel import Session
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.types import ASGIApp
 
+from crud.report import CRUDReport
 from settings import settings
 from utils.report_slug import get_normalised_report_slug, get_report_id_candidates
 from utils.takedown_list import get_taken_down_report_slugs
@@ -32,6 +34,13 @@ def get_taken_down_report_id_candidates() -> list[str]:
         for report_slug in _TAKEN_DOWN_REPORT_SLUGS
         for report_id in get_report_id_candidates(report_slug)
     )
+
+
+def get_taken_down_report_ids(session: Session) -> list[int]:
+    report_id_candidates = get_taken_down_report_id_candidates()
+    if not report_id_candidates:
+        return []
+    return CRUDReport(session).get_all_ids_by_report_ids(report_id_candidates)
 
 
 _INDEX_FILE = "index.html"

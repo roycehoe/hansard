@@ -36,7 +36,7 @@ The list lives in the `TAKEDOWN_REPORT_SLUGS` GitHub secret, so it never appears
    On a phone, open both addresses instead. The page says "Report removed", and the API address shows `report.taken_down`. While public mode is off, each `curl` needs `-u` with the basic-auth username and password, or it prints `401`. A slug with a typo hides nothing, and this check is the only way to see that.
 7. Add the slug, who asked and when to a private note kept outside the repo. That note holds the only readable copy of the list. The repo must not record a takedown.
 
-A taken-down report answers 410 on its page and in the API, and its page carries no preview tags. It drops out of search results, its sitting's report list and each person's report list. Counts on `/coverage` still include it. The stored rows do not change. To bring a report back, save the list from the note without its slug.
+A taken-down report answers 410 on its page and in the API, and its page carries no preview tags. It drops out of search results, its sitting's report list and each person's report list and report count. Counts on `/coverage` still include it. The stored rows do not change. To bring a report back, save the list from the note without its slug.
 
 A deploy restarts the process, which empties the in-memory caches of preview tags and API responses. A browser or proxy can keep its own copy of a page for as long as the response's `Cache-Control` allows.
 

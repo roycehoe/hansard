@@ -14,10 +14,7 @@ from exceptions.report import ReportNotFoundException
 from exceptions.search import SearchConstituencyNotFoundException
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
-from middleware.takedown import (
-    get_taken_down_report_id_candidates,
-    is_report_id_taken_down,
-)
+from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
 from schemas.search import (
     ReportMatchData,
     SearchReportsResponse,
@@ -68,13 +65,6 @@ def _get_excluded_speaker_pattern(constituency: Optional[str]) -> Optional[str]:
 
 def _is_query_without_search_words(query: str) -> bool:
     return query.strip() == "" or is_query_only_excluded_words(query)
-
-
-def _get_taken_down_report_ids(session: Session) -> list[int]:
-    report_id_candidates = get_taken_down_report_id_candidates()
-    if not report_id_candidates:
-        return []
-    return CRUDReport(session).get_all_ids_by_report_ids(report_id_candidates)
 
 
 def _get_validated_report(report_slug: str, session: Session) -> Report:
@@ -368,7 +358,7 @@ def search_speeches(
 ) -> SearchSpeechesResponse:
     with hold_search_slot():
         membership_ids = _get_membership_ids(person_id, constituency, session)
-        excluded_report_ids = _get_taken_down_report_ids(session)
+        excluded_report_ids = get_taken_down_report_ids(session)
         report_ids = _get_report_ids(report_slug, session)
         speeches = _get_speeches(
             query,
@@ -484,7 +474,7 @@ def search_reports(
     session: Session,
 ) -> SearchReportsResponse:
     with hold_search_slot():
-        excluded_report_ids = _get_taken_down_report_ids(session)
+        excluded_report_ids = get_taken_down_report_ids(session)
         reports = _get_reports(
             query,
             parliament_number,

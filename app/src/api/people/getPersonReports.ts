@@ -22,6 +22,7 @@ export interface GetPersonReportsResponse {
   page: number
   page_size: number
   has_next_page: boolean
+  total_count: number
 }
 
 const FIRST_PAGE = 1

@@ -82,6 +82,7 @@ class GetPersonReportsResponse(BaseModel):
     page: int
     page_size: int
     has_next_page: bool
+    total_count: int
 
 
 class GetAllPartiesResponse(BaseModel):

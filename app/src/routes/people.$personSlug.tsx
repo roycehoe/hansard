@@ -23,7 +23,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { HTTP_NOT_FOUND } from '@/constants/constants'
+import { HTTP_NOT_FOUND, NUMBER_LOCALE } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { isSittingMember, parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
@@ -36,6 +36,7 @@ export const Route = createFileRoute('/people/$personSlug')({
     const { personId, slug } = parsePersonSlug(personSlug)
     const person = useGetPerson({ person_id: personId })
     const reports = useGetPersonReports({ person_id: personId })
+    const reportCount = reports.data?.pages[0].total_count
     const canonicalSlug = person.data?.person_slug
     useDocumentTitle(person.data?.canonical_name ?? 'Person')
 
@@ -174,6 +175,12 @@ export const Route = createFileRoute('/people/$personSlug')({
         <section aria-labelledby="reports-heading" className="space-y-4">
           <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
             Reports
+            {reportCount !== undefined && (
+              <span className="text-muted-foreground ml-1 font-sans text-sm tabular-nums">
+                {' '}
+                {reportCount.toLocaleString(NUMBER_LOCALE)}
+              </span>
+            )}
           </h2>
           {renderReports()}
         </section>

@@ -180,6 +180,20 @@ def test_a_taken_down_report_leaves_search_the_sitting_person_reports_and_the_si
     assert _get_surfaces_showing_report(website_client, report_to_hide) == []
 
 
+def test_a_taken_down_report_leaves_a_person_report_count(
+    website_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    report_to_hide: _ReportToHide,
+) -> None:
+    person_reports_path = f"/api/people/{report_to_hide.person_ids[0]}/reports"
+    total_count_before = website_client.get(person_reports_path).json()["total_count"]
+
+    _take_down(monkeypatch, report_to_hide.report_slug)
+
+    after = website_client.get(person_reports_path).json()
+    assert after["total_count"] == total_count_before - 1
+
+
 def test_a_taken_down_report_answers_410_from_the_api_and_the_page(
     website_client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
