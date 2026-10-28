@@ -333,7 +333,7 @@ pass   3.91  chart-5 on card  (#be6431 on #301b16, min 3)
 - Body legibility. It is a transitional serif with an even texture, open counters and a moderate x-height. The optical size axis (8 to 60) gives a sturdier text cut at 16 to 18 px and a finer display cut for headings, from one family.
 - Italic. A true italic, served as its own file, not a slanted roman. Hansard sets procedural notes ("Question put, and agreed to.") in italic, so this matters.
 - Figures. The site serves it from the Fontsource packages, which carry the same tabular and proportional figures (`tnum`, `pnum`) and fractions as Google's files. Old-style figures are not available: Google's served files strip `onum` for every candidate checked (Source Serif 4, Literata, Newsreader, Spectral, EB Garamond, Crimson Pro, Fraunces). Lining tabular figures suit column numbers, dates and vote counts anyway.
-- Weights. 200 to 900 on one variable axis. The app loads 400 to 700, roman and italic.
+- Weights. 200 to 900 on one variable axis. The app uses 400 to 700, roman and italic.
 - Pairing with Inter. Both are plain, modern designs with similar proportions, so a serif heading over Inter controls looks like one system, not two.
 - Tone. It looks like a printed official report without imitating one. Garamonds and Caslons lean towards old books; Fraunces is too expressive for a record.
 
