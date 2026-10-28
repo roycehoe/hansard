@@ -19,6 +19,7 @@ from utils.preview_bot import get_preview_bot_name
 from utils.preview_tags import (
     get_index_html_with_preview_tags,
     get_preview_tags_html,
+    get_structured_data_html,
 )
 
 _INDEX_FILE = "index.html"
@@ -33,6 +34,7 @@ _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
 _URL_SEPARATOR = "/"
 _USER_AGENT_HEADER = "user-agent"
+_NO_STRUCTURED_DATA = ""
 
 
 def _get_page_preview(
@@ -63,12 +65,20 @@ class FrontendFiles(StaticFiles):
         self.site_url = site_url
         self.index_html = (directory / _INDEX_FILE).read_text()
 
+    def _get_structured_data_html(self, preview: PreviewData) -> str:
+        if self.site_url is None:
+            return _NO_STRUCTURED_DATA
+        return get_structured_data_html(
+            self.site_url, preview.path, preview.report_title, preview.sitting_date
+        )
+
     def _get_preview_tags_html(self, preview: PreviewData) -> str:
         return get_preview_tags_html(
             preview.title,
             preview.description,
             preview.preview_type,
             _get_preview_url(self.site_url, preview.path),
+            self._get_structured_data_html(preview),
         )
 
     async def _get_index_response(self, scope: Scope) -> HTMLResponse:
