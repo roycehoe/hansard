@@ -13,6 +13,7 @@ import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
 import { NoticeRemovedReport } from '@/components/reports/NoticeRemovedReport'
 import { NoticeTextNotPublished } from '@/components/reports/NoticeTextNotPublished'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
+import { PopoverReportType } from '@/components/reports/PopoverReportType'
 import { SkeletonReport } from '@/components/reports/SkeletonReport'
 import { TextReportProblem } from '@/components/reports/TextReportProblem'
 import {
@@ -119,6 +120,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
       <div className="space-y-8">
         <PageHeader
           title={data.title}
+          aboveTitle={<PopoverReportType reportType={data.report_type} />}
           description={data.subtitle || undefined}
           breadcrumb={
             <Breadcrumb>
