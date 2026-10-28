@@ -271,6 +271,7 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `Notice`          | Empty states and informational blocks          | `NoticeEmptySpeeches.tsx`                |
 | `Popover`         | A trigger with its popover                     | `PopoverUnofficialTranscript.tsx`        |
 | `HoverCard`       | A link with a card that opens on hover         | `HoverCardPerson.tsx`                    |
+| `Sheet`           | A trigger with its side or bottom sheet        | `SheetSiteMenu.tsx`                      |
 | `Row`             | One record rendered as a block in a list       | `RowSpeech.tsx`                          |
 | `ActionBar`       | A group of actions on one record               | `ActionBarSpeechCopy.tsx`                |
 | `Skeleton`        | A page or section's loading shape             | `SkeletonPerson.tsx`                     |
