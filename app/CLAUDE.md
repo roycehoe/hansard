@@ -92,6 +92,8 @@ TanStack Router with file-based routes in `src/routes/`. The router plugin in `v
 
 A new route exports `Route` from `createFileRoute('/path')({ component })`. Read params with `Route.useParams()` and search params with `Route.useSearch()`. Use `<Link to="...">` or `useNavigate()` for navigation, so paths stay type-checked.
 
+Search params arrive as strings (`src/lib/searchParams.ts`), so a number param uses `z.coerce.number()`.
+
 The server answers 404 for any path that is not a client route, from its own list of the static routes in `api/services/preview.py` (`_UNTITLED_PAGE_PATHS` and `_get_fixed_page_title`). A new static route goes on that list too; `api/tests/test_client_routes.py` reads `src/routes/` and fails when one is missing.
 
 ### API layer

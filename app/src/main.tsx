@@ -11,6 +11,7 @@ import {
   moveFocusToPageHeading,
   shouldMoveFocusToPageHeading,
 } from '@/lib/navigationFocus'
+import { parseSearchParams, stringifySearchParams } from '@/lib/searchParams'
 import { isSearchTimedOutError } from '@/lib/utils'
 import { routeTree } from '@/routeTree.gen'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -37,6 +38,8 @@ const router = createRouter({
   defaultNotFoundComponent: NoticeNotFoundPage,
   defaultErrorComponent: NoticeErrorPage,
   scrollRestoration: true,
+  parseSearch: parseSearchParams,
+  stringifySearch: stringifySearchParams,
 })
 
 declare module '@tanstack/react-router' {
