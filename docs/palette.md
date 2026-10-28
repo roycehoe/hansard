@@ -332,7 +332,7 @@ pass   3.91  chart-5 on card  (#be6431 on #301b16, min 3)
 
 - Body legibility. It is a transitional serif with an even texture, open counters and a moderate x-height. The optical size axis (8 to 60) gives a sturdier text cut at 16 to 18 px and a finer display cut for headings, from one family.
 - Italic. A true italic, served as its own file, not a slanted roman. Hansard sets procedural notes ("Question put, and agreed to.") in italic, so this matters.
-- Figures. Google Fonts serves it with tabular and proportional figures (`tnum`, `pnum`) and fractions. Old-style figures are not available: Google's served files strip `onum` for every candidate checked (Source Serif 4, Literata, Newsreader, Spectral, EB Garamond, Crimson Pro, Fraunces). Lining tabular figures suit column numbers, dates and vote counts anyway.
+- Figures. The site serves it from the Fontsource packages, which carry the same tabular and proportional figures (`tnum`, `pnum`) and fractions as Google's files. Old-style figures are not available: Google's served files strip `onum` for every candidate checked (Source Serif 4, Literata, Newsreader, Spectral, EB Garamond, Crimson Pro, Fraunces). Lining tabular figures suit column numbers, dates and vote counts anyway.
 - Weights. 200 to 900 on one variable axis. The app loads 400 to 700, roman and italic.
 - Pairing with Inter. Both are plain, modern designs with similar proportions, so a serif heading over Inter controls looks like one system, not two.
 - Tone. It looks like a printed official report without imitating one. Garamonds and Caslons lean towards old books; Fraunces is too expressive for a record.
@@ -341,7 +341,7 @@ pass   3.91  chart-5 on card  (#be6431 on #301b16, min 3)
 
 Newsreader came close, but Google serves it without fractions or `locl`, and its text sizes run tight. Crimson Pro and EB Garamond have small x-heights that make long transcripts harder at 16 px. Spectral has no optical size axis, so one cut has to serve both headings and body.
 
-Loaded in `app/index.html` with one Google Fonts stylesheet link (and preconnects). `--font-serif` is `'Source Serif 4', ui-serif, Georgia, serif`. `--font-sans` stays Inter.
+Loaded from the Fontsource packages `@fontsource-variable/source-serif-4` and `@fontsource-variable/inter`, imported in `app/src/main.tsx`. `--font-serif` is `'Source Serif 4 Variable', ui-serif, Georgia, serif`. `--font-sans` is `'Inter Variable', ui-sans-serif, system-ui, sans-serif`.
 
 ## Identity marks
 

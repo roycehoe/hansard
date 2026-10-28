@@ -8,8 +8,8 @@
    Values and sources: docs/palette.md. Check contrast with `pnpm contrast`. */
 
 @theme inline {
-  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Source Serif 4', ui-serif, Georgia, serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
   /* Non-colour scale from SGDS v3: docs/sgds-tokens.md */
   --text-xs: 0.75rem;
   --text-xs--line-height: 1rem;
