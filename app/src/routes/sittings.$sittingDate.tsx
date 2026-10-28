@@ -18,10 +18,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { HTTP_NOT_FOUND } from '@/constants/constants'
+import { HTTP_NOT_FOUND, NUMBER_LOCALE } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament, formatSittingDate } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
+
+const LINK_CLASS_NAME =
+  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
 export const Route = createFileRoute('/sittings/$sittingDate')({
   component: function PageSitting() {
@@ -57,7 +61,9 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
     }
 
     const formattedDate = formatSittingDate(data.sitting_date)
+    const reportCount = data.reports.length
     const description = [
+      `${reportCount.toLocaleString(NUMBER_LOCALE)} ${reportCount === 1 ? 'report' : 'reports'}`,
       formatParliament(data.parliament_number),
       `volume ${data.volume_number}`,
       data.sitting_number !== null ? `sitting ${data.sitting_number}` : '',
@@ -70,7 +76,17 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
       <div className="space-y-8">
         <PageHeader
           title={`Sitting of ${formattedDate}`}
-          description={description}
+          description={
+            <>
+              {description}
+              <a
+                href="#attendance-heading"
+                className={cn(LINK_CLASS_NAME, 'block w-fit')}
+              >
+                Attendance
+              </a>
+            </>
+          }
           titleAction={
             <ButtonCopyLink
               path={`/sittings/${encodeURIComponent(data.sitting_date)}`}

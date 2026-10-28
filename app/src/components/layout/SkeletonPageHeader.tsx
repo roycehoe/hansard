@@ -4,12 +4,14 @@ import type { ReactNode } from 'react'
 interface SkeletonPageHeaderProps {
   hasDescription: boolean
   aboveTitle?: ReactNode
+  belowDescription?: ReactNode
   actions?: ReactNode
 }
 
 export function SkeletonPageHeader({
   hasDescription,
   aboveTitle,
+  belowDescription,
   actions,
 }: SkeletonPageHeaderProps) {
   return (
@@ -20,6 +22,7 @@ export function SkeletonPageHeader({
           {aboveTitle}
           <Skeleton className="h-8 w-full max-w-md lg:h-9" />
           {hasDescription && <Skeleton className="h-5 w-full max-w-sm" />}
+          {belowDescription}
         </div>
         {actions}
       </div>

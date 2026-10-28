@@ -7,7 +7,10 @@ const ATTENDANCE_ROW_COUNT = 6
 export function SkeletonSitting() {
   return (
     <div className="space-y-8">
-      <SkeletonPageHeader hasDescription />
+      <SkeletonPageHeader
+        hasDescription
+        belowDescription={<Skeleton className="h-5 w-24" />}
+      />
       <div className="space-y-2">
         <Skeleton className="h-7 w-28" />
         <SkeletonReportRows />
