@@ -220,6 +220,15 @@ class CRUDSpeech:
         )
         return list(self.session.exec(statement).all())
 
+    def get_first_by_report_id(self, report_id: int) -> Optional[Speech]:
+        statement = (
+            select(Speech)
+            .where(Speech.report_id == report_id)
+            .order_by(Speech.ordinal)
+            .limit(1)
+        )
+        return self.session.exec(statement).first()
+
     def get_report_id_to_speech_count_by_membership_ids(
         self, membership_ids: list[int]
     ) -> dict[int, int]:

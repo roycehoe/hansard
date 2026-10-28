@@ -18,7 +18,7 @@ from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.sitting_date import get_sitting_date_label
 from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
-from utils.transcript_snippet import get_transcript_quote
+from utils.transcript_snippet import get_paragraph_quote, get_transcript_quote
 
 _CACHE_TTL_SECONDS = 60 * 60
 _CACHE_MAX_ENTRIES = 500
@@ -137,11 +137,25 @@ def _get_report_path(report: Report) -> str:
     return f"/reports/{quote(get_report_slug(report.report_id), safe='')}"
 
 
-def _get_report_preview(report: Report) -> PreviewData:
+def _get_report_description(
+    report_id: int, sitting_date_label: str, session: Session
+) -> str:
+    first_speech = CRUDSpeech(session).get_first_by_report_id(report_id)
+    if (
+        first_speech is None
+        or first_speech.speaker is None
+        or first_speech.speaker == _EMPTY_LABEL
+    ):
+        return f"From the sitting of {sitting_date_label}. {_NOT_OFFICIAL}"
+    quote = get_paragraph_quote(first_speech.speaker, first_speech.transcript)
+    return f"{quote} {_NOT_OFFICIAL}"
+
+
+def _get_report_preview(report: Report, session: Session) -> PreviewData:
     sitting_date_label = get_sitting_date_label(report.sitting_date.date())
     return PreviewData(
         title=f"{report.title}, {sitting_date_label}",
-        description=f"From the sitting of {sitting_date_label}. {_NOT_OFFICIAL}",
+        description=_get_report_description(report.id, sitting_date_label, session),
         preview_type=PreviewType.ARTICLE,
         path=_get_report_path(report),
         is_found=True,
@@ -168,7 +182,7 @@ def _get_speech_preview(
         ordinal_to_anchor, speech_ordinal, speech_anchor
     )
     if linked_ordinal is None:
-        return _get_report_preview(report)
+        return _get_report_preview(report, session)
     ordinal_to_speech = {speech.ordinal: speech for speech in speeches}
     linked_speech = ordinal_to_speech[linked_ordinal]
     query = urlencode(
@@ -231,7 +245,7 @@ def _get_uncached_preview(
         if report is None:
             return get_not_found_preview()
         if speech_ordinal is None or speech_anchor == _EMPTY_ANCHOR:
-            return _get_report_preview(report)
+            return _get_report_preview(report, session)
         return _get_speech_preview(report, speech_ordinal, speech_anchor, session)
     person_match = _PERSON_PATH.match(path)
     if person_match is not None:
