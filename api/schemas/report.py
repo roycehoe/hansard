@@ -34,7 +34,6 @@ class AdjacentReportData(BaseModel):
 class ReferencedReportData(BaseModel):
     report_slug: str
     title: str
-    sitting_date: date
 
 
 class GetReportResponse(BaseModel):

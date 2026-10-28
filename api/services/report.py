@@ -114,27 +114,21 @@ def _get_adjacent_report_data(report: Report) -> AdjacentReportData:
     )
 
 
-def _get_paired_report_data(
-    report: Report,
-    report_type: ReportType,
-    paired_report_type: ReportType,
-    sitting_reports: list[Report],
+def _get_referenced_report_data(
+    title: str, report_type: ReportType, sitting_reports: list[Report]
 ) -> Optional[ReferencedReportData]:
-    if report.report_type != report_type:
-        return None
-    collapsed_title = get_whitespace_collapsed_title(report.title)
-    paired_reports = [
+    collapsed_title = get_whitespace_collapsed_title(title)
+    same_title_reports = [
         sitting_report
         for sitting_report in sitting_reports
-        if sitting_report.report_type == paired_report_type
+        if sitting_report.report_type == report_type
         and get_whitespace_collapsed_title(sitting_report.title) == collapsed_title
     ]
-    if len(paired_reports) != 1:
+    if len(same_title_reports) != 1:
         return None
     return ReferencedReportData(
-        report_slug=get_report_slug(paired_reports[0].report_id),
-        title=paired_reports[0].title,
-        sitting_date=paired_reports[0].sitting_date.date(),
+        report_slug=get_report_slug(same_title_reports[0].report_id),
+        title=same_title_reports[0].title,
     )
 
 
@@ -197,17 +191,19 @@ def get_report(
             if report_index < len(sitting_reports) - 1
             else None
         ),
-        referenced_written_answer=_get_paired_report_data(
-            report,
-            ReportType.ORAL_ANSWER,
-            ReportType.WRITTEN_ANSWER_NA,
-            sitting_reports,
+        referenced_written_answer=(
+            _get_referenced_report_data(
+                report.title, ReportType.WRITTEN_ANSWER_NA, sitting_reports
+            )
+            if report.report_type == ReportType.ORAL_ANSWER
+            else None
         ),
-        referencing_oral_answer=_get_paired_report_data(
-            report,
-            ReportType.WRITTEN_ANSWER_NA,
-            ReportType.ORAL_ANSWER,
-            sitting_reports,
+        referencing_oral_answer=(
+            _get_referenced_report_data(
+                report.title, ReportType.ORAL_ANSWER, sitting_reports
+            )
+            if report.report_type == ReportType.WRITTEN_ANSWER_NA
+            else None
         ),
     )
 

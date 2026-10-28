@@ -42,7 +42,6 @@ export interface AdjacentReportData {
 export interface ReferencedReportData {
   report_slug: string
   title: string
-  sitting_date: string
 }
 
 export interface GetReportResponse {
