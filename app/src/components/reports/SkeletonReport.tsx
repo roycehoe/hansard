@@ -2,7 +2,7 @@ import { SkeletonPageHeader } from '@/components/layout/SkeletonPageHeader'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
-const METADATA_FACT_WIDTHS = ['w-28', 'w-20', 'w-20']
+const METADATA_FACT_WIDTHS = ['w-20', 'w-14', 'w-14']
 
 const SPEECH_COUNT = 4
 
@@ -14,9 +14,12 @@ export function SkeletonReport() {
         aboveTitle={<Skeleton className="h-6 w-40" />}
         actions={<Skeleton className="h-9 w-36" />}
       />
-      <div className="flex flex-wrap gap-x-6 gap-y-1">
+      <div className="flex flex-wrap gap-x-10 gap-y-3">
         {METADATA_FACT_WIDTHS.map((factWidth, factIndex) => (
-          <Skeleton key={factIndex} className={cn('h-6', factWidth)} />
+          <div key={factIndex} className="flex flex-col gap-0.5">
+            <Skeleton className={cn('h-5', factWidth)} />
+            <Skeleton className="h-7 w-10" />
+          </div>
         ))}
       </div>
       <div className="max-w-[70ch] space-y-6 in-data-[width=wide]:max-w-none">
