@@ -130,7 +130,7 @@ class CRUDReport:
             select(Report)
             .options(defer(Report.markdown_content))
             .where(Report.sitting_date == sitting_date)
-            .order_by(Report.speech_number)
+            .order_by(Report.speech_number, Report.id)
         )
         return list(self.session.exec(statement).all())
 

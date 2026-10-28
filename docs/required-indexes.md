@@ -227,23 +227,25 @@ Needed by `GET /people/{person_id}`, for `report_parliament_numbers` (see `ix_sp
 CREATE INDEX ix_report_sitting_date_parliament_number ON report (sitting_date, parliament_number);
 ```
 
-Needed by `GET /sittings/{sitting_date}`, `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters and newest-first order of `GET /search/reports` and of `GET /search/speeches`, both without search words. With search words, a date-ordered title search adds zero to its sort key so that the planner cannot walk this index for the order (see `ix_report_title_tsv`), and a date-ordered speech search and the speech match count read it only for a Parliament's first and last sitting dates; the dates themselves filter `speech.sitting_date` (see `ix_speech_transcript_tsv_sitting_date_rum`).
+Needed by `GET /sittings/{sitting_date}`, `GET /reports/{report_slug}` (its previous and next links), `GET /sittings`, `GET /parliaments`, `GET /coverage`, `GET /people/{person_id}` (the attendance counts by Parliament) and the date filters and newest-first order of `GET /search/reports` and of `GET /search/speeches`, both without search words. With search words, a date-ordered title search adds zero to its sort key so that the planner cannot walk this index for the order (see `ix_report_title_tsv`), and a date-ordered speech search and the speech match count read it only for a Parliament's first and last sitting dates; the dates themselves filter `speech.sitting_date` (see `ix_speech_transcript_tsv_sitting_date_rum`).
 
 The first version of this list named a single-column index on `report (sitting_date)`. The scraper builds this composite instead. On the rehearsal copy it served every statement the single column served. It also turned the per-Parliament statements (the Parliament list, the sittings list, the `DISTINCT sitting_date, parliament_number` subquery under the attendance counts) into index-only scans of 44 pages instead of 6,309 heap pages. On production a heap scan of `report` costs 0.4 to 1.4 seconds per statement, so that is the larger gain. A `(parliament_number, sitting_date)` index served fewer statements and was no better on any of them. The composite is 352 kB.
 
 The date-ordered title search is repeated under `ix_report_title_tsv`, because the text predicate decides its plan and the sort key is kept off this index. The speech word search under a date range is in "Ranking cost". The `title_search_date` plans here and under `ix_report_title_tsv` are plain `EXPLAIN`s on the scratch copy, not yet captured on production.
 
 ```sql
--- report_by_sitting_date (GET /sittings/{sitting_date})
-SELECT report.id, report.volume_number, report.parliament_number, report.sitting_number, report.sitting_date, report.speech_number, report.title, report.subtitle, report.report_id, report.report_type, report.html_file_name, report.report_version  FROM report  WHERE report.sitting_date = '1993-10-12 00:00:00' ORDER BY report.speech_number;
+-- report_by_sitting_date (GET /sittings/{sitting_date}, GET /reports/{report_slug})
+SELECT report.id, report.volume_number, report.parliament_number, report.sitting_number, report.sitting_date, report.speech_number, report.title, report.subtitle, report.report_id, report.report_type, report.html_file_name, report.report_version  FROM report  WHERE report.sitting_date = '1993-10-12 00:00:00' ORDER BY report.speech_number, report.id;
 ```
 
 ```text
--- report_by_sitting_date (GET /sittings/{sitting_date})
-Sort  (cost=19.37..19.41 rows=19 width=190)
-  Sort Key: speech_number
-  ->  Index Scan using ix_report_sitting_date_parliament_number on report  (cost=0.29..18.96 rows=19 width=190)
-        Index Cond: (sitting_date = '1993-10-12 00:00:00'::timestamp without time zone)
+-- report_by_sitting_date (GET /sittings/{sitting_date}, GET /reports/{report_slug})
+Sort  (cost=85.72..85.77 rows=21 width=192)
+  Sort Key: speech_number, id
+  ->  Bitmap Heap Scan on report  (cost=4.45..85.25 rows=21 width=192)
+        Recheck Cond: (sitting_date = '1993-10-12 00:00:00'::timestamp without time zone)
+        ->  Bitmap Index Scan on ix_report_sitting_date_parliament_number  (cost=0.00..4.45 rows=21 width=0)
+              Index Cond: (sitting_date = '1993-10-12 00:00:00'::timestamp without time zone)
 ```
 
 ```sql

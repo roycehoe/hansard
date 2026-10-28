@@ -280,3 +280,7 @@ export const LOST_CHARACTER = '�'
 
 export const LOST_CHARACTER_DEFINITION =
   "Parliament's copy of this text lost a character here, often a fraction such as ½ or ¾. The true character isn't known."
+
+export const ADJACENT_REPORTS_NAV_LABEL = 'Reports in this sitting'
+export const PREVIOUS_REPORT_LABEL = 'Previous report'
+export const NEXT_REPORT_LABEL = 'Next report'

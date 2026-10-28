@@ -13,6 +13,7 @@ from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
 from middleware.takedown import is_report_id_taken_down
 from schemas.report import (
+    AdjacentReportData,
     GetReportMatchedWordsResponse,
     GetReportResponse,
     SpeechData,
@@ -105,6 +106,12 @@ def _get_speech_link_data(
     return SpeechLinkData(status=SpeechLinkStatus.MOVED, ordinal=linked_ordinal)
 
 
+def _get_adjacent_report_data(report: Report) -> AdjacentReportData:
+    return AdjacentReportData(
+        report_slug=get_report_slug(report.report_id), title=report.title
+    )
+
+
 def get_report(
     report_slug: str,
     speech_ordinal: Optional[int],
@@ -120,6 +127,16 @@ def get_report(
         {speech.speaker_id for speech in speeches if speech.speaker_id is not None}
     )
     membership_id_to_person = get_membership_id_to_person(membership_ids, session)
+    sitting_reports = [
+        sitting_report
+        for sitting_report in CRUDReport(session).get_all_by_sitting_date(
+            report.sitting_date
+        )
+        if not is_report_id_taken_down(sitting_report.report_id)
+    ]
+    report_index = [sitting_report.id for sitting_report in sitting_reports].index(
+        report.id
+    )
     return GetReportResponse(
         report_slug=get_report_slug(report.report_id),
         title=report.title,
@@ -143,6 +160,16 @@ def get_report(
         ],
         speech_link=_get_speech_link_data(
             ordinal_to_anchor, speech_ordinal, speech_anchor
+        ),
+        previous_report=(
+            _get_adjacent_report_data(sitting_reports[report_index - 1])
+            if report_index > 0
+            else None
+        ),
+        next_report=(
+            _get_adjacent_report_data(sitting_reports[report_index + 1])
+            if report_index < len(sitting_reports) - 1
+            else None
         ),
     )
 
