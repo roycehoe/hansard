@@ -83,6 +83,7 @@ const PAIRS: Pair[] = [
     [...SURFACES, 'reading', 'muted', 'popover'],
     TEXT_MINIMUM
   ),
+  ...pairs('visited', [...SURFACES, 'muted'], TEXT_MINIMUM),
   ...pairs('destructive', SURFACES, TEXT_MINIMUM),
   ...pairs('success', SURFACES, TEXT_MINIMUM),
   ...pairs('warning', SURFACES, TEXT_MINIMUM),

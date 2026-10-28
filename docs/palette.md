@@ -87,6 +87,7 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | overlay | surface (scrim) | #22110c | #22110c | panelling-20 / panelling-20 | derived from C1 / derived from C1 |
 | primary-hover | accent (hover) | #5b2f24 | #ecc3b7 | panelling-mid / panelling-85 | C2 / derived from C1 |
 | primary-active | accent (active) | #4a251b | #f7d5cc | panelling-shade / panelling-90 | C3 / derived from C1 |
+| visited | accent (opened link) | #694e46 | #bda59e | panelling-45 / panelling-74 | derived from C1 / derived from C1 |
 | secondary-hover | surface (hover) | #ebcdbe | #4d332c | table-timber-87 / panelling-35 | derived from C5 / derived from C1 |
 | secondary-active | surface (active) | #e4c2b2 | #533831 | table-timber-84 / panelling-37 | derived from C5 / derived from C1 |
 | destructive-hover | state (hover) | #b00826 | #ff8481 | crest-red-48 / crest-red-75 | derived from S18 (v1) / derived from S18 (v1) |
@@ -132,7 +133,9 @@ Each derived colour keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1),
 | panelling-31 | #422922 | C1 panelling | L 0.31, C 0.04 | secondary (dark) |
 | panelling-35 | #4d332c | C1 panelling | L 0.35, C 0.04 | separator (dark), secondary-hover (dark) |
 | panelling-37 | #533831 | C1 panelling | L 0.37, C 0.04 | secondary-active (dark) |
+| panelling-45 | #694e46 | C1 panelling | L 0.45, C 0.04 | visited (light) |
 | panelling-68 | #dc795d | C1 panelling | L 0.68, C 0.13 | chart-1 (dark) |
+| panelling-74 | #bda59e | C1 panelling | L 0.74, C 0.03 | visited (dark) |
 | panelling-80 | #e1b1a3 | C1 panelling | L 0.80, C 0.06 | primary (dark), ring (dark), sidebar-primary (dark), sidebar-ring (dark) |
 | panelling-85 | #ecc3b7 | C1 panelling | L 0.85, C 0.05 | primary-hover (dark) |
 | panelling-90 | #f7d5cc | C1 panelling | L 0.90, C 0.04 | primary-active (dark) |

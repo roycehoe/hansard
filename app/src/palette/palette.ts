@@ -283,11 +283,25 @@ export const COLOURS = [
     derivation: 'L 0.37, C 0.04',
   },
   {
+    name: 'panelling-45',
+    hex: '#694e46',
+    source: 'chamber',
+    derivedFrom: 'panelling',
+    derivation: 'L 0.45, C 0.04',
+  },
+  {
     name: 'panelling-68',
     hex: '#dc795d',
     source: 'chamber',
     derivedFrom: 'panelling',
     derivation: 'L 0.68, C 0.13',
+  },
+  {
+    name: 'panelling-74',
+    hex: '#bda59e',
+    source: 'chamber',
+    derivedFrom: 'panelling',
+    derivation: 'L 0.74, C 0.03',
   },
   {
     name: 'panelling-80',
@@ -735,6 +749,12 @@ export const TOKENS: readonly Token[] = [
     group: 'accents',
     light: 'panelling-shade',
     dark: 'panelling-90',
+  },
+  {
+    name: 'visited',
+    group: 'accents',
+    light: 'panelling-45',
+    dark: 'panelling-74',
   },
   {
     name: 'secondary-hover',

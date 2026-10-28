@@ -30,7 +30,7 @@ export function ListPersonReports({ reports }: ListPersonReportsProps) {
           <Link
             to="/reports/$reportSlug"
             params={{ reportSlug: report.report_slug }}
-            className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-medium outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+            className="text-primary visited:text-visited hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-medium outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             {report.title}
           </Link>

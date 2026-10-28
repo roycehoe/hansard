@@ -20,7 +20,9 @@
   --panelling-31: #422922;
   --panelling-35: #4d332c;
   --panelling-37: #533831;
+  --panelling-45: #694e46;
   --panelling-68: #dc795d;
+  --panelling-74: #bda59e;
   --panelling-80: #e1b1a3;
   --panelling-85: #ecc3b7;
   --panelling-90: #f7d5cc;
@@ -88,6 +90,7 @@
   --overlay: var(--panelling-20);
   --primary-hover: var(--panelling-mid);
   --primary-active: var(--panelling-shade);
+  --visited: var(--panelling-45);
   --secondary-hover: var(--table-timber-87);
   --secondary-active: var(--table-timber-84);
   --destructive-hover: var(--crest-red-48);
@@ -145,6 +148,7 @@
   --overlay: var(--panelling-20);
   --primary-hover: var(--panelling-85);
   --primary-active: var(--panelling-90);
+  --visited: var(--panelling-74);
   --secondary-hover: var(--panelling-35);
   --secondary-active: var(--panelling-37);
   --destructive-hover: var(--crest-red-75);

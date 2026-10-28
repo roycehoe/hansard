@@ -103,7 +103,7 @@ export function ListSpeechMatches({
                     to="/reports/$reportSlug"
                     params={{ reportSlug: group.reportSlug }}
                     search={{ hl: highlightWords }}
-                    className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                    className="text-primary visited:text-visited hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
                   >
                     {group.speeches[0].title}
                   </Link>

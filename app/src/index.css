@@ -96,6 +96,7 @@
   --color-overlay: var(--overlay);
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--primary-active);
+  --color-visited: var(--visited);
   --color-secondary-hover: var(--secondary-hover);
   --color-secondary-active: var(--secondary-active);
   --color-destructive-hover: var(--destructive-hover);
