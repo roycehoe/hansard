@@ -19,6 +19,7 @@ const EMPTY_FILTERS_TITLE = 'No reports'
 interface ListReportMatchesProps {
   results: ReportMatchData[]
   hasWords: boolean
+  exactWord: string | undefined
   highlightWords: string | undefined
   totalCount: number
   isTotalCapped: boolean
@@ -28,6 +29,7 @@ interface ListReportMatchesProps {
 export function ListReportMatches({
   results,
   hasWords,
+  exactWord,
   highlightWords,
   totalCount,
   isTotalCapped,
@@ -54,6 +56,7 @@ export function ListReportMatches({
             singularNoun={hasWords ? 'title match' : 'report'}
             pluralNoun={hasWords ? 'title matches' : 'reports'}
             hasWords={hasWords}
+            exactWord={exactWord}
             sortControl={sortControl}
           />
           <ol>

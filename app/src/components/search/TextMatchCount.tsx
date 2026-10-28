@@ -1,6 +1,17 @@
 import { NUMBER_LOCALE } from '@/constants/constants'
-import { SEARCH_WORD_FORMS_NOTE } from '@/constants/search/constants'
+import {
+  SEARCH_WORD_FORMS_NOTE,
+  SEARCH_WORDS_INPUT_ID,
+} from '@/constants/search/constants'
+import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
+
+const LINK_CLASS_NAME =
+  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+
+function focusSearchWords() {
+  document.getElementById(SEARCH_WORDS_INPUT_ID)?.focus()
+}
 
 interface TextMatchCountProps {
   shownCount?: number
@@ -9,6 +20,7 @@ interface TextMatchCountProps {
   singularNoun: string
   pluralNoun: string
   hasWords: boolean
+  exactWord: string | undefined
   sortControl: ReactNode
 }
 
@@ -19,6 +31,7 @@ export function TextMatchCount({
   singularNoun,
   pluralNoun,
   hasWords,
+  exactWord,
   sortControl,
 }: TextMatchCountProps) {
   const total = totalCount.toLocaleString(NUMBER_LOCALE)
@@ -43,6 +56,19 @@ export function TextMatchCount({
       {hasWords && (
         <p className="text-muted-foreground text-sm">
           {SEARCH_WORD_FORMS_NOTE}
+          {exactWord !== undefined && (
+            <>
+              {' '}
+              <Link
+                to="/search"
+                search={(previous) => ({ ...previous, q: `"${exactWord}"` })}
+                onClick={focusSearchWords}
+                className={LINK_CLASS_NAME}
+              >
+                Only the exact word {exactWord}
+              </Link>
+            </>
+          )}
         </p>
       )}
     </div>

@@ -52,7 +52,10 @@ import {
 import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { isQueryOnlyExcludedWords } from '@/lib/searchQuery'
+import {
+  getSingleUnquotedWord,
+  isQueryOnlyExcludedWords,
+} from '@/lib/searchQuery'
 import {
   getSortWithoutWords,
   isSearchConstituencyNotFoundError,
@@ -112,6 +115,7 @@ export const Route = createFileRoute('/search')({
     const hasWords =
       words !== '' &&
       !(isQueryOnlyExcludedWords(words) && (hasPerson || hasConstituency))
+    const exactWord = hasWords ? getSingleUnquotedWord(words) : undefined
     const hasFilter =
       parliament !== undefined ||
       !!from ||
@@ -321,6 +325,7 @@ export const Route = createFileRoute('/search')({
             resultPages={speeches.data.pages.map((page) => page.results)}
             searchRequest={speechesRequest}
             hasWords={hasWords}
+            exactWord={exactWord}
             highlightWords={hasWords ? words : undefined}
             totalCount={firstPage.total_count}
             isTotalCapped={firstPage.is_total_capped}
@@ -372,6 +377,7 @@ export const Route = createFileRoute('/search')({
           <ListReportMatches
             results={results}
             hasWords={hasWords}
+            exactWord={exactWord}
             highlightWords={hasWords ? words : undefined}
             totalCount={firstPage.total_count}
             isTotalCapped={firstPage.is_total_capped}

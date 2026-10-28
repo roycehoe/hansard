@@ -50,6 +50,7 @@ interface ListSpeechMatchesProps {
   resultPages: SpeechMatchData[][]
   searchRequest: GetSearchSpeechesRequest
   hasWords: boolean
+  exactWord: string | undefined
   highlightWords: string | undefined
   totalCount: number
   isTotalCapped: boolean
@@ -60,6 +61,7 @@ export function ListSpeechMatches({
   resultPages,
   searchRequest,
   hasWords,
+  exactWord,
   highlightWords,
   totalCount,
   isTotalCapped,
@@ -90,6 +92,7 @@ export function ListSpeechMatches({
             singularNoun={hasWords ? 'speech match' : 'speech'}
             pluralNoun={hasWords ? 'speech matches' : 'speeches'}
             hasWords={hasWords}
+            exactWord={exactWord}
             sortControl={sortControl}
           />
           <ol>

@@ -7,6 +7,8 @@ const SEARCH_TOKEN_PATTERN = /(-?)"([^"]*)"?|[^\s"]+/g
 const CURLY_QUOTES = /[“”]/g
 const QUOTE = '"'
 const WORD_CHARACTER = /[\p{L}\p{N}]/u
+const WHITESPACE = /\s/
+const QUOTE_CHARACTERS = /["“”]/
 const EXCLUDED_PREFIX = '-'
 const OR_OPERATOR = 'or'
 
@@ -37,6 +39,19 @@ export function isQueryOnlyExcludedWords(query: string): boolean {
     if (WORD_CHARACTER.test(bareToken)) termExclusions.push(isExcluded)
   }
   return termExclusions.length > 0 && termExclusions.every(Boolean)
+}
+
+export function getSingleUnquotedWord(query: string): string | undefined {
+  if (
+    WHITESPACE.test(query) ||
+    QUOTE_CHARACTERS.test(query) ||
+    query.startsWith(EXCLUDED_PREFIX) ||
+    query.toLowerCase() === OR_OPERATOR ||
+    !WORD_CHARACTER.test(query)
+  ) {
+    return undefined
+  }
+  return query
 }
 
 export function getSearchDateError(

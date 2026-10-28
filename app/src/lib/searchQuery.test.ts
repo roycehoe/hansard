@@ -1,4 +1,8 @@
-import { getSearchDateError, isQueryOnlyExcludedWords } from '@/lib/searchQuery'
+import {
+  getSearchDateError,
+  getSingleUnquotedWord,
+  isQueryOnlyExcludedWords,
+} from '@/lib/searchQuery'
 import { describe, expect, it } from 'vitest'
 
 describe('isQueryOnlyExcludedWords', () => {
@@ -24,6 +28,23 @@ describe('isQueryOnlyExcludedWords', () => {
     expect(isQueryOnlyExcludedWords('-,')).toBe(false)
     expect(isQueryOnlyExcludedWords('-OR')).toBe(false)
     expect(isQueryOnlyExcludedWords('""')).toBe(false)
+  })
+})
+
+describe('getSingleUnquotedWord', () => {
+  it('returns a single bare word as typed', () => {
+    expect(getSingleUnquotedWord('housing')).toBe('housing')
+    expect(getSingleUnquotedWord('covid-19')).toBe('covid-19')
+  })
+
+  it('is undefined for several words, quotes, a minus, OR or no word character', () => {
+    expect(getSingleUnquotedWord('public housing')).toBeUndefined()
+    expect(getSingleUnquotedWord('"housing"')).toBeUndefined()
+    expect(getSingleUnquotedWord('“housing”')).toBeUndefined()
+    expect(getSingleUnquotedWord('-house')).toBeUndefined()
+    expect(getSingleUnquotedWord('OR')).toBeUndefined()
+    expect(getSingleUnquotedWord('or')).toBeUndefined()
+    expect(getSingleUnquotedWord('!!')).toBeUndefined()
   })
 })
 
