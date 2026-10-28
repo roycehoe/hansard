@@ -11,7 +11,7 @@ export function SkeletonReport() {
     <div className="space-y-8">
       <SkeletonPageHeader
         hasDescription={false}
-        aboveTitle={<Skeleton className="h-5 w-40" />}
+        aboveTitle={<Skeleton className="h-6 w-40" />}
         actions={<Skeleton className="h-9 w-36" />}
       />
       <div className="flex flex-wrap gap-x-6 gap-y-1">
