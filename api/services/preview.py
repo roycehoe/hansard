@@ -16,11 +16,13 @@ from database.report import Report
 from database.speaker import Speaker
 from database.speech import Speech
 from enums import PreviewType
+from middleware.membership import get_membership_id_to_person
 from middleware.takedown import get_taken_down_report_ids
 from schemas.preview import PreviewData
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.sitting_date import get_sitting_date_label
+from utils.speaker_label import is_chair_speaker_label
 from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
 from utils.transcript_snippet import get_paragraph_quote, get_transcript_quote
 
@@ -37,6 +39,8 @@ _PERSON_TITLE_SUFFIX = "speeches in Parliament"
 _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
 _SEAT_SEPARATOR = ", "
+_NAME_SEPARATOR = ", "
+_LISTED_SPEAKER_COUNT = 3
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
 _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
@@ -145,6 +149,47 @@ def _get_report_path(report: Report) -> str:
     return f"/reports/{quote(get_report_slug(report.report_id), safe='')}"
 
 
+def _get_names_label(names: list[str]) -> str:
+    if len(names) == 1:
+        return names[0]
+    return f"{_NAME_SEPARATOR.join(names[:-1])} and {names[-1]}"
+
+
+def _get_ranked_speaker_names(report_id: int, session: Session) -> list[str]:
+    debate_speeches = [
+        speech
+        for speech in CRUDSpeech(session).get_all_by_report_id(report_id)
+        if speech.speaker_id is not None
+        and not is_chair_speaker_label(speech.speaker or _EMPTY_LABEL)
+    ]
+    membership_id_to_person = get_membership_id_to_person(
+        list({speech.speaker_id for speech in debate_speeches}), session
+    )
+    person_id_to_name: dict[int, str] = {}
+    person_id_to_paragraph_count: dict[int, int] = {}
+    for speech in debate_speeches:
+        person = membership_id_to_person.get(speech.speaker_id)
+        if person is None:
+            continue
+        person_id_to_name[person.id] = person.canonical_name
+        person_id_to_paragraph_count[person.id] = (
+            person_id_to_paragraph_count.get(person.id, 0) + 1
+        )
+    ranked_person_ids = sorted(
+        person_id_to_paragraph_count,
+        key=lambda person_id: person_id_to_paragraph_count[person_id],
+        reverse=True,
+    )
+    return [person_id_to_name[person_id] for person_id in ranked_person_ids]
+
+
+def _get_speakers_sentence(speaker_names: list[str]) -> str:
+    listed_names = _get_names_label(speaker_names[:_LISTED_SPEAKER_COUNT])
+    if len(speaker_names) > _LISTED_SPEAKER_COUNT:
+        return f"{len(speaker_names):,} people spoke, among them {listed_names}."
+    return f"{listed_names} spoke."
+
+
 def _get_report_description(
     report_id: int, sitting_date_label: str, session: Session
 ) -> str:
@@ -154,7 +199,10 @@ def _get_report_description(
         or first_speech.speaker is None
         or first_speech.speaker == _EMPTY_LABEL
     ):
-        return f"From the sitting of {sitting_date_label}. {_NOT_OFFICIAL}"
+        speaker_names = _get_ranked_speaker_names(report_id, session)
+        if not speaker_names:
+            return f"From the sitting of {sitting_date_label}. {_NOT_OFFICIAL}"
+        return f"{_get_speakers_sentence(speaker_names)} {_NOT_OFFICIAL}"
     paragraph_quote = get_paragraph_quote(first_speech.speaker, first_speech.transcript)
     return f"{paragraph_quote} {_NOT_OFFICIAL}"
 

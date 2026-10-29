@@ -16,6 +16,11 @@ _CLOSING_PARENTHESIS = ")"
 _ASSOC_PROF_SPACED = "Assoc. Prof."
 
 _CHAIRMAN_LABEL = re.compile(r"^(?:the ?|mr ?)?chairman:?$", re.IGNORECASE)
+# NOTE: the Python form of _CHAIR_SPEAKER_LABEL_PATTERN in services/search.py, which runs in Postgres; a change to one has to be made to the other
+_CHAIR_LABEL = re.compile(
+    r"^(the |mr |mdm |madam )?(temporary |deputy )?(deputy ?speaker|speaker|chairman)\b|\((mr |mdm )?(deputy )?speaker\)$",
+    re.IGNORECASE,
+)
 _BARE_DEPUTY_SPEAKER_LABEL = re.compile(r"^mr deputy speaker:?$", re.IGNORECASE)
 _PARENTHESIS = re.compile(r"\(([^)]+)\)")
 _LEADING_LIST_NUMBER = re.compile(r"^\d+\\?\.\s*")
@@ -73,3 +78,7 @@ def is_shared_role_speaker_label(speaker_label: str) -> bool:
         cleaned.startswith(_DEPUTY_SPEAKER_LABELS)
         and _PARENTHESIS.search(cleaned) is None
     )
+
+
+def is_chair_speaker_label(speaker_label: str) -> bool:
+    return _CHAIR_LABEL.search(speaker_label) is not None
