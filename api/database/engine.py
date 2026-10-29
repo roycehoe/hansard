@@ -18,12 +18,16 @@ _SEARCH_CONNECTION_OPTIONS = (
     f"{_READ_ONLY_OPTION} -c statement_timeout={_SEARCH_STATEMENT_TIMEOUT_MILLISECONDS}"
     f" {_UNSYNCHRONIZED_SEQUENTIAL_SCANS_OPTION} {_NO_PARALLEL_WORKERS_OPTION}"
 )
+_POOL_SIZE = 5
+_MAX_OVERFLOW = 5
 _SEARCH_POOL_SIZE = 3
 _SEARCH_MAX_OVERFLOW = 2
 
 engine = create_engine(
     settings.database_url,
     connect_args={"options": _CONNECTION_OPTIONS},
+    pool_size=_POOL_SIZE,
+    max_overflow=_MAX_OVERFLOW,
     pool_pre_ping=True,
 )
 
