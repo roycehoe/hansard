@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner'
 import {
   DEFAULT_QUERY_RETRY_COUNT,
   HTTP_SERVER_ERROR_MIN,
+  SEARCH_BUSY_RETRY_COUNT,
 } from '@/constants/constants'
 import { countPageView, loadAnalytics } from '@/lib/analytics'
 import {
@@ -12,7 +13,7 @@ import {
   shouldMoveFocusToPageHeading,
 } from '@/lib/navigationFocus'
 import { parseSearchParams, stringifySearchParams } from '@/lib/searchParams'
-import { isSearchTimedOutError } from '@/lib/utils'
+import { isSearchBusyError, isSearchTimedOutError } from '@/lib/utils'
 import { routeTree } from '@/routeTree.gen'
 import '@fontsource-variable/inter/wght.css'
 import '@fontsource-variable/source-serif-4/opsz-italic.css'
@@ -26,6 +27,7 @@ import './index.css'
 
 function shouldRetryQuery(failureCount: number, error: Error): boolean {
   if (isSearchTimedOutError(error)) return false
+  if (isSearchBusyError(error)) return failureCount < SEARCH_BUSY_RETRY_COUNT
   if (error instanceof ApiError && error.status < HTTP_SERVER_ERROR_MIN)
     return false
   return failureCount < DEFAULT_QUERY_RETRY_COUNT

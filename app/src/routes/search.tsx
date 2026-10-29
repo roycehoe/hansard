@@ -1,4 +1,3 @@
-import { ApiError } from '@/api/client'
 import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetSearchReports } from '@/api/search/getSearchReports'
@@ -36,7 +35,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   FILTER_ALL,
-  HTTP_TOO_MANY_REQUESTS,
   NUMBER_LOCALE,
   PHONE_MEDIA_QUERY,
 } from '@/constants/constants'
@@ -58,6 +56,7 @@ import {
 } from '@/lib/searchQuery'
 import {
   getSortWithoutWords,
+  isSearchBusyError,
   isSearchConstituencyNotFoundError,
   isSearchExcludedWordsOnlyError,
   isSearchTimedOutError,
@@ -78,10 +77,6 @@ function getSpeechesHeading(
     return `${SPEECHES_HEADING} by members for ${constituency}`
   }
   return SPEECHES_HEADING
-}
-
-function isSearchBusyError(error: Error | null): boolean {
-  return error instanceof ApiError && error.status === HTTP_TOO_MANY_REQUESTS
 }
 
 const searchSearchSchema = z.object({

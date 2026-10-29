@@ -13,8 +13,6 @@ export const HTTP_NOT_FOUND = 404
 
 export const HTTP_GONE = 410
 
-export const HTTP_TOO_MANY_REQUESTS = 429
-
 export const HTTP_SERVER_ERROR_MIN = 500
 
 export const HTTP_SERVICE_UNAVAILABLE = 503
@@ -37,6 +35,8 @@ export const ABSENCE_DEFINITION =
   "Listed as absent in the sitting's attendance list. An absence can have many causes, including leave and official duties."
 
 export const DEFAULT_QUERY_RETRY_COUNT = 3
+
+export const SEARCH_BUSY_RETRY_COUNT = 1
 
 export const SITE_NAME = 'Open Hansard'
 

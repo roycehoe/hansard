@@ -66,6 +66,7 @@ export const SEARCH_WORDS_INPUT_ID = 'search-q'
 export const CLEAR_FILTERS_LABEL = 'Clear filters'
 
 export const SEARCH_TIMED_OUT_ERROR_CODE = 'search.timed_out'
+export const SEARCH_BUSY_ERROR_CODE = 'search.busy'
 export const SEARCH_EXCLUDED_WORDS_ONLY_ERROR_CODE =
   'search.excluded_words_only'
 export const SEARCH_CONSTITUENCY_NOT_FOUND_ERROR_CODE =
