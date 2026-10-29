@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { HTTP_NOT_FOUND, NUMBER_LOCALE } from '@/constants/constants'
+import { PERSON_TITLE_SUFFIX } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { isSittingMember, parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
@@ -38,7 +39,9 @@ export const Route = createFileRoute('/people/$personSlug')({
     const reports = useGetPersonReports({ person_id: personId })
     const reportCount = reports.data?.pages[0].total_count
     const canonicalSlug = person.data?.person_slug
-    useDocumentTitle(person.data?.canonical_name ?? 'Person')
+    useDocumentTitle(
+      person.data && `${person.data.canonical_name}, ${PERSON_TITLE_SUFFIX}`
+    )
 
     useEffect(
       function redirectToCanonicalSlug() {

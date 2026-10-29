@@ -7,12 +7,16 @@ from urllib.parse import quote, urlencode
 
 from sqlmodel import Session
 
+from crud.attendance import CRUDAttendance
+from crud.membership import CRUDMembership
 from crud.person import CRUDPerson
 from crud.report import CRUDReport
 from crud.speech import CRUDSpeech
 from database.report import Report
+from database.speaker import Speaker
 from database.speech import Speech
 from enums import PreviewType
+from middleware.takedown import get_taken_down_report_ids
 from schemas.preview import PreviewData
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
@@ -29,6 +33,10 @@ _UNOFFICIAL_TRANSCRIPT = "Unofficial transcript"
 _DEFAULT_TITLE = "Open Hansard"
 _DEFAULT_DESCRIPTION = f"Singapore's parliamentary debates since 1955. {_NOT_OFFICIAL}"
 _PERSON_DESCRIPTION = f"Speeches in Singapore's parliamentary debates. {_NOT_OFFICIAL}"
+_PERSON_TITLE_SUFFIX = "speeches in Parliament"
+_LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
+_LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
+_SEAT_SEPARATOR = ", "
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
 _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
@@ -202,13 +210,61 @@ def _get_speech_preview(
     )
 
 
+def _get_parliament_label(parliament_number: int) -> str:
+    if parliament_number == _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER:
+        return _LEGISLATIVE_ASSEMBLY_LABEL
+    return f"Parliament {parliament_number}"
+
+
+def _get_parliament_range_label(memberships: list[Speaker]) -> str:
+    first_label = _get_parliament_label(memberships[0].parliament_number)
+    last_label = _get_parliament_label(memberships[-1].parliament_number)
+    if first_label == last_label:
+        return first_label
+    return f"{first_label} to {last_label}"
+
+
+def _get_seat_labels(membership: Speaker, session: Session) -> list[str]:
+    membership_id_to_location_names = CRUDAttendance(
+        session
+    ).get_membership_id_to_location_names_by_membership_ids([membership.id])
+    labels = [
+        membership.party,
+        *membership_id_to_location_names.get(membership.id, []),
+    ]
+    return [label for label in labels if label != _EMPTY_LABEL]
+
+
+def _get_person_description(person_id: int, session: Session) -> str:
+    memberships = CRUDMembership(session).get_all_by_person_id(person_id)
+    report_id_to_speech_count = CRUDSpeech(
+        session
+    ).get_report_id_to_speech_count_by_membership_ids(
+        [membership.id for membership in memberships]
+    )
+    report_count = len(
+        set(report_id_to_speech_count).difference(get_taken_down_report_ids(session))
+    )
+    if report_count == 0:
+        return _PERSON_DESCRIPTION
+    word = _REPORT_WORD if report_count == 1 else _REPORTS_WORD
+    sentences = [
+        f"Speeches in {report_count:,} {word}, {_get_parliament_range_label(memberships)}."
+    ]
+    seat_labels = _get_seat_labels(memberships[-1], session)
+    if seat_labels:
+        sentences.append(f"{_SEAT_SEPARATOR.join(seat_labels)}.")
+    sentences.append(_NOT_OFFICIAL)
+    return " ".join(sentences)
+
+
 def _get_person_preview(person_id: int, session: Session) -> PreviewData:
     person = CRUDPerson(session).get(person_id)
     if person is None:
         return get_not_found_preview()
     return PreviewData(
-        title=person.canonical_name,
-        description=_PERSON_DESCRIPTION,
+        title=f"{person.canonical_name}, {_PERSON_TITLE_SUFFIX}",
+        description=_get_person_description(person.id, session),
         preview_type=PreviewType.WEBSITE,
         path=f"/people/{person.id}-{get_person_slug(person.canonical_name)}",
         is_found=True,
