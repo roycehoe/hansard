@@ -151,6 +151,16 @@ Also on 21 October 2026 the search engine's connection options gained `-c max_pa
 
 On 29 October 2026 a load test found no room above three searches at once, so `_MAX_RUNNING_SEARCHES` stays at 3. It ran on production through the public API from 02:53 to 02:57 UTC. The test sent no URL twice, Cloudflare served none from its cache, and the mix was 46% speech search, 46% report title search and 8% matched words. At one, two and three searches at once, speech search took 2.72, 4.17 and 5.31 s at the 95th percentile, and 1.10, 1.54 and 1.74 s without a seat filter. The seat filter (`constituency`, about a tenth of the speech searches) sets that tail. Its median was 2.5 s at one search at once, 3.8 s at two and 5.3 s at three, and the slowest took 11.6 s in all, each statement inside the 10-second timeout. It is slow with nothing else running, so the fix there is its query plan, not the limit. Report pages took at most 0.31 s at the 95th percentile for the HTML and `GET /reports/{report_slug}` together, and no request answered 429, 503 or a 5xx. Levels above three ran on the scratch copy, with its container limited to 1 CPU and 1 GB and the API's sessions set to production's `work_mem` of 2 MB and `random_page_cost` of 1. Throughput peaked at 20.7 searches a second at two and three at once and fell to 13.5 at eight, where the first `503 search.timed_out` came. Over all searches, production's 95th percentile was 2.5 to 4.3 times the copy's at one to three, which puts four at 4.3 to 7.3 s. A higher limit would also need connections. The main engine's default pool of 5 with an overflow of 10, the search pool of 3 with an overflow of 2 and the refresh job's one or two come to 21 or 22. DigitalOcean allows 22 on the 1 GiB plan, the size recorded in mid-October and not confirmed since.
 
+Later on 29 October 2026 the seat filter stopped folding the seat name of every one of the 139,189 attendance rows, which it had done in each of a seat search's four statements. The Membership lookup now folds each distinct name once, 149 names and the null, in a `MATERIALIZED` CTE and matches attendance rows to the names that fold to the seat. The page, the count and the per-report counts read each Membership's first and last sitting at the seat from a `MATERIALIZED` CTE limited to the search's own Memberships, which `ix_attendance_speaker_id` serves. Without `MATERIALIZED` the planner misjudged how many speeches a phrase matched and recomputed the spans for each one. `EXPLAIN (ANALYZE, BUFFERS)` on the scratch copy with production's session settings, warm, median of three runs, statement by statement (Membership lookup, page, count, per-report counts):
+
+| Search | Before | After |
+|---|---|---|
+| "haze", Bishan-Toa Payoh | 170, 168, 175, 163 ms | 68, 30, 28, 21 ms |
+| No words, Hougang | 168, 241, 177, 191 ms | 69, 93, 16, 8 ms |
+| "public transport", Potong Pasir, newest first | 165, 165, 166, 172 ms | 69, 16, 15, 18 ms |
+
+Shared buffer hits rose, to 12,336 from 1,619 for the Bishan-Toa Payoh page, because the span CTE probes `sitting_pkey` once for each of the Memberships' attendance rows, where the old plan hashed all 1,758 sittings. Those probes hit the same few pages of a small table. 55 seat searches gave the same answers before and after: the page, the next page flag, the capped and uncapped counts, the per-report counts and the full ordered list of up to 1,001 matches. They covered renamed and split seats, 8 of the 12 Memberships that sat for two seats in one Parliament, Speakers' seats, a seat with a person, with words, with no words, with dates, a Parliament, a report type and one report, and a seat that does not exist.
+
 ## ix_attendance_sitting_id
 
 ```sql
@@ -178,7 +188,7 @@ Sort  (cost=79.97..80.16 rows=76 width=40)
 CREATE INDEX ix_attendance_speaker_id ON attendance (speaker_id) INCLUDE (is_present, sitting_id, location_name);
 ```
 
-Needed by `GET /people/{person_id}`, for `attendance_counts_by_parliament` (twice, present and absent) and for the Membership's location names (`SELECT DISTINCT speaker_id, location_name FROM attendance WHERE speaker_id IN (...) AND location_name IS NOT NULL`). Since scraper revision `6b3a29f6f809` the `INCLUDE` columns let all three read the index alone. `EXPLAIN (ANALYZE, BUFFERS)` on production, second run, 21 October 2026, shared buffers and time before and after:
+Needed by `GET /people/{person_id}`, for `attendance_counts_by_parliament` (twice, present and absent) and for the Membership's location names (`SELECT DISTINCT speaker_id, location_name FROM attendance WHERE speaker_id IN (...) AND location_name IS NOT NULL`). Since scraper revision `6b3a29f6f809` the `INCLUDE` columns let all three read the index alone. Since 29 October 2026 the seat filter on `GET /search/speeches` reads its Memberships' sittings at the seat through it too, as an index-only scan. `EXPLAIN (ANALYZE, BUFFERS)` on production, second run, 21 October 2026, shared buffers and time before and after:
 
 | Person | Location names | Present count | Absent count |
 |---|---|---|---|

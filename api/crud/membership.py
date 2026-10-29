@@ -34,9 +34,21 @@ class CRUDMembership:
         return list(self.session.exec(statement).all())
 
     def get_all_by_location_name(self, location_name: str) -> list[Speaker]:
-        membership_ids_at_location = select(Attendance.speaker_id).where(
-            get_folded_location_name(Attendance.location_name)
+        # NOTE: materialized, so the seat name is folded once for each distinct name instead of once for each attendance row
+        attendance_location_names = (
+            select(Attendance.location_name)
+            .distinct()
+            .cte("attendance_location_name")
+            .prefix_with("MATERIALIZED")
+        )
+        matching_location_names = select(
+            attendance_location_names.c.location_name
+        ).where(
+            get_folded_location_name(attendance_location_names.c.location_name)
             == get_folded_location_name(literal(location_name))
+        )
+        membership_ids_at_location = select(Attendance.speaker_id).where(
+            Attendance.location_name.in_(matching_location_names)
         )
         statement = select(Speaker).where(Speaker.id.in_(membership_ids_at_location))
         return list(self.session.exec(statement).all())

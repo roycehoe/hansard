@@ -82,11 +82,20 @@ def _get_parliament_sitting_date_filters(
     ]
 
 
-def _get_location_name_filters(location_name: Optional[str]) -> list[ColumnElement]:
+def _get_location_name_filters(
+    location_name: Optional[str], membership_ids: Optional[list[int]]
+) -> list[ColumnElement]:
     if location_name is None:
         return []
     sitting_date = func.to_date(Sitting.sitting_date, _SITTING_DATE_FORMAT, type_=Date)
+    span_filters = [
+        get_folded_location_name(Attendance.location_name)
+        == get_folded_location_name(literal(location_name))
+    ]
+    if membership_ids is not None:
+        span_filters.append(Attendance.speaker_id.in_(membership_ids))
     # NOTE: a Membership spans a whole Parliament, and some sat for two seats within one, so a speech counts only between the first and last sitting its Membership attended for the location
+    # NOTE: limited to the search's Memberships, though the speech filter already is, so the index on attendance.speaker_id serves it instead of folding every attendance row's seat name; materialized, because inlined the planner misjudged a phrase's matches and read the spans again for each speech
     membership_spans_at_location = (
         select(
             Attendance.speaker_id,
@@ -94,12 +103,10 @@ def _get_location_name_filters(location_name: Optional[str]) -> list[ColumnEleme
             func.max(sitting_date).label("last_sitting_date"),
         )
         .join(Sitting, Sitting.id == Attendance.sitting_id)
-        .where(
-            get_folded_location_name(Attendance.location_name)
-            == get_folded_location_name(literal(location_name))
-        )
+        .where(*span_filters)
         .group_by(Attendance.speaker_id)
-        .subquery()
+        .cte("membership_span_at_location")
+        .prefix_with("MATERIALIZED")
     )
     return [
         select(membership_spans_at_location.c.speaker_id)
@@ -149,7 +156,7 @@ def _get_query_filters(
         filters.append(Report.report_type == report_type)
     if membership_ids is not None:
         filters.append(Speech.speaker_id.in_(membership_ids))
-    filters.extend(_get_location_name_filters(location_name))
+    filters.extend(_get_location_name_filters(location_name, membership_ids))
     filters.extend(_get_excluded_speaker_filters(excluded_speaker_pattern))
     if excluded_report_ids:
         filters.append(Speech.report_id.not_in(excluded_report_ids))
@@ -360,7 +367,7 @@ class CRUDSpeech:
                 _is_report_filtered(parliament_number, date_from, date_to, report_type),
             )
             .where(Speech.speaker_id.in_(membership_ids))
-            .where(*_get_location_name_filters(location_name))
+            .where(*_get_location_name_filters(location_name, membership_ids))
             .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
             .where(
                 *get_excluded_words_filters(
@@ -471,7 +478,7 @@ class CRUDSpeech:
                 _is_report_filtered(parliament_number, date_from, date_to, report_type),
             )
             .where(Speech.speaker_id.in_(membership_ids))
-            .where(*_get_location_name_filters(location_name))
+            .where(*_get_location_name_filters(location_name, membership_ids))
             .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
             .where(
                 *get_excluded_words_filters(
@@ -576,7 +583,7 @@ class CRUDSpeech:
                 _is_report_filtered(parliament_number, date_from, date_to, report_type),
             )
             .where(Speech.speaker_id.in_(membership_ids))
-            .where(*_get_location_name_filters(location_name))
+            .where(*_get_location_name_filters(location_name, membership_ids))
             .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
             .where(
                 *get_excluded_words_filters(
