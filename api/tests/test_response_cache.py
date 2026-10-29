@@ -55,8 +55,8 @@ def _get_health(request: Request) -> Response:
     return JSONResponse({"ok": True})
 
 
-@_stub_app.get("/preview-fetches")
-def _get_preview_fetches(request: Request) -> Response:
+@_stub_app.get("/search-counts")
+def _get_search_counts(request: Request) -> Response:
     _path_to_call_count[request.url.path] += 1
     return JSONResponse({"ok": True})
 
@@ -147,7 +147,7 @@ def test_cache_entry_expires_after_an_hour(
 
 
 @pytest.mark.parametrize("prefix", ["", "/api"])
-@pytest.mark.parametrize("route_path", ["/health", "/preview-fetches"])
+@pytest.mark.parametrize("route_path", ["/health", "/search-counts"])
 def test_cache_never_stores_an_excluded_path(
     stub_client: TestClient, prefix: str, route_path: str
 ) -> None:

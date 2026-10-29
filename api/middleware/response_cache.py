@@ -19,7 +19,6 @@ _GZIP_ENCODING = "gzip"
 _HTTP_SCOPE_TYPE = "http"
 _GET_METHOD = "GET"
 _HEALTH_PATH = "/health"
-_PREVIEW_FETCHES_PATH = "/preview-fetches"
 _SEARCH_COUNTS_PATH = "/search-counts"
 _RESPONSE_START_TYPE = "http.response.start"
 _RESPONSE_BODY_TYPE = "http.response.body"
@@ -57,11 +56,7 @@ def _get_route_path(scope: Scope) -> str:
 
 
 def _is_uncached_path(route_path: str) -> bool:
-    return (
-        route_path == _HEALTH_PATH
-        or route_path == _PREVIEW_FETCHES_PATH
-        or route_path == _SEARCH_COUNTS_PATH
-    )
+    return route_path == _HEALTH_PATH or route_path == _SEARCH_COUNTS_PATH
 
 
 def _is_gzip_accepted(scope: Scope) -> bool:

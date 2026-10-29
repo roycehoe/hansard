@@ -70,6 +70,13 @@ services:
       - key: SITE_URL
         scope: RUN_TIME
         value: https://openhansard.sg
+      - key: GOATCOUNTER_SITE_URL
+        scope: RUN_TIME
+        value: https://royceinbox.goatcounter.com
+      - key: GOATCOUNTER_API_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+        value: ${GOATCOUNTER_API_TOKEN}
       - key: VITE_CONTACT_EMAIL
         scope: BUILD_TIME
         value: royceinbox@hotmail.com

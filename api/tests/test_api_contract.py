@@ -101,11 +101,9 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("SittingData", f"{_ALL_SITTINGS_INTERFACES_FILE}::SittingData"),
 )
 
-# NOTE: the frontend never calls /parties, /preview-fetches or /search-counts, so these have no interface.
+# NOTE: the frontend never calls /parties or /search-counts, so these have no interface.
 _SCHEMAS_WITHOUT_FRONTEND_INTERFACE = (
     "GetAllPartiesResponse",
-    "GetPreviewFetchesResponse",
-    "PreviewFetchData",
     "GetSearchCountsResponse",
     "SearchCountData",
 )

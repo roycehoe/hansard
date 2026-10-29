@@ -1,16 +1,19 @@
+import asyncio
+import logging
 import re
-from collections import Counter
-from datetime import date, datetime, timezone
-from threading import Lock
+import secrets
 
-from schemas.preview_fetch import GetPreviewFetchesResponse, PreviewFetchData
-from utils.singapore_date import get_singapore_date
+import httpx
 
-_MAX_COUNTED_KEYS = 10_000
-_MAX_COUNTED_PATH_BYTES = 1_000_000
+from settings import settings
+
+_COUNT_PATH = "/api/v0/count"
+_COUNT_TIMEOUT_SECONDS = 5
+_EVENT_PATH_PREFIX = "preview-fetch/"
 _MAX_PATH_BYTES = 300
 _OTHER_PATH = "other"
 _PATH_ENCODING = "utf-8"
+_SESSION_BYTES = 16
 _SITE_PATH = re.compile(
     r"/"
     r"|/coverage|/coverage/methods|/search|/researchers|/design|/palette"
@@ -19,11 +22,8 @@ _SITE_PATH = re.compile(
     r"|/reports/[^/]+"
 )
 
-_counted_since = datetime.now(timezone.utc)
-_fetch_key_to_count_lock = Lock()
-# NOTE: written on the event loop and read in the thread pool, so every access holds the lock
-_fetch_key_to_count: Counter[tuple[date, str, str]] = Counter()
-_counted_path_bytes = 0
+_logger = logging.getLogger(__name__)
+_pending_count_tasks: set[asyncio.Task[None]] = set()
 
 
 def _get_counted_path(path: str) -> str:
@@ -34,32 +34,34 @@ def _get_counted_path(path: str) -> str:
     return path
 
 
+async def _send_count(site_url: str, api_token: str, bot_name: str, path: str) -> None:
+    hit = {
+        "path": _EVENT_PATH_PREFIX + _get_counted_path(path).removeprefix("/"),
+        "event": True,
+        "ref": bot_name,
+        "session": secrets.token_hex(_SESSION_BYTES),
+    }
+    try:
+        async with httpx.AsyncClient(timeout=_COUNT_TIMEOUT_SECONDS) as client:
+            response = await client.post(
+                site_url.rstrip("/") + _COUNT_PATH,
+                headers={"Authorization": f"Bearer {api_token}"},
+                json={"no_sessions": True, "filter": [], "hits": [hit]},
+            )
+            response.raise_for_status()
+    except httpx.HTTPError as error:
+        _logger.warning(
+            "GoatCounter did not count a preview fetch: %s", type(error).__name__
+        )
+
+
 def count_preview_fetch(bot_name: str, path: str) -> None:
-    global _counted_path_bytes
-    counted_path = _get_counted_path(path)
-    counted_path_bytes = len(counted_path.encode(_PATH_ENCODING))
-    fetch_key = (get_singapore_date(datetime.now(timezone.utc)), bot_name, counted_path)
-    with _fetch_key_to_count_lock:
-        if fetch_key in _fetch_key_to_count:
-            _fetch_key_to_count[fetch_key] += 1
-            return
-        if len(_fetch_key_to_count) >= _MAX_COUNTED_KEYS:
-            return
-        if _counted_path_bytes + counted_path_bytes > _MAX_COUNTED_PATH_BYTES:
-            return
-        _fetch_key_to_count[fetch_key] = 1
-        _counted_path_bytes += counted_path_bytes
-
-
-def get_preview_fetches() -> GetPreviewFetchesResponse:
-    with _fetch_key_to_count_lock:
-        fetch_key_to_count = dict(_fetch_key_to_count)
-    fetches = [
-        PreviewFetchData(
-            fetched_on=fetched_on, bot_name=bot_name, path=path, fetch_count=fetch_count
-        )
-        for (fetched_on, bot_name, path), fetch_count in sorted(
-            fetch_key_to_count.items()
-        )
-    ]
-    return GetPreviewFetchesResponse(counted_since=_counted_since, fetches=fetches)
+    site_url = settings.goatcounter_site_url
+    api_token = settings.goatcounter_api_token
+    if site_url is None or api_token is None:
+        return
+    count_task = asyncio.get_running_loop().create_task(
+        _send_count(site_url, api_token, bot_name, path)
+    )
+    _pending_count_tasks.add(count_task)
+    count_task.add_done_callback(_pending_count_tasks.discard)

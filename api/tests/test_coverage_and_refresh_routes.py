@@ -3,7 +3,6 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from schemas.coverage import GetCoverageResponse
-from schemas.preview_fetch import GetPreviewFetchesResponse
 from schemas.refresh import GetRefreshResponse
 
 _PUBLIC_CACHE_CONTROL = "public, max-age=3600"
@@ -32,16 +31,3 @@ def test_refresh_answers_200_with_public_cache_control(
     assert response.headers["cache-control"] == _PUBLIC_CACHE_CONTROL
     body = response.json()
     assert GetRefreshResponse.model_validate(body).model_dump(mode="json") == body
-
-
-def test_preview_fetches_answers_200_with_no_cache_control(
-    api_client: TestClient,
-) -> None:
-    response = api_client.get("/preview-fetches")
-
-    assert response.status_code == status.HTTP_200_OK
-    assert "cache-control" not in response.headers
-    body = response.json()
-    assert (
-        GetPreviewFetchesResponse.model_validate(body).model_dump(mode="json") == body
-    )

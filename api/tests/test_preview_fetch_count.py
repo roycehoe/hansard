@@ -1,107 +1,148 @@
-from collections import Counter
-from datetime import datetime, timedelta, timezone
+import asyncio
+import json
 from pathlib import Path
 
+import httpx
 import pytest
-from fastapi import status
 from fastapi.testclient import TestClient
 from starlette.applications import Starlette
 from starlette.routing import Mount
 
 from middleware.frontend import FrontendFiles
 from services import preview_fetch as preview_fetch_service
+from settings import settings
 
 _INDEX_HTML = (
     "<html><head><!--preview-tags--><title>placeholder</title>"
     "<!--/preview-tags--></head><body></body></html>"
 )
 _SLACK_USER_AGENT = "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)"
-_TELEGRAM_USER_AGENT = "TelegramBot (like TwitterBot)"
 _BROWSER_USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/130.0 Safari/537.36"
 )
-_SINGAPORE_TIME_ZONE = timezone(timedelta(hours=8))
+_SITE_URL = "https://example.goatcounter.com"
+_API_TOKEN = "test-token"
+_REAL_ASYNC_CLIENT = httpx.AsyncClient
 
 
-@pytest.fixture(autouse=True)
-def reset_fetch_counter(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(preview_fetch_service, "_fetch_key_to_count", Counter())
-    monkeypatch.setattr(preview_fetch_service, "_counted_path_bytes", 0)
+def _use_goatcounter(
+    monkeypatch: pytest.MonkeyPatch, status_code: int = 202
+) -> list[httpx.Request]:
+    requests: list[httpx.Request] = []
 
+    def answer(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(status_code)
 
-@pytest.fixture
-def frontend_client(tmp_path: Path) -> TestClient:
-    (tmp_path / "index.html").write_text(_INDEX_HTML)
-    return TestClient(
-        Starlette(
-            routes=[Mount("/", app=FrontendFiles(directory=tmp_path, site_url=None))]
+    def build_client(**keyword_arguments: object) -> httpx.AsyncClient:
+        return _REAL_ASYNC_CLIENT(
+            transport=httpx.MockTransport(answer), **keyword_arguments
         )
+
+    monkeypatch.setattr(settings, "goatcounter_site_url", _SITE_URL)
+    monkeypatch.setattr(settings, "goatcounter_api_token", _API_TOKEN)
+    monkeypatch.setattr(preview_fetch_service.httpx, "AsyncClient", build_client)
+    return requests
+
+
+def _count_fetches(bot_name: str, paths: list[str]) -> None:
+    async def count() -> None:
+        for path in paths:
+            preview_fetch_service.count_preview_fetch(bot_name, path)
+        await asyncio.gather(*preview_fetch_service._pending_count_tasks)
+
+    asyncio.run(count())
+
+
+def _get_hits(requests: list[httpx.Request]) -> list[dict[str, object]]:
+    return [json.loads(request.content)["hits"][0] for request in requests]
+
+
+def test_a_bot_fetch_posts_one_event_hit_to_goatcounter(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    requests = _use_goatcounter(monkeypatch)
+
+    _count_fetches("Slack", ["/reports/bill-367"])
+
+    assert len(requests) == 1
+    assert str(requests[0].url) == f"{_SITE_URL}/api/v0/count"
+    assert requests[0].headers["authorization"] == f"Bearer {_API_TOKEN}"
+    body = json.loads(requests[0].content)
+    assert body["no_sessions"] is True
+    assert body["filter"] == []
+    [hit] = body["hits"]
+    assert set(hit) == {"path", "event", "ref", "session"}
+    assert hit["path"] == "preview-fetch/reports/bill-367"
+    assert hit["event"] is True
+    assert hit["ref"] == "Slack"
+
+
+def test_each_hit_gets_its_own_session(monkeypatch: pytest.MonkeyPatch) -> None:
+    requests = _use_goatcounter(monkeypatch)
+
+    _count_fetches("Slack", ["/coverage", "/coverage"])
+
+    assert len({hit["session"] for hit in _get_hits(requests)}) == 2
+
+
+def test_a_path_that_is_no_site_route_or_too_long_is_counted_as_other(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    requests = _use_goatcounter(monkeypatch)
+
+    _count_fetches("Slack", ["/" + "a" * 8000, "/reports/" + "a" * 300, "/nope", "/"])
+
+    assert [hit["path"] for hit in _get_hits(requests)] == [
+        "preview-fetch/other",
+        "preview-fetch/other",
+        "preview-fetch/other",
+        "preview-fetch/",
+    ]
+
+
+def test_nothing_is_sent_while_a_setting_is_unset(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    requests = _use_goatcounter(monkeypatch)
+    monkeypatch.setattr(settings, "goatcounter_api_token", None)
+
+    _count_fetches("Slack", ["/coverage"])
+
+    assert requests == []
+
+
+def test_a_refused_count_is_logged_once_and_dropped(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    requests = _use_goatcounter(monkeypatch, status_code=429)
+
+    _count_fetches("Slack", ["/coverage"])
+
+    assert len(requests) == 1
+    assert [record.levelname for record in caplog.records] == ["WARNING"]
+    assert _API_TOKEN not in caplog.text
+
+
+def test_only_a_bot_page_fetch_reaches_the_counter(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    counted: list[tuple[str, str]] = []
+    monkeypatch.setattr(
+        preview_fetch_service,
+        "count_preview_fetch",
+        lambda bot_name, path: counted.append((bot_name, path)),
     )
-
-
-def test_a_bot_fetch_is_counted_by_date_bot_and_path(tmp_path: Path) -> None:
     (tmp_path / "index.html").write_text(_INDEX_HTML)
     client = TestClient(
         Starlette(
             routes=[Mount("/", app=FrontendFiles(directory=tmp_path, site_url=None))]
         )
     )
-    before = datetime.now(_SINGAPORE_TIME_ZONE).date()
 
     slack_response = client.get("/coverage", headers={"User-Agent": _SLACK_USER_AGENT})
-    client.get("/coverage", headers={"User-Agent": _SLACK_USER_AGENT})
-    client.get("/coverage", headers={"User-Agent": _TELEGRAM_USER_AGENT})
-    browser_response = client.get(
-        "/coverage", headers={"User-Agent": _BROWSER_USER_AGENT}
-    )
+    client.get("/coverage", headers={"User-Agent": _BROWSER_USER_AGENT})
 
-    after = datetime.now(_SINGAPORE_TIME_ZONE).date()
-    fetches = preview_fetch_service.get_preview_fetches().fetches
-    assert slack_response.status_code == status.HTTP_200_OK
     assert "<title>What the archive covers" in slack_response.text
-    assert browser_response.status_code == status.HTTP_200_OK
-    assert [(fetch.bot_name, fetch.path, fetch.fetch_count) for fetch in fetches] == [
-        ("Slack", "/coverage", 2),
-        ("Telegram", "/coverage", 1),
-    ]
-    assert all(before <= fetch.fetched_on <= after for fetch in fetches)
-
-
-def test_a_path_that_is_no_site_route_or_too_long_is_counted_as_other(
-    frontend_client: TestClient,
-) -> None:
-    long_report_path = "/reports/" + "a" * 300
-    for index in range(50):
-        frontend_client.get(
-            f"/{'a' * 8000}{index}", headers={"User-Agent": _SLACK_USER_AGENT}
-        )
-    frontend_client.get(long_report_path, headers={"User-Agent": _SLACK_USER_AGENT})
-    frontend_client.get(
-        "/reports/written-answer-11590", headers={"User-Agent": _SLACK_USER_AGENT}
-    )
-    frontend_client.get("/people/12-lee", headers={"User-Agent": _SLACK_USER_AGENT})
-
-    fetches = preview_fetch_service.get_preview_fetches().fetches
-    assert [(fetch.path, fetch.fetch_count) for fetch in fetches] == [
-        ("/people/12-lee", 1),
-        ("/reports/written-answer-11590", 1),
-        ("other", 51),
-    ]
-
-
-def test_new_paths_stop_being_counted_past_the_byte_budget(
-    frontend_client: TestClient, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr(preview_fetch_service, "_MAX_COUNTED_PATH_BYTES", 40)
-    for number in range(10):
-        frontend_client.get(
-            f"/reports/report-{number}", headers={"User-Agent": _SLACK_USER_AGENT}
-        )
-    frontend_client.get("/reports/report-0", headers={"User-Agent": _SLACK_USER_AGENT})
-
-    fetches = preview_fetch_service.get_preview_fetches().fetches
-    assert [(fetch.path, fetch.fetch_count) for fetch in fetches] == [
-        ("/reports/report-0", 2),
-        ("/reports/report-1", 1),
-    ]
+    assert counted == [("Slack", "/coverage")]

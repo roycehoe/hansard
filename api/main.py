@@ -10,7 +10,6 @@ from routers import (
     parliament,
     party,
     person,
-    preview_fetch,
     refresh,
     report,
     search,
@@ -50,5 +49,4 @@ app.include_router(party.router)
 app.include_router(search.router)
 app.include_router(coverage.router)
 app.include_router(refresh.router)
-app.include_router(preview_fetch.router)
 app.include_router(search_count.router)
