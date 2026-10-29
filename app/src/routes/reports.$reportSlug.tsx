@@ -96,7 +96,9 @@ export const Route = createFileRoute('/reports/$reportSlug')({
       report_slug: reportSlug,
       q: highlightTerms.join(' '),
     })
-    useDocumentTitle(data?.title ?? 'Report')
+    useDocumentTitle(
+      data && `${data.title}, ${formatSittingDate(data.sitting_date)}`
+    )
 
     function retryReport() {
       void refetch()
