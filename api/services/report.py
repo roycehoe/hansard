@@ -7,7 +7,7 @@ from crud.speech import CRUDSpeech
 from database.person import Person
 from database.report import Report
 from database.speech import Speech
-from enums import ReportType, SpeechLinkStatus
+from enums import ReportType, SearchEndpoint, SpeechLinkStatus
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
@@ -191,7 +191,7 @@ def get_report(
 def get_report_matched_words(
     report_slug: str, words: str, session: Session
 ) -> GetReportMatchedWordsResponse:
-    with hold_search_slot():
+    with hold_search_slot(SearchEndpoint.MATCHED_WORDS):
         report = _get_validated_report(report_slug, session)
         groups = get_search_query_groups(words)
         quoted_words = set(get_quoted_words(groups))

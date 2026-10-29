@@ -9,7 +9,7 @@ from crud.speech import CRUDSpeech
 from database.person import Person
 from database.report import Report
 from database.speech import Speech
-from enums import ReportType, SearchSort
+from enums import ReportType, SearchEndpoint, SearchSort
 from exceptions.report import ReportNotFoundException
 from exceptions.search import SearchConstituencyNotFoundException
 from middleware.membership import get_membership_id_to_person
@@ -356,7 +356,7 @@ def search_speeches(
     page_size: int,
     session: Session,
 ) -> SearchSpeechesResponse:
-    with hold_search_slot():
+    with hold_search_slot(SearchEndpoint.SPEECHES):
         membership_ids = _get_membership_ids(person_id, constituency, session)
         excluded_report_ids = get_taken_down_report_ids(session)
         report_ids = _get_report_ids(report_slug, session)
@@ -473,7 +473,7 @@ def search_reports(
     page_size: int,
     session: Session,
 ) -> SearchReportsResponse:
-    with hold_search_slot():
+    with hold_search_slot(SearchEndpoint.REPORTS):
         excluded_report_ids = get_taken_down_report_ids(session)
         reports = _get_reports(
             query,

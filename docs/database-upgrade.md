@@ -8,7 +8,7 @@ Look at an upgrade when any one of these holds for two weeks in a row:
 
 | Signal | Threshold | Where to read it |
 | --- | --- | --- |
-| Searches refused with `search.busy` | More than 1% of searches, on 3 or more days a week | The in-memory refusal count (`api/CLAUDE.md`), against the request log's search count |
+| Searches refused with `search.busy` | More than 1% of searches, on 3 or more days a week | `GET /search-counts`: `refusal_count` against `search_count` |
 | Speech search p95 on normal traffic, seat searches left out | More than 3 s | The request log, or a re-run of the load test |
 | Database CPU at peak hours | More than 70% for over an hour a day | DigitalOcean console, Databases, Insights |
 | "Too many connections" errors | Any | The web container's logs |

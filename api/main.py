@@ -14,6 +14,7 @@ from routers import (
     refresh,
     report,
     search,
+    search_count,
     sitting,
 )
 from settings import settings
@@ -50,3 +51,4 @@ app.include_router(search.router)
 app.include_router(coverage.router)
 app.include_router(refresh.router)
 app.include_router(preview_fetch.router)
+app.include_router(search_count.router)

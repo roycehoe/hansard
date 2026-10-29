@@ -33,6 +33,12 @@ class SearchSort(StrEnum):
     OLDEST = "oldest"
 
 
+class SearchEndpoint(StrEnum):
+    SPEECHES = "/search/speeches"
+    REPORTS = "/search/reports"
+    MATCHED_WORDS = "/reports/{report_slug}/matched-words"
+
+
 class SpeechKind(StrEnum):
     SPEECH = "SPEECH"
     PROCEDURAL = "PROCEDURAL"
