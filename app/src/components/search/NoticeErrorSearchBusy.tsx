@@ -1,4 +1,7 @@
 import { NoticeError } from '@/components/layout/NoticeError'
+import { AnalyticsEvent } from '@/constants/analytics/enums'
+import { countEvent } from '@/lib/analytics'
+import { useEffect } from 'react'
 
 interface NoticeErrorSearchBusyProps {
   onRetry: () => void
@@ -9,6 +12,9 @@ export function NoticeErrorSearchBusy({
   onRetry,
   isRetrying,
 }: NoticeErrorSearchBusyProps) {
+  useEffect(function countSearchBusy() {
+    countEvent(AnalyticsEvent.SEARCH_BUSY)
+  }, [])
   return (
     <NoticeError
       title="Search is busy"
