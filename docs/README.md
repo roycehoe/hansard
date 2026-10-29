@@ -11,6 +11,7 @@ What each file here is for and who reads it. The code's conventions are in `CLAU
 | `takedown.md` | Public mode and the takedown list: what each setting hides and how a report comes down. | Royce, when he runs the site |
 | `api-database-role.md` | The SQL that creates the API's read-only Postgres role. Royce runs it on the remote database. | Royce, and anyone changing database access |
 | `required-indexes.md` | Every index the API's queries need, with the definition, the endpoints and the query plans. The launch gate for the database. | Anyone changing a query or a migration |
+| `database-upgrade.md` | The signals that mean the database plan is too small, and what to try before paying for a bigger one. | Royce, when he runs the site |
 | `palette.md` | The colour tokens, where each came from and the contrast each reaches. | Anyone touching colour |
 | `palette-preview.html` | A page that shows the palette. Open it in a browser. | Anyone touching colour |
 | `palette-v2-preview.html` | The v2 changes proposed for the first palette (see `palette.md`), kept as a record. | Anyone touching colour |
