@@ -1,19 +1,16 @@
 import asyncio
 import logging
 import re
-import secrets
 
 import httpx
 
+from gateway.analytics import send_analytics_event
 from settings import settings
 
-_COUNT_PATH = "/api/v0/count"
-_COUNT_TIMEOUT_SECONDS = 5
 _EVENT_PATH_PREFIX = "preview-fetch/"
 _MAX_PATH_BYTES = 300
 _OTHER_PATH = "other"
 _PATH_ENCODING = "utf-8"
-_SESSION_BYTES = 16
 _SITE_PATH = re.compile(
     r"/"
     r"|/coverage|/coverage/methods|/search|/researchers|/design|/palette"
@@ -22,7 +19,7 @@ _SITE_PATH = re.compile(
     r"|/reports/[^/]+"
 )
 
-_logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 _pending_count_tasks: set[asyncio.Task[None]] = set()
 
 
@@ -35,24 +32,11 @@ def _get_counted_path(path: str) -> str:
 
 
 async def _send_count(site_url: str, api_token: str, bot_name: str, path: str) -> None:
-    hit = {
-        "path": _EVENT_PATH_PREFIX + _get_counted_path(path).removeprefix("/"),
-        "event": True,
-        "ref": bot_name,
-        "session": secrets.token_hex(_SESSION_BYTES),
-    }
+    event_path = _EVENT_PATH_PREFIX + _get_counted_path(path).removeprefix("/")
     try:
-        async with httpx.AsyncClient(timeout=_COUNT_TIMEOUT_SECONDS) as client:
-            response = await client.post(
-                site_url.rstrip("/") + _COUNT_PATH,
-                headers={"Authorization": f"Bearer {api_token}"},
-                json={"no_sessions": True, "filter": [], "hits": [hit]},
-            )
-            response.raise_for_status()
+        await send_analytics_event(site_url, api_token, event_path, bot_name)
     except httpx.HTTPError as error:
-        _logger.warning(
-            "GoatCounter did not count a preview fetch: %s", type(error).__name__
-        )
+        logger.warning("goatcounter count failed error=%s", type(error).__name__)
 
 
 def count_preview_fetch(bot_name: str, path: str) -> None:

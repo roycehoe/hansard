@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from starlette.applications import Starlette
 from starlette.routing import Mount
 
+from gateway import analytics as analytics_gateway
 from middleware.frontend import FrontendFiles
 from services import preview_fetch as preview_fetch_service
 from settings import settings
@@ -42,7 +43,7 @@ def _use_goatcounter(
 
     monkeypatch.setattr(settings, "goatcounter_site_url", _SITE_URL)
     monkeypatch.setattr(settings, "goatcounter_api_token", _API_TOKEN)
-    monkeypatch.setattr(preview_fetch_service.httpx, "AsyncClient", build_client)
+    monkeypatch.setattr(analytics_gateway.httpx, "AsyncClient", build_client)
     return requests
 
 
