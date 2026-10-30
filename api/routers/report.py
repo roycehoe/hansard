@@ -8,7 +8,7 @@ from schemas.report import GetReportMatchedWordsResponse, GetReportResponse
 from services import report as report_service
 
 _MAX_SPEECH_ANCHOR_LENGTH = 200
-_MAX_WORDS_LENGTH = 200
+_MAX_WORDS_LENGTH = 512
 _NO_NUL_BYTE_PATTERN = r"^[^\x00]*$"
 
 router = APIRouter(prefix="/reports", tags=["reports"])
