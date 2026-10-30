@@ -39,7 +39,7 @@ def get_match_tsquery(query: str) -> ColumnElement:
 def get_rank_tsquery(query: str) -> ColumnElement:
     if not is_quote_in_query(query):
         return get_match_tsquery(query)
-    # NOTE: quoted words are ranked without their word order, because the rum index returns a phrase's matches in an order that disagrees with their <=> distance, so a phrase's order would depend on the plan
+    # NOTE: quoted words are ranked without their word order, because the rum index returns a phrase's matches in an order that disagrees with their <=> distance, so a phrase's order would depend on the plan; a hyphenated word such as "covid-19" or "well-being" still ranks with its word order, because Postgres turns it into a phrase
     return func.websearch_to_tsquery(
         TEXT_SEARCH_CONFIGURATION,
         get_unquoted_websearch_query(get_search_query_groups(query)),

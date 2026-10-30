@@ -123,10 +123,11 @@ def get_group_websearch_query(terms: tuple[SearchQueryTerm, ...]) -> str:
 
 
 def _get_unquoted_websearch_term(term: SearchQueryTerm) -> str:
-    words = _WORD_SEPARATOR.join(term.words)
     if term.is_excluded:
-        return _EXCLUDED_PREFIX + words
-    return words
+        return _EXCLUDED_PREFIX + _WORD_SEPARATOR.join(term.words)
+    if term.is_quoted:
+        return _WORD_SEPARATOR.join(_QUOTE + word + _QUOTE for word in term.words)
+    return _WORD_SEPARATOR.join(term.words)
 
 
 def get_unquoted_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
