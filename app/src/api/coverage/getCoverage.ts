@@ -27,6 +27,7 @@ export interface AttributionFiguresData {
 export interface GetCoverageResponse {
   report_count: number
   text_report_count: number
+  no_text_by_design_report_count: number
   speech_count: number
   linked_speech_count: number
   person_count: number

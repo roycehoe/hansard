@@ -29,6 +29,7 @@ class AttributionFiguresData(BaseModel):
 class GetCoverageResponse(BaseModel):
     report_count: int
     text_report_count: int
+    no_text_by_design_report_count: int
     speech_count: int
     linked_speech_count: int
     person_count: int

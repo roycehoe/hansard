@@ -38,7 +38,6 @@ import {
   HAND_CHECK_UNLINKED_SPEECH_COUNT,
   METHODS_LAST_REVISED,
   METHODS_TERMS_SECTION_ID,
-  NO_TEXT_BY_DESIGN_REPORT_COUNT,
   PARLIAMENT_FIFTEEN_FIRST_SITTING,
   PARLIAMENT_FOURTEEN_DISSOLVED,
   PARLIAMENT_FOURTEEN_LAST_SITTING,
@@ -103,7 +102,7 @@ export const Route = createFileRoute('/coverage/methods')({
       const withoutTextCount =
         coverageData.report_count - coverageData.text_report_count
       const returnedNoTextCount =
-        withoutTextCount - NO_TEXT_BY_DESIGN_REPORT_COUNT
+        withoutTextCount - coverageData.no_text_by_design_report_count
 
       return (
         <section aria-labelledby="text-gathered-heading" className="space-y-4">
@@ -128,7 +127,10 @@ export const Route = createFileRoute('/coverage/methods')({
           </p>
           <p>
             {withoutTextCount.toLocaleString(NUMBER_LOCALE)} reports have no
-            text. {NO_TEXT_BY_DESIGN_REPORT_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
+            text.{' '}
+            {coverageData.no_text_by_design_report_count.toLocaleString(
+              NUMBER_LOCALE
+            )}{' '}
             are a type the Parliament website publishes without text. The other{' '}
             {returnedNoTextCount.toLocaleString(NUMBER_LOCALE)} had no text on
             the Parliament website when the archive was built.
