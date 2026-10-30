@@ -28,4 +28,5 @@ class Speech(SQLModel, table=True):
     )
     column_suggested: Optional[int] = None
     report_id: Optional[int] = None
+    report_type: str
     speaker_id: Optional[int] = None

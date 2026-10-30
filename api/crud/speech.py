@@ -20,6 +20,7 @@ from database.report import Report
 from database.sitting import Sitting
 from database.speech import Speech
 from enums import ReportType, SearchSort
+from utils.search_query import is_hyphenated_word_in_query
 
 _ONE_DAY = timedelta(days=1)
 _BEFORE_FIRST_SITTING = datetime(1900, 1, 1)
@@ -161,7 +162,7 @@ def _get_query_filters(
     if date_to is not None:
         filters.append(Speech.sitting_date < _get_midnight(date_to + _ONE_DAY))
     if report_type is not None:
-        filters.append(Report.report_type == report_type)
+        filters.append(Speech.report_type == report_type)
     if membership_ids is not None:
         filters.append(Speech.speaker_id.in_(membership_ids))
     filters.extend(_get_location_name_filters(location_name, membership_ids))
@@ -178,7 +179,7 @@ def _get_relevance_distance(
 ) -> ColumnElement:
     distance = Speech.transcript_tsv.op("<=>", return_type=Float)(tsquery)
     if is_ranked_after_filtering:
-        # NOTE: adding zero hides the order from the rum index, so a date range or a member's speeches are read from their own index first and only those matches are ranked
+        # NOTE: adding zero hides the order from the rum index, so a date range, a member's speeches or a report type with a hyphenated word are read from their own index first and only those matches are ranked
         return distance + 0
     return distance
 
@@ -304,8 +305,12 @@ class CRUDSpeech:
         # NOTE: only a date-index order gets the Parliament's date range, because the rum index reads a range but not a Parliament, and the range made a relevance search read 25 times the buffers
         if parliament_number is not None and is_date_index_ordered:
             filters.extend(_get_parliament_sitting_date_filters(parliament_number))
+        # NOTE: a report type with a hyphenated word is ranked after filtering too, because Postgres reads the word as a phrase and the rum index returns a phrase's matches in an order that disagrees with their <=> distance, so without it the page would depend on the plan; other punctuation that Postgres also reads as a phrase (a comma in a number such as "5,000", an en dash, U+2011, "o'clock", "3.30pm") is not covered, and those pages keep the plan's order
         is_ranked_after_filtering = (
-            date_from is not None or date_to is not None or membership_ids is not None
+            date_from is not None
+            or date_to is not None
+            or membership_ids is not None
+            or (report_type is not None and is_hyphenated_word_in_query(query))
         )
         ordering = _get_speech_ordering(
             sort, tsquery, is_ranked_after_filtering, is_date_index_ordered
@@ -313,7 +318,7 @@ class CRUDSpeech:
         statement = (
             _get_with_report_required(
                 select(Speech),
-                parliament_number is not None or report_type is not None,
+                parliament_number is not None,
             )
             .where(*filters)
             .order_by(*ordering)
@@ -437,7 +442,7 @@ class CRUDSpeech:
         matching_ids = (
             _get_with_report_required(
                 select(Speech.id),
-                parliament_number is not None or report_type is not None,
+                parliament_number is not None,
             )
             .where(*filters)
             .limit(limit)
@@ -531,7 +536,7 @@ class CRUDSpeech:
         statement = (
             _get_with_report_required(
                 select(Speech.report_id, func.count()),
-                parliament_number is not None or report_type is not None,
+                parliament_number is not None,
             )
             .where(
                 *_get_query_filters(

@@ -6,6 +6,7 @@ _CURLY_QUOTES = re.compile(r"[“”]")
 _QUOTE_CHARACTERS = ('"', "“", "”")
 _OR_OPERATOR = "or"
 _EXCLUDED_PREFIX = "-"
+_HYPHEN = "-"
 _WEBSEARCH_OR = " OR "
 _WORD_SEPARATOR = " "
 _TOKEN = re.compile(r'(-?)"([^"]*)"?|[^\s"]+')
@@ -127,6 +128,16 @@ def get_excluded_term_groups(query: str) -> tuple[SearchQueryGroup, ...]:
 
 def is_quote_in_query(query: str) -> bool:
     return any(quote in query for quote in _QUOTE_CHARACTERS)
+
+
+def is_hyphenated_word_in_query(query: str) -> bool:
+    return any(
+        _HYPHEN in word
+        for group in get_search_query_groups(query)
+        for term in group.terms
+        if not term.is_excluded
+        for word in term.words
+    )
 
 
 def _get_websearch_term(term: SearchQueryTerm) -> str:
