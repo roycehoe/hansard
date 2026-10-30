@@ -264,16 +264,17 @@ def get_person_reports(
     report_id_to_speech_count = CRUDSpeech(
         session
     ).get_report_id_to_speech_count_by_membership_ids(membership_ids)
+    visible_report_ids = set(report_id_to_speech_count).difference(
+        get_taken_down_report_ids(session)
+    )
     report_ids = CRUDReport(session).get_all_ids_by_ids(
-        list(report_id_to_speech_count),
+        list(visible_report_ids),
         limit=page_size + 1,
         offset=(page - 1) * page_size,
     )
     page_report_ids = report_ids[:page_size]
     report_id_to_report = {
-        report.id: report
-        for report in CRUDReport(session).get_by_ids(page_report_ids)
-        if not is_report_id_taken_down(report.report_id)
+        report.id: report for report in CRUDReport(session).get_by_ids(page_report_ids)
     }
     return GetPersonReportsResponse(
         reports=[
@@ -287,16 +288,11 @@ def get_person_reports(
                 speech_count=report_id_to_speech_count[report_id],
             )
             for report_id in page_report_ids
-            if report_id in report_id_to_report
         ],
         page=page,
         page_size=page_size,
         has_next_page=len(report_ids) > page_size,
-        total_count=len(
-            set(report_id_to_speech_count).difference(
-                get_taken_down_report_ids(session)
-            )
-        ),
+        total_count=len(visible_report_ids),
     )
 
 

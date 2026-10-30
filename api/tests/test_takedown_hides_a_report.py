@@ -268,3 +268,29 @@ def test_a_speech_search_in_a_taken_down_report_answers_410(
             "message": ERRORS[ErrorCode.REPORT_TAKEN_DOWN].message,
         }
     }
+
+
+def test_a_taken_down_report_leaves_a_person_reports_page_full(
+    website_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    report_to_hide: _ReportToHide,
+) -> None:
+    person_reports_path = f"/api/people/{report_to_hide.person_ids[0]}/reports"
+    before = website_client.get(
+        person_reports_path, params={"page_size": _PAGE_SIZE}
+    ).json()
+    page_size = [report["report_slug"] for report in before["reports"]].index(
+        report_to_hide.report_slug
+    ) + 1
+
+    _take_down(monkeypatch, report_to_hide.report_slug)
+
+    after = website_client.get(
+        person_reports_path, params={"page_size": page_size}
+    ).json()
+    assert len(after["reports"]) == page_size
+    assert report_to_hide.report_slug not in [
+        report["report_slug"] for report in after["reports"]
+    ]
+    assert after["total_count"] == before["total_count"] - 1
+    assert after["has_next_page"] == (after["total_count"] > page_size)
