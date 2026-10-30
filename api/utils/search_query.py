@@ -9,6 +9,7 @@ _EXCLUDED_PREFIX = "-"
 _WEBSEARCH_OR = " OR "
 _WORD_SEPARATOR = " "
 _TOKEN = re.compile(r'(-?)"([^"]*)"?|[^\s"]+')
+_HYPHEN_BETWEEN_LETTERS = re.compile(r"(?<=[^\W\d_])-(?=[^\W\d_])")
 _WORD_EDGE = re.compile(r"^[\W_]+|[\W_]+$")
 _EXACT_FORM_START = "(?<![[:alnum:]])"
 _EXACT_FORM_END = "(?![[:alnum:]])"
@@ -65,7 +66,12 @@ def _get_all_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
                 groups.append(SearchQueryGroup(terms=tuple(terms)))
                 terms = []
             continue
-        words = _get_words(bare_token)
+        # NOTE: a hyphen typed between letters also finds the words written apart, because the record may print "Chuan Jin" where the query says "Chuan-Jin", while text with the hyphen still matches through its parts; an excluded word keeps its hyphen, because a term excluded in two words would exclude only the first
+        words = _get_words(
+            bare_token
+            if is_excluded
+            else _HYPHEN_BETWEEN_LETTERS.sub(_WORD_SEPARATOR, bare_token)
+        )
         if words != ():
             terms.append(
                 SearchQueryTerm(words=words, is_quoted=False, is_excluded=is_excluded)

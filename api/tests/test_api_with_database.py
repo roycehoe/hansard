@@ -193,3 +193,10 @@ def test_a_straight_and_a_curly_apostrophe_find_the_same_speeches(
     assert straight.json()["total_count"] > 0
     assert straight.json()["total_count"] == curly.json()["total_count"]
 
+
+def test_a_hyphen_the_record_does_not_print_still_finds_the_name(
+    api_client: TestClient,
+) -> None:
+    response = api_client.get("/search/speeches", params={"q": "Ong Kian-Min"})
+
+    assert response.json()["total_count"] > 0
