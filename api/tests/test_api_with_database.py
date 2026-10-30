@@ -13,7 +13,6 @@ from enums import SearchSort
 from middleware import response_cache, takedown
 from middleware.takedown import is_report_id_taken_down
 from utils.report_slug import get_normalised_report_slug, get_report_slug
-from utils.search_query import get_exact_form_pattern
 
 pytestmark = pytest.mark.database
 
@@ -133,27 +132,7 @@ def test_search_counts_leave_out_a_hidden_report(
 
 
 def test_a_quoted_search_returns_the_newest_matches() -> None:
-    phrase_words = ("mr", "speaker")
     with Session(engine) as session:
-        # NOTE: index scans are off so the true rows come from a heap scan, not from the rum index the search is checked against
-        session.exec(text("SET LOCAL enable_indexscan = off"))  # type: ignore[call-overload]
-        true_speech_ids = session.exec(
-            text(
-                """
-                SELECT speech.id FROM speech
-                JOIN report ON report.id = speech.report_id
-                WHERE speech.transcript_tsv @@ websearch_to_tsquery('english', :phrase)
-                AND speech.transcript ~* :exact_form
-                AND report.parliament_number = 14
-                ORDER BY speech.sitting_date DESC, speech.id
-                LIMIT :page_size
-                """
-            ).bindparams(
-                phrase='"mr speaker"',
-                exact_form=get_exact_form_pattern(phrase_words),
-                page_size=_SEARCH_PAGE_SIZE,
-            )
-        ).all()
         page = CRUDSpeech(session).get_all_by_query_filtered(
             query='"mr speaker"',
             parliament_number=14,
@@ -169,5 +148,24 @@ def test_a_quoted_search_returns_the_newest_matches() -> None:
             limit=_SEARCH_PAGE_SIZE,
             offset=0,
         )
+        # NOTE: index scans are off so the true rows come from a GIN bitmap scan, not from the rum index the search is checked against
+        session.execute(text("SET LOCAL enable_indexscan = off"))
+        true_speech_ids = session.execute(
+            text(
+                """
+                SELECT speech.id FROM speech
+                JOIN report ON report.id = speech.report_id
+                WHERE speech.transcript_tsv @@ websearch_to_tsquery('english', :phrase)
+                AND speech.transcript ~* :exact_form
+                AND report.parliament_number = 14
+                ORDER BY speech.sitting_date DESC, speech.id
+                LIMIT :page_size
+                """
+            ).bindparams(
+                phrase='"mr speaker"',
+                exact_form=r"(?<![[:alnum:]])mr[^[:alnum:]]+speaker(?![[:alnum:]])",
+                page_size=_SEARCH_PAGE_SIZE,
+            )
+        ).all()
 
     assert [speech.id for speech in page] == [row[0] for row in true_speech_ids]
