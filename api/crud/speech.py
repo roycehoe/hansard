@@ -369,9 +369,10 @@ class CRUDSpeech:
         limit: int,
         offset: int,
     ) -> list[Speech]:
-        statement = (
+        # NOTE: the page's ids first, from columns ix_speech_speaker_id holds, so without excluded words only the page's own rows are read from the speech table; excluded words test transcript_tsv, which the index does not hold, so each candidate row is read from the heap
+        page_speech_ids = (
             _get_with_report_required(
-                select(Speech),
+                select(Speech.id),
                 _is_report_filtered(parliament_number, date_from, date_to, report_type),
             )
             .where(Speech.speaker_id.in_(membership_ids))
@@ -395,6 +396,12 @@ class CRUDSpeech:
             .order_by(*_get_browse_ordering(sort, Speech.sitting_date))
             .limit(limit)
             .offset(offset)
+            .subquery()
+        )
+        statement = (
+            select(Speech)
+            .join(page_speech_ids, page_speech_ids.c.id == Speech.id)
+            .order_by(*_get_browse_ordering(sort, Speech.sitting_date))
         )
         return list(self.session.exec(statement).all())
 
