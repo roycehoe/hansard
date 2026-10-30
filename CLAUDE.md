@@ -44,6 +44,8 @@ docker build -t hansard-web .
 
 The App Platform spec is `.do/app.yaml`. The container serves the frontend at `/` and the API at `/api`; see `api/CLAUDE.md`.
 
+A push to `master` is a production deploy. The `deploy` job in `.github/workflows/ci.yml` deploys every push to `master` once the `app`, `api` and `schema-drift` jobs pass, then smoke-tests the live site. `deploy_on_push: false` in `.do/app.yaml` only stops App Platform from deploying by itself.
+
 Runtimes: Node 24 and pnpm from asdf (`.tool-versions` at the root), Python 3.15 through uv (`api/.python-version`). Node 26 becomes LTS on 28 Oct 2026; move `.tool-versions` and `app/package.json` `engines` to it after that date.
 
 ## Cross-subsystem facts
@@ -60,4 +62,4 @@ Runtimes: Node 24 and pnpm from asdf (`.tool-versions` at the root), Python 3.15
 - Commit straight to `master`. No branches.
 - Conventional Commits: `type: description`, subject under 72 characters, one logical change per commit.
 - No attribution trailers, no co-author lines.
-- Never push unless asked in that session.
+- Never push unless asked in that session. A push to `master` is a production deploy.

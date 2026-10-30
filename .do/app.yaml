@@ -29,6 +29,7 @@ services:
     github:
       repo: roycehoe/hansard
       branch: master
+      # CI deploys this service (.github/workflows/ci.yml, deploy job)
       deploy_on_push: false
     dockerfile_path: Dockerfile
     http_port: 8080
