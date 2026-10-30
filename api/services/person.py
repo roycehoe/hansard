@@ -39,6 +39,10 @@ def _get_validated_person(person_id: int, session: Session) -> Person:
     return person
 
 
+def _get_person_sort_key(person: Person) -> tuple[str, int]:
+    return (person.canonical_name.casefold(), person.id)
+
+
 def _get_source_report_data(
     source_report_id: Optional[int], report_id_to_report: dict[int, Report]
 ) -> Optional[PartyAffiliationSourceReportData]:
@@ -136,7 +140,10 @@ def get_all_persons(
             if membership.person_id is not None
         }
     )
-    persons = CRUDPerson(session).get_by_ids(person_ids)
+    # NOTE: sorted here, not by the database, because its collation skips spaces and punctuation, which put "Abdullah Bin Tarmugi" before "Abdul Muhaimin Abdul Malik" and "A.J. Braga" among the names that start "Ah"
+    persons = sorted(
+        CRUDPerson(session).get_by_ids(person_ids), key=_get_person_sort_key
+    )
     memberships = CRUDMembership(session).get_all_by_person_ids(person_ids)
     membership_ids = [membership.id for membership in memberships]
     membership_id_to_party_affiliations = _get_membership_id_to_party_affiliations(

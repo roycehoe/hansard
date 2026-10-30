@@ -17,11 +17,7 @@ class CRUDPerson:
         return list(self.session.exec(select(Person)).all())
 
     def get_by_ids(self, person_ids: list[int]) -> list[Person]:
-        statement = (
-            select(Person)
-            .where(Person.id.in_(person_ids))
-            .order_by(Person.canonical_name)
-        )
+        statement = select(Person).where(Person.id.in_(person_ids))
         return list(self.session.exec(statement).all())
 
     def get_count(self) -> int:
