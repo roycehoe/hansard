@@ -204,10 +204,9 @@ def _get_report_description(
     ):
         speaker_names = _get_ranked_speaker_names(report_id, session)
         if not speaker_names:
-            return f"From the sitting of {sitting_date_label}. {_NOT_OFFICIAL}"
-        return f"{_get_speakers_sentence(speaker_names)} {_NOT_OFFICIAL}"
-    paragraph_quote = get_paragraph_quote(first_speech.speaker, first_speech.transcript)
-    return f"{paragraph_quote} {_NOT_OFFICIAL}"
+            return f"From the sitting of {sitting_date_label}."
+        return _get_speakers_sentence(speaker_names)
+    return get_paragraph_quote(first_speech.speaker, first_speech.transcript)
 
 
 def _get_report_preview(report: Report, session: Session) -> PreviewData:
@@ -342,7 +341,7 @@ def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
         return get_not_found_preview()
     return PreviewData(
         title=f"Sitting of {get_sitting_date_label(sitting_date)}",
-        description=f"{_get_reports_sentence(reports)} {_NOT_OFFICIAL}",
+        description=_get_reports_sentence(reports),
         preview_type=PreviewType.WEBSITE,
         path=f"/sittings/{sitting_date.isoformat()}",
         is_found=True,
