@@ -245,3 +245,26 @@ def test_a_taken_down_report_leaves_the_sitting_report_count(
         _get_sitting_report_count(website_client, report_to_hide)
         == report_count_before - 1
     )
+
+
+def test_a_speech_search_in_a_taken_down_report_answers_410(
+    website_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    report_to_hide: _ReportToHide,
+) -> None:
+    search_path = "/api/search/speeches"
+    params = {"q": report_to_hide.quoted_phrase, "report": report_to_hide.report_slug}
+    assert website_client.get(search_path, params=params).status_code == (
+        status.HTTP_200_OK
+    )
+
+    _take_down(monkeypatch, report_to_hide.report_slug)
+
+    response = website_client.get(search_path, params=params)
+    assert response.status_code == ERRORS[ErrorCode.REPORT_TAKEN_DOWN].status_code
+    assert response.json() == {
+        "detail": {
+            "error_code": ErrorCode.REPORT_TAKEN_DOWN.value,
+            "message": ERRORS[ErrorCode.REPORT_TAKEN_DOWN].message,
+        }
+    }

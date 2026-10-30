@@ -10,7 +10,7 @@ from database.person import Person
 from database.report import Report
 from database.speech import Speech
 from enums import ReportType, SearchEndpoint, SearchSort
-from exceptions.report import ReportNotFoundException
+from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from exceptions.search import SearchConstituencyNotFoundException
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
@@ -70,8 +70,11 @@ def _is_query_without_search_words(query: str) -> bool:
 def _get_validated_report(report_slug: str, session: Session) -> Report:
     for report_id in get_report_id_candidates(report_slug):
         report = CRUDReport(session).get_by_report_id(report_id)
-        if report is not None:
-            return report
+        if report is None:
+            continue
+        if is_report_id_taken_down(report.report_id):
+            raise ReportTakenDownException
+        return report
     raise ReportNotFoundException
 
 
