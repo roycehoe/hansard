@@ -183,3 +183,13 @@ def test_a_spaced_dash_in_a_report_title_is_not_an_exclusion(
         result["title"] for result in response.json()["results"]
     ]
 
+
+def test_a_straight_and_a_curly_apostrophe_find_the_same_speeches(
+    api_client: TestClient,
+) -> None:
+    straight = api_client.get("/search/speeches", params={"q": '"Women\'s"'})
+    curly = api_client.get("/search/speeches", params={"q": '"Women’s"'})
+
+    assert straight.json()["total_count"] > 0
+    assert straight.json()["total_count"] == curly.json()["total_count"]
+

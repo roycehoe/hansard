@@ -76,7 +76,8 @@ def test_a_query_is_split_into_or_groups_of_terms() -> None:
     ("query", "expected_pattern"),
     [
         ('"co-payment"', r"(?<![[:alnum:]])co\-payment(?![[:alnum:]])"),
-        ('"House\'s"', "(?<![[:alnum:]])House's(?![[:alnum:]])"),
+        ('"House\'s"', "(?<![[:alnum:]])House['\u2019]s(?![[:alnum:]])"),
+        ('"House\u2019s"', "(?<![[:alnum:]])House['\u2019]s(?![[:alnum:]])"),
         (
             '"public housing"',
             "(?<![[:alnum:]])public[^[:alnum:]]+housing(?![[:alnum:]])",

@@ -13,6 +13,8 @@ _WORD_EDGE = re.compile(r"^[\W_]+|[\W_]+$")
 _EXACT_FORM_START = "(?<![[:alnum:]])"
 _EXACT_FORM_END = "(?![[:alnum:]])"
 _EXACT_FORM_WORD_SEPARATOR = "[^[:alnum:]]+"
+_APOSTROPHES = re.compile("['\u2019]")
+_EXACT_FORM_APOSTROPHE = "['\u2019]"
 
 
 @dataclass(frozen=True)
@@ -144,7 +146,9 @@ def get_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
 def get_exact_form_pattern(words: tuple[str, ...]) -> str:
     return (
         _EXACT_FORM_START
-        + _EXACT_FORM_WORD_SEPARATOR.join(re.escape(word) for word in words)
+        + _EXACT_FORM_WORD_SEPARATOR.join(
+            _APOSTROPHES.sub(_EXACT_FORM_APOSTROPHE, re.escape(word)) for word in words
+        )
         + _EXACT_FORM_END
     )
 
