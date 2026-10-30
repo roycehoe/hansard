@@ -9,7 +9,6 @@ describe('isQueryOnlyExcludedWords', () => {
   it('is true when every term has a minus sign', () => {
     expect(isQueryOnlyExcludedWords('-housing')).toBe(true)
     expect(isQueryOnlyExcludedWords('-housing -"public flats"')).toBe(true)
-    expect(isQueryOnlyExcludedWords('- housing')).toBe(true)
     expect(isQueryOnlyExcludedWords('-housing OR -flats')).toBe(true)
     expect(isQueryOnlyExcludedWords('-“public flats”')).toBe(true)
   })
@@ -20,6 +19,13 @@ describe('isQueryOnlyExcludedWords', () => {
     expect(isQueryOnlyExcludedWords('-housing OR tax')).toBe(false)
     expect(isQueryOnlyExcludedWords('-housing "public flats"')).toBe(false)
     expect(isQueryOnlyExcludedWords('x-ray')).toBe(false)
+  })
+
+  it('reads a spaced hyphen as punctuation, not an exclusion', () => {
+    expect(isQueryOnlyExcludedWords('HEAD S - MINISTRY OF MANPOWER')).toBe(
+      false
+    )
+    expect(isQueryOnlyExcludedWords('-housing')).toBe(true)
   })
 
   it('is false when there is no term at all', () => {

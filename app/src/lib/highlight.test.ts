@@ -42,6 +42,15 @@ describe('parseHighlightTerms', () => {
     expect(parseHighlightTerms('budget -')).toEqual(['budget'])
   })
 
+  it('reads a spaced hyphen as punctuation, not an exclusion', () => {
+    expect(parseHighlightTerms('HEAD S - MINISTRY OF MANPOWER')).toEqual([
+      'HEAD',
+      'MINISTRY',
+      'MANPOWER',
+    ])
+    expect(parseHighlightTerms('-housing budget')).toEqual(['budget'])
+  })
+
   it('splits a quoted phrase into separately quoted words', () => {
     expect(parseHighlightTerms('"public housing"')).toEqual([
       '"public"',
@@ -75,18 +84,12 @@ describe('parseHighlightTerms', () => {
     expect(parseHighlightTerms('""')).toEqual([])
   })
 
-  it('drops the word after a lone hyphen, as the API search does', () => {
-    expect(parseHighlightTerms('grants - budget')).toEqual(['grants'])
-  })
-
-  it('drops the quoted phrase after a lone hyphen', () => {
-    expect(parseHighlightTerms('tax - "public housing"')).toEqual(['tax'])
-  })
-
-  it('excludes only the one term after a lone hyphen', () => {
-    expect(parseHighlightTerms('grants - budget housing')).toEqual([
-      'grants',
-      'housing',
+  it('keeps the word and the quoted phrase after a lone hyphen', () => {
+    expect(parseHighlightTerms('grants - budget')).toEqual(['grants', 'budget'])
+    expect(parseHighlightTerms('tax - "public housing"')).toEqual([
+      'tax',
+      '"public"',
+      '"housing"',
     ])
   })
 

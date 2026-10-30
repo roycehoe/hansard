@@ -23,20 +23,13 @@ function isHighlightableWord(word: string): boolean {
 }
 
 export function parseHighlightTerms(query: string): string[] {
-  let isNextTermExcluded = false
   const terms = Array.from(query.matchAll(HIGHLIGHT_TERM_PATTERN)).flatMap(
     ([token, excludedPrefix, quotedWords]) => {
-      const isExcluded =
-        isNextTermExcluded || excludedPrefix === EXCLUDED_WORD_PREFIX
-      if (quotedWords === undefined && token === EXCLUDED_WORD_PREFIX) {
-        isNextTermExcluded = true
-        return []
-      }
-      isNextTermExcluded = false
+      // A hyphen alone is punctuation, as in api/utils/search_query.py; only a hyphen attached to the next word excludes it
       if (quotedWords === undefined) {
-        return !isExcluded && isHighlightableWord(token) ? [token] : []
+        return isHighlightableWord(token) ? [token] : []
       }
-      if (isExcluded) return []
+      if (excludedPrefix === EXCLUDED_WORD_PREFIX) return []
       return quotedWords
         .split(/\s+/)
         .filter(isHighlightableWord)
