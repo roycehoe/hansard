@@ -90,30 +90,13 @@ jobs:
       - name: Install the scraper dependencies
         working-directory: scraper
         run: poetry install --no-root --no-interaction
-      - name: Create the scraper tables from its models
+      - name: Create the rum extension
+        run: docker exec ${{ job.services.postgres.id }} psql -U user -d hansard_launch -c "CREATE EXTENSION IF NOT EXISTS rum"
+      - name: Build the scraper tables with its migrations
         working-directory: scraper
         env:
           DATABASE_URL: postgresql://user:password@localhost:5435/hansard_launch
-        run: |
-          poetry run python -c "
-          import os
-          from sqlalchemy import create_engine, text
-          from sqlmodel import SQLModel
-          import database.attendance
-          import database.hansard_sitting_date_response
-          import database.hansard_website_response
-          import database.party_affiliation
-          import database.person
-          import database.refresh_run
-          import database.report
-          import database.sitting
-          import database.speaker
-          import database.speech
-          engine = create_engine(os.environ['DATABASE_URL'])
-          with engine.begin() as connection:
-              connection.execute(text('CREATE EXTENSION IF NOT EXISTS rum'))
-          SQLModel.metadata.create_all(engine)
-          "
+        run: poetry run alembic upgrade head
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           version: "0.13.0"
