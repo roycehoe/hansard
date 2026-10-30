@@ -163,9 +163,7 @@ class CRUDReport:
         statement = (
             select(Report.id)
             .where(_get_is_id_any_of(report_ids))
-            .order_by(
-                unindexed_sitting_date.desc(), Report.speech_number.desc(), Report.id
-            )
+            .order_by(unindexed_sitting_date.desc(), Report.speech_number, Report.id)
             .limit(limit)
             .offset(offset)
         )
