@@ -687,6 +687,16 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 
 *Ruled directly, 2026-09-17, after research passes over Fowler, Evans, Ousterhout, Parnas, Page-Jones, Percival and Gregory, and the FastAPI and SQLModel reference implementations. Nothing in this area is empirically established; every authority cited is an argument, not a measurement.*
 
+## R48 — Logging lives in `middleware/` only, one line per failure or slow request · 2026-10-30 · carves out the logger ban in STYLE.md
+
+**Ruling.** Logging lives in `middleware/` only: one line per failure or slow request, written to the platform's logs, with no third party. An ad-hoc `logger` call anywhere else still goes on sight.
+
+**Why.** Before 23 October the API logged nothing, and a production 500 left no trace. Two loggers now exist, and both sit in `middleware/`. `middleware/request_log.py` logs method, route, path parameters, query string, status, duration and exception class for every 500, 503, raised exception and request over 3 seconds. `middleware/cache_fill.py` logs a failed cache fill with `logger.exception`. The rule that "where the team has no convention, add nothing" no longer fits, because the team now has one, in one place.
+
+**What it does not allow.** A `logger` call in a router, service, CRUD class, gateway or validator. A log line whose only justification is debugging convenience. A log sink or client outside the platform's own logs.
+
+*Ruled directly, 2026-10-30.*
+
 ---
 
 # Open — awaiting a ruling
