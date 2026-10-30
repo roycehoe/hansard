@@ -38,6 +38,8 @@ uv run pytest -m "not database"
 uv run pytest
 ```
 
+The no-database run needs Node and `app/node_modules` (run `pnpm install` in `app/`). `tests/test_api_contract.py`, the contract check, starts `node scripts/api-interfaces.ts` in `app/` to list the frontend's response interfaces and compares their field names and nullability with the API's OpenAPI schemas. It does not compare enum values, so a changed enum member passes it.
+
 The tests marked `database` read real rows, so they need the scratch database: a copy of the scraper's schema and data at `postgresql+psycopg://user:password@localhost:5435/hansard_launch`. `tests/conftest.py` sets `DATABASE_URL` to it before any project import and stops the session if `settings.database_url` resolves anywhere else, so no test can reach the database in `api/.env`. One database test seeds a `refresh_run` row through a separate writable test engine and deletes it; the API code itself never writes. `tests/test_schema_drift.py` also carries the `schema_drift` marker. It selects every column of each model with `LIMIT 0` and reads no rows. The `schema-drift` job in `.github/workflows/ci.yml` builds the scraper master's tables from its models in an empty Postgres 17 with rum, then runs `pytest -m schema_drift`; the `api` job leaves it out because it carries `database`. Do not write new tests unless explicitly asked; the existing ones must pass.
 
 **No pre-commit hooks.** Do not add any without being asked. The only auth is HTTP basic auth in `website.py`, added on 18 October 2026 for the private launch; the API in `main.py` has none. It has been off on the live site since 20 October 2026, because `.do/app.yaml` sets `PUBLIC_MODE` to `true`, and any other value turns it on.
