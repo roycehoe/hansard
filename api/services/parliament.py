@@ -17,10 +17,10 @@ def _get_uncached_all_parliaments(session: Session) -> GetAllParliamentsResponse
     ).get_parliament_number_to_sitting_count()
     parliament_number_to_report_count = CRUDReport(
         session
-    ).get_parliament_number_to_report_count(taken_down_report_ids)
+    ).get_parliament_number_to_report_count_excluding_ids(taken_down_report_ids)
     parliament_number_to_text_report_count = CRUDReport(
         session
-    ).get_parliament_number_to_text_report_count(taken_down_report_ids)
+    ).get_parliament_number_to_text_report_count_excluding_ids(taken_down_report_ids)
     parliament_number_to_first_sitting_date = CRUDReport(
         session
     ).get_parliament_number_to_first_sitting_date()

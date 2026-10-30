@@ -136,7 +136,7 @@ def get_all_sittings(
     ).get_sitting_date_to_sitting_number_by_parliament_number(parliament_number)
     sitting_date_to_report_count = CRUDReport(
         session
-    ).get_sitting_date_to_report_count_by_parliament_number(
+    ).get_sitting_date_to_report_count_by_parliament_number_excluding_ids(
         parliament_number, get_taken_down_report_ids(session)
     )
     sitting_date_texts = [

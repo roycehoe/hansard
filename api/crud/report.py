@@ -199,7 +199,7 @@ class CRUDReport:
             for parliament_number, sitting_count in rows
         }
 
-    def get_parliament_number_to_report_count(
+    def get_parliament_number_to_report_count_excluding_ids(
         self, excluded_report_ids: list[int]
     ) -> dict[int, int]:
         statement = select(
@@ -211,7 +211,7 @@ class CRUDReport:
             parliament_number: report_count for parliament_number, report_count in rows
         }
 
-    def get_parliament_number_to_text_report_count(
+    def get_parliament_number_to_text_report_count_excluding_ids(
         self, excluded_report_ids: list[int]
     ) -> dict[int, int]:
         statement = select(
@@ -270,7 +270,7 @@ class CRUDReport:
         rows = self.session.exec(statement).all()
         return {sitting_date: sitting_number for sitting_date, sitting_number in rows}
 
-    def get_sitting_date_to_report_count_by_parliament_number(
+    def get_sitting_date_to_report_count_by_parliament_number_excluding_ids(
         self, parliament_number: int, excluded_report_ids: list[int]
     ) -> dict[datetime, int]:
         statement = (
