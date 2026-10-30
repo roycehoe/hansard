@@ -33,8 +33,10 @@ _EMPTY_LABEL = ""
 _NOT_OFFICIAL = "This is not an official Parliament site."
 _UNOFFICIAL_TRANSCRIPT = "Unofficial transcript"
 _DEFAULT_TITLE = "Open Hansard"
-_DEFAULT_DESCRIPTION = f"Singapore's parliamentary debates since 1955. {_NOT_OFFICIAL}"
-_PERSON_DESCRIPTION = f"Speeches in Singapore's parliamentary debates. {_NOT_OFFICIAL}"
+_DEFAULT_DESCRIPTION = (
+    "Singapore's Hansard since 1955. "
+    "Search Singapore's Hansard by MP, constituency or date."
+)
 _PERSON_TITLE_SUFFIX = "speeches in Parliament"
 _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
@@ -284,7 +286,7 @@ def _get_seat_labels(membership: Speaker, session: Session) -> list[str]:
     return [label for label in labels if label != _EMPTY_LABEL]
 
 
-def _get_person_description(person_id: int, session: Session) -> str:
+def _get_person_description(person_id: int, person_name: str, session: Session) -> str:
     memberships = CRUDMembership(session).get_all_by_person_id(person_id)
     report_id_to_speech_count = CRUDSpeech(
         session
@@ -294,16 +296,17 @@ def _get_person_description(person_id: int, session: Session) -> str:
     report_count = len(
         set(report_id_to_speech_count).difference(get_taken_down_report_ids(session))
     )
+    lead_sentence = f"Every speech by {person_name} in Singapore's Hansard."
     if report_count == 0:
-        return _PERSON_DESCRIPTION
+        return lead_sentence
     word = _REPORT_WORD if report_count == 1 else _REPORTS_WORD
     sentences = [
-        f"Speeches in {report_count:,} {word}, {_get_parliament_range_label(memberships)}."
+        lead_sentence,
+        f"{report_count:,} {word}, {_get_parliament_range_label(memberships)}.",
     ]
     seat_labels = _get_seat_labels(memberships[-1], session)
     if seat_labels:
         sentences.append(f"{_SEAT_SEPARATOR.join(seat_labels)}.")
-    sentences.append(_NOT_OFFICIAL)
     return " ".join(sentences)
 
 
@@ -313,7 +316,7 @@ def _get_person_preview(person_id: int, session: Session) -> PreviewData:
         return get_not_found_preview()
     return PreviewData(
         title=f"{person.canonical_name}, {_PERSON_TITLE_SUFFIX}",
-        description=_get_person_description(person.id, session),
+        description=_get_person_description(person.id, person.canonical_name, session),
         preview_type=PreviewType.WEBSITE,
         path=f"/people/{person.id}-{get_person_slug(person.canonical_name)}",
         is_found=True,
