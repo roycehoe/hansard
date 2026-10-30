@@ -49,6 +49,7 @@ def _get_validated_report(report_slug: str, session: Session) -> Report:
 def _get_speech_data(
     speech: Speech,
     anchor: str,
+    is_shared_role_credit: bool,
     membership_id_to_person: dict[int, Person],
 ) -> SpeechData:
     person = (
@@ -79,7 +80,7 @@ def _get_speech_data(
         person_id=person.id,
         person_slug=get_person_slug(person.canonical_name),
         person_name=person.canonical_name,
-        is_shared_role_credit=is_shared_role_speaker_label(speech.speaker or ""),
+        is_shared_role_credit=is_shared_role_credit,
         anchor=anchor,
         column_start=speech.column_start,
         column_note=speech.column_note,
@@ -125,6 +126,16 @@ def _get_referenced_report_data(
     )
 
 
+def _get_sitting_reports(report: Report, session: Session) -> list[Report]:
+    return [
+        sitting_report
+        for sitting_report in CRUDReport(session).get_all_by_sitting_date(
+            report.sitting_date
+        )
+        if not is_report_id_taken_down(sitting_report.report_id)
+    ]
+
+
 def get_report(
     report_slug: str,
     speech_ordinal: Optional[int],
@@ -136,17 +147,14 @@ def get_report(
     ordinal_to_anchor = {
         speech.ordinal: get_speech_anchor(speech.transcript) for speech in speeches
     }
+    speaker_label_to_is_shared_role = {
+        speaker_label: is_shared_role_speaker_label(speaker_label)
+        for speaker_label in {speech.speaker or "" for speech in speeches}
+    }
     membership_ids = sorted(
         {speech.speaker_id for speech in speeches if speech.speaker_id is not None}
     )
     membership_id_to_person = get_membership_id_to_person(membership_ids, session)
-    sitting_reports = [
-        sitting_report
-        for sitting_report in CRUDReport(session).get_all_by_sitting_date(
-            report.sitting_date
-        )
-        if not is_report_id_taken_down(sitting_report.report_id)
-    ]
     return GetReportResponse(
         report_slug=get_report_slug(report.report_id),
         title=report.title,
@@ -164,6 +172,7 @@ def get_report(
             _get_speech_data(
                 speech,
                 ordinal_to_anchor[speech.ordinal],
+                speaker_label_to_is_shared_role[speech.speaker or ""],
                 membership_id_to_person,
             )
             for speech in speeches
@@ -173,14 +182,18 @@ def get_report(
         ),
         referenced_written_answer=(
             _get_referenced_report_data(
-                report.title, ReportType.WRITTEN_ANSWER_NA, sitting_reports
+                report.title,
+                ReportType.WRITTEN_ANSWER_NA,
+                _get_sitting_reports(report, session),
             )
             if report.report_type == ReportType.ORAL_ANSWER
             else None
         ),
         referencing_oral_answer=(
             _get_referenced_report_data(
-                report.title, ReportType.ORAL_ANSWER, sitting_reports
+                report.title,
+                ReportType.ORAL_ANSWER,
+                _get_sitting_reports(report, session),
             )
             if report.report_type == ReportType.WRITTEN_ANSWER_NA
             else None
