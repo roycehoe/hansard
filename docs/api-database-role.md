@@ -39,5 +39,5 @@ The two `SELECT`s at the top return rows, or no rows from an empty `refresh_run`
 ## Point the API at it
 
 1. Build the connection string from the current `DATABASE_URL`, with `hansard_api` and its password in place of the user and password.
-2. In the DigitalOcean dashboard, open the `hansard` app, the Settings tab, the `web` component and Environment Variables. Replace the `DATABASE_URL` value and keep Encrypt ticked. Save, which redeploys.
+2. Update the `DATABASE_URL` secret in GitHub, under Settings, Secrets and variables, Actions, then deploy. Every deploy writes the secret over the `web` component's `DATABASE_URL`, so a value saved in the DigitalOcean dashboard would last only until the next deploy.
 3. Check that `https://{domain}/api/health` answers 200 and a report page loads. Then check that the footer shows "Includes sittings up to", which needs the `refresh_run` grant and a finished refresh run.
