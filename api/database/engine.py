@@ -14,9 +14,12 @@ _SEARCH_STATEMENT_TIMEOUT_MILLISECONDS = 10_000
 _UNSYNCHRONIZED_SEQUENTIAL_SCANS_OPTION = "-c synchronize_seqscans=off"
 # NOTE: no parallel workers, because the database has one shared vCPU, where workers take turns with their leader, and every search plan that chose them ran faster without them even on eight cores
 _NO_PARALLEL_WORKERS_OPTION = "-c max_parallel_workers_per_gather=0"
+# NOTE: 8MB of work_mem, because rum sorts every match of a common word before it returns the first, and at the server's 2MB that sort spills to disk; 8MB took most of the gain, and the worst case is 3 running searches at 8MB each
+_SEARCH_WORK_MEM_OPTION = "-c work_mem=8MB"
 _SEARCH_CONNECTION_OPTIONS = (
     f"{_READ_ONLY_OPTION} -c statement_timeout={_SEARCH_STATEMENT_TIMEOUT_MILLISECONDS}"
     f" {_UNSYNCHRONIZED_SEQUENTIAL_SCANS_OPTION} {_NO_PARALLEL_WORKERS_OPTION}"
+    f" {_SEARCH_WORK_MEM_OPTION}"
 )
 _POOL_SIZE = 5
 _MAX_OVERFLOW = 5
