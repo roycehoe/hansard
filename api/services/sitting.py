@@ -11,7 +11,7 @@ from database.report import Report
 from database.sitting import Sitting
 from exceptions.sitting import SittingNotFoundException
 from middleware.membership import get_membership_id_to_person
-from middleware.takedown import is_report_id_taken_down
+from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
 from schemas.sitting import (
     AttendanceData,
     GetAllSittingsResponse,
@@ -136,7 +136,9 @@ def get_all_sittings(
     ).get_sitting_date_to_sitting_number_by_parliament_number(parliament_number)
     sitting_date_to_report_count = CRUDReport(
         session
-    ).get_sitting_date_to_report_count_by_parliament_number(parliament_number)
+    ).get_sitting_date_to_report_count_by_parliament_number(
+        parliament_number, get_taken_down_report_ids(session)
+    )
     sitting_date_texts = [
         get_sitting_date_text(sitting_date.date())
         for sitting_date in sitting_date_to_volume_number

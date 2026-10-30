@@ -264,10 +264,13 @@ class CRUDReport:
         return {sitting_date: sitting_number for sitting_date, sitting_number in rows}
 
     def get_sitting_date_to_report_count_by_parliament_number(
-        self, parliament_number: int
+        self, parliament_number: int, excluded_report_ids: list[int]
     ) -> dict[datetime, int]:
         statement = (
-            select(Report.sitting_date, func.count())
+            select(
+                Report.sitting_date,
+                func.count().filter(Report.id.not_in(excluded_report_ids)),
+            )
             .where(Report.parliament_number == parliament_number)
             .group_by(Report.sitting_date)
             .order_by(Report.sitting_date)

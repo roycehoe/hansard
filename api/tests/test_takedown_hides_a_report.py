@@ -216,3 +216,32 @@ def test_a_taken_down_report_answers_410_from_the_api_and_the_page(
     }
     assert "cache-control" not in api_response.headers
     assert website_client.get(page_path).status_code == status.HTTP_410_GONE
+
+
+def _get_sitting_report_count(client: TestClient, report_to_hide: _ReportToHide) -> int:
+    parliament_number = client.get(
+        f"/api/sittings/{report_to_hide.sitting_date}"
+    ).json()["parliament_number"]
+    sittings = client.get(
+        "/api/sittings", params={"parliament_number": parliament_number}
+    ).json()["sittings"]
+    return next(
+        sitting["report_count"]
+        for sitting in sittings
+        if sitting["sitting_date"] == report_to_hide.sitting_date
+    )
+
+
+def test_a_taken_down_report_leaves_the_sitting_report_count(
+    website_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    report_to_hide: _ReportToHide,
+) -> None:
+    report_count_before = _get_sitting_report_count(website_client, report_to_hide)
+
+    _take_down(monkeypatch, report_to_hide.report_slug)
+
+    assert (
+        _get_sitting_report_count(website_client, report_to_hide)
+        == report_count_before - 1
+    )
