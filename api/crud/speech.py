@@ -1,7 +1,7 @@
 from datetime import date, datetime, time, timedelta
 from typing import Optional
 
-from sqlalchemy import ColumnElement, Date, Float, Select, func, literal
+from sqlalchemy import ColumnElement, Date, Float, Select, func, literal, or_
 from sqlalchemy.orm import aliased
 from sqlmodel import Session, select
 
@@ -121,11 +121,19 @@ def _get_location_name_filters(
 
 
 def _get_excluded_speaker_filters(
-    excluded_speaker_pattern: Optional[str],
+    excluded_speaker_patterns: tuple[str, ...],
 ) -> list[ColumnElement]:
-    if excluded_speaker_pattern is None:
+    if excluded_speaker_patterns == ():
         return []
-    return [~Speech.speaker.regexp_match(excluded_speaker_pattern)]
+    # NOTE: a label is excluded only when it matches every pattern, and Postgres stops at the first pattern a label fails, so a cheap pattern first spares most labels the costly one
+    return [
+        or_(
+            *[
+                ~Speech.speaker.regexp_match(excluded_speaker_pattern)
+                for excluded_speaker_pattern in excluded_speaker_patterns
+            ]
+        )
+    ]
 
 
 def _get_midnight(day: date) -> datetime:
@@ -140,7 +148,7 @@ def _get_query_filters(
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
     location_name: Optional[str],
-    excluded_speaker_pattern: Optional[str],
+    excluded_speaker_patterns: tuple[str, ...],
     excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
 ) -> list[ColumnElement]:
@@ -157,7 +165,7 @@ def _get_query_filters(
     if membership_ids is not None:
         filters.append(Speech.speaker_id.in_(membership_ids))
     filters.extend(_get_location_name_filters(location_name, membership_ids))
-    filters.extend(_get_excluded_speaker_filters(excluded_speaker_pattern))
+    filters.extend(_get_excluded_speaker_filters(excluded_speaker_patterns))
     if excluded_report_ids:
         filters.append(Speech.report_id.not_in(excluded_report_ids))
     if report_ids is not None:
@@ -268,7 +276,7 @@ class CRUDSpeech:
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         location_name: Optional[str],
-        excluded_speaker_pattern: Optional[str],
+        excluded_speaker_patterns: tuple[str, ...],
         excluded_report_ids: list[int],
         report_ids: Optional[list[int]],
         sort: SearchSort,
@@ -289,7 +297,7 @@ class CRUDSpeech:
             report_type,
             membership_ids,
             location_name,
-            excluded_speaker_pattern,
+            excluded_speaker_patterns,
             excluded_report_ids,
             report_ids,
         )
@@ -349,7 +357,7 @@ class CRUDSpeech:
         self,
         membership_ids: list[int],
         location_name: Optional[str],
-        excluded_speaker_pattern: Optional[str],
+        excluded_speaker_patterns: tuple[str, ...],
         excluded_words_query: str,
         parliament_number: Optional[int],
         date_from: Optional[date],
@@ -368,7 +376,7 @@ class CRUDSpeech:
             )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name, membership_ids))
-            .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
+            .where(*_get_excluded_speaker_filters(excluded_speaker_patterns))
             .where(
                 *get_excluded_words_filters(
                     excluded_words_query, Speech.transcript_tsv, Speech.transcript
@@ -399,7 +407,7 @@ class CRUDSpeech:
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         location_name: Optional[str],
-        excluded_speaker_pattern: Optional[str],
+        excluded_speaker_patterns: tuple[str, ...],
         excluded_report_ids: list[int],
         report_ids: Optional[list[int]],
         limit: int,
@@ -412,7 +420,7 @@ class CRUDSpeech:
             report_type,
             membership_ids,
             location_name,
-            excluded_speaker_pattern,
+            excluded_speaker_patterns,
             excluded_report_ids,
             report_ids,
         )
@@ -462,7 +470,7 @@ class CRUDSpeech:
         self,
         membership_ids: list[int],
         location_name: Optional[str],
-        excluded_speaker_pattern: Optional[str],
+        excluded_speaker_patterns: tuple[str, ...],
         excluded_words_query: str,
         parliament_number: Optional[int],
         date_from: Optional[date],
@@ -479,7 +487,7 @@ class CRUDSpeech:
             )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name, membership_ids))
-            .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
+            .where(*_get_excluded_speaker_filters(excluded_speaker_patterns))
             .where(
                 *get_excluded_words_filters(
                     excluded_words_query, Speech.transcript_tsv, Speech.transcript
@@ -509,7 +517,7 @@ class CRUDSpeech:
         report_type: Optional[ReportType],
         membership_ids: Optional[list[int]],
         location_name: Optional[str],
-        excluded_speaker_pattern: Optional[str],
+        excluded_speaker_patterns: tuple[str, ...],
         excluded_report_ids: list[int],
         report_ids: list[int],
     ) -> dict[int, int]:
@@ -527,7 +535,7 @@ class CRUDSpeech:
                     report_type,
                     membership_ids,
                     location_name,
-                    excluded_speaker_pattern,
+                    excluded_speaker_patterns,
                     excluded_report_ids,
                     report_ids,
                 )
@@ -568,7 +576,7 @@ class CRUDSpeech:
         self,
         membership_ids: list[int],
         location_name: Optional[str],
-        excluded_speaker_pattern: Optional[str],
+        excluded_speaker_patterns: tuple[str, ...],
         excluded_words_query: str,
         parliament_number: Optional[int],
         date_from: Optional[date],
@@ -584,7 +592,7 @@ class CRUDSpeech:
             )
             .where(Speech.speaker_id.in_(membership_ids))
             .where(*_get_location_name_filters(location_name, membership_ids))
-            .where(*_get_excluded_speaker_filters(excluded_speaker_pattern))
+            .where(*_get_excluded_speaker_filters(excluded_speaker_patterns))
             .where(
                 *get_excluded_words_filters(
                     excluded_words_query, Speech.transcript_tsv, Speech.transcript

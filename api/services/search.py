@@ -31,6 +31,7 @@ from utils.transcript_snippet import get_transcript_snippet
 
 _MAX_COUNTED_MATCHES = 1_000
 MAX_SEARCH_PAGE = 50
+_CHAIR_WORD_PATTERN = r"(?i)speaker|chairman"
 _CHAIR_SPEAKER_LABEL_PATTERN = r"(?i)^(the |mr |mdm |madam )?(temporary |deputy )?(deputy ?speaker|speaker|chairman)\M|\((mr |mdm )?(deputy )?speaker\)$"
 
 
@@ -56,11 +57,11 @@ def _get_membership_ids(
     ]
 
 
-def _get_excluded_speaker_pattern(constituency: Optional[str]) -> Optional[str]:
+def _get_excluded_speaker_patterns(constituency: Optional[str]) -> tuple[str, ...]:
     if constituency is None:
-        return None
+        return ()
     # NOTE: lines spoken from the chair are credited to the presiding member, so without this a Speaker's seat opens on procedure such as "Go ahead." instead of what its members said; the person filter keeps them
-    return _CHAIR_SPEAKER_LABEL_PATTERN
+    return (_CHAIR_WORD_PATTERN, _CHAIR_SPEAKER_LABEL_PATTERN)
 
 
 def _is_query_without_search_words(query: str) -> bool:
@@ -117,7 +118,7 @@ def _get_speeches(
         return CRUDSpeech(session).get_all_by_membership_ids_filtered(
             membership_ids,
             constituency,
-            _get_excluded_speaker_pattern(constituency),
+            _get_excluded_speaker_patterns(constituency),
             query,
             parliament_number,
             date_from,
@@ -137,7 +138,7 @@ def _get_speeches(
         report_type,
         membership_ids,
         constituency,
-        _get_excluded_speaker_pattern(constituency),
+        _get_excluded_speaker_patterns(constituency),
         excluded_report_ids,
         report_ids,
         sort,
@@ -211,7 +212,7 @@ def _get_speech_match_count(
         return CRUDSpeech(session).get_count_by_membership_ids_filtered(
             membership_ids,
             constituency,
-            _get_excluded_speaker_pattern(constituency),
+            _get_excluded_speaker_patterns(constituency),
             query,
             parliament_number,
             date_from,
@@ -229,7 +230,7 @@ def _get_speech_match_count(
         report_type,
         membership_ids,
         constituency,
-        _get_excluded_speaker_pattern(constituency),
+        _get_excluded_speaker_patterns(constituency),
         excluded_report_ids,
         report_ids,
         _MAX_COUNTED_MATCHES + 1,
@@ -295,7 +296,7 @@ def _get_report_id_to_speech_match_count(
         ).get_report_id_to_speech_count_by_membership_ids_filtered(
             membership_ids,
             constituency,
-            _get_excluded_speaker_pattern(constituency),
+            _get_excluded_speaker_patterns(constituency),
             query,
             parliament_number,
             date_from,
@@ -312,7 +313,7 @@ def _get_report_id_to_speech_match_count(
         report_type,
         membership_ids,
         constituency,
-        _get_excluded_speaker_pattern(constituency),
+        _get_excluded_speaker_patterns(constituency),
         excluded_report_ids,
         report_ids,
     )

@@ -162,7 +162,7 @@ def test_a_quoted_search_returns_the_newest_matches() -> None:
             report_type=None,
             membership_ids=None,
             location_name=None,
-            excluded_speaker_pattern=None,
+            excluded_speaker_patterns=(),
             excluded_report_ids=[],
             report_ids=None,
             sort=SearchSort.DATE,
