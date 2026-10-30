@@ -14,7 +14,7 @@ export function ListSittingsGrouped({ sittings }: ListSittingsGroupedProps) {
 
   const groups = useMemo(() => {
     const sittingsByGroupKey = new Map<number, SittingData[]>()
-    for (const sitting of [...sittings].reverse()) {
+    for (const sitting of sittings) {
       const groupKey = isGroupedBySession
         ? sitting.session_number
         : sitting.volume_number
