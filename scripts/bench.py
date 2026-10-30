@@ -31,6 +31,7 @@ from sqlalchemy.engine import make_url
 SCRATCH_HOST = "localhost"
 SCRATCH_PORT = 5435
 SCRATCH_DATABASE = "hansard_launch"
+# Local sessions also run heavy jobs through plans/overnight-recommendations/bin/heavy (not in the repo).
 LOCK_PATH = Path(tempfile.gettempdir()) / "hansard-bench.lock"
 REPO_API_DIR = Path(
     os.environ.get("HANSARD_API_DIR", Path(__file__).resolve().parent.parent / "api")
@@ -377,8 +378,8 @@ async def main() -> None:
     ]
     transport = httpx.ASGITransport(app=website.app)
     results = {
-        f"{g} | {l}": {"group": g, "label": l, "path": p, "runs": []}
-        for g, l, p in cases
+        f"{group} | {label}": {"group": group, "label": label, "path": path, "runs": []}
+        for group, label, path in cases
     }
 
     async with httpx.AsyncClient(
