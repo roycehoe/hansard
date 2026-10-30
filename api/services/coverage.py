@@ -13,7 +13,7 @@ from crud.refresh_run import CRUDRefreshRun
 from crud.report import CRUDReport
 from crud.sitting import CRUDSitting
 from crud.speech import CRUDSpeech
-from enums import RefreshRunStatus
+from enums import RefreshRunStatus, ReportType
 from schemas.coverage import (
     AttributionFiguresData,
     GetCoverageResponse,
@@ -29,6 +29,8 @@ from utils.singapore_date import get_singapore_date
 from utils.sitting_date import get_date_from_datetime
 
 _FIGURES_JSON_TYPE = "object"
+# NOTE: the first sitting of the Parliament website's newer system, which publishes assent records with no text; the app's TEXTLESS_ASSENT_FIRST_SITTING is the same date
+_TEXTLESS_ASSENT_FIRST_SITTING = datetime(2012, 9, 10)
 
 # NOTE: replaced whole and never mutated, so a request thread never reads a half-written answer
 _cached_coverage: Optional[GetCoverageResponse] = None
@@ -134,7 +136,9 @@ def _get_uncached_coverage(
         text_report_count=sum(year_to_text_report_count.values()),
         no_text_by_design_report_count=CRUDReport(
             session
-        ).get_no_text_by_design_count(),
+        ).get_count_without_text_by_report_type_and_min_sitting_date(
+            ReportType.ATBP, _TEXTLESS_ASSENT_FIRST_SITTING
+        ),
         speech_count=CRUDSpeech(session).get_count(),
         linked_speech_count=CRUDSpeech(session).get_count_with_membership_id(),
         person_count=CRUDPerson(session).get_count(),

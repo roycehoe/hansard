@@ -27,8 +27,6 @@ from enums import ReportType, SearchSort
 
 _ONE_DAY = timedelta(days=1)
 _NO_DURATION = timedelta(0)
-# NOTE: the first sitting of the Parliament website's newer system, which publishes assent records with no text; the app's TEXTLESS_ASSENT_FIRST_SITTING is the same date
-_TEXTLESS_ASSENT_FIRST_SITTING = datetime(2012, 9, 10)
 _COLUMNS_WITHOUT_MARKDOWN_CONTENT = tuple(
     column
     for column in Report.__table__.columns
@@ -315,13 +313,15 @@ class CRUDReport:
         )
         return self.session.exec(statement).first()
 
-    def get_no_text_by_design_count(self) -> int:
+    def get_count_without_text_by_report_type_and_min_sitting_date(
+        self, report_type: ReportType, min_sitting_date: datetime
+    ) -> int:
         statement = (
             select(func.count())
             .select_from(Report)
             .where(
-                Report.report_type == ReportType.ATBP,
-                Report.sitting_date >= _TEXTLESS_ASSENT_FIRST_SITTING,
+                Report.report_type == report_type,
+                Report.sitting_date >= min_sitting_date,
                 not_(_get_is_text_available()),
             )
         )
