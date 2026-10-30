@@ -10,6 +10,7 @@ from utils.search_query import (
     get_quoted_websearch_query,
     get_quoted_words,
     get_search_query_groups,
+    get_split_phrase_websearch_query,
     get_stemmed_websearch_query,
     get_websearch_query,
     is_quote_in_query,
@@ -37,9 +38,10 @@ from utils.search_query import (
         ('"housing" "") x', '"housing" x'),
         ('"" housing', "housing"),
         ("(housing), flats.", "housing flats"),
-        ("x-ray", "x ray"),
-        ("Ong Kian-Min", "Ong Kian Min"),
+        ("x-ray", "x-ray"),
+        ("Ong Kian-Min", "Ong Kian-Min"),
         ("covid-19", "covid-19"),
+        ("well-being", "well-being"),
         ("housing -kian-min", "housing -kian-min"),
         ('housing -"public flats" grants', "housing grants"),
         ('"housing" - "flats"', '"housing" "flats"'),
@@ -55,6 +57,36 @@ def test_the_websearch_query_keeps_the_user_s_operators(
     assert (
         get_websearch_query(get_search_query_groups(query)) == expected_websearch_query
     )
+
+
+@pytest.mark.parametrize(
+    ("query", "expected_split_words"),
+    [
+        ("Kian-Min", ("Kian", "Min")),
+        ("(Kian-Min),", ("Kian", "Min")),
+        ("x-ray", ("x", "ray")),
+        ("well-being", ()),
+        ("follow-up", ()),
+        ("to-do", ()),
+        ("do-or-die", ()),
+        ("covid-19", ()),
+        ("housing", ()),
+        ("-kian-min", ()),
+    ],
+)
+def test_a_hyphenated_word_is_split_only_when_no_part_is_a_stop_word(
+    query: str, expected_split_words: tuple[str, ...]
+) -> None:
+    groups = get_search_query_groups(f"ong {query}")
+
+    assert groups[0].terms[-1].split_words == expected_split_words
+
+
+def test_a_split_hyphenated_word_keeps_its_hyphen_and_gets_a_phrase_query() -> None:
+    term = get_search_query_groups("Kian-Min")[0].terms[0]
+
+    assert term.words == ("Kian-Min",)
+    assert get_split_phrase_websearch_query(term) == '"Kian Min"'
 
 
 def test_a_query_is_split_into_or_groups_of_terms() -> None:

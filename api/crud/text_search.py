@@ -1,3 +1,5 @@
+from functools import reduce
+
 from sqlalchemy import ColumnElement, and_, false, func, literal_column, not_, or_
 
 from utils.search_query import (
@@ -9,6 +11,7 @@ from utils.search_query import (
     get_positive_websearch_query,
     get_quoted_websearch_query,
     get_search_query_groups,
+    get_split_phrase_websearch_query,
     get_stemmed_websearch_query,
     get_unquoted_websearch_query,
     get_websearch_query,
@@ -23,20 +26,58 @@ _CASE_INSENSITIVE = "i"
 _WORD_SEPARATOR = " "
 
 
+def _get_group_tsquery(group: SearchQueryGroup) -> ColumnElement:
+    split_terms = [term for term in group.terms if term.split_words != ()]
+    other_websearch_query = get_group_websearch_query(
+        tuple(term for term in group.terms if term.split_words == ())
+    )
+    # NOTE: a hyphenated word matches as typed or as its parts in a phrase, and the choice is grouped as one operand; the tsquery operators build a tree, so the alternative stays inside the group's AND
+    return reduce(
+        lambda left, right: left.op("&&")(right),
+        [
+            *(
+                [
+                    func.websearch_to_tsquery(
+                        TEXT_SEARCH_CONFIGURATION, other_websearch_query
+                    )
+                ]
+                if other_websearch_query != ""
+                else []
+            ),
+            *[
+                func.websearch_to_tsquery(
+                    TEXT_SEARCH_CONFIGURATION, _WORD_SEPARATOR.join(term.words)
+                ).op("||")(
+                    func.websearch_to_tsquery(
+                        TEXT_SEARCH_CONFIGURATION,
+                        get_split_phrase_websearch_query(term),
+                    )
+                )
+                for term in split_terms
+            ],
+        ],
+    )
+
+
 def get_match_tsquery(query: str) -> ColumnElement:
     groups = get_search_query_groups(query)
-    # NOTE: the query is rebuilt from the parsed groups, so that the match and the rank read it the way the parser does: Postgres reads "housing or -other" as housing OR NOT other, which matches nearly every row, "a - b" as a without b, and "Kian-Min" as one word the record may print apart
+    # NOTE: the query is rebuilt from the parsed groups, so that the match and the rank read it the way the parser does: Postgres reads "housing or -other" as housing OR NOT other, which matches nearly every row, and "a - b" as a without b
     if groups == () and not is_quote_in_query(query):
         return func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-    return func.websearch_to_tsquery(
-        TEXT_SEARCH_CONFIGURATION, get_websearch_query(groups)
+    if all(term.split_words == () for group in groups for term in group.terms):
+        return func.websearch_to_tsquery(
+            TEXT_SEARCH_CONFIGURATION, get_websearch_query(groups)
+        )
+    return reduce(
+        lambda left, right: left.op("||")(right),
+        [_get_group_tsquery(group) for group in groups],
     )
 
 
 def get_rank_tsquery(query: str) -> ColumnElement:
     if not is_quote_in_query(query):
         return get_match_tsquery(query)
-    # NOTE: quoted words are ranked without their word order, because the rum index returns a phrase's matches in an order that disagrees with their <=> distance, so a phrase's order would depend on the plan; a hyphenated word such as "covid-19" or "well-being" still ranks with its word order, because Postgres turns it into a phrase
+    # NOTE: quoted words are ranked without their word order, because the rum index returns a phrase's matches in an order that disagrees with their <=> distance, so a phrase's order would depend on the plan; a hyphenated word such as "covid-19" or "well-being" still ranks with its word order, because Postgres turns it into a phrase, while one split into parts such as "Kian-Min" ranks by its hyphenated form alone
     return func.websearch_to_tsquery(
         TEXT_SEARCH_CONFIGURATION,
         get_unquoted_websearch_query(get_search_query_groups(query)),
@@ -70,11 +111,7 @@ def _get_group_match(
     group: SearchQueryGroup, tsv_column: ColumnElement, text_column: ColumnElement
 ) -> ColumnElement:
     return and_(
-        tsv_column.op("@@")(
-            func.websearch_to_tsquery(
-                TEXT_SEARCH_CONFIGURATION, get_group_websearch_query(group.terms)
-            )
-        ),
+        tsv_column.op("@@")(_get_group_tsquery(group)),
         *_get_exact_form_filters(group, text_column),
     )
 

@@ -197,6 +197,14 @@ def test_a_straight_and_a_curly_apostrophe_find_the_same_speeches(
 def test_a_hyphen_the_record_does_not_print_still_finds_the_name(
     api_client: TestClient,
 ) -> None:
-    response = api_client.get("/search/speeches", params={"q": "Ong Kian-Min"})
+    # NOTE: on 2006-01-16 the record prints "Mr Ong Kian Min" with no hyphen, in the speech with ordinal 1
+    response = api_client.get(
+        "/search/speeches",
+        params={
+            "q": "Ong Kian-Min",
+            "date_from": "2006-01-16",
+            "date_to": "2006-01-16",
+        },
+    )
 
-    assert response.json()["total_count"] > 0
+    assert 1 in [result["ordinal"] for result in response.json()["results"]]

@@ -14,6 +14,18 @@ _WORD_EDGE = re.compile(r"^[\W_]+|[\W_]+$")
 _EXACT_FORM_START = "(?<![[:alnum:]])"
 _EXACT_FORM_END = "(?![[:alnum:]])"
 _EXACT_FORM_WORD_SEPARATOR = "[^[:alnum:]]+"
+# NOTE: Postgres's english stop words (tsearch_data/english.stop); a hyphenated word with one of these as a part is not split, because the part would vanish from the query ("well-being" would become "well") or the query would match nothing ("to-do")
+_STOP_WORDS = frozenset(
+    "i me my myself we our ours ourselves you your yours yourself yourselves "
+    "he him his himself she her hers herself it its itself they them their "
+    "theirs themselves what which who whom this that these those am is are "
+    "was were be been being have has had having do does did doing a an the "
+    "and but if or because as until while of at by for with about against "
+    "between into through during before after above below to from up down in "
+    "out on off over under again further then once here there when where why "
+    "how all any both each few more most other some such no nor not only own "
+    "same so than too very s t can will just don should now".split()
+)
 _APOSTROPHES = re.compile("['\u2019]")
 _EXACT_FORM_APOSTROPHE = "['\u2019]"
 
@@ -23,6 +35,8 @@ class SearchQueryTerm:
     words: tuple[str, ...]
     is_quoted: bool
     is_excluded: bool
+    # the parts of a hyphenated word that the record may print apart; the word itself stays in words
+    split_words: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -36,6 +50,13 @@ def _get_words(text: str) -> tuple[str, ...]:
         for trimmed_word in (_WORD_EDGE.sub("", word) for word in text.split())
         if trimmed_word != ""
     )
+
+
+def _get_split_words(word: str) -> tuple[str, ...]:
+    parts = _HYPHEN_BETWEEN_LETTERS.split(word)
+    if len(parts) == 1 or any(part.lower() in _STOP_WORDS for part in parts):
+        return ()
+    return tuple(parts)
 
 
 def _is_group_searchable(terms: tuple[SearchQueryTerm, ...]) -> bool:
@@ -66,15 +87,16 @@ def _get_all_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
                 groups.append(SearchQueryGroup(terms=tuple(terms)))
                 terms = []
             continue
-        # NOTE: a hyphen typed between letters also finds the words written apart, because the record may print "Chuan Jin" where the query says "Chuan-Jin", while text with the hyphen still matches through its parts; an excluded word keeps its hyphen, because a term excluded in two words would exclude only the first
-        words = _get_words(
-            bare_token
-            if is_excluded
-            else _HYPHEN_BETWEEN_LETTERS.sub(_WORD_SEPARATOR, bare_token)
-        )
+        words = _get_words(bare_token)
         if words != ():
             terms.append(
-                SearchQueryTerm(words=words, is_quoted=False, is_excluded=is_excluded)
+                SearchQueryTerm(
+                    words=words,
+                    is_quoted=False,
+                    is_excluded=is_excluded,
+                    # NOTE: a hyphen typed between letters also finds the words written apart, because the record may print "Kian Min" where the query says "Kian-Min"; Postgres reads an unsplit hyphenated word such as "well-being" itself, and an excluded word keeps only its hyphen, because a term excluded in two words would exclude only the first
+                    split_words=() if is_excluded else _get_split_words(words[0]),
+                )
             )
     groups.append(SearchQueryGroup(terms=tuple(terms)))
     return tuple(groups)
@@ -114,6 +136,10 @@ def _get_websearch_term(term: SearchQueryTerm) -> str:
     if term.is_excluded:
         return _EXCLUDED_PREFIX + words
     return words
+
+
+def get_split_phrase_websearch_query(term: SearchQueryTerm) -> str:
+    return _QUOTE + _WORD_SEPARATOR.join(term.split_words) + _QUOTE
 
 
 def get_group_websearch_query(terms: tuple[SearchQueryTerm, ...]) -> str:
