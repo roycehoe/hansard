@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 from urllib.parse import quote, urlsplit
 from xml.etree import ElementTree
 
@@ -8,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from exceptions.base import ERRORS, ErrorCode
 from middleware import response_cache, takedown
+from services import parliament as parliament_service
 from services import sitemap as sitemap_service
 from settings import settings
 from utils.report_slug import get_normalised_report_slug
@@ -294,3 +296,32 @@ def test_a_taken_down_report_leaves_a_person_reports_page_full(
     ]
     assert after["total_count"] == before["total_count"] - 1
     assert after["has_next_page"] == (after["total_count"] > page_size)
+
+
+def _get_parliament(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, parliament_number: int
+) -> dict[str, Any]:
+    monkeypatch.setattr(parliament_service, "_cached_all_parliaments", None)
+    parliaments = client.get("/api/parliaments").json()["parliaments"]
+    return next(
+        parliament
+        for parliament in parliaments
+        if parliament["parliament_number"] == parliament_number
+    )
+
+
+def test_a_taken_down_report_leaves_the_parliament_totals(
+    website_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    report_to_hide: _ReportToHide,
+) -> None:
+    parliament_number = website_client.get(
+        f"/api/sittings/{report_to_hide.sitting_date}"
+    ).json()["parliament_number"]
+    before = _get_parliament(website_client, monkeypatch, parliament_number)
+
+    _take_down(monkeypatch, report_to_hide.report_slug)
+
+    after = _get_parliament(website_client, monkeypatch, parliament_number)
+    assert after["report_count"] == before["report_count"] - 1
+    assert after["text_report_count"] == before["text_report_count"] - 1

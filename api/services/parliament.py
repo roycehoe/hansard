@@ -3,6 +3,7 @@ from typing import Optional
 from sqlmodel import Session
 
 from crud.report import CRUDReport
+from middleware.takedown import get_taken_down_report_ids
 from schemas.parliament import GetAllParliamentsResponse, ParliamentData
 
 # NOTE: replaced whole and never mutated, so a request thread never reads a half-written answer
@@ -10,15 +11,16 @@ _cached_all_parliaments: Optional[GetAllParliamentsResponse] = None
 
 
 def _get_uncached_all_parliaments(session: Session) -> GetAllParliamentsResponse:
+    taken_down_report_ids = get_taken_down_report_ids(session)
     parliament_number_to_sitting_count = CRUDReport(
         session
     ).get_parliament_number_to_sitting_count()
     parliament_number_to_report_count = CRUDReport(
         session
-    ).get_parliament_number_to_report_count()
+    ).get_parliament_number_to_report_count(taken_down_report_ids)
     parliament_number_to_text_report_count = CRUDReport(
         session
-    ).get_parliament_number_to_text_report_count()
+    ).get_parliament_number_to_text_report_count(taken_down_report_ids)
     parliament_number_to_first_sitting_date = CRUDReport(
         session
     ).get_parliament_number_to_first_sitting_date()

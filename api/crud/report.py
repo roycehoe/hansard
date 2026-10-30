@@ -199,19 +199,26 @@ class CRUDReport:
             for parliament_number, sitting_count in rows
         }
 
-    def get_parliament_number_to_report_count(self) -> dict[int, int]:
-        statement = select(Report.parliament_number, func.count()).group_by(
-            Report.parliament_number
-        )
+    def get_parliament_number_to_report_count(
+        self, excluded_report_ids: list[int]
+    ) -> dict[int, int]:
+        statement = select(
+            Report.parliament_number,
+            func.count().filter(Report.id.not_in(excluded_report_ids)),
+        ).group_by(Report.parliament_number)
         rows = self.session.exec(statement).all()
         return {
             parliament_number: report_count for parliament_number, report_count in rows
         }
 
-    def get_parliament_number_to_text_report_count(self) -> dict[int, int]:
+    def get_parliament_number_to_text_report_count(
+        self, excluded_report_ids: list[int]
+    ) -> dict[int, int]:
         statement = select(
             Report.parliament_number,
-            func.count().filter(_get_is_text_available()),
+            func.count()
+            .filter(_get_is_text_available())
+            .filter(Report.id.not_in(excluded_report_ids)),
         ).group_by(Report.parliament_number)
         rows = self.session.exec(statement).all()
         return {
