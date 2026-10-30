@@ -138,11 +138,12 @@ class CRUDReport:
         statement = select(Report.id).where(Report.report_id.in_(report_ids))
         return list(self.session.exec(statement).all())
 
-    def get_all_report_ids_with_text_not_in_report_ids(
+    def get_all_with_text_not_in_report_ids(
         self, excluded_report_ids: list[str]
-    ) -> list[str]:
+    ) -> list[Report]:
         statement = (
-            select(Report.report_id)
+            select(Report)
+            .options(defer(Report.markdown_content))
             .where(_get_is_text_available())
             .where(Report.report_id.not_in(excluded_report_ids))
             .order_by(Report.sitting_date.desc(), Report.id)

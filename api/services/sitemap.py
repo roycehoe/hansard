@@ -10,7 +10,7 @@ from middleware.takedown import get_taken_down_report_id_candidates
 from settings import settings
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
-from utils.sitemap_xml import get_sitemap_index_xml, get_urlset_xml
+from utils.sitemap_xml import SitemapUrl, get_sitemap_index_xml, get_urlset_xml
 
 SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
 _MAX_URLS_PER_FILE = 20_000
@@ -25,24 +25,35 @@ def _get_file_name(kind: str, file_number: int) -> str:
     return f"sitemap-{kind}-{file_number}.xml"
 
 
-def _get_kind_to_paths(session: Session) -> dict[str, list[str]]:
+def _get_kind_to_sitemap_urls(
+    site_origin: str, session: Session
+) -> dict[str, list[SitemapUrl]]:
     sitting_dates = CRUDReport(session).get_all_sitting_dates()
     persons = CRUDPerson(session).get_all()
-    report_ids = CRUDReport(session).get_all_report_ids_with_text_not_in_report_ids(
+    reports = CRUDReport(session).get_all_with_text_not_in_report_ids(
         get_taken_down_report_id_candidates()
     )
     return {
         "sittings": [
-            f"/sittings/{sitting_date.date().isoformat()}"
+            SitemapUrl(
+                f"{site_origin}/sittings/{sitting_date.date().isoformat()}",
+                sitting_date.date(),
+            )
             for sitting_date in sitting_dates
         ],
         "people": [
-            f"/people/{person.id}-{get_person_slug(person.canonical_name)}"
+            SitemapUrl(
+                f"{site_origin}/people/{person.id}-{get_person_slug(person.canonical_name)}",
+                None,
+            )
             for person in persons
         ],
         "reports": [
-            f"/reports/{quote(get_report_slug(report_id), safe='')}"
-            for report_id in report_ids
+            SitemapUrl(
+                f"{site_origin}/reports/{quote(get_report_slug(report.report_id), safe='')}",
+                report.sitting_date.date(),
+            )
+            for report in reports
         ],
     }
 
@@ -50,13 +61,12 @@ def _get_kind_to_paths(session: Session) -> dict[str, list[str]]:
 def _get_uncached_file_name_to_xml(site_url: str, session: Session) -> dict[str, str]:
     site_origin = site_url.rstrip(_URL_SEPARATOR)
     file_name_to_xml: dict[str, str] = {}
-    for kind, paths in _get_kind_to_paths(session).items():
-        for file_index, first_path_index in enumerate(
-            range(0, len(paths), _MAX_URLS_PER_FILE)
+    for kind, sitemap_urls in _get_kind_to_sitemap_urls(site_origin, session).items():
+        for file_index, first_url_index in enumerate(
+            range(0, len(sitemap_urls), _MAX_URLS_PER_FILE)
         ):
-            file_paths = paths[first_path_index : first_path_index + _MAX_URLS_PER_FILE]
             file_name_to_xml[_get_file_name(kind, file_index + 1)] = get_urlset_xml(
-                [f"{site_origin}{path}" for path in file_paths]
+                sitemap_urls[first_url_index : first_url_index + _MAX_URLS_PER_FILE]
             )
     file_name_to_xml[SITEMAP_INDEX_FILE_NAME] = get_sitemap_index_xml(
         [f"{site_origin}/{file_name}" for file_name in file_name_to_xml]

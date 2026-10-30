@@ -1,6 +1,9 @@
+from datetime import datetime
+
 import pytest
 from sqlmodel import Session
 
+from database.report import Report
 from services import sitemap as sitemap_service
 
 _SITE_URL = "https://hansard.example.sg"
@@ -13,10 +16,10 @@ class _StubCRUDReport:
     def get_all_sitting_dates(self) -> list:
         return []
 
-    def get_all_report_ids_with_text_not_in_report_ids(
+    def get_all_with_text_not_in_report_ids(
         self, excluded_report_ids: list[str]
-    ) -> list[str]:
-        return ["with-text-report"]
+    ) -> list[Report]:
+        return [Report(report_id="with-text-report", sitting_date=datetime(2024, 1, 9))]
 
 
 class _StubCRUDPerson:
