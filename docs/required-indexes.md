@@ -409,6 +409,10 @@ The index needs the `rum` extension, which DigitalOcean's Postgres 17 offers as 
 
 The distance order is not the `ts_rank` order. In a clone test the top 20 matched `ts_rank` on 20 results for "government", "housing" and "CPF", on 18 for "Lee Kuan Yew", on 10 for "water agreement Malaysia" and on 6 for "national service". On a phrase, rum puts speeches whose words sit close together first.
 
+On 30 October 2026 a quoted search stopped writing its full-text match twice and began to rank by the quoted words alone, without their order. Written twice, the match made Postgres count its rows twice, and the rum scan then returned the wrong rows: "mr speaker" in Parliament 14, newest first, had 17 of its 20. The phrase's `<=>` order also disagreed with the order the rum index returned, so the page depended on the plan. Now the page follows the index's own ordering, whichever plan Postgres picks. On the scratch copy "mr speaker" fell from 782 to 177 ms. The rum scan now sorts every match of the phrase before it returns the first, so a quoted search writes temp pages at the server's 2MB `work_mem`.
+
+Search connections set `work_mem` to 8MB (`-c work_mem=8MB` in `api/database/engine.py`), because rum sorts every match of a common word before it returns the first, and at 2MB that sort spills to disk. "government" took 245 ms at 2MB, 154 at 8MB and 144 at 16MB. Three searches run at once, so the worst case is 24MB, 18MB more than before.
+
 The migration ends with `ANALYZE speech`. `transcript_tsv` had no statistics since it was added, so the planner took every word for a rare one: 5,258 matches estimated for "government" against 137,788 real. Under a 1975 date range it then scanned the rum index once per report, 222 rescans, and the statement took 23 to 50 s on the clone. After `ANALYZE` it read 4,531 buffers and took 90 ms, and `pg_stats` holds the 1,000 most common lexemes of `transcript_tsv`. A migration that adds a column or an index to `speech` should analyse the table in the same step.
 
 ## ix_speech_transcript_tsv_sitting_date_rum
