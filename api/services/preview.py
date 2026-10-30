@@ -41,6 +41,7 @@ _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
 _SEAT_SEPARATOR = ", "
 _NAME_SEPARATOR = ", "
 _LISTED_SPEAKER_COUNT = 3
+_LISTED_REPORT_COUNT = 3
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
 _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
@@ -321,17 +322,24 @@ def _get_person_preview(person_id: int, session: Session) -> PreviewData:
     )
 
 
+def _get_reports_sentence(reports: list[Report]) -> str:
+    listed_titles = _get_names_label(
+        [f'"{report.title}"' for report in reports[:_LISTED_REPORT_COUNT]]
+    )
+    if len(reports) > _LISTED_REPORT_COUNT:
+        return f"{len(reports):,} reports, among them {listed_titles}."
+    return f"{listed_titles}."
+
+
 def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
     reports = CRUDReport(session).get_all_by_sitting_date(
         datetime.combine(sitting_date, time.min)
     )
     if not reports:
         return get_not_found_preview()
-    report_count = len(reports)
-    word = _REPORT_WORD if report_count == 1 else _REPORTS_WORD
     return PreviewData(
         title=f"Sitting of {get_sitting_date_label(sitting_date)}",
-        description=f"{report_count:,} {word}. {_NOT_OFFICIAL}",
+        description=f"{_get_reports_sentence(reports)} {_NOT_OFFICIAL}",
         preview_type=PreviewType.WEBSITE,
         path=f"/sittings/{sitting_date.isoformat()}",
         is_found=True,
