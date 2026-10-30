@@ -13,7 +13,7 @@ from crud.text_search import (
     get_excluded_words_filters,
     get_headline,
     get_match_filter,
-    get_match_tsquery,
+    get_rank_tsquery,
 )
 from database.attendance import Attendance
 from database.report import Report
@@ -275,7 +275,7 @@ class CRUDSpeech:
         limit: int,
         offset: int,
     ) -> list[Speech]:
-        tsquery = get_match_tsquery(query)
+        tsquery = get_rank_tsquery(query)
         is_date_index_ordered = (
             sort != SearchSort.RELEVANCE
             and membership_ids is None

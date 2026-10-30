@@ -122,6 +122,24 @@ def get_group_websearch_query(terms: tuple[SearchQueryTerm, ...]) -> str:
     )
 
 
+def _get_unquoted_websearch_term(term: SearchQueryTerm) -> str:
+    words = _WORD_SEPARATOR.join(term.words)
+    if term.is_excluded:
+        return _EXCLUDED_PREFIX + words
+    return words
+
+
+def get_unquoted_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
+    return _WEBSEARCH_OR.join(
+        _WORD_SEPARATOR.join(
+            _get_unquoted_websearch_term(term)
+            for term in group.terms
+            if not term.is_quoted or not term.is_excluded
+        )
+        for group in groups
+    )
+
+
 def get_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
     return _WEBSEARCH_OR.join(
         get_group_websearch_query(group.terms) for group in groups

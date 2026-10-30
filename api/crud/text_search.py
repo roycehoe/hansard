@@ -10,6 +10,7 @@ from utils.search_query import (
     get_quoted_websearch_query,
     get_search_query_groups,
     get_stemmed_websearch_query,
+    get_unquoted_websearch_query,
     get_websearch_query,
     is_quote_in_query,
 )
@@ -35,15 +36,20 @@ def get_match_tsquery(query: str) -> ColumnElement:
     )
 
 
-def _get_group_match(
-    group: SearchQueryGroup, tsv_column: ColumnElement, text_column: ColumnElement
-) -> ColumnElement:
-    return and_(
-        tsv_column.op("@@")(
-            func.websearch_to_tsquery(
-                TEXT_SEARCH_CONFIGURATION, get_group_websearch_query(group.terms)
-            )
-        ),
+def get_rank_tsquery(query: str) -> ColumnElement:
+    if not is_quote_in_query(query):
+        return get_match_tsquery(query)
+    # NOTE: quoted words are ranked without their word order, because the rum index returns a phrase's matches in an order that disagrees with their <=> distance, so a phrase's order would depend on the plan
+    return func.websearch_to_tsquery(
+        TEXT_SEARCH_CONFIGURATION,
+        get_unquoted_websearch_query(get_search_query_groups(query)),
+    )
+
+
+def _get_exact_form_filters(
+    group: SearchQueryGroup, text_column: ColumnElement
+) -> list[ColumnElement]:
+    return [
         *[
             text_column.regexp_match(
                 get_exact_form_pattern(term.words), flags=_CASE_INSENSITIVE
@@ -60,6 +66,19 @@ def _get_group_match(
             for term in group.terms
             if term.is_quoted and term.is_excluded
         ],
+    ]
+
+
+def _get_group_match(
+    group: SearchQueryGroup, tsv_column: ColumnElement, text_column: ColumnElement
+) -> ColumnElement:
+    return and_(
+        tsv_column.op("@@")(
+            func.websearch_to_tsquery(
+                TEXT_SEARCH_CONFIGURATION, get_group_websearch_query(group.terms)
+            )
+        ),
+        *_get_exact_form_filters(group, text_column),
     )
 
 
@@ -69,15 +88,16 @@ def get_match_filter(
     match = tsv_column.op("@@")(get_match_tsquery(query))
     if not is_quote_in_query(query):
         return match
+    groups = get_search_query_groups(query)
+    # NOTE: with one group the group's full-text match is the outer match, and repeating it makes Postgres count its rows twice when it estimates them
+    if len(groups) == 1:
+        return and_(match, *_get_exact_form_filters(groups[0], text_column))
     # NOTE: the full-text match narrows the rows through the index; each OR group is then checked again, its quoted words as exact forms, because the index only knows stems
     return and_(
         match,
         or_(
             false(),
-            *[
-                _get_group_match(group, tsv_column, text_column)
-                for group in get_search_query_groups(query)
-            ],
+            *[_get_group_match(group, tsv_column, text_column) for group in groups],
         ),
     )
 
