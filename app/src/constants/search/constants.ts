@@ -8,7 +8,7 @@ export const SEARCH_SORT_DROPDOWN_OPTIONS = [
 
 export const SEARCH_FORM_ID = 'search-form'
 
-export const SEARCH_WORDS_MAX_LENGTH = 200
+export const SEARCH_WORDS_MAX_LENGTH = 256
 
 export const FIRST_SITTING_DATE = '1955-04-22'
 

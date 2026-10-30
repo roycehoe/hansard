@@ -12,7 +12,7 @@ from validators.search import validate_can_search_reports, validate_can_search_s
 
 _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
-_MAX_QUERY_LENGTH = 200
+_MAX_QUERY_LENGTH = 256
 _MAX_REPORT_SLUG_LENGTH = 200
 _MAX_CONSTITUENCY_LENGTH = 100
 _EARLIEST_SEARCH_DATE = date(1900, 1, 1)
