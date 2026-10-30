@@ -42,7 +42,6 @@ def _is_group_searchable(terms: tuple[SearchQueryTerm, ...]) -> bool:
 def _get_all_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
     groups = []
     terms = []
-    is_next_term_excluded = False
     for match in _TOKEN.finditer(_CURLY_QUOTES.sub(_QUOTE, query)):
         token = match.group(0)
         if match.group(2) is not None:
@@ -52,17 +51,12 @@ def _get_all_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
                     SearchQueryTerm(
                         words=quoted_words,
                         is_quoted=True,
-                        is_excluded=is_next_term_excluded
-                        or match.group(1) == _EXCLUDED_PREFIX,
+                        is_excluded=match.group(1) == _EXCLUDED_PREFIX,
                     )
                 )
-            is_next_term_excluded = False
             continue
-        if token == _EXCLUDED_PREFIX:
-            is_next_term_excluded = True
-            continue
-        is_excluded = is_next_term_excluded or token.startswith(_EXCLUDED_PREFIX)
-        is_next_term_excluded = False
+        # NOTE: a dash with a space after it, or alone, is punctuation, as in a pasted title such as "HEAD S - MINISTRY"; only a dash attached to the next word excludes it
+        is_excluded = token.startswith(_EXCLUDED_PREFIX) and token != _EXCLUDED_PREFIX
         bare_token = token.removeprefix(_EXCLUDED_PREFIX)
         if bare_token.lower() == _OR_OPERATOR:
             if not is_excluded:

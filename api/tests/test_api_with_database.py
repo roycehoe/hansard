@@ -169,3 +169,17 @@ def test_a_quoted_search_returns_the_newest_matches() -> None:
         ).all()
 
     assert [speech.id for speech in page] == [row[0] for row in true_speech_ids]
+
+
+def test_a_spaced_dash_in_a_report_title_is_not_an_exclusion(
+    api_client: TestClient,
+) -> None:
+    response = api_client.get(
+        "/search/reports", params={"q": "HEAD S - MINISTRY OF MANPOWER"}
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert "HEAD S - MINISTRY OF MANPOWER" in [
+        result["title"] for result in response.json()["results"]
+    ]
+
