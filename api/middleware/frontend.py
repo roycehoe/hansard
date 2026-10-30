@@ -28,6 +28,9 @@ _CACHE_CONTROL_HEADER = "Cache-Control"
 # NOTE: Vite puts a hash of each file's contents in the name of every file under assets/, so a new build gets new names and a stored copy is never stale. The page itself keeps its name across builds, so browsers and Cloudflare check it again on each visit and a release shows at once
 _ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable"
 _INDEX_CACHE_CONTROL = "no-cache"
+_FAVICON_PATH = "favicon.svg"
+# NOTE: the favicon keeps its name across builds, so it is stored for a day rather than a year; with no header the platform marks it private and Cloudflare sends every fetch to the origin
+_FAVICON_CACHE_CONTROL = "public, max-age=86400"
 _DIRECTORY_INDEX_PATH = "."
 _PATH_KEY = "path"
 _SPEECH_ORDINAL_PARAMETER = "s"
@@ -114,4 +117,6 @@ class FrontendFiles(StaticFiles):
             return await self._get_index_response(scope)
         if path.startswith(_ASSETS_PATH_PREFIX):
             response.headers[_CACHE_CONTROL_HEADER] = _ASSET_CACHE_CONTROL
+        if path == _FAVICON_PATH:
+            response.headers[_CACHE_CONTROL_HEADER] = _FAVICON_CACHE_CONTROL
         return response

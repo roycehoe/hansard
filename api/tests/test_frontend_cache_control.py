@@ -14,6 +14,7 @@ from services import preview as preview_service
 def frontend_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     (tmp_path / "index.html").write_text("<html><head></head></html>")
     (tmp_path / "robots.txt").write_text("User-agent: *")
+    (tmp_path / "favicon.svg").write_text("<svg></svg>")
     (tmp_path / "assets").mkdir()
     (tmp_path / "assets" / "index-Da9v3Mju.js").write_text("console.log(1)")
     monkeypatch.setattr(
@@ -43,6 +44,13 @@ def test_the_page_is_checked_again_on_each_visit(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.headers["cache-control"] == "no-cache"
+
+
+def test_the_favicon_is_stored_for_a_day(frontend_client: TestClient) -> None:
+    response = frontend_client.get("/favicon.svg")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["cache-control"] == "public, max-age=86400"
 
 
 def test_a_file_outside_assets_gets_no_cache_control(
