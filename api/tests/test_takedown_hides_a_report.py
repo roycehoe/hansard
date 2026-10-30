@@ -272,30 +272,80 @@ def test_a_speech_search_in_a_taken_down_report_answers_410(
     }
 
 
+def _get_person_reports(
+    client: TestClient, person_id: int, page_size: int = _PAGE_SIZE
+) -> dict[str, Any]:
+    return client.get(
+        f"/api/people/{person_id}/reports", params={"page_size": page_size}
+    ).json()
+
+
+def _get_person_and_page_size_ending_at_report(
+    client: TestClient, report_to_hide: _ReportToHide
+) -> tuple[int, int]:
+    for person_id in report_to_hide.person_ids:
+        person_reports = _get_person_reports(client, person_id)
+        report_slugs = [report["report_slug"] for report in person_reports["reports"]]
+        if report_to_hide.report_slug not in report_slugs:
+            continue
+        page_size = report_slugs.index(report_to_hide.report_slug) + 1
+        if person_reports["total_count"] > page_size:
+            return person_id, page_size
+    raise LookupError("no person has a report after the report to hide")
+
+
 def test_a_taken_down_report_leaves_a_person_reports_page_full(
     website_client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
     report_to_hide: _ReportToHide,
 ) -> None:
-    person_reports_path = f"/api/people/{report_to_hide.person_ids[0]}/reports"
-    before = website_client.get(
-        person_reports_path, params={"page_size": _PAGE_SIZE}
-    ).json()
-    page_size = [report["report_slug"] for report in before["reports"]].index(
-        report_to_hide.report_slug
-    ) + 1
+    person_id, page_size = _get_person_and_page_size_ending_at_report(
+        website_client, report_to_hide
+    )
+    total_count_before = _get_person_reports(website_client, person_id)["total_count"]
 
     _take_down(monkeypatch, report_to_hide.report_slug)
 
-    after = website_client.get(
-        person_reports_path, params={"page_size": page_size}
-    ).json()
+    after = _get_person_reports(website_client, person_id, page_size)
     assert len(after["reports"]) == page_size
     assert report_to_hide.report_slug not in [
         report["report_slug"] for report in after["reports"]
     ]
-    assert after["total_count"] == before["total_count"] - 1
+    assert after["total_count"] == total_count_before - 1
     assert after["has_next_page"] == (after["total_count"] > page_size)
+
+
+def _get_person_and_last_report_slug(
+    client: TestClient, report_to_hide: _ReportToHide
+) -> tuple[int, str, int]:
+    for person_id in report_to_hide.person_ids:
+        person_reports = _get_person_reports(client, person_id)
+        if 2 <= person_reports["total_count"] <= _PAGE_SIZE:
+            return (
+                person_id,
+                person_reports["reports"][-1]["report_slug"],
+                person_reports["total_count"],
+            )
+    raise LookupError("no person has between 2 and a page of reports")
+
+
+def test_a_taken_down_report_leaves_no_next_page_when_it_was_the_only_row_after(
+    website_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    report_to_hide: _ReportToHide,
+) -> None:
+    person_id, last_report_slug, total_count = _get_person_and_last_report_slug(
+        website_client, report_to_hide
+    )
+    page_size = total_count - 1
+    assert _get_person_reports(website_client, person_id, page_size)["has_next_page"]
+
+    _take_down(monkeypatch, last_report_slug)
+
+    after = _get_person_reports(website_client, person_id, page_size)
+    assert len(after["reports"]) == page_size
+    assert after["total_count"] == page_size
+    assert after["has_next_page"] is False
 
 
 def _get_parliament(
