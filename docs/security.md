@@ -42,6 +42,6 @@ The site sets no cookies of its own; Cloudflare, in front of it, sets one, `__cf
 
 - No penetration test has been run.
 - There is no per-client rate limit in the code. One client can hold all three search slots, and `s` and `q` on a report address have no cap.
-- The Content Security Policy covers framing only. It sets no `script-src`.
+- The Content Security Policy allows inline styles (`style-src 'unsafe-inline'`), because Radix, sonner and the theme switch write `<style>` elements whose contents change at run time. Scripts are not loosened this way.
 - Dependabot alerts and secret scanning are off in both repos as of 31 October 2026. CodeQL runs on each push and weekly.
 - GitHub private vulnerability reporting is off. Reports go by email.
