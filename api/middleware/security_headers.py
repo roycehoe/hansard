@@ -12,16 +12,13 @@ _CONTENT_SECURITY_POLICY_DIRECTIVES = (
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'self'",
+    "frame-ancestors 'none'",
 )
 _SECURITY_HEADERS = (
     ("Strict-Transport-Security", "max-age=31536000"),
     ("X-Content-Type-Options", "nosniff"),
     ("Referrer-Policy", "strict-origin-when-cross-origin"),
-    ("Content-Security-Policy", "frame-ancestors 'none'"),
-    (
-        "Content-Security-Policy-Report-Only",
-        "; ".join(_CONTENT_SECURITY_POLICY_DIRECTIVES),
-    ),
+    ("Content-Security-Policy", "; ".join(_CONTENT_SECURITY_POLICY_DIRECTIVES)),
 )
 
 

@@ -12,12 +12,22 @@ from services import sitemap as sitemap_service
 from settings import settings
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-_POLICY_HEADER = "content-security-policy-report-only"
+_POLICY_HEADER = "content-security-policy"
 _EXPECTED_HEADERS = {
     "strict-transport-security": "max-age=31536000",
     "x-content-type-options": "nosniff",
     "referrer-policy": "strict-origin-when-cross-origin",
-    "content-security-policy": "frame-ancestors 'none'",
+    "content-security-policy": (
+        "default-src 'self'; "
+        "script-src 'self' 'sha256-v113e9zedJ1qRfpnuqczJ7xOkqPKWJmuhUiw9Rd9jNI=' "
+        "https://gc.zgo.at; "
+        "style-src 'self' 'unsafe-inline'; "
+        "connect-src 'self' https://royceinbox.goatcounter.com; "
+        "object-src 'none'; "
+        "base-uri 'none'; "
+        "form-action 'self'; "
+        "frame-ancestors 'none'"
+    ),
 }
 
 
