@@ -4,18 +4,20 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 
 const HOME_LINKS = [
   {
-    title: 'Sittings',
-    description: 'Browse by Parliament, session or volume, and date.',
+    title: "Read a day's debates",
+    description:
+      "Pick a Parliament, then a date, to read that day's reports and see who attended.",
     to: '/sittings',
   },
   {
-    title: 'People',
-    description: 'Every person who spoke, with their memberships and speeches.',
+    title: 'Look up a person',
+    description:
+      'Find a person by name or constituency to read their speeches and see their attendance.',
     to: '/people',
   },
   {
-    title: 'Coverage',
-    description: 'What the archive holds and where the gaps are.',
+    title: 'See what the archive covers',
+    description: 'The years and counts it holds, and where the gaps are.',
     to: '/coverage',
   },
 ] as const
@@ -25,7 +27,7 @@ export const Route = createFileRoute('/')({
     useDocumentTitle()
     return (
       <div className="space-y-8">
-        <PageHeader title="Singapore's parliamentary debates since 1955" />
+        <PageHeader title="Find what an MP said in Singapore's Parliament since 1955" />
         <ul>
           {HOME_LINKS.map((item) => (
             <li
