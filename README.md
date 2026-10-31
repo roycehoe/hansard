@@ -58,6 +58,10 @@ docker run -p 8080:8080 -e DATABASE_URL=... -e BASIC_AUTH_USERNAME=... -e BASIC_
 
 Conventions for each part are in [app/CLAUDE.md](app/CLAUDE.md) and [api/CLAUDE.md](api/CLAUDE.md).
 
+## Contributing
+
+Open an issue before you open a pull request. [CONTRIBUTING.md](CONTRIBUTING.md) says how.
+
 ## Licence
 
 The code is under the [MIT licence](LICENSE).
