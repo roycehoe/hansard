@@ -44,6 +44,7 @@ import {
   HAND_CHECK_RIGHT_SHARE_LOWER_BOUND,
   HAND_CHECK_RIGHT_SHARE_UPPER_BOUND,
   HAND_CHECK_UNLINKED_SPEECH_COUNT,
+  HOW_THIS_WAS_BUILT_URL,
   LINK_CHECK_REPORT_URL,
   METHODS_LAST_REVISED,
   METHODS_PRIVACY_SECTION_ID,
@@ -346,7 +347,12 @@ export const Route = createFileRoute('/coverage/methods')({
 
         <p>
           This page explains how the archive was made, how far to trust who said
-          what, and what is missing.
+          what, and what is missing. AI coding tools wrote most of this
+          site&apos;s code and docs.{' '}
+          <LinkExternal href={HOW_THIS_WAS_BUILT_URL}>
+            How this was built
+          </LinkExternal>{' '}
+          says which tools, how the work ran and who decided what.
         </p>
 
         {renderTextGathered()}

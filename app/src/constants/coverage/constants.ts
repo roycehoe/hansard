@@ -77,6 +77,8 @@ export const STOPPING_RULE_URL = `${SCRAPER_SOURCE_CODE_URL}/blob/master/docs/sp
 
 export const DATA_LOSS_REGISTER_URL = `${SCRAPER_SOURCE_CODE_URL}/blob/master/docs/data-loss-register.md`
 
+export const HOW_THIS_WAS_BUILT_URL = `${SOURCE_CODE_URL}/blob/master/docs/how-this-was-built.md`
+
 export const CORRECTIONS_LOG_URL = `${SOURCE_CODE_URL}/blob/master/docs/corrections.md`
 
 export const ATTRIBUTION_BY_PARLIAMENT = [
