@@ -46,20 +46,21 @@ The largest example is `hansard-user-stories`. It had 27 steps, an audit with no
 
 A model ran every check above. Royce has not yet read a sample of rows himself, and the methods page on the site says no person has read the checked rows.
 
-## What is not checked
+## What CI checks and what it does not
 
-`api/tests/` holds a pytest suite. CI (`.github/workflows/ci.yml`) runs on every push and pull request: lint and build for `app/`, and for `api/` the ruff check, the format check and the tests that need no database. The tests that read real rows run only against a local copy of the database, and `app/` has no automated tests.
+`api/tests/` holds a pytest suite, and `app/src/lib/` holds vitest unit tests on the pure functions. CI (`.github/workflows/ci.yml`) runs on every push and pull request. The `app` job runs lint, the Prettier format check, the palette contrast check, the unit tests, the build and a size limit on the first-load JavaScript. The `api` job runs the ruff check, the format check and the tests that need no database. Its contract check compares the API's response schemas with the frontend's interfaces, and it does not compare enum values. The `schema-drift` job builds the scraper's tables with the scraper's migrations in a throwaway Postgres and runs the API's `schema_drift` tests against them.
+
+The API tests marked `database` read real rows, so they run only against a local copy of the database. There are no component tests and no browser tests.
 
 ## What the site does not do
 
 The site calls no language model. Search is Postgres full-text search, and every page is built from stored rows.
 
-## Update, 30 October 2026
+## Since 19 October 2026
 
-This section was added after the page above was written. It corrects one sentence and brings the counts up to date. The sections above are unchanged.
+The table in "The October burst" stops on 19 October. This section carries the count forward and records two later changes.
 
-- **Correction to "What is not checked".** The sentence there says `app/` has no automated tests and that the tests which read real rows run only on a local copy of the database. Both are out of date. `app/` has vitest unit tests on the pure functions in `app/src/lib/`, and the CI `app` job runs them on every push. The CI `api` job runs the API tests that need no database. Its contract check compares the API's response schemas with the frontend's interfaces, and it does not compare enum values. CI also has a `schema-drift` job. It builds the scraper's tables with the scraper's migrations in a throwaway Postgres and runs the API's `schema_drift` tests against them. The API tests marked `database` read real rows, so they still run only against a local copy of the database. There are still no component tests or browser tests.
-- **Commits.** From commit `3f9a5ba` (the last one counted above) to `ed7d171`, made at 13:15 on 30 October 2026, there are 340 more commits, all on `master`: 7 on 19 October after 09:03, then 63, 32, 25, 48, 36, 3, 45, 25, 26 and 20 on 20 to 29 October, and 10 on 30 October. The repository has 703 commits in all. 12 of the 340 landed between 11 pm and 2 am.
+- **Commits.** From commit `3f9a5ba` (the last one counted above) to `2a50790`, made at 05:54 on 31 October 2026, there are 379 more commits, all on `master`: 7 on 19 October after 09:03, then 63, 32, 25, 48, 36, 3, 45, 25, 26 and 20 on 20 to 29 October, 46 on 30 October and 3 on 31 October. The repository has 742 commits in all. 12 of the 379 landed between 11 pm and 2 am.
 - **After deploy.** After each deploy, CI requests the coverage, report, search and sitemap URLs on the live site. It tries each up to 6 times, 20 seconds apart, and fails the run if any of them never answers 200.
 - **Rule for what the site shows.** `docs/adr/0006-display-what-the-record-prints.md` records the rule that the site shows a value as the record prints it and puts our reading in a note.
 
