@@ -4,6 +4,7 @@ import { SkeletonCoverageSection } from '@/components/coverage/SkeletonCoverageS
 import { TableAttributionParliaments } from '@/components/coverage/TableAttributionParliaments'
 import { TableCoverageCounts } from '@/components/coverage/TableCoverageCounts'
 import { TableCoverageYears } from '@/components/coverage/TableCoverageYears'
+import { LinkExternal } from '@/components/layout/LinkExternal'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
   Breadcrumb,
@@ -22,9 +23,14 @@ import {
   TEXT_NOT_IN_ARCHIVE_LABEL,
 } from '@/constants/constants'
 import {
+  CORRECTIONS_LOG_URL,
+  DATA_LOSS_REGISTER_URL,
+  ERROR_BOUND_RESAMPLE_COUNT,
   ERROR_CHECK_DATE,
+  ERROR_CHECK_LONG_REPORT_WINDOW_ROW_COUNT,
   ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT,
   ERROR_CHECK_SPEECH_COUNT,
+  ERROR_CHECK_WHOLE_REPORT_ROW_LIMIT,
   ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND,
   ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN,
   ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND,
@@ -33,9 +39,12 @@ import {
   HAND_CHECK_CORRECT_SPEECH_COUNT,
   HAND_CHECK_DATE,
   HAND_CHECK_LINKED_SPEECH_COUNT,
+  HAND_CHECK_PARAGRAPHS_PER_GROUP_COUNT,
+  HAND_CHECK_RECHECKED_RIGHT_CALL_COUNT,
   HAND_CHECK_RIGHT_SHARE_LOWER_BOUND,
   HAND_CHECK_RIGHT_SHARE_UPPER_BOUND,
   HAND_CHECK_UNLINKED_SPEECH_COUNT,
+  LINK_CHECK_REPORT_URL,
   METHODS_LAST_REVISED,
   METHODS_PRIVACY_SECTION_ID,
   METHODS_TERMS_SECTION_ID,
@@ -44,6 +53,7 @@ import {
   PARLIAMENT_FOURTEEN_LAST_SITTING,
   REPAIR_DATE,
   REPAIR_PROCEDURAL_LINE_COUNT,
+  STOPPING_RULE_URL,
   UNLINKED_HAND_CHECK_DATE,
 } from '@/constants/coverage/constants'
 import {
@@ -348,10 +358,15 @@ export const Route = createFileRoute('/coverage/methods')({
             Who said what
           </h2>
           <p>
-            On {formatSittingDate(HAND_CHECK_DATE)}, an AI model checked{' '}
+            On {formatSittingDate(HAND_CHECK_DATE)}, AI models checked{' '}
             {HAND_CHECK_LINKED_SPEECH_COUNT} paragraphs from the Legislative
             Assembly to Parliament 15 that are credited to a person against the
-            source text. No person has read them yet.{' '}
+            source text. The paragraphs were drawn at random,{' '}
+            {HAND_CHECK_PARAGRAPHS_PER_GROUP_COUNT} from each of eight groups of
+            Parliaments. Eight Claude Sonnet readers judged them, one per group.
+            A Claude Opus session then re-read every paragraph marked wrong or
+            unsure, and {HAND_CHECK_RECHECKED_RIGHT_CALL_COUNT} of each
+            reader&apos;s right calls. No person has read them yet.{' '}
             {HAND_CHECK_LINKED_SPEECH_COUNT - HAND_CHECK_CORRECT_SPEECH_COUNT}{' '}
             of the {HAND_CHECK_LINKED_SPEECH_COUNT} was wrong: a caption from a
             tabled list, which should be credited to no one, carried the name of
@@ -359,17 +374,21 @@ export const Route = createFileRoute('/coverage/methods')({
             were credited to another member. From this check, between{' '}
             {HAND_CHECK_RIGHT_SHARE_LOWER_BOUND} and{' '}
             {HAND_CHECK_RIGHT_SHARE_UPPER_BOUND} of credited paragraphs are
-            right, at 95% confidence.
+            right. The range is a Wilson interval at 95% confidence.
           </p>
           <p>
             That check covers credited paragraphs only. Checks finished on{' '}
             {formatSittingDate(ERROR_CHECK_DATE)} read{' '}
             {ERROR_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs
             from across the archive, credited or not, against the source text,
-            also by AI models. They counted a paragraph as wrong when it was
-            credited to the wrong speaker, when text was lost or repeated, or
-            when a chamber event or a first reading was credited to a speaker.
-            From the Legislative Assembly to Parliament 11,{' '}
+            also by AI models. Claude Sonnet readers read reports drawn at
+            random within groups by report version, report type and period:
+            every row of a report up to {ERROR_CHECK_WHOLE_REPORT_ROW_LIMIT}{' '}
+            rows, and a {ERROR_CHECK_LONG_REPORT_WINDOW_ROW_COUNT}-row window of
+            a longer one. They counted a paragraph as wrong when it was credited
+            to the wrong speaker, when text was lost or repeated, or when a
+            chamber event or a first reading was credited to a speaker. From the
+            Legislative Assembly to Parliament 11,{' '}
             {ERROR_SHARE_TO_PARLIAMENT_ELEVEN} of paragraphs had one of these
             errors, and at 95% confidence no more than{' '}
             {ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND}. In Parliaments 12 to 14
@@ -381,7 +400,15 @@ export const Route = createFileRoute('/coverage/methods')({
             )}{' '}
             paragraphs, which puts the share at no more than about{' '}
             {ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND}. These shares are what to
-            expect on a random page.
+            expect on a random page. Each upper bound comes from resampling the
+            reports {ERROR_BOUND_RESAMPLE_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
+            times and taking the 95th percentile, because errors cluster in a
+            few reports. Parliament 15&apos;s bound is the exact bound for no
+            errors in{' '}
+            {ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT.toLocaleString(
+              NUMBER_LOCALE
+            )}{' '}
+            paragraphs, about doubled for the same clustering.
           </p>
           <p>
             An earlier check by an AI model, on{' '}
@@ -395,6 +422,24 @@ export const Route = createFileRoute('/coverage/methods')({
             {REPAIR_PROCEDURAL_LINE_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
             procedural lines, editorial notes and stage directions. The earlier
             check came before the repair, so it does not cover those lines.
+          </p>
+          <p>
+            The method is set out in the{' '}
+            <LinkExternal href={LINK_CHECK_REPORT_URL}>
+              link check report
+            </LinkExternal>{' '}
+            and the{' '}
+            <LinkExternal href={STOPPING_RULE_URL}>stopping rule</LinkExternal>.
+            Each fix to a credit or to text, found by an audit or reported by a
+            reader, goes in the{' '}
+            <LinkExternal href={CORRECTIONS_LOG_URL}>
+              corrections log
+            </LinkExternal>
+            , and each step that changes or drops source text is in the{' '}
+            <LinkExternal href={DATA_LOSS_REGISTER_URL}>
+              data-loss register
+            </LinkExternal>
+            .
           </p>
           {renderAttributionFigures()}
         </section>

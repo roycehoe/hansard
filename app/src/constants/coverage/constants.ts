@@ -1,6 +1,8 @@
 import {
   LEGISLATIVE_ASSEMBLY_LABEL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+  SCRAPER_SOURCE_CODE_URL,
+  SOURCE_CODE_URL,
 } from '@/constants/constants'
 
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
@@ -19,6 +21,10 @@ export const HAND_CHECK_LINKED_SPEECH_COUNT = 464
 
 export const HAND_CHECK_CORRECT_SPEECH_COUNT = 463
 
+export const HAND_CHECK_PARAGRAPHS_PER_GROUP_COUNT = 58
+
+export const HAND_CHECK_RECHECKED_RIGHT_CALL_COUNT = 5
+
 export const HAND_CHECK_RIGHT_SHARE_LOWER_BOUND = '98.8%'
 
 export const HAND_CHECK_RIGHT_SHARE_UPPER_BOUND = '100%'
@@ -26,6 +32,12 @@ export const HAND_CHECK_RIGHT_SHARE_UPPER_BOUND = '100%'
 export const ERROR_CHECK_DATE = '2026-10-20'
 
 export const ERROR_CHECK_SPEECH_COUNT = 24_649
+
+export const ERROR_CHECK_WHOLE_REPORT_ROW_LIMIT = 60
+
+export const ERROR_CHECK_LONG_REPORT_WINDOW_ROW_COUNT = 41
+
+export const ERROR_BOUND_RESAMPLE_COUNT = 2_000
 
 export const ERROR_SHARE_TO_PARLIAMENT_ELEVEN = '0.07%'
 
@@ -58,6 +70,14 @@ export const PARLIAMENT_FOURTEEN_LAST_SITTING = '2025-04-08'
 export const PARLIAMENT_FOURTEEN_DISSOLVED = '2025-04-15'
 
 export const PARLIAMENT_FIFTEEN_FIRST_SITTING = '2025-09-05'
+
+export const LINK_CHECK_REPORT_URL = `${SCRAPER_SOURCE_CODE_URL}/blob/master/docs/report/link-check-2026-10-19.md`
+
+export const STOPPING_RULE_URL = `${SCRAPER_SOURCE_CODE_URL}/blob/master/docs/speech-fidelity-stopping-rule.md`
+
+export const DATA_LOSS_REGISTER_URL = `${SCRAPER_SOURCE_CODE_URL}/blob/master/docs/data-loss-register.md`
+
+export const CORRECTIONS_LOG_URL = `${SOURCE_CODE_URL}/blob/master/docs/corrections.md`
 
 export const ATTRIBUTION_BY_PARLIAMENT = [
   {

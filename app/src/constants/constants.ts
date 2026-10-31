@@ -2,6 +2,9 @@ export const OFFICIAL_RECORD_SEARCH_URL = 'https://sprs.parl.gov.sg/search/'
 
 export const SOURCE_CODE_URL = 'https://github.com/roycehoe/hansard'
 
+export const SCRAPER_SOURCE_CODE_URL =
+  'https://github.com/roycehoe/hansard-scraper'
+
 export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? ''
 
 export const RESEARCHERS_FORM_URL =
