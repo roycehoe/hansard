@@ -23,6 +23,7 @@ import {
   TEXT_NOT_IN_ARCHIVE_LABEL,
 } from '@/constants/constants'
 import {
+  CORRECTION_DEADLINE_DAYS,
   CORRECTIONS_LOG_URL,
   DATA_LOSS_REGISTER_URL,
   ERROR_BOUND_RESAMPLE_COUNT,
@@ -55,6 +56,7 @@ import {
   REPAIR_DATE,
   REPAIR_PROCEDURAL_LINE_COUNT,
   STOPPING_RULE_URL,
+  TAKEDOWN_DEADLINE_WORKING_DAYS,
   UNLINKED_HAND_CHECK_DATE,
 } from '@/constants/coverage/constants'
 import {
@@ -626,6 +628,19 @@ export const Route = createFileRoute('/coverage/methods')({
             no words to check and can lead to a different paragraph after the
             archive is updated. Cite on a paragraph copies its citation with the
             checked link and a link to the Official Report.
+          </p>
+        </section>
+
+        <section aria-labelledby="who-runs-heading" className="space-y-4">
+          <h2 id="who-runs-heading" className={SECTION_HEADING_CLASS_NAME}>
+            Who runs the site
+          </h2>
+          <p>
+            One person, Royce Hoe, runs the site. He fixes an error the archive
+            introduced, in the text or in who it credits, within{' '}
+            {CORRECTION_DEADLINE_DAYS} days of a report, and takes a Report off
+            the site within {TAKEDOWN_DEADLINE_WORKING_DAYS} working days if
+            Parliament asks.
           </p>
         </section>
 
