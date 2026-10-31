@@ -20,7 +20,7 @@ While `PUBLIC_MODE` is anything other than `true`, every page and API call needs
 
 ## The browser
 
-Every response carries `Strict-Transport-Security` for a year, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` and `Content-Security-Policy: frame-ancestors 'none'` (`api/middleware/security_headers.py`). Cross-origin requests are allowed only from `http://localhost:5173`. The one third-party script, GoatCounter's counter, loads with a Subresource Integrity hash.
+Every response carries `Strict-Transport-Security` for a year, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` and a `Content-Security-Policy` (`api/middleware/security_headers.py`). The policy lets scripts load only from the site itself and from GoatCounter, allows the one inline script by its hash, and stops other sites from framing the pages. Cross-origin requests are allowed only from `http://localhost:5173`. The one third-party script, GoatCounter's counter, loads with a Subresource Integrity hash.
 
 ## Takedowns
 
