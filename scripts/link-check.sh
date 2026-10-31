@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Sample Official Report links through the public API and check that each one
-# answers 2xx or 3xx. Prints one line per failing link to stdout; progress
-# goes to stderr. Pauses DELAY seconds between requests.
+# answers 2xx or 3xx. Prints one line per failing link or failed API call to
+# stdout; progress goes to stderr. Pauses DELAY seconds between requests.
 set -euo pipefail
 
 API_URL=${API_URL:-https://openhansard.sg/api}
@@ -15,9 +15,15 @@ get() {
 }
 
 for type in $TYPES; do
-  slugs=$(get "search/reports?report_type=$type&page_size=100" | jq -r '.results[].report_slug | @uri' | shuf -n "$PER_TYPE")
+  slugs=$(get "search/reports?report_type=$type&page_size=100" | jq -r '.results[].report_slug | @uri' | shuf -n "$PER_TYPE") || {
+    echo "API failed: search/reports?report_type=$type"
+    continue
+  }
   for slug in $slugs; do
-    url=$(get "reports/$slug" | jq -r .official_record_url)
+    url=$(get "reports/$slug" | jq -r .official_record_url) || {
+      echo "API failed: reports/$slug"
+      continue
+    }
     sleep "$DELAY"
     status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$url" || true)
     echo "$status $type $url" >&2
