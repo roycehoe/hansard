@@ -31,6 +31,10 @@ The website at [openhansard.sg](https://openhansard.sg) takes each report from S
 
 Email royceinbox@hotmail.com, or use the "Report an error" link beside any speech, which opens an email with that speech's link filled in. To report in public, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml).
 
+## Who runs it
+
+One person, Royce Hoe, runs the site. He fixes an error the archive introduced within 7 days of a report and takes a Report off the site within 2 working days if Parliament asks ([docs/corrections.md](docs/corrections.md)).
+
 ## How it was built
 
 [docs/how-this-was-built.md](docs/how-this-was-built.md) describes how the code was written and the audits that checked it.
