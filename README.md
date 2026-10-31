@@ -33,7 +33,7 @@ Email royceinbox@hotmail.com, or use the "Report an error" link beside any speec
 
 ## Who runs it
 
-One person, Royce Hoe, runs the site. He fixes an error the archive introduced within 7 days of a report and takes a Report off the site within 2 working days if Parliament asks ([docs/corrections.md](docs/corrections.md)).
+One person, Royce Hoe, runs the site. He fixes an error the archive introduced within 7 days of a report and takes a report off the site within 2 working days if Parliament asks ([docs/corrections.md](docs/corrections.md)).
 
 ## How it was built
 
