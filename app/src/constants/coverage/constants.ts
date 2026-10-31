@@ -81,6 +81,21 @@ export const HOW_THIS_WAS_BUILT_URL = `${SOURCE_CODE_URL}/blob/master/docs/how-t
 
 export const CORRECTIONS_LOG_URL = `${SOURCE_CODE_URL}/blob/master/docs/corrections.md`
 
+export const ORIENTATION_PARAGRAPHS = [
+  {
+    language: 'zh',
+    text: '本站是新加坡国会辩论（1955年起）的非官方存档，界面只有英文。内容取自国会网站上的 Official Report，可能与原文有出入。引用前应先核对 Official Report。',
+  },
+  {
+    language: 'ms',
+    text: 'Laman ini ialah arkib tidak rasmi perbahasan Parlimen Singapura sejak 1955. Laman ini hanya dalam bahasa Inggeris. Teks disalin daripada Official Report di laman web Parlimen dan mungkin berbeza daripadanya. Semak Official Report sebelum memetik teks ini.',
+  },
+  {
+    language: 'ta',
+    text: 'இந்தத் தளம் 1955 முதல் சிங்கப்பூர் நாடாளுமன்ற விவாதங்களின் அதிகாரப்பூர்வமற்ற காப்பகம். தளம் ஆங்கிலத்தில் மட்டுமே உள்ளது. உரை நாடாளுமன்ற இணையதளத்தில் உள்ள Official Report-இலிருந்து நகலெடுக்கப்பட்டது, அதிலிருந்து வேறுபடலாம். மேற்கோள் காட்டுவதற்கு முன் Official Report-ஐச் சரிபார்க்கவும்.',
+  },
+] as const
+
 export const ATTRIBUTION_BY_PARLIAMENT = [
   {
     parliament: `${LEGISLATIVE_ASSEMBLY_LABEL} to Parliament 11`,

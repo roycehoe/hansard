@@ -15,6 +15,7 @@ import {
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
 } from '@/constants/constants'
+import { ORIENTATION_PARAGRAPHS } from '@/constants/coverage/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -126,6 +127,12 @@ export const Route = createFileRoute('/coverage/')({
             covers how far to trust the text, the full counts, the known gaps
             and how to cite.
           </p>
+
+          {ORIENTATION_PARAGRAPHS.map((paragraph) => (
+            <p key={paragraph.language} lang={paragraph.language}>
+              {paragraph.text}
+            </p>
+          ))}
         </div>
 
         <div className="border-separator text-muted-foreground space-y-2 border-t pt-6 text-sm">
