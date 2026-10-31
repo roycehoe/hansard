@@ -28,3 +28,7 @@ dist/
 
 # Planning notes stay local
 plans/
+
+# Playwright
+app/test-results/
+app/playwright-report/
