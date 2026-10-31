@@ -35,6 +35,10 @@ Email royceinbox@hotmail.com, or use the "Report an error" link beside any speec
 
 [docs/how-this-was-built.md](docs/how-this-was-built.md) describes how the code was written and the audits that checked it.
 
+## User testing
+
+[docs/user-testing.md](docs/user-testing.md) records the usability sessions: the date, how many people took part, the tasks, where each got stuck and what changed.
+
 ## Run it locally
 
 To run it you need Node 24 with pnpm, Python 3.15 with uv, and a copy of the scraper's database. The [hansard-scraper README](https://github.com/roycehoe/hansard-scraper#setup) explains how to build one.
