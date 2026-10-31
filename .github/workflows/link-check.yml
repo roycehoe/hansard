@@ -1,0 +1,33 @@
+name: Link check
+
+on:
+  schedule:
+    - cron: "41 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      ISSUE_TITLE: Official Report links are failing
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Check a sample of Official Report links
+        run: scripts/link-check.sh > failures.txt
+      - name: Open an issue, or comment on the open one
+        run: |
+          [ -s failures.txt ] || exit 0
+          body=$(printf 'These Official Report links did not answer 2xx or 3xx (%s):\n\n```\n%s\n```\n' "$RUN_URL" "$(cat failures.txt)")
+          open=$(gh issue list --state open --search "\"$ISSUE_TITLE\" in:title" --json number --jq '.[0].number')
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --body "$body"
+          else
+            gh issue create --title "$ISSUE_TITLE" --body "$body"
+          fi
