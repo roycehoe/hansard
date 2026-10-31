@@ -46,6 +46,16 @@ The largest example is `hansard-user-stories`. It had 27 steps, an audit with no
 
 A model ran every check above. Royce has not yet read a sample of rows himself, and the methods page on the site says no person has read the checked rows.
 
+## How each change was reviewed
+
+Changes go straight to `master`. The exceptions are two pull requests merged on 17 October and three launch-build branches merged on 18 and 19 October. One person works on the project, so no second person reviews a change before it lands.
+
+A large feature goes through the steps in "How the work ran": an audit of the execution plan, a validation pass over the commits and a fresh Opus session over the whole change. The audit and validation reports sit in `plans/`, which git ignores, so they are not in this repository. Four features have both reports: `hansard-user-stories`, `coverage-revamp`, `exact-form-quotes` and `coverage-precompute`.
+
+When a review finds something, the fix is its own commit. Six commits titled "refactor: apply convention review findings", made from 17 to 22 October, are that trace in the history.
+
+A small change gets no written review. CI must pass before the deploy job runs, and after each deploy a smoke test requests four live URLs.
+
 ## What CI checks and what it does not
 
 `api/tests/` holds a pytest suite, and `app/src/lib/` holds vitest unit tests on the pure functions. CI (`.github/workflows/ci.yml`) runs on every push and pull request. The `app` job runs lint, the Prettier format check, the palette contrast check, the unit tests, the build and a size limit on the first-load JavaScript. The `api` job runs the ruff check, the format check and the tests that need no database. Its contract check compares the API's response schemas with the frontend's interfaces, and it does not compare enum values. The `schema-drift` job builds the scraper's tables with the scraper's migrations in a throwaway Postgres and runs the API's `schema_drift` tests against them.

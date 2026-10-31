@@ -6,7 +6,7 @@ What each file here is for and who reads it. The code's conventions are in `CLAU
 
 | File | What it is | Who reads it |
 | --- | --- | --- |
-| `how-this-was-built.md` | Royce's statement of how AI tools built the site, and which audits checked it. | Visitors and reviewers |
+| `how-this-was-built.md` | Royce's statement of how AI tools built the site, which audits checked it and how each change was reviewed. | Visitors and reviewers |
 | `corrections.md` | How an error is reported and the fix for each one reported so far. | Visitors, and Royce when he fixes one |
 | `takedown.md` | Public mode and the takedown list: what each setting hides and how a report comes down. | Royce, when he runs the site |
 | `api-database-role.md` | The SQL that creates the API's read-only Postgres role. Royce runs it on the remote database. | Royce, and anyone changing database access |
