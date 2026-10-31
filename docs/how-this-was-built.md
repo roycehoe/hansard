@@ -58,9 +58,9 @@ A small change gets no written review. CI must pass before the deploy job runs, 
 
 ## What CI checks and what it does not
 
-`api/tests/` holds a pytest suite, and `app/src/lib/` holds vitest unit tests on the pure functions. CI (`.github/workflows/ci.yml`) runs on every push and pull request. The `app` job runs lint, the Prettier format check, the palette contrast check, the unit tests, the build and a size limit on the first-load JavaScript. The `api` job runs the ruff check, the format check and the tests that need no database. Its contract check compares the API's response schemas with the frontend's interfaces, and it does not compare enum values. The `schema-drift` job builds the scraper's tables with the scraper's migrations in a throwaway Postgres and runs the API's `schema_drift` tests against them.
+`api/tests/` holds a pytest suite, and `app/src/lib/` holds vitest unit tests on the pure functions. CI (`.github/workflows/ci.yml`) runs on every push and pull request. The `app` job runs lint, the Prettier format check, the palette contrast check, the unit tests, the build and a size limit on the first-load JavaScript. The `api` job runs the ruff check, the format check and the tests that need no database. Its contract check compares the API's response schemas with the frontend's interfaces, and it does not compare enum values. The `schema-drift` job builds the scraper's tables with the scraper's migrations in a throwaway Postgres and runs the API's `schema_drift` tests against them. After a deploy, the `live-site` job opens the home page, a report and a search in headless Chrome. It checks that a heading shows, that the console has no errors and that axe finds no WCAG A or AA violations. The deploy does not wait for it.
 
-The API tests marked `database` read real rows, so they run only against a local copy of the database. There are no component tests and no browser tests.
+The API tests marked `database` read real rows, so they run only against a local copy of the database. There are no component tests, and the only browser test is the `live-site` job's.
 
 ## What the site does not do
 

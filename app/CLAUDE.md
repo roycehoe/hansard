@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `app/` is the React frontend for Open Hansard, the web app at openhansard.sg for browsing Singapore Parliament Hansard records. The data lives in a Postgres database owned by a separate scraper repo. `api/` (a sibling of `app/`) is a read-only FastAPI backend that serves that data. This frontend talks only to `api/`.
 
-Tests are unit tests on the pure functions in `src/lib/`, next to the code as `<name>.test.ts`. There are no component tests, no Playwright, no Storybook and no auth.
+Tests are unit tests on the pure functions in `src/lib/`, next to the code as `<name>.test.ts`. There are no component tests, no Storybook and no auth. The one exception is `e2e/live-site.spec.ts`, a Playwright test against openhansard.sg that CI runs after each deploy with `pnpm e2e`. `pnpm test` does not run it.
 
 **Stack**
 
