@@ -16,6 +16,7 @@
     "format": "prettier --write .",
     "palette": "node scripts/generate-palette.ts",
     "contrast": "node scripts/generate-palette.ts --check && node scripts/contrast.ts",
+    "size": "node scripts/bundle-size.ts",
     "preview": "vite preview"
   },
   "dependencies": {

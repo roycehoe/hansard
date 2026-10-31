@@ -29,6 +29,7 @@ jobs:
       - run: pnpm contrast
       - run: pnpm test
       - run: pnpm build
+      - run: pnpm size
 
   api:
     runs-on: ubuntu-latest
