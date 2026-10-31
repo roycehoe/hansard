@@ -3,6 +3,8 @@
   <img alt="Open Hansard" src="docs/images/banner-light.svg">
 </picture>
 
+Open Hansard is for people who look up what a member of Singapore's Parliament said and need to cite it, such as researchers and lawyers. On the Official Report at [SPRS](https://sprs.parl.gov.sg/search/), each report is one page of text, and a speaker is a printed name with no link to the member.
+
 The website at [openhansard.sg](https://openhansard.sg) takes each report from Singapore's Official Report and shows it as speeches. It links each speech to the person who gave it, when the speaker label is enough to tell who spoke.
 
 [Open the site](https://openhansard.sg) · [Coverage](https://openhansard.sg/coverage) · [Data quality and methods](https://openhansard.sg/coverage/methods)
