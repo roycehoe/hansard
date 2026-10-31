@@ -34,6 +34,7 @@ From `api/`:
 ```bash
 uv run ruff check .
 uv run ruff format --check .
+uv run basedpyright
 uv run pytest -m "not database"
 ```
 

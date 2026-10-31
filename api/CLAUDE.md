@@ -22,6 +22,9 @@ uv run ruff check .
 
 # Format (run before every commit)
 uv run ruff format .
+
+# Type check (fails only on errors not in .basedpyright/baseline.json)
+uv run basedpyright
 ```
 
 Dependencies: `fastapi[standard]`, `sqlmodel`, `pydantic-settings`, `psycopg` (v3).
@@ -119,7 +122,7 @@ Notes on the layers that matter now:
 - **Searches and `search.busy` refusals are counted in process memory**, for the load test only. `services/search_count.py` keys each count by Singapore date and `SearchEndpoint` (speech search, report search, matched words). `search_count` is every request that asked for a search slot, refused ones included; a search answered from the response cache or by Cloudflare never asks, so it is not counted. `refusal_count` is the ones answered `429 search.busy`. It keeps at most 10,000 keys and loses them on restart or deploy. `GET /search-counts` reads them; the load test reads it before and after one run. For live traffic, read the `search-busy` event in GoatCounter instead (the app sends it when a busy notice shows).
 - **`crud/` is read-only here.** The rules in `STYLE.md` about CRUD writes stay in the guide, but this API has no write path.
 - **Raw SQL** is limited to the database tests (seeding and reading `refresh_run`, the read-only write checks, the `SHOW statement_timeout` check and the phrase search test's truth query). Everything else goes through SQLModel.
-- **Do not run `mypy`.** Only `ruff` is used for static analysis.
+- **`basedpyright` is the type checker; do not run `mypy`.** `ruff` covers lint and format. `uv run basedpyright` runs in CI in `standard` mode (`[tool.basedpyright]` in `pyproject.toml`), against `.basedpyright/baseline.json`, which holds the 226 errors present when the check was added (mostly SQLModel typing, such as `.desc()` on a datetime column). CI fails on an error not in the baseline. After you fix baselined errors, run `uv run basedpyright --writebaseline` and commit the smaller file. Never run it to hide a new error.
 
 ## Environment variables
 
