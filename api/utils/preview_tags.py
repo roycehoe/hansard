@@ -1,7 +1,9 @@
 import json
+import re
 from datetime import date
 from html import escape
 from typing import Optional
+from urllib.parse import quote
 
 from utils.sitting_date import get_sitting_date_label
 
@@ -28,6 +30,12 @@ _STRUCTURED_DATA_SCRIPT_START = '<script type="application/ld+json">'
 _STRUCTURED_DATA_SCRIPT_END = "</script>"
 _SCRIPT_TAG_OPENER = "<"
 _ESCAPED_SCRIPT_TAG_OPENER = "\\u003c"
+_NO_PRELOAD = ""
+_REPORT_PAGE_PATH = re.compile(r"^/reports/([^/]+)$")
+# NOTE: the site serves the API under /api (website.py), and the Dockerfile builds the frontend with VITE_API_URL=/api, so this is the base that app/src/api/client.ts puts in front of every path
+_API_PATH_PREFIX = "/api"
+# NOTE: the characters encodeURIComponent in app/src/api/reports/getReport.ts leaves as they are, besides letters, digits and "-_.~" which quote already keeps
+_URI_COMPONENT_SAFE_CHARACTERS = "!*'()"
 
 
 def _get_page_title(title: str) -> str:
@@ -106,12 +114,23 @@ def get_structured_data_html(
     return _NO_STRUCTURED_DATA
 
 
+# NOTE: the browser reuses a preload only if its URL, request mode and credentials match the app's own fetch. The app calls fetch() with the default mode (cors) and credentials (same-origin), which is what as="fetch" with crossorigin="anonymous" asks for, and it sends no headers on a GET
+def get_report_data_preload_html(page_path: str) -> str:
+    report_match = _REPORT_PAGE_PATH.match(page_path)
+    if report_match is None:
+        return _NO_PRELOAD
+    report_slug = quote(report_match.group(1), safe=_URI_COMPONENT_SAFE_CHARACTERS)
+    href = f"{_API_PATH_PREFIX}/reports/{report_slug}"
+    return f'<link rel="preload" href="{escape(href)}" as="fetch" crossorigin="anonymous" />'
+
+
 def get_preview_tags_html(
     title: str,
     description: str,
     preview_type: str,
     url: Optional[str],
     structured_data_html: str,
+    report_data_preload_html: str,
 ) -> str:
     tags = [
         f"<title>{escape(_get_page_title(title))}</title>",
@@ -133,7 +152,10 @@ def get_preview_tags_html(
     structured_data_tags = (
         [] if structured_data_html == _NO_STRUCTURED_DATA else [structured_data_html]
     )
-    return _TAG_SEPARATOR.join([*tags, *url_tags, *structured_data_tags])
+    preload_tags = (
+        [] if report_data_preload_html == _NO_PRELOAD else [report_data_preload_html]
+    )
+    return _TAG_SEPARATOR.join([*tags, *url_tags, *structured_data_tags, *preload_tags])
 
 
 def get_index_html_with_preview_tags(index_html: str, preview_tags_html: str) -> str:

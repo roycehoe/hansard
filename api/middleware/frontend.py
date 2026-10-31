@@ -19,6 +19,7 @@ from utils.preview_bot import get_preview_bot_name
 from utils.preview_tags import (
     get_index_html_with_preview_tags,
     get_preview_tags_html,
+    get_report_data_preload_html,
     get_structured_data_html,
 )
 
@@ -38,6 +39,7 @@ _SPEECH_ANCHOR_PARAMETER = "q"
 _URL_SEPARATOR = "/"
 _USER_AGENT_HEADER = "user-agent"
 _NO_STRUCTURED_DATA = ""
+_NO_PRELOAD = ""
 
 
 def _get_page_preview(
@@ -62,6 +64,18 @@ def _get_preview_url(site_url: Optional[str], path: str) -> Optional[str]:
     return f"{site_url.rstrip(_URL_SEPARATOR)}{path}"
 
 
+# NOTE: a report is the only page whose preview carries a sitting date. The page asks for the plain report only while the address has no s or q; with either, the app's request carries a query string whose form depends on how it parses them, and a preload that differs from the request is downloaded for nothing
+def _get_page_preload_html(scope: Scope, preview: PreviewData) -> str:
+    query_params = Request(scope).query_params
+    if (
+        preview.sitting_date is None
+        or _SPEECH_ORDINAL_PARAMETER in query_params
+        or _SPEECH_ANCHOR_PARAMETER in query_params
+    ):
+        return _NO_PRELOAD
+    return get_report_data_preload_html(scope[_PATH_KEY])
+
+
 class FrontendFiles(StaticFiles):
     def __init__(self, directory: Path, site_url: Optional[str]):
         super().__init__(directory=directory, html=True)
@@ -75,13 +89,14 @@ class FrontendFiles(StaticFiles):
             self.site_url, preview.path, preview.report_title, preview.sitting_date
         )
 
-    def _get_preview_tags_html(self, preview: PreviewData) -> str:
+    def _get_preview_tags_html(self, preview: PreviewData, preload_html: str) -> str:
         return get_preview_tags_html(
             preview.title,
             preview.description,
             preview.preview_type,
             _get_preview_url(self.site_url, preview.path),
             self._get_structured_data_html(preview),
+            preload_html,
         )
 
     async def _get_index_response(self, scope: Scope) -> HTMLResponse:
@@ -98,7 +113,10 @@ class FrontendFiles(StaticFiles):
         )
         return HTMLResponse(
             get_index_html_with_preview_tags(
-                self.index_html, self._get_preview_tags_html(preview)
+                self.index_html,
+                self._get_preview_tags_html(
+                    preview, _get_page_preload_html(scope, preview)
+                ),
             ),
             status_code=(
                 status.HTTP_200_OK if preview.is_found else status.HTTP_404_NOT_FOUND
