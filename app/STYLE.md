@@ -274,7 +274,7 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `Sheet`           | A trigger with its side or bottom sheet        | `SheetSiteMenu.tsx`                      |
 | `Row`             | One record rendered as a block in a list       | `RowSpeech.tsx`                          |
 | `ActionBar`       | A group of actions on one record               | `ActionBarSpeechCopy.tsx`                |
-| `Skeleton`        | A page or section's loading shape             | `SkeletonPerson.tsx`                     |
+| `Skeleton`        | A page or section's loading shape              | `SkeletonPerson.tsx`                     |
 | `Icon`            | Icon wrapper components                        | `IconReportType.tsx`                     |
 | `Section`         | A titled block of a page                       | `SectionForms.tsx`                       |
 | `Swatch`          | A colour sample                                | `SwatchColour.tsx`                       |
