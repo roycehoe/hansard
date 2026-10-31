@@ -46,7 +46,7 @@ export function SiteFooter() {
 
   return (
     <footer className="bg-muted text-muted-foreground border-separator border-t">
-      <div className="max-w-page-xl mx-auto flex w-full flex-col gap-3 px-5 py-5 text-sm sm:px-6 md:px-7 md:py-7 lg:flex-row lg:items-center lg:justify-between">
+      <div className="max-w-page-xl mx-auto flex w-full flex-col gap-3 px-5 py-5 text-sm sm:px-6 md:px-7 md:py-7 xl:flex-row xl:items-center xl:justify-between">
         <div className="space-y-1">
           <p className="text-foreground font-medium">
             Not an official Parliament site.
@@ -58,7 +58,7 @@ export function SiteFooter() {
           )}
         </div>
         <nav aria-label="Footer">
-          <ul className="flex flex-wrap gap-x-5 gap-y-1 lg:flex-nowrap">
+          <ul className="flex flex-wrap gap-x-5 gap-y-1 xl:flex-nowrap">
             {FOOTER_LINKS.map((item) => (
               <li key={item.label} className="whitespace-nowrap">
                 {'href' in item ? (
