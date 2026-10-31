@@ -89,11 +89,11 @@ export const Route = createFileRoute('/coverage/')({
           <p>
             This is an unofficial archive of Singapore&apos;s parliamentary
             debates since 1955.{' '}
-            <Link to="/search" className={LINK_CLASS_NAME}>
+            <Link to="/search" className={UNDERLINED_LINK_CLASS_NAME}>
               Search the debates
             </Link>{' '}
             or{' '}
-            <Link to="/people" className={LINK_CLASS_NAME}>
+            <Link to="/people" className={UNDERLINED_LINK_CLASS_NAME}>
               browse the people who spoke
             </Link>
             .
@@ -105,7 +105,7 @@ export const Route = createFileRoute('/coverage/')({
             The text here is copied from the{' '}
             <a
               href={OFFICIAL_RECORD_SEARCH_URL}
-              className={LINK_CLASS_NAME}
+              className={UNDERLINED_LINK_CLASS_NAME}
               target="_blank"
               rel="noreferrer"
             >
@@ -120,7 +120,7 @@ export const Route = createFileRoute('/coverage/')({
             The archive copies each report from the Parliament of
             Singapore&apos;s website, splits it where a new speaker begins and
             matches each speaker to a person where it can.{' '}
-            <Link to="/coverage/methods" className={LINK_CLASS_NAME}>
+            <Link to="/coverage/methods" className={UNDERLINED_LINK_CLASS_NAME}>
               Data quality and methods
             </Link>{' '}
             covers how far to trust the text, the full counts, the known gaps

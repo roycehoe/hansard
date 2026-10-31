@@ -58,7 +58,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
 const LINK_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 underline underline-offset-4'
 
 const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
 
