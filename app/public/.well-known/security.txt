@@ -1,0 +1,5 @@
+Contact: mailto:royceinbox@hotmail.com
+Expires: 2027-10-31T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://openhansard.sg/.well-known/security.txt
+Policy: https://github.com/roycehoe/hansard/blob/master/SECURITY.md
