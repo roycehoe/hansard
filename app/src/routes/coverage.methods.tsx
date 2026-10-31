@@ -638,7 +638,7 @@ export const Route = createFileRoute('/coverage/methods')({
           <p>
             One person, Royce Hoe, runs the site. He fixes an error the archive
             introduced, in the text or in who it credits, within{' '}
-            {CORRECTION_DEADLINE_DAYS} days of a report, and takes a Report off
+            {CORRECTION_DEADLINE_DAYS} days of a report, and takes a report off
             the site within {TAKEDOWN_DEADLINE_WORKING_DAYS} working days if
             Parliament asks.
           </p>
