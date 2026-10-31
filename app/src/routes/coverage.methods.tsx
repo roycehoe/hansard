@@ -37,6 +37,7 @@ import {
   HAND_CHECK_RIGHT_SHARE_UPPER_BOUND,
   HAND_CHECK_UNLINKED_SPEECH_COUNT,
   METHODS_LAST_REVISED,
+  METHODS_PRIVACY_SECTION_ID,
   METHODS_TERMS_SECTION_ID,
   PARLIAMENT_FIFTEEN_FIRST_SITTING,
   PARLIAMENT_FOURTEEN_DISSOLVED,
@@ -577,17 +578,15 @@ export const Route = createFileRoute('/coverage/methods')({
           </p>
         </section>
 
-        {ANALYTICS_URL && (
-          <section
-            aria-labelledby="visitor-counts-heading"
-            className="space-y-4"
-          >
-            <h2
-              id="visitor-counts-heading"
-              className={SECTION_HEADING_CLASS_NAME}
-            >
-              Visitor counts
-            </h2>
+        <section
+          id={METHODS_PRIVACY_SECTION_ID}
+          aria-labelledby="privacy-heading"
+          className="space-y-4"
+        >
+          <h2 id="privacy-heading" className={SECTION_HEADING_CLASS_NAME}>
+            Privacy
+          </h2>
+          {ANALYTICS_URL && (
             <p>
               The site counts visits with{' '}
               <a
@@ -599,14 +598,27 @@ export const Route = createFileRoute('/coverage/methods')({
                 GoatCounter
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
-              . It sets no cookies and stores no IP addresses or other personal
-              data. For each visit it records the page address, the site the
-              visitor came from, the browser, the screen size, and the country
-              and region. Search words are never sent. Copy link and Cite are
-              counted when used, without the text copied.
+              . GoatCounter stores no IP addresses or other personal data. For
+              each visit it records the page address, the site the visitor came
+              from, the browser, the screen size, and the country and region.
+              Search words are never sent. Copy link and Cite are counted when
+              used, without the text copied.
             </p>
-          </section>
-        )}
+          )}
+          <p>
+            The site sets no cookies of its own. Cloudflare, the network in
+            front of the site, sets one cookie, __cf_bm, to tell bots from
+            people. It lasts 30 minutes. Cloudflare and DigitalOcean, which
+            hosts the site, see the IP address of each request.
+          </p>
+          {ANALYTICS_URL && (
+            <p>
+              When a link preview bot, such as WhatsApp or Telegram, fetches a
+              page, the site counts the fetch in GoatCounter under the page
+              address and the bot&apos;s name.
+            </p>
+          )}
+        </section>
 
         <p className="text-muted-foreground border-separator border-t pt-6 text-sm">
           Last revised {formatSittingDate(METHODS_LAST_REVISED)}.

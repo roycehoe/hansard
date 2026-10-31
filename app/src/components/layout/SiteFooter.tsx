@@ -1,14 +1,29 @@
 import { useGetRefresh } from '@/api/refresh/getRefresh'
 import {
+  CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
   RESEARCHERS_FORM_URL,
   SOURCE_CODE_URL,
 } from '@/constants/constants'
+import { METHODS_PRIVACY_SECTION_ID } from '@/constants/coverage/constants'
 import { formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
 
 const FOOTER_LINKS = [
   { label: 'Data quality and methods', to: '/coverage/methods' },
+  ...(CONTACT_EMAIL
+    ? ([
+        {
+          label: 'Report an error or send feedback',
+          href: `mailto:${CONTACT_EMAIL}`,
+        },
+      ] as const)
+    : []),
+  {
+    label: 'Privacy',
+    to: '/coverage/methods',
+    hash: METHODS_PRIVACY_SECTION_ID,
+  },
   { label: 'Palette', to: '/palette' },
   ...(RESEARCHERS_FORM_URL
     ? ([{ label: 'For researchers', to: '/researchers' }] as const)
@@ -44,9 +59,19 @@ export function SiteFooter() {
           <ul className="flex flex-wrap gap-x-5 gap-y-1 lg:flex-nowrap">
             {FOOTER_LINKS.map((item) => (
               <li key={item.label} className="whitespace-nowrap">
-                <Link to={item.to} className={LINK_CLASS_NAME}>
-                  {item.label}
-                </Link>
+                {'href' in item ? (
+                  <a href={item.href} className={LINK_CLASS_NAME}>
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    to={item.to}
+                    hash={'hash' in item ? item.hash : undefined}
+                    className={LINK_CLASS_NAME}
+                  >
+                    {item.label}
+                  </Link>
+                )}
               </li>
             ))}
             {EXTERNAL_FOOTER_LINKS.map((item) => (
