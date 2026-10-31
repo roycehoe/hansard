@@ -3,6 +3,7 @@ import {
   CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
   RESEARCHERS_FORM_URL,
+  SECURITY_POLICY_URL,
   SOURCE_CODE_URL,
 } from '@/constants/constants'
 import { METHODS_PRIVACY_SECTION_ID } from '@/constants/coverage/constants'
@@ -33,6 +34,7 @@ const FOOTER_LINKS = [
 const EXTERNAL_FOOTER_LINKS = [
   { label: 'Official Report', href: OFFICIAL_RECORD_SEARCH_URL },
   { label: 'GitHub', href: SOURCE_CODE_URL },
+  { label: 'Report a vulnerability', href: SECURITY_POLICY_URL },
 ] as const
 
 const LINK_CLASS_NAME =
