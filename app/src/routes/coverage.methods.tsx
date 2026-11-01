@@ -18,11 +18,13 @@ import { ANALYTICS_SITE_URL } from '@/constants/analytics/constants'
 import {
   ABSENCE_DEFINITION,
   ANALYTICS_URL,
+  CONTACT_EMAIL,
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
   TEXT_NOT_IN_ARCHIVE_LABEL,
 } from '@/constants/constants'
 import {
+  ACCESSIBILITY_CHECK_DATE,
   CORRECTION_DEADLINE_DAYS,
   CORRECTIONS_LOG_URL,
   DATA_LOSS_REGISTER_URL,
@@ -650,6 +652,31 @@ export const Route = createFileRoute('/coverage/methods')({
             stays public on GitHub under the MIT licence, so anyone can rebuild
             the database from Parliament&apos;s website.
           </p>
+        </section>
+
+        <section aria-labelledby="accessibility-heading" className="space-y-4">
+          <h2 id="accessibility-heading" className={SECTION_HEADING_CLASS_NAME}>
+            Accessibility
+          </h2>
+          <p>
+            The target is WCAG 2.2 at level AA. After each deploy, axe, an
+            automated checker, tests the home page, a report and a search on the
+            live site. Each build checks every pair of colours against the WCAG
+            contrast minimum. On {formatSittingDate(ACCESSIBILITY_CHECK_DATE)},
+            Royce went through the same three pages with the keyboard alone and
+            with VoiceOver on a Mac, and found no problems. Automated checks
+            find only some failures, and no one who uses a screen reader every
+            day has tested the site.
+          </p>
+          {CONTACT_EMAIL && (
+            <p>
+              To report a problem, email{' '}
+              <a href={`mailto:${CONTACT_EMAIL}`} className={LINK_CLASS_NAME}>
+                {CONTACT_EMAIL}
+              </a>
+              .
+            </p>
+          )}
         </section>
 
         <section
