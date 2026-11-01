@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 
 from sqlmodel import Session
@@ -30,6 +30,7 @@ from utils.speech_link import get_speech_anchor
 from utils.transcript_snippet import get_transcript_snippet
 
 _MAX_COUNTED_MATCHES = 1_000
+_ONE_DAY = timedelta(days=1)
 MAX_SEARCH_PAGE = 50
 _CHAIR_WORD_PATTERN = r"(?i)speaker|chairman"
 _CHAIR_SPEAKER_LABEL_PATTERN = r"(?i)^(the |mr |mdm |madam )?(temporary |deputy )?(deputy ?speaker|speaker|chairman)\M|\((mr |mdm )?(deputy )?speaker\)$"
@@ -278,7 +279,7 @@ def _get_speech_match_count(
             _MAX_COUNTED_MATCHES + 1,
         )
     if current_parliament_first_sitting_date is not None:
-        # NOTE: a window that alone holds more than the cap gives the same capped count as a search of every date
+        # NOTE: the window is counted first and only the speeches before it are counted with what is left of the cap, so no match is read twice and the sum equals a capped count over every date
         match_count_since_current_parliament = CRUDSpeech(
             session
         ).get_count_by_query_filtered(
@@ -296,6 +297,21 @@ def _get_speech_match_count(
         )
         if match_count_since_current_parliament == _MAX_COUNTED_MATCHES + 1:
             return match_count_since_current_parliament
+        return match_count_since_current_parliament + CRUDSpeech(
+            session
+        ).get_count_by_query_filtered(
+            query,
+            parliament_number,
+            date_from,
+            current_parliament_first_sitting_date - _ONE_DAY,
+            report_type,
+            membership_ids,
+            constituency,
+            _get_excluded_speaker_patterns(constituency),
+            excluded_report_ids,
+            report_ids,
+            _MAX_COUNTED_MATCHES + 1 - match_count_since_current_parliament,
+        )
     return CRUDSpeech(session).get_count_by_query_filtered(
         query,
         parliament_number,
