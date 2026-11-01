@@ -292,6 +292,18 @@ class CRUDReport:
         statement = select(func.max(Report.sitting_date))
         return self.session.exec(statement).one()
 
+    def get_max_parliament_number(self) -> Optional[int]:
+        statement = select(func.max(Report.parliament_number))
+        return self.session.exec(statement).one()
+
+    def get_min_sitting_date_by_parliament_number(
+        self, parliament_number: int
+    ) -> Optional[datetime]:
+        statement = select(func.min(Report.sitting_date)).where(
+            Report.parliament_number == parliament_number
+        )
+        return self.session.exec(statement).one()
+
     def get_min_sitting_date_with_text(self) -> Optional[datetime]:
         # NOTE: ordered with LIMIT 1 because min() over the EXISTS filter cannot use the sitting date index and probes speech for every report
         statement = (
