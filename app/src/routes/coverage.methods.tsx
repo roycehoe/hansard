@@ -642,6 +642,14 @@ export const Route = createFileRoute('/coverage/methods')({
             the site within {TAKEDOWN_DEADLINE_WORKING_DAYS} working days if
             Parliament asks.
           </p>
+          <p>
+            If Royce stops working on the site, it keeps running on its own. A
+            daily job adds new sittings until the hosting is no longer paid for
+            or Parliament&apos;s website changes. No one else holds access to
+            the hosting or the database. The code for the site and the scraper
+            stays public on GitHub under the MIT licence, so anyone can rebuild
+            the database from Parliament&apos;s website.
+          </p>
         </section>
 
         <section
