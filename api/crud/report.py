@@ -13,7 +13,7 @@ from sqlalchemy import (
     not_,
 )
 from sqlalchemy.orm import aliased, defer
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from crud.text_search import (
     HEADLINE_OPTIONS,
@@ -300,7 +300,7 @@ class CRUDReport:
             statement = statement.where(
                 Report.sitting_date < max_sitting_date + _ONE_DAY
             )
-        statement = statement.order_by(Report.sitting_date.desc()).limit(1)
+        statement = statement.order_by(col(Report.sitting_date).desc()).limit(1)
         return self.session.exec(statement).first()
 
     def get_min_sitting_date_by_parliament_number(
