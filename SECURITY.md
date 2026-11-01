@@ -18,6 +18,7 @@ In scope:
 Out of scope:
 
 - A wrong credit or missing text in a report. That is a data error, not a vulnerability. See [docs/corrections.md](docs/corrections.md).
+- Denial-of-service attacks and load testing against openhansard.sg.
 - Parliament's sites, including SPRS, and the services the site runs on: DigitalOcean, Cloudflare and GoatCounter. Report those to their operators.
 - The scraper that builds the database. It has its own policy in [roycehoe/hansard-scraper](https://github.com/roycehoe/hansard-scraper/blob/master/SECURITY.md).
 
