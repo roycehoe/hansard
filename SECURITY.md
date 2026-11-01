@@ -4,6 +4,8 @@
 
 Email royceinbox@hotmail.com with "Security" in the subject. Do not open a public issue for a vulnerability.
 
+Or use GitHub's private form: [report a vulnerability](https://github.com/roycehoe/hansard/security/advisories/new).
+
 Say which page, address or file is affected, the steps to reproduce it, and what an attacker could do with it.
 
 Royce Hoe runs the site and reads each report himself.
