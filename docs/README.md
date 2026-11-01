@@ -36,3 +36,4 @@ Read these before changing how the API touches the database, how the site is bra
 | `adr/0006-display-what-the-record-prints.md` | The site shows what the record prints, and our reading goes in a note. |
 | `adr/0007-site-name-and-dataset-name.md` | The website is Open Hansard, and the scraper's dataset keeps the name Singapore Parliamentary Record. |
 | `adr/0008-pages-render-on-the-client.md` | Pages render in the browser only. The server writes the head and never the page text. |
+| `adr/0009-ai-readers-person-judges-flags.md` | Two AI readers read every row of the hand check, and a person judges only the rows they flag. |
