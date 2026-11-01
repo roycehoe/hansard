@@ -84,7 +84,7 @@ export const CORRECTIONS_LOG_URL = `${SOURCE_CODE_URL}/blob/master/docs/correcti
 export const ORIENTATION_PARAGRAPHS = [
   {
     language: 'zh',
-    text: '本站是新加坡国会辩论（1955年起）的非官方存档，界面只有英文。内容取自国会网站上的 Official Report，可能与原文有出入。引用前应先核对 Official Report。',
+    text: '本站是新加坡国会辩论（1955年起）的非官方存档，只有英文版。内容取自国会网站上的 Official Report，可能与原文有出入。引用前应先核对 Official Report。',
   },
   {
     language: 'ms',
