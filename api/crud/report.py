@@ -292,9 +292,16 @@ class CRUDReport:
         statement = select(func.max(Report.sitting_date))
         return self.session.exec(statement).one()
 
-    def get_max_parliament_number(self) -> Optional[int]:
-        statement = select(func.max(Report.parliament_number))
-        return self.session.exec(statement).one()
+    def get_latest_parliament_number_by_max_sitting_date(
+        self, max_sitting_date: Optional[date]
+    ) -> Optional[int]:
+        statement = select(Report.parliament_number)
+        if max_sitting_date is not None:
+            statement = statement.where(
+                Report.sitting_date < max_sitting_date + _ONE_DAY
+            )
+        statement = statement.order_by(Report.sitting_date.desc()).limit(1)
+        return self.session.exec(statement).first()
 
     def get_min_sitting_date_by_parliament_number(
         self, parliament_number: int

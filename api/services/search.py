@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Optional
 
@@ -34,6 +35,18 @@ _ONE_DAY = timedelta(days=1)
 MAX_SEARCH_PAGE = 50
 _CHAIR_WORD_PATTERN = r"(?i)speaker|chairman"
 _CHAIR_SPEAKER_LABEL_PATTERN = r"(?i)^(the |mr |mdm |madam )?(temporary |deputy )?(deputy ?speaker|speaker|chairman)\M|\((mr |mdm )?(deputy )?speaker\)$"
+
+
+@dataclass(frozen=True)
+class _DateRange:
+    date_from: Optional[date]
+    date_to: Optional[date]
+
+
+@dataclass(frozen=True)
+class _SpeechMatches:
+    speeches: list[Speech]
+    match_count: int
 
 
 def _get_membership_ids(
@@ -88,36 +101,99 @@ def _get_report_ids(
     return [_get_validated_report(report_slug, session).id]
 
 
-def _should_search_current_parliament_first(
+def _get_latest_parliament_first_sitting_date(
+    date_to: Optional[date], session: Session
+) -> Optional[date]:
+    latest_parliament_number = CRUDReport(
+        session
+    ).get_latest_parliament_number_by_max_sitting_date(date_to)
+    if latest_parliament_number is None:
+        return None
+    first_sitting_date = CRUDReport(session).get_min_sitting_date_by_parliament_number(
+        latest_parliament_number
+    )
+    if first_sitting_date is None:
+        return None
+    return first_sitting_date.date()
+
+
+def _get_newest_first_date_ranges(
+    parliament_number: Optional[int],
+    date_from: Optional[date],
+    date_to: Optional[date],
+    session: Session,
+) -> list[_DateRange]:
+    if parliament_number is not None:
+        return [_DateRange(date_from, date_to)]
+    first_sitting_date = _get_latest_parliament_first_sitting_date(date_to, session)
+    if first_sitting_date is None:
+        return [_DateRange(date_from, date_to)]
+    if date_from is not None and first_sitting_date <= date_from:
+        return [_DateRange(date_from, date_to)]
+    # NOTE: the latest Parliament the search reaches, then everything older in one step, because walking each older Parliament on its own cost up to 54 statements and 218 ms for a word last common before 1965, against 5 statements and 35 ms
+    return [
+        _DateRange(first_sitting_date, date_to),
+        _DateRange(date_from, first_sitting_date - _ONE_DAY),
+    ]
+
+
+def _get_newest_first_speech_matches(
     query: str,
     parliament_number: Optional[int],
     date_from: Optional[date],
     date_to: Optional[date],
     report_type: Optional[ReportType],
     membership_ids: Optional[list[int]],
+    constituency: Optional[str],
+    excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
-) -> bool:
-    return (
-        not _is_query_without_search_words(query)
-        and parliament_number is None
-        and date_from is None
-        and date_to is None
-        and report_type is None
-        and membership_ids is None
-        and report_ids is None
-    )
-
-
-def _get_current_parliament_first_sitting_date(session: Session) -> Optional[date]:
-    max_parliament_number = CRUDReport(session).get_max_parliament_number()
-    if max_parliament_number is None:
-        return None
-    min_sitting_date_by_parliament_number = CRUDReport(
-        session
-    ).get_min_sitting_date_by_parliament_number(max_parliament_number)
-    if min_sitting_date_by_parliament_number is None:
-        return None
-    return min_sitting_date_by_parliament_number.date()
+    limit: int,
+    offset: int,
+    session: Session,
+) -> _SpeechMatches:
+    # NOTE: newest first is the latest Parliament's matches and then the older ones, so each range is counted up to what is left of the cap to place the page's offset in it, and the walk stops once it holds the page and 1,001 matches, so a common word reads and sorts only the latest Parliament's matches; the cap grows to the page's end when a page size above 20 reaches past the 1,001st match
+    match_limit = max(_MAX_COUNTED_MATCHES + 1, offset + limit)
+    speeches: list[Speech] = []
+    match_count = 0
+    for date_range in _get_newest_first_date_ranges(
+        parliament_number, date_from, date_to, session
+    ):
+        range_match_count = CRUDSpeech(session).get_count_by_query_filtered(
+            query,
+            parliament_number,
+            date_range.date_from,
+            date_range.date_to,
+            report_type,
+            membership_ids,
+            constituency,
+            _get_excluded_speaker_patterns(constituency),
+            excluded_report_ids,
+            report_ids,
+            match_limit - match_count,
+        )
+        range_offset = max(offset - match_count, 0)
+        if len(speeches) < limit and range_offset < range_match_count:
+            speeches.extend(
+                CRUDSpeech(session).get_all_by_query_filtered(
+                    query,
+                    parliament_number,
+                    date_range.date_from,
+                    date_range.date_to,
+                    report_type,
+                    membership_ids,
+                    constituency,
+                    _get_excluded_speaker_patterns(constituency),
+                    excluded_report_ids,
+                    report_ids,
+                    SearchSort.DATE,
+                    limit - len(speeches),
+                    range_offset,
+                )
+            )
+        match_count += range_match_count
+        if match_count == match_limit:
+            break
+    return _SpeechMatches(speeches, match_count)
 
 
 def _get_speeches(
@@ -130,7 +206,6 @@ def _get_speeches(
     constituency: Optional[str],
     excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
-    current_parliament_first_sitting_date: Optional[date],
     sort: SearchSort,
     limit: int,
     offset: int,
@@ -164,27 +239,6 @@ def _get_speeches(
             limit,
             offset,
         )
-    if sort == SearchSort.DATE and current_parliament_first_sitting_date is not None:
-        # NOTE: a lower date bound keeps only the newest matches, so a full page of them is the same page a search of every date returns, and rum sorts only the matches in the window
-        speeches_since_current_parliament = CRUDSpeech(
-            session
-        ).get_all_by_query_filtered(
-            query,
-            parliament_number,
-            current_parliament_first_sitting_date,
-            date_to,
-            report_type,
-            membership_ids,
-            constituency,
-            _get_excluded_speaker_patterns(constituency),
-            excluded_report_ids,
-            report_ids,
-            sort,
-            limit,
-            offset,
-        )
-        if len(speeches_since_current_parliament) == limit:
-            return speeches_since_current_parliament
     return CRUDSpeech(session).get_all_by_query_filtered(
         query,
         parliament_number,
@@ -251,7 +305,6 @@ def _get_speech_match_count(
     constituency: Optional[str],
     excluded_report_ids: list[int],
     report_ids: Optional[list[int]],
-    current_parliament_first_sitting_date: Optional[date],
     session: Session,
 ) -> int:
     if _is_query_without_search_words(query):
@@ -278,41 +331,7 @@ def _get_speech_match_count(
             report_ids,
             _MAX_COUNTED_MATCHES + 1,
         )
-    if current_parliament_first_sitting_date is not None:
-        # NOTE: the window is counted first and only the speeches before it are counted with what is left of the cap, so no match is read twice and the sum equals a capped count over every date
-        match_count_since_current_parliament = CRUDSpeech(
-            session
-        ).get_count_by_query_filtered(
-            query,
-            parliament_number,
-            current_parliament_first_sitting_date,
-            date_to,
-            report_type,
-            membership_ids,
-            constituency,
-            _get_excluded_speaker_patterns(constituency),
-            excluded_report_ids,
-            report_ids,
-            _MAX_COUNTED_MATCHES + 1,
-        )
-        if match_count_since_current_parliament == _MAX_COUNTED_MATCHES + 1:
-            return match_count_since_current_parliament
-        return match_count_since_current_parliament + CRUDSpeech(
-            session
-        ).get_count_by_query_filtered(
-            query,
-            parliament_number,
-            date_from,
-            current_parliament_first_sitting_date - _ONE_DAY,
-            report_type,
-            membership_ids,
-            constituency,
-            _get_excluded_speaker_patterns(constituency),
-            excluded_report_ids,
-            report_ids,
-            _MAX_COUNTED_MATCHES + 1 - match_count_since_current_parliament,
-        )
-    return CRUDSpeech(session).get_count_by_query_filtered(
+    return _get_newest_first_speech_matches(
         query,
         parliament_number,
         date_from,
@@ -320,11 +339,12 @@ def _get_speech_match_count(
         report_type,
         membership_ids,
         constituency,
-        _get_excluded_speaker_patterns(constituency),
         excluded_report_ids,
         report_ids,
-        _MAX_COUNTED_MATCHES + 1,
-    )
+        0,
+        0,
+        session,
+    ).match_count
 
 
 def _get_report_match_count(
@@ -454,39 +474,8 @@ def search_speeches(
         membership_ids = _get_membership_ids(person_id, constituency, session)
         excluded_report_ids = get_taken_down_report_ids(session)
         report_ids = _get_report_ids(report_slug, session)
-        current_parliament_first_sitting_date = (
-            _get_current_parliament_first_sitting_date(session)
-            if _should_search_current_parliament_first(
-                query,
-                parliament_number,
-                date_from,
-                date_to,
-                report_type,
-                membership_ids,
-                report_ids,
-            )
-            else None
-        )
-        speeches = _get_speeches(
-            query,
-            parliament_number,
-            date_from,
-            date_to,
-            report_type,
-            membership_ids,
-            constituency,
-            excluded_report_ids,
-            report_ids,
-            current_parliament_first_sitting_date,
-            sort,
-            page_size + 1,
-            (page - 1) * page_size,
-            session,
-        )
-        match_count = (
-            len(speeches)
-            if page == 1 and len(speeches) <= page_size
-            else _get_speech_match_count(
+        if sort == SearchSort.DATE and not _is_query_without_search_words(query):
+            newest_first_speech_matches = _get_newest_first_speech_matches(
                 query,
                 parliament_number,
                 date_from,
@@ -496,10 +485,44 @@ def search_speeches(
                 constituency,
                 excluded_report_ids,
                 report_ids,
-                current_parliament_first_sitting_date,
+                page_size + 1,
+                (page - 1) * page_size,
                 session,
             )
-        )
+            speeches = newest_first_speech_matches.speeches
+            match_count = newest_first_speech_matches.match_count
+        else:
+            speeches = _get_speeches(
+                query,
+                parliament_number,
+                date_from,
+                date_to,
+                report_type,
+                membership_ids,
+                constituency,
+                excluded_report_ids,
+                report_ids,
+                sort,
+                page_size + 1,
+                (page - 1) * page_size,
+                session,
+            )
+            match_count = (
+                len(speeches)
+                if page == 1 and len(speeches) <= page_size
+                else _get_speech_match_count(
+                    query,
+                    parliament_number,
+                    date_from,
+                    date_to,
+                    report_type,
+                    membership_ids,
+                    constituency,
+                    excluded_report_ids,
+                    report_ids,
+                    session,
+                )
+            )
         page_speeches = speeches[:page_size]
         if _is_query_without_search_words(query):
             speech_id_to_snippet = {
