@@ -25,7 +25,7 @@ from utils.markdown_text import strip_markdown
 from utils.marked_words import get_headline_without_nested_marks
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
-from utils.search_query import get_search_query_groups, is_query_only_excluded_words
+from utils.search_query import is_query_only_excluded_words
 from utils.speech_link import get_speech_anchor
 from utils.transcript_snippet import get_transcript_snippet
 
@@ -96,10 +96,8 @@ def _should_search_current_parliament_first(
     membership_ids: Optional[list[int]],
     report_ids: Optional[list[int]],
 ) -> bool:
-    # NOTE: a search with OR is left out, because its quoted groups add a second full-text condition, and with a date range rum's bitmap scan then drops matches
     return (
         not _is_query_without_search_words(query)
-        and len(get_search_query_groups(query)) == 1
         and parliament_number is None
         and date_from is None
         and date_to is None
