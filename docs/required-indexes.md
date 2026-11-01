@@ -431,6 +431,8 @@ Since 1 November 2026 a word search with no OR and no Parliament, date, report t
 
 The same fault hit a quoted OR search with a date range or a Parliament until a later fix on 1 November 2026. Its WHERE checks the whole query and then each OR group, and Postgres gave each bitmap scan of this index both checks at once. rum 1.3.15 drops rows from a scan that holds two full-text conditions when one of them is a phrase. Each group is now checked with `ts_match_vq(...)`, the function `@@` calls, which Postgres never reads as an index condition, so a scan of this index carries one full-text condition. A quoted OR search with a hyphenated word is also ranked after filtering now, because without the per-group scans Postgres can take its relevance order from `ix_speech_transcript_tsv_rum`, which orders a phrase such as covid-19 differently from its distance. On the replica, 47 of 70 quoted OR searches with a date range or a Parliament were wrong before the fix, losing a median of 2.4% of their matches and 24% for `"prime minister" OR covid` in 2019. After it, every page, capped count and per-report count of 255 searches matched a truth query that never reads a rum index.
 
+That fix let Postgres take a quoted OR search's relevance order from `ix_speech_transcript_tsv_rum`, with the whole query as the scan's condition and the ranking query as its order, and that scan dropped rows the same way: `"prime minister" OR "deputy prime minister"` lost speech 1355063 from page 1, and 3 of 18 quoted OR searches were wrong on 13 of 162 relevance pages. A second fix the same day ranks every quoted OR search after filtering, and all 162 pages then matched the truth. Relevance with no filter or a Parliament pays for it: page 1 of `"government" OR housing` went from 213 to 1,015 ms, `"government" OR "minister"` from 283 to 1,243 ms and `"mr speaker" OR sir` from 305 to 722 ms, medians on the replica. With a report type the difference stays within 50 ms.
+
 The index cannot order by relevance: it holds no word positions, so `<=>` against the query is not an index order. Relevance keeps `ix_speech_transcript_tsv_rum`. The scraper's ADR 0010 records why the date is a copy on `speech` and how the copy is kept in step.
 
 The API's `Speech` model reads `speech.sitting_date`, so the API must not deploy before migration `c93f77e499cc` has run on production: every statement that selects a speech would fail on the missing column. It ran there on 18 October 2026.
@@ -610,7 +612,7 @@ The `ORDER BY` clauses of `GET /search/speeches` with search words, from `api/cr
 -- relevance
 ORDER BY speech.transcript_tsv <=> websearch_to_tsquery('english', 'government'), speech.sitting_date DESC, speech.id
 
--- relevance, with a date range or a member filter
+-- relevance, with a date range, a member filter or a quoted OR search
 ORDER BY (speech.transcript_tsv <=> websearch_to_tsquery('english', 'government')) + 0, speech.sitting_date DESC, speech.id
 
 -- newest first
