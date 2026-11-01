@@ -130,6 +130,10 @@ def is_quote_in_query(query: str) -> bool:
     return any(quote in query for quote in _QUOTE_CHARACTERS)
 
 
+def is_quoted_or_query(query: str) -> bool:
+    return len(get_search_query_groups(query)) > 1 and is_quote_in_query(query)
+
+
 def is_hyphenated_word_in_query(query: str) -> bool:
     return any(
         _HYPHEN in word

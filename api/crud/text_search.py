@@ -110,8 +110,9 @@ def _get_exact_form_filters(
 def _get_group_match(
     group: SearchQueryGroup, tsv_column: ColumnElement, text_column: ColumnElement
 ) -> ColumnElement:
+    # NOTE: the function form of @@, because as a second @@ beside the whole query's, Postgres hands the rum index both in one scan, and rum 1.3.15 drops matches when one of them is a phrase; a function call is never an index condition, so each group is checked row by row
     return and_(
-        tsv_column.op("@@")(_get_group_tsquery(group)),
+        func.ts_match_vq(tsv_column, _get_group_tsquery(group)),
         *_get_exact_form_filters(group, text_column),
     )
 
