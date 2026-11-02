@@ -132,8 +132,6 @@ export const ORIENTATION_PARAGRAPHS = [
   },
 ] as const
 
-export const CORRECTION_DEADLINE_DAYS = 7
-
 export const TAKEDOWN_DEADLINE_WORKING_DAYS = 2
 
 export const ATTRIBUTION_BY_PARLIAMENT = [

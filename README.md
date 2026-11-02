@@ -47,7 +47,7 @@ Email royceinbox@hotmail.com, or use the "Report an error" link beside any speec
 
 ## Who runs it
 
-One person, Royce Hoe, runs the site. He fixes an error the archive introduced within 7 days of a report and takes a report off the site within 2 working days if Parliament asks ([docs/corrections.md](docs/corrections.md)).
+One person, Royce Hoe, runs the site. He fixes an error the archive introduced, in the text or in who it credits, and takes a report off the site within 2 working days if Parliament asks ([docs/corrections.md](docs/corrections.md)).
 
 If Royce stops working on the site, it keeps running on its own. A daily job adds new sittings until the hosting is no longer paid for or Parliament's website changes. No one else holds access to the hosting or the database. The code for the site and the scraper stays public on GitHub under the MIT licence, so anyone can rebuild the database from Parliament's website.
 

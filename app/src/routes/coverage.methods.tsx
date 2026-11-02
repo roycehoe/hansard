@@ -25,7 +25,6 @@ import {
 } from '@/constants/constants'
 import {
   ACCESSIBILITY_CHECK_DATE,
-  CORRECTION_DEADLINE_DAYS,
   CORRECTIONS_LOG_URL,
   DATA_LOSS_REGISTER_URL,
   ERROR_BOUND_RESAMPLE_COUNT,
@@ -707,8 +706,7 @@ export const Route = createFileRoute('/coverage/methods')({
           </h2>
           <p>
             One person, Royce Hoe, runs the site. He fixes an error the archive
-            introduced, in the text or in who it credits, within{' '}
-            {CORRECTION_DEADLINE_DAYS} days of a report, and takes a report off
+            introduced, in the text or in who it credits, and takes a report off
             the site within {TAKEDOWN_DEADLINE_WORKING_DAYS} working days if
             Parliament asks.
           </p>
