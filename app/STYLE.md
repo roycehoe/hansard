@@ -1488,10 +1488,19 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 - **No em dashes.** Use the real ellipsis character (…), only for an in-progress label such as "Retrying…". Never three dots.
 - **House choices where sources disagree:**
   - Contractions are fine ("Couldn't load the speeches"): they match the existing copy and Microsoft's guide, though GOV.UK avoids them.
-  - No first person ("we", "I", "our"): state the fact, since the app is a record, not a speaker.
+  - No first person ("we", "I", "our") in interface strings or on record pages: state the fact, since the app is a record, not a speaker. Explanatory pages are the exception, under [Explanatory pages](#explanatory-pages).
   - No "please" and no "sorry": neither helps the reader fix anything.
   - No exclamation marks: a records site has no routine milestone to celebrate.
   - Dates keep the format the app already uses; don't introduce a second one.
+
+### Explanatory pages
+
+About the text, Data quality and methods, For researchers and `docs/corrections.md` are prose that Royce writes to the reader. Three rules differ there, because the job of these pages is to explain and to make promises a person stands behind.
+
+- **Write as "I".** Say "I'm Royce" where the page first says "I", and write "I" after that. Leave the surname out of first-person text, because nobody introduces themselves that way. A byline such as "Built and run by Royce Hoe" is a signature and keeps the full name. Never write "we", since one person runs the site. Things the software does keep the archive or the site as their subject ("The archive splits each report into speeches").
+- **Keep the reason.** Over-explaining is a symptom of toasts, notices and labels. On these pages the reason is often the point, so keep the "because" that says why a rule exists or what a figure means.
+- **Write paragraphs, not telegrams.** Vary sentence length, let some sentences run past 20 words, and keep the word that links one sentence to the next. The 15 to 25 word average in plain-language guides is a ceiling to check against, not a target. A run of short sentences of one length with nothing joining them reads as machine-written. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing); [digital.gov, write short sentences](https://digital.gov/guides/plain-language/writing/clear-short).
+  Before: `Royce fixes it and lists each fix in the corrections log, newest first.` After: `Tell me and I'll fix it. Each fix goes in the corrections log, newest first, so you can see what changed and when.`
 
 ### Review checklist
 
@@ -1509,3 +1518,4 @@ Run on every diff that touches a string:
 - `git diff | rg -n '>(Submit|OK|Click here)<|Check your connection|No Results'` returns nothing in added lines.
 - Every added count is formatted with `NUMBER_LOCALE` and has a singular form for 1.
 - Every added figure or claim traces to the API, a constant from the data, or something the app does.
+- On an explanatory page, read each changed paragraph aloud. If it sounds like a telegram or a list, join the sentences that share a subject or a cause.
