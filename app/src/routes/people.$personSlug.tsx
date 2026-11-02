@@ -13,6 +13,7 @@ import { NoticeNotFoundPerson } from '@/components/people/NoticeNotFoundPerson'
 import { SkeletonPerson } from '@/components/people/SkeletonPerson'
 import { TableMemberships } from '@/components/people/TableMemberships'
 import { TableParliamentCounts } from '@/components/people/TableParliamentCounts'
+import { TextHandAliasNote } from '@/components/people/TextHandAliasNote'
 import { SkeletonReportRows } from '@/components/reports/SkeletonReportRows'
 import {
   Breadcrumb,
@@ -24,7 +25,10 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { HTTP_NOT_FOUND, NUMBER_LOCALE } from '@/constants/constants'
-import { PERSON_TITLE_SUFFIX } from '@/constants/people/constants'
+import {
+  PERSON_ID_TO_HAND_ALIAS_NOTE,
+  PERSON_TITLE_SUFFIX,
+} from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { isSittingMember, parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
@@ -181,6 +185,10 @@ export const Route = createFileRoute('/people/$personSlug')({
               Paragraphs and attendance
             </h2>
             <TableParliamentCounts parliamentCounts={data.parliament_counts} />
+            <TextHandAliasNote
+              personName={data.canonical_name}
+              handAliasNote={PERSON_ID_TO_HAND_ALIAS_NOTE[data.person_id]}
+            />
           </section>
         )}
         <section aria-labelledby="reports-heading" className="space-y-4">

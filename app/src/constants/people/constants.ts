@@ -1,3 +1,5 @@
+import type { HandAliasNote } from '@/types/people/interfaces'
+
 export const LATEST_MEMBERSHIP_PARLIAMENT_NUMBER = 15
 
 export const PERSON_TITLE_SUFFIX = 'speeches in Parliament'
@@ -10,3 +12,24 @@ export const MEMBERSHIP_PARLIAMENT_NUMBERS = Array.from(
 // The scraper stores constituency names without the "GRC" or "SMC" suffix
 // that readers often type, so a typed suffix would match nothing.
 export const CONSTITUENCY_SUFFIX_WORDS = new Set(['grc', 'smc'])
+
+const FONG_SIP_CHEE_PERSON_ID = 18
+
+export const PERSON_ID_TO_HAND_ALIAS_NOTE: Partial<
+  Record<number, HandAliasNote>
+> = {
+  [FONG_SIP_CHEE_PERSON_ID]: {
+    sittingDate: '1963-10-22',
+    printedName: 'Mr Andrew Fong (Stamford)',
+    sources: [
+      {
+        label: 'Wikipedia, Fong Sip Chee',
+        url: 'https://en.wikipedia.org/wiki/Fong_Sip_Chee',
+      },
+      {
+        label: 'Wikipedia, 3rd Legislative Assembly of Singapore',
+        url: 'https://en.wikipedia.org/wiki/3rd_Legislative_Assembly_of_Singapore',
+      },
+    ],
+  },
+}

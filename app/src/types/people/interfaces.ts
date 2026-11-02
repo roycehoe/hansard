@@ -20,3 +20,14 @@ export interface PartyNote {
   label: string
   partyAffiliations: PartyAffiliationData[]
 }
+
+export interface HandAliasSource {
+  label: string
+  url: string
+}
+
+export interface HandAliasNote {
+  sittingDate: string
+  printedName: string
+  sources: HandAliasSource[]
+}
