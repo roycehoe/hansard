@@ -400,21 +400,22 @@ export const Route = createFileRoute('/coverage/methods')({
             {HAND_CHECK_FLAGGED_SPEECH_COUNT -
               HAND_CHECK_JUDGED_ONE_AT_A_TIME_SPEECH_COUNT}{' '}
             were flagged for their words alone. An AI model sorted their
-            differences by kind, Royce ruled on each kind, such as a question
-            number the archive leaves out, after reading examples of it, and the
-            model applied his rulings. No person read the other{' '}
+            differences by kind, such as a question number the archive leaves
+            out. Royce read examples of each kind and ruled on it, and the model
+            applied his rulings. No person read the other{' '}
             {(
               HAND_CHECK_SPEECH_COUNT - HAND_CHECK_FLAGGED_SPEECH_COUNT
             ).toLocaleString(NUMBER_LOCALE)}
             . {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
             {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} were
-            credited wrongly: one member&apos;s words were credited to another
-            member, and two procedural lines, a heading and a time stamp, which
-            the record credits to no one, were each credited to a member.{' '}
-            {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had only a stray space or a
-            footnote number in brackets, and none had a word missing, added or
-            changed. Each reader caught all {HAND_CHECK_PLANTED_ERROR_COUNT}{' '}
-            wrong credits planted among the paragraphs to test it.
+            credited wrongly. One member&apos;s words were credited to another
+            member. Four lines that the record credits to no one were each
+            credited to a member. Two were procedural lines, one a heading and
+            one a time stamp. {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had only a
+            stray space or a footnote number in brackets, and none had a word
+            missing, added or changed. Each reader caught all{' '}
+            {HAND_CHECK_PLANTED_ERROR_COUNT} wrong credits planted among the
+            paragraphs to test it.
           </p>
           <p>
             From this check, at 95% confidence, no more than{' '}
