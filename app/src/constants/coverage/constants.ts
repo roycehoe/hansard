@@ -13,6 +13,8 @@ export const METHODS_TERMS_SECTION_ID = 'terms'
 
 export const METHODS_PRIVACY_SECTION_ID = 'privacy'
 
+export const METHODS_ATTRIBUTION_HEADING_ID = 'attribution-heading'
+
 export const ATTRIBUTION_MEASURED_ON = '2026-10-19'
 
 export const HAND_CHECK_DATE = '2026-11-02'

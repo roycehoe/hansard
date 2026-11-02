@@ -4,6 +4,8 @@ export const SOURCE_CODE_URL = 'https://github.com/roycehoe/hansard'
 
 export const SECURITY_POLICY_URL = `${SOURCE_CODE_URL}/blob/master/SECURITY.md`
 
+export const REPORT_ERROR_FORM_URL = `${SOURCE_CODE_URL}/issues/new?template=report-an-error.yml`
+
 export const SCRAPER_SOURCE_CODE_URL =
   'https://github.com/roycehoe/hansard-scraper'
 

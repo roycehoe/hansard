@@ -64,6 +64,7 @@ import {
   LINK_CHECK_REPORT_URL,
   LINK_CHECK_RIGHT_SHARE_LOWER_BOUND,
   LINK_CHECK_RIGHT_SHARE_UPPER_BOUND,
+  METHODS_ATTRIBUTION_HEADING_ID,
   METHODS_LAST_REVISED,
   METHODS_PRIVACY_SECTION_ID,
   METHODS_TERMS_SECTION_ID,
@@ -379,8 +380,14 @@ export const Route = createFileRoute('/coverage/methods')({
 
         {renderCounts()}
 
-        <section aria-labelledby="attribution-heading" className="space-y-4">
-          <h2 id="attribution-heading" className={SECTION_HEADING_CLASS_NAME}>
+        <section
+          aria-labelledby={METHODS_ATTRIBUTION_HEADING_ID}
+          className="space-y-4"
+        >
+          <h2
+            id={METHODS_ATTRIBUTION_HEADING_ID}
+            className={SECTION_HEADING_CLASS_NAME}
+          >
             Who said what
           </h2>
           <p>

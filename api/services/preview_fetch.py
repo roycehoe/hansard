@@ -13,7 +13,7 @@ _OTHER_PATH = "other"
 _PATH_ENCODING = "utf-8"
 _SITE_PATH = re.compile(
     r"/"
-    r"|/coverage|/coverage/methods|/search|/researchers|/design|/palette"
+    r"|/coverage|/coverage/methods|/about|/search|/researchers|/design|/palette"
     r"|/people|/people/\d+(?:-[^/]*)?"
     r"|/sittings|/sittings/\d{4}-\d{2}-\d{2}"
     r"|/reports/[^/]+"

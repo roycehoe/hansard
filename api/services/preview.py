@@ -52,11 +52,13 @@ _URL_SEPARATOR = "/"
 _UNTITLED_PAGE_PATHS = (_HOME_PATH, "/design", "/palette", "/researchers")
 _COVERAGE_PATH = "/coverage"
 _METHODS_PATH = "/coverage/methods"
+_ABOUT_PATH = "/about"
 _SEARCH_PATH = "/search"
 _PEOPLE_PATH = "/people"
 _SITTINGS_PATH = "/sittings"
 _COVERAGE_TITLE = "What the archive covers"
 _METHODS_TITLE = "Data quality and methods"
+_ABOUT_TITLE = "About the text"
 _SEARCH_TITLE = "Search"
 _PEOPLE_TITLE = "People"
 _SITTINGS_TITLE = "Sittings"
@@ -105,6 +107,8 @@ def _get_fixed_page_title(path: str) -> Optional[str]:
         return _COVERAGE_TITLE
     if path == _METHODS_PATH:
         return _METHODS_TITLE
+    if path == _ABOUT_PATH:
+        return _ABOUT_TITLE
     if path == _SEARCH_PATH:
         return _SEARCH_TITLE
     if path == _PEOPLE_PATH:
