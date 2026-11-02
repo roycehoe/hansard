@@ -9,13 +9,13 @@ Errors found in the archive, by an audit or by a reader's report, and the fix fo
 
 ## What happens next
 
-Royce Hoe runs the site and makes each fix. He fixes an error the archive introduced, in the text or in who it credits, and lists the fix below. If Parliament asks for a Report to be removed, he commits to taking it off the site within 2 working days, with no reason needed.
+I'm Royce, and I run the site on my own. When the archive gets a speech's words or its speaker wrong, I fix it and add a row to the log below. If Parliament asks me to take a report down, I do it within 2 working days and don't ask for a reason.
 
 Fixes to the stored text or credits go into [roycehoe/hansard-scraper](https://github.com/roycehoe/hansard-scraper), which owns the database. This site only reads it.
 
 ## Log
 
-Each fix gets a row here, newest first. The Found by column says whether an audit of the data or a reader's report found the error; a dash in Reported means the fix came from an audit. The first rows are the credit changes the scraper stored on 17 and 18 October 2026, in writes #7 to #9. Each has a fuller row in the scraper's [data loss register](https://github.com/roycehoe/hansard-scraper/blob/master/docs/data-loss-register.md).
+Each fix gets a row here, newest first. The Found by column says whether an audit of the data or a reader's report found the error; a dash in Reported means the fix came from an audit. The first rows are the credit changes the scraper stored on 17 and 18 October 2026, in writes #7 to #9. Each has a fuller row in the scraper's [data-loss register](https://github.com/roycehoe/hansard-scraper/blob/master/docs/data-loss-register.md).
 
 | Reported | Fixed | Found by | Report | What was wrong | What changed |
 | --- | --- | --- | --- | --- | --- |

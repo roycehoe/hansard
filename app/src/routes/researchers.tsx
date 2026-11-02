@@ -79,8 +79,8 @@ export const Route = createFileRoute('/researchers')({
             </a>
           </Button>
           <p className="text-muted-foreground text-sm">
-            The answers go to Royce Hoe, who maintains the site, and are used
-            only to decide whether to offer a download.
+            I&apos;m Royce, and I run the site. The answers come to me, and I
+            use them only to decide whether to offer a download.
           </p>
         </section>
       </div>
