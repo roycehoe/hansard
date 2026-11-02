@@ -16,6 +16,7 @@ import {
   CONTACT_EMAIL,
   NUMBER_LOCALE,
   REPORT_ERROR_FORM_URL,
+  RESEARCHERS_FORM_URL,
   SITE_NAME,
 } from '@/constants/constants'
 import {
@@ -260,15 +261,18 @@ export const Route = createFileRoute('/about')({
             .
           </p>
           <p>
-            Do not copy the whole archive through the site.{' '}
-            {CONTACT_EMAIL && (
+            Do not copy the whole archive through the site. There is no bulk
+            download yet.
+            {RESEARCHERS_FORM_URL && (
               <>
-                Bulk copies are by request: email {renderContactEmailLink()} and
-                say what you need and what it is for.{' '}
+                {' '}
+                If you need more than the site gives you, tell me on the{' '}
+                <Link to="/researchers" hash="form-heading">
+                  researchers&apos; form
+                </Link>{' '}
+                what you need and what it is for.
               </>
             )}
-            There is no bulk download yet, because offering one needs
-            Parliament&apos;s permission.
           </p>
         </section>
 

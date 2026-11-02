@@ -62,8 +62,8 @@ export const Route = createFileRoute('/researchers')({
             No download yet
           </h2>
           <p>
-            There is no bulk download. Offering one needs Parliament&apos;s
-            permission, and it waits until enough researchers ask for it.
+            There is no bulk download yet. I&apos;ll offer one once enough
+            researchers ask for it.
           </p>
         </section>
 
