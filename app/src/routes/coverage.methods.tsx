@@ -408,12 +408,11 @@ export const Route = createFileRoute('/coverage/methods')({
             ).toLocaleString(NUMBER_LOCALE)}
             . {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
             {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} were
-            credited wrongly. One member&apos;s words were credited to another
-            member. Four lines that the record credits to no one were each
-            credited to a member. Two were procedural lines, one a heading and
-            one a time stamp. {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had only a
-            stray space or a footnote number in brackets, and none had a word
-            missing, added or changed. Each reader caught all{' '}
+            credited wrongly. In each, the archive credited a member with a line
+            that the record credits to no one. Two were procedural lines, one a
+            heading and one a time stamp. {HAND_CHECK_STRAY_MARK_SPEECH_COUNT}{' '}
+            had only a stray space or a footnote number in brackets, and none
+            had a word missing, added or changed. Each reader caught all{' '}
             {HAND_CHECK_PLANTED_ERROR_COUNT} wrong credits planted among the
             paragraphs to test it.
           </p>
