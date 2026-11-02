@@ -167,8 +167,8 @@ export const Route = createFileRoute('/about')({
           </ul>
           <p>
             &quot;Very likely&quot; here means at 95% confidence. The checks
-            picked paragraphs at random, so these rates describe the archive as
-            a whole. How the checks were done is on{' '}
+            picked paragraphs at random, so each rate is what to expect on any
+            page from those years. How the checks were done is on{' '}
             <Link
               to="/coverage/methods"
               hash={METHODS_ATTRIBUTION_HEADING_ID}
