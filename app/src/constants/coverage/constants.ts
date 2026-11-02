@@ -7,13 +7,45 @@ import {
 
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
-export const METHODS_LAST_REVISED = '2026-11-01'
+export const METHODS_LAST_REVISED = '2026-11-02'
 
 export const METHODS_TERMS_SECTION_ID = 'terms'
 
 export const METHODS_PRIVACY_SECTION_ID = 'privacy'
 
 export const ATTRIBUTION_MEASURED_ON = '2026-10-19'
+
+export const HAND_CHECK_DATE = '2026-11-02'
+
+export const HAND_CHECK_SPEECH_COUNT = 1_000
+
+export const HAND_CHECK_LIVE_CHECKED_REPORT_COUNT = 50
+
+export const HAND_CHECK_LIVE_MATCHED_REPORT_COUNT = 50
+
+export const HAND_CHECK_FLAGGED_SPEECH_COUNT = 60
+
+export const HAND_CHECK_JUDGED_ONE_AT_A_TIME_SPEECH_COUNT = 15
+
+export const HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT = 5
+
+export const HAND_CHECK_STRAY_MARK_SPEECH_COUNT = 3
+
+export const HAND_CHECK_PLANTED_ERROR_COUNT = 30
+
+export const HAND_CHECK_WRONG_CREDIT_BOUND = '1.05%'
+
+export const HAND_CHECK_WORD_ERROR_BOUND = '0.30%'
+
+export const HAND_CHECK_ANY_ERROR_BOUND = '1.44%'
+
+export const HAND_CHECK_OLDER_SYSTEM_SPEECH_COUNT = 532
+
+export const HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_BOUND = '1.97%'
+
+export const HAND_CHECK_NEWER_SYSTEM_SPEECH_COUNT = 468
+
+export const HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_BOUND = '0.64%'
 
 export const LINK_CHECK_DATE = '2026-10-19'
 
@@ -74,6 +106,8 @@ export const PARLIAMENT_FOURTEEN_DISSOLVED = '2025-04-15'
 export const PARLIAMENT_FIFTEEN_FIRST_SITTING = '2025-09-05'
 
 export const LINK_CHECK_REPORT_URL = `${SCRAPER_SOURCE_CODE_URL}/blob/master/docs/report/link-check-2026-10-19.md`
+
+export const HAND_CHECK_REPORT_URL = `${SCRAPER_SOURCE_CODE_URL}/blob/master/docs/report/hand-check-2026-11-02.md`
 
 export const STOPPING_RULE_URL = `${SCRAPER_SOURCE_CODE_URL}/blob/master/docs/speech-fidelity-stopping-rule.md`
 

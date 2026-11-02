@@ -39,6 +39,23 @@ import {
   ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND,
   ERROR_SHARE_TO_PARLIAMENT_ELEVEN,
   ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND,
+  HAND_CHECK_ANY_ERROR_BOUND,
+  HAND_CHECK_DATE,
+  HAND_CHECK_FLAGGED_SPEECH_COUNT,
+  HAND_CHECK_JUDGED_ONE_AT_A_TIME_SPEECH_COUNT,
+  HAND_CHECK_LIVE_CHECKED_REPORT_COUNT,
+  HAND_CHECK_LIVE_MATCHED_REPORT_COUNT,
+  HAND_CHECK_NEWER_SYSTEM_SPEECH_COUNT,
+  HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_BOUND,
+  HAND_CHECK_OLDER_SYSTEM_SPEECH_COUNT,
+  HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_BOUND,
+  HAND_CHECK_PLANTED_ERROR_COUNT,
+  HAND_CHECK_REPORT_URL,
+  HAND_CHECK_SPEECH_COUNT,
+  HAND_CHECK_STRAY_MARK_SPEECH_COUNT,
+  HAND_CHECK_WORD_ERROR_BOUND,
+  HAND_CHECK_WRONG_CREDIT_BOUND,
+  HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT,
   HOW_THIS_WAS_BUILT_URL,
   LINK_CHECK_CORRECT_SPEECH_COUNT,
   LINK_CHECK_DATE,
@@ -368,15 +385,66 @@ export const Route = createFileRoute('/coverage/methods')({
             Who said what
           </h2>
           <p>
-            On {formatSittingDate(LINK_CHECK_DATE)}, AI models checked{' '}
-            {LINK_CHECK_LINKED_SPEECH_COUNT} paragraphs from the Legislative
-            Assembly to Parliament 15 that are credited to a person against the
-            source text. The paragraphs were drawn at random,{' '}
+            On {formatSittingDate(HAND_CHECK_DATE)}, two AI readers, Claude
+            Sonnet and Claude Opus, finished checking{' '}
+            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs
+            credited to a person, drawn at random from the Legislative Assembly
+            to Parliament 15. Each reader judged every paragraph&apos;s credit
+            against the archive&apos;s stored copy of the Official Report, and a
+            script compared every word with it. That copy matched the live
+            Official Report in {HAND_CHECK_LIVE_MATCHED_REPORT_COUNT} of{' '}
+            {HAND_CHECK_LIVE_CHECKED_REPORT_COUNT} reports checked. They flagged{' '}
+            {HAND_CHECK_FLAGGED_SPEECH_COUNT} paragraphs. Royce Hoe, who runs
+            the site, judged {HAND_CHECK_JUDGED_ONE_AT_A_TIME_SPEECH_COUNT} of
+            them one at a time. The other{' '}
+            {HAND_CHECK_FLAGGED_SPEECH_COUNT -
+              HAND_CHECK_JUDGED_ONE_AT_A_TIME_SPEECH_COUNT}{' '}
+            were flagged for their words alone. An AI model sorted their
+            differences by kind, Royce ruled on each kind, such as a question
+            number the archive leaves out, after reading examples of it, and the
+            model applied his rulings. No person read the other{' '}
+            {(
+              HAND_CHECK_SPEECH_COUNT - HAND_CHECK_FLAGGED_SPEECH_COUNT
+            ).toLocaleString(NUMBER_LOCALE)}
+            . {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
+            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} were
+            credited wrongly: one member&apos;s words were credited to another
+            member, and two procedural lines, a heading and a time stamp, which
+            the record credits to no one, were each credited to a member.{' '}
+            {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had only a stray space or a
+            footnote number in brackets, and none had a word missing, added or
+            changed. Each reader caught all {HAND_CHECK_PLANTED_ERROR_COUNT}{' '}
+            wrong credits planted among the paragraphs to test it.
+          </p>
+          <p>
+            From this check, at 95% confidence, no more than{' '}
+            {HAND_CHECK_WRONG_CREDIT_BOUND} of credited paragraphs are credited
+            wrongly, no more than {HAND_CHECK_WORD_ERROR_BOUND} have a word
+            missing, added or changed, and no more than{' '}
+            {HAND_CHECK_ANY_ERROR_BOUND} have any of these errors or a stray
+            mark. Each bound is one-sided and exact, and holds on its own. All{' '}
+            {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} wrong credits are from before
+            10 September 2012, when the Parliament website moved to a newer
+            system. For the {HAND_CHECK_OLDER_SYSTEM_SPEECH_COUNT} paragraphs
+            from before that date, the bound for a wrong credit is{' '}
+            {HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_BOUND}, and for the{' '}
+            {HAND_CHECK_NEWER_SYSTEM_SPEECH_COUNT} from that date on,{' '}
+            {HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_BOUND}. The{' '}
+            <LinkExternal href={HAND_CHECK_REPORT_URL}>
+              hand check report
+            </LinkExternal>{' '}
+            lists every paragraph with its verdicts.
+          </p>
+          <p>
+            In an earlier check, on {formatSittingDate(LINK_CHECK_DATE)}, AI
+            models checked {LINK_CHECK_LINKED_SPEECH_COUNT} paragraphs from the
+            Legislative Assembly to Parliament 15 that are credited to a person
+            against the source text. The paragraphs were drawn at random,{' '}
             {LINK_CHECK_PARAGRAPHS_PER_GROUP_COUNT} from each of eight groups of
             Parliaments. Eight Claude Sonnet readers judged them, one per group.
             A Claude Opus session then re-read every paragraph marked wrong or
             unsure, and {LINK_CHECK_RECHECKED_RIGHT_CALL_COUNT} of each
-            reader&apos;s right calls. No person has read them yet.{' '}
+            reader&apos;s right calls.{' '}
             {LINK_CHECK_LINKED_SPEECH_COUNT - LINK_CHECK_CORRECT_SPEECH_COUNT}{' '}
             of the {LINK_CHECK_LINKED_SPEECH_COUNT} was wrong: a caption from a
             tabled list, which should be credited to no one, carried the name of
@@ -384,7 +452,7 @@ export const Route = createFileRoute('/coverage/methods')({
             were credited to another member. From this check, between{' '}
             {LINK_CHECK_RIGHT_SHARE_LOWER_BOUND} and{' '}
             {LINK_CHECK_RIGHT_SHARE_UPPER_BOUND} of credited paragraphs are
-            right. The range is a Wilson interval at 95% confidence.
+            right. The range is a two-sided Wilson interval at 95% confidence.
           </p>
           <p>
             That check covers credited paragraphs only. Checks finished on{' '}
