@@ -44,7 +44,7 @@ The largest example is `hansard-user-stories`. It had 27 steps, an audit with no
 - **Data sanity personas, 16 and 17 October.** Four Sonnet personas, a historian, a legal researcher, a journalist and a citizen, used the site against the production database and compared what they could against SPRS. An Opus pass re-ran every finding and confirmed 14: 2 high, 5 medium and 7 low. A second pass on 17 October found no high-severity regression.
 - **North star audit, 17 October.** An Opus auditor measured the database and both repositories against ten done tests, and the verdict is "Not done". Two tests pass, seven fail and one is unmeasured. Sonnet readers checked 406 rows credited to a person and found 404 right. The audit is `docs/report/north-star-audit-2026-10-17.md` in the scraper repository.
 
-A model ran every check above. Royce has not yet read a sample of rows himself, and the methods page on the site says no person has read the checked rows.
+A model ran every check above. In the check of 1,000 credited paragraphs finished on 2 November 2026, Royce judged the 60 that two AI readers and a script flagged, 15 one at a time and 45 by kind of difference, and no person read the other 940.
 
 ## How each change was reviewed
 
