@@ -349,13 +349,15 @@ export const Route = createFileRoute('/coverage/methods')({
         />
 
         <p>
-          This page explains how the archive was made, how far to trust who said
-          what, and what is missing. AI coding tools wrote most of this
-          site&apos;s code and docs.{' '}
+          This page is for anyone who wants to check the archive before relying
+          on it. It covers how the text was gathered, how often a speech is
+          credited to the wrong person, what is missing and how to cite it.
+          I&apos;m Royce, and I built the archive and run the site. If you want
+          to know which tools I used and how the work ran, read{' '}
           <LinkExternal href={HOW_THIS_WAS_BUILT_URL}>
             How this was built
-          </LinkExternal>{' '}
-          says which tools, how the work ran and who decided what.
+          </LinkExternal>
+          .
         </p>
 
         {renderTextGathered()}
@@ -382,27 +384,27 @@ export const Route = createFileRoute('/coverage/methods')({
             compared every word with it. That copy matched the live Official
             Report in {HAND_CHECK_LIVE_MATCHED_REPORT_COUNT} of{' '}
             {HAND_CHECK_LIVE_CHECKED_REPORT_COUNT} reports checked. The reader
-            and the script flagged {HAND_CHECK_FLAGGED_SPEECH_COUNT} paragraphs.
-            Royce Hoe, who runs the site, judged{' '}
-            {HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT} of them himself. The other{' '}
+            and the script flagged {HAND_CHECK_FLAGGED_SPEECH_COUNT} paragraphs,
+            and I judged {HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT} of them
+            myself. The other{' '}
             {HAND_CHECK_FLAGGED_SPEECH_COUNT -
               HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT}{' '}
-            differed from the record only in kinds of difference he had ruled on
-            in an earlier check, such as a question number the archive leaves
-            out, and an AI model applied those rulings. No person read the other{' '}
+            differed from the record only in kinds of difference I had already
+            ruled on in an earlier check, such as a question number the archive
+            leaves out, so an AI model applied those rulings to them. No person
+            read the other{' '}
             {(
               HAND_CHECK_SPEECH_COUNT - HAND_CHECK_FLAGGED_SPEECH_COUNT
             ).toLocaleString(NUMBER_LOCALE)}
-            . Royce ruled {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
-            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} credited
+            . I ruled that {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
+            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} was credited
             wrongly: a clerk&apos;s record line credited to the minister who
-            spoke before it, and a short reply from the chair.{' '}
-            {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had only a stray space beside
-            italic text, and none had a word missing, added or changed. The
-            reader caught all {HAND_CHECK_PLANTED_ERROR_COUNT} wrong credits
-            planted among the paragraphs to test it. So, at 95% confidence, it
-            catches at least {HAND_CHECK_CATCH_RATE_LOWER_BOUND} of wrong
-            credits of those kinds.
+            spoke before it. {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had only a
+            stray space beside italic text, and none had a word missing, added
+            or changed. The reader caught all {HAND_CHECK_PLANTED_ERROR_COUNT}{' '}
+            wrong credits planted among the paragraphs to test it. So, at 95%
+            confidence, it catches at least {HAND_CHECK_CATCH_RATE_LOWER_BOUND}{' '}
+            of wrong credits of those kinds.
           </p>
           <p>
             From this check, at 95% confidence, no more than{' '}
@@ -633,18 +635,17 @@ export const Route = createFileRoute('/coverage/methods')({
             Who runs the site
           </h2>
           <p>
-            One person, Royce Hoe, runs the site. He fixes an error the archive
-            introduced, in the text or in who it credits, and takes a report off
-            the site within {TAKEDOWN_DEADLINE_WORKING_DAYS} working days if
-            Parliament asks.
+            I run the site on my own. I fix the errors the archive introduces,
+            and if Parliament asks me to take a report down, I do it within{' '}
+            {TAKEDOWN_DEADLINE_WORKING_DAYS} working days.
           </p>
           <p>
-            If Royce stops working on the site, it keeps running on its own. A
-            daily job adds new sittings until the hosting is no longer paid for
-            or Parliament&apos;s website changes. No one else holds access to
-            the hosting or the database. The code for the site and the scraper
-            stays public on GitHub under the MIT licence, so anyone can rebuild
-            the database from Parliament&apos;s website.
+            If I stop working on it, the site keeps running without me. A daily
+            job adds new sittings until the hosting is no longer paid for or
+            Parliament&apos;s website changes. No one else holds access to the
+            hosting or the database. The code for the site and the scraper stays
+            public on GitHub under the MIT licence, so anyone can rebuild the
+            database from Parliament&apos;s website.
           </p>
         </section>
 
@@ -655,12 +656,13 @@ export const Route = createFileRoute('/coverage/methods')({
           <p>
             The target is WCAG 2.2 at level AA. After each deploy, axe, an
             automated checker, tests the home page, a report and a search on the
-            live site. Each build checks every pair of colours against the WCAG
-            contrast minimum. On {formatSittingDate(ACCESSIBILITY_CHECK_DATE)},
-            Royce went through the same three pages with the keyboard alone and
-            with VoiceOver on a Mac, and found no problems. Automated checks
-            find only some failures, and no one who uses a screen reader every
-            day has tested the site.
+            live site. Before each deploy, a script checks every pair of colours
+            against the WCAG contrast minimum. On{' '}
+            {formatSittingDate(ACCESSIBILITY_CHECK_DATE)}, I went through the
+            same three pages with the keyboard alone and with VoiceOver on a
+            Mac, and found no problems. Automated checks find only some
+            failures, and no one who uses a screen reader every day has tested
+            the site.
           </p>
           {CONTACT_EMAIL && (
             <p>
