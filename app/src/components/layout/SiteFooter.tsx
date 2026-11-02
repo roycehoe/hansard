@@ -1,7 +1,9 @@
 import { useGetRefresh } from '@/api/refresh/getRefresh'
+import { ABOUT_NOT_OFFICIAL_SECTION_ID } from '@/constants/about/constants'
 import {
   CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
+  REPORT_ERROR_FORM_URL,
   RESEARCHERS_FORM_URL,
   SECURITY_POLICY_URL,
   SOURCE_CODE_URL,
@@ -12,6 +14,7 @@ import { Link } from '@tanstack/react-router'
 
 const FOOTER_LINKS = [
   { label: 'Data quality and methods', to: '/coverage/methods' },
+  { label: 'About the text', to: '/about' },
   ...(CONTACT_EMAIL
     ? ([
         {
@@ -32,6 +35,7 @@ const FOOTER_LINKS = [
 ] as const
 
 const EXTERNAL_FOOTER_LINKS = [
+  { label: 'Report an error', href: REPORT_ERROR_FORM_URL },
   { label: 'Official Report', href: OFFICIAL_RECORD_SEARCH_URL },
   { label: 'GitHub', href: SOURCE_CODE_URL },
   { label: 'Report a vulnerability', href: SECURITY_POLICY_URL },
@@ -46,10 +50,16 @@ export function SiteFooter() {
 
   return (
     <footer className="bg-muted text-muted-foreground border-separator border-t">
-      <div className="max-w-page-xl mx-auto flex w-full flex-col gap-3 px-5 py-5 text-sm sm:px-6 md:px-7 md:py-7 xl:flex-row xl:items-center xl:justify-between">
+      <div className="max-w-page-xl mx-auto flex w-full flex-col gap-3 px-5 py-5 text-sm sm:px-6 md:px-7 md:py-7">
         <div className="space-y-1">
-          <p className="text-foreground font-medium">
-            Not an official Parliament site.
+          <p className="font-medium">
+            <Link
+              to="/about"
+              hash={ABOUT_NOT_OFFICIAL_SECTION_ID}
+              className={LINK_CLASS_NAME}
+            >
+              Not an official Parliament site.
+            </Link>
           </p>
           {lastCheckedDate !== null && (
             <p className="text-muted-foreground">
@@ -58,7 +68,7 @@ export function SiteFooter() {
           )}
         </div>
         <nav aria-label="Footer">
-          <ul className="flex flex-wrap gap-x-5 gap-y-1 xl:flex-nowrap">
+          <ul className="flex flex-wrap gap-x-5 gap-y-1">
             {FOOTER_LINKS.map((item) => (
               <li key={item.label} className="whitespace-nowrap">
                 {'href' in item ? (
