@@ -136,7 +136,7 @@ export const Route = createFileRoute('/coverage/')({
         </div>
 
         <div className="border-separator text-muted-foreground space-y-2 border-t pt-6 text-sm">
-          <p>Built and maintained by Royce Hoe.</p>
+          <p>Built and run by Royce Hoe.</p>
           {CONTACT_EMAIL && (
             <p>
               Found an error? Email{' '}

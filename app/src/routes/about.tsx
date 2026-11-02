@@ -89,15 +89,15 @@ export const Route = createFileRoute('/about')({
             Whose text it is
           </h2>
           <p>
-            The text of every report comes from the Official Report of the
-            Parliament of Singapore, published on Parliament&apos;s website. The
-            text belongs to the Parliament of Singapore. {SITE_NAME} keeps a
-            copy of it, splits it into speeches, credits each speech to a person
-            where the printed name allows, and adds search.
+            The words of every report belong to the Parliament of Singapore,
+            which publishes them as the Official Report on its website.{' '}
+            {SITE_NAME} keeps a copy of that text, splits each report into
+            speeches and adds search. Where the printed name is enough to tell
+            who spoke, it credits the speech to that person.
           </p>
           <p>
-            The code that does this is open source under the MIT licence. That
-            licence covers the code, not the text.
+            The code that does this is open source under the MIT licence, which
+            covers the code and not Parliament&apos;s text.
           </p>
         </section>
 
@@ -110,9 +110,12 @@ export const Route = createFileRoute('/about')({
             Not an official site
           </h2>
           <p>
-            {SITE_NAME} is not an official Parliament site. Royce Hoe builds and
-            runs it on his own. For the record itself, use the Official Report.
-            Every report page here links to its source there.
+            {SITE_NAME} is not an official Parliament site. I&apos;m Royce, and
+            I built it and run it on my own. If you are quoting a debate in
+            print or citing it in a court document, use the Official Report on
+            Parliament&apos;s website, because that is the authoritative text.
+            Report pages here link to Parliament&apos;s copy of the same report,
+            so you can check what you read against it.
           </p>
         </section>
 
@@ -124,47 +127,48 @@ export const Route = createFileRoute('/about')({
             The archive can introduce errors that the Official Report does not
             have: a speech credited to the wrong person, text lost or repeated,
             or a chamber event credited to a speaker. Checks finished on{' '}
-            {formatSittingDate(ERROR_CHECK_DATE)} read{' '}
+            {formatSittingDate(ERROR_CHECK_DATE)} compared{' '}
             {ERROR_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs
-            against the source text.
+            with Parliament&apos;s text to find how often this happens.
           </p>
-          <p>Counted per 10,000 paragraphs:</p>
           <ul className={LIST_CLASS_NAME}>
             <li>
-              Reports from 1955 to 2011:{' '}
+              In reports from 1955 to 2011,{' '}
               {convertShareToPerTenThousand(ERROR_SHARE_TO_PARLIAMENT_ELEVEN)}{' '}
-              had one of these errors. At 95% confidence, no more than{' '}
+              paragraphs in 10,000 had one of these errors, and very likely no
+              more than{' '}
               {convertShareToPerTenThousand(
                 ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND
               )}
               .
             </li>
             <li>
-              Reports from 2011 to 2025:{' '}
+              In reports from 2011 to 2025,{' '}
               {convertShareToPerTenThousand(
                 ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN
-              )}
-              . No more than{' '}
+              )}{' '}
+              in 10,000 did, and very likely no more than{' '}
               {convertShareToPerTenThousand(
                 ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND
               )}
               .
             </li>
             <li>
-              The current Parliament: none found in{' '}
+              In the current Parliament the checks found none in{' '}
               {ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT.toLocaleString(
                 NUMBER_LOCALE
               )}{' '}
-              paragraphs. No more than about{' '}
+              paragraphs, and very likely no more than about{' '}
               {convertShareToPerTenThousand(
                 ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND
-              )}
-              .
+              )}{' '}
+              in 10,000 have one.
             </li>
           </ul>
           <p>
-            These are the rates to expect on a random page. How the checks were
-            done is on{' '}
+            &quot;Very likely&quot; here means at 95% confidence. The checks
+            picked paragraphs at random, so these rates describe the archive as
+            a whole. How the checks were done is on{' '}
             <Link
               to="/coverage/methods"
               hash={METHODS_ATTRIBUTION_HEADING_ID}
@@ -181,12 +185,13 @@ export const Route = createFileRoute('/about')({
             Errors and corrections
           </h2>
           <p>
-            If you find an error the archive introduced, in the text or in who
-            it credits, report it. Royce fixes it and lists each fix in the{' '}
+            If the text here doesn&apos;t match the Official Report, or a speech
+            is credited to the wrong person, tell me and I&apos;ll fix it. Each
+            fix goes in the{' '}
             <LinkExternal href={CORRECTIONS_LOG_URL}>
               corrections log
             </LinkExternal>
-            , newest first.
+            , newest first, so you can see what changed and when.
           </p>
           <p>{CONTACT_EMAIL ? 'Three ways' : 'One way'} to report an error:</p>
           <ul className={LIST_CLASS_NAME}>
@@ -207,8 +212,11 @@ export const Route = createFileRoute('/about')({
             {CONTACT_EMAIL && <li>Email {renderContactEmailLink()}.</li>}
           </ul>
           <p>
-            Errors in the Official Report itself stay as printed. Where the site
-            reads a printed value differently, a note beside it says so.
+            Mistakes in the Official Report itself are a different matter. The
+            site shows those as Parliament printed them, because it is a copy of
+            the record and not a corrected edition. Where I think a printed
+            value is wrong, such as a column number out of step with the columns
+            around it, a note beside it gives my reading.
           </p>
         </section>
 
@@ -217,19 +225,19 @@ export const Route = createFileRoute('/about')({
             Removal
           </h2>
           <p>
-            Anyone may ask for a report to be taken off this site.
+            Anyone can ask me to take a report off the site.
             {CONTACT_EMAIL && (
               <>
                 {' '}
                 Email {renderContactEmailLink()} with the report&apos;s address
-                and who you are.
+                and tell me who you are.
               </>
             )}
           </p>
           <p>
-            If Parliament asks for a report to be removed, it comes off within{' '}
-            {TAKEDOWN_DEADLINE_WORKING_DAYS} working days, with no reason
-            needed. Royce decides on other requests.
+            If the request comes from Parliament, I&apos;ll take the report down
+            within {TAKEDOWN_DEADLINE_WORKING_DAYS} working days and won&apos;t
+            ask for a reason. I decide on any other request.
           </p>
           <p>
             A removed report&apos;s address shows &quot;Report removed&quot;,
@@ -269,8 +277,8 @@ export const Route = createFileRoute('/about')({
             Contact
           </h2>
           <p>
-            Royce Hoe{CONTACT_EMAIL && `, ${CONTACT_EMAIL}`}. The source code is
-            on GitHub.
+            {CONTACT_EMAIL && `You can email me at ${CONTACT_EMAIL}. `}The
+            source code is on GitHub.
           </p>
         </section>
 
