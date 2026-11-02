@@ -39,16 +39,15 @@ import {
   ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND,
   ERROR_SHARE_TO_PARLIAMENT_ELEVEN,
   ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND,
-  HAND_CHECK_CORRECT_SPEECH_COUNT,
-  HAND_CHECK_DATE,
-  HAND_CHECK_LINKED_SPEECH_COUNT,
-  HAND_CHECK_PARAGRAPHS_PER_GROUP_COUNT,
-  HAND_CHECK_RECHECKED_RIGHT_CALL_COUNT,
-  HAND_CHECK_RIGHT_SHARE_LOWER_BOUND,
-  HAND_CHECK_RIGHT_SHARE_UPPER_BOUND,
-  HAND_CHECK_UNLINKED_SPEECH_COUNT,
   HOW_THIS_WAS_BUILT_URL,
+  LINK_CHECK_CORRECT_SPEECH_COUNT,
+  LINK_CHECK_DATE,
+  LINK_CHECK_LINKED_SPEECH_COUNT,
+  LINK_CHECK_PARAGRAPHS_PER_GROUP_COUNT,
+  LINK_CHECK_RECHECKED_RIGHT_CALL_COUNT,
   LINK_CHECK_REPORT_URL,
+  LINK_CHECK_RIGHT_SHARE_LOWER_BOUND,
+  LINK_CHECK_RIGHT_SHARE_UPPER_BOUND,
   METHODS_LAST_REVISED,
   METHODS_PRIVACY_SECTION_ID,
   METHODS_TERMS_SECTION_ID,
@@ -59,7 +58,8 @@ import {
   REPAIR_PROCEDURAL_LINE_COUNT,
   STOPPING_RULE_URL,
   TAKEDOWN_DEADLINE_WORKING_DAYS,
-  UNLINKED_HAND_CHECK_DATE,
+  UNLINKED_CHECK_DATE,
+  UNLINKED_CHECK_SPEECH_COUNT,
 } from '@/constants/coverage/constants'
 import {
   LOST_CHARACTER,
@@ -368,22 +368,22 @@ export const Route = createFileRoute('/coverage/methods')({
             Who said what
           </h2>
           <p>
-            On {formatSittingDate(HAND_CHECK_DATE)}, AI models checked{' '}
-            {HAND_CHECK_LINKED_SPEECH_COUNT} paragraphs from the Legislative
+            On {formatSittingDate(LINK_CHECK_DATE)}, AI models checked{' '}
+            {LINK_CHECK_LINKED_SPEECH_COUNT} paragraphs from the Legislative
             Assembly to Parliament 15 that are credited to a person against the
             source text. The paragraphs were drawn at random,{' '}
-            {HAND_CHECK_PARAGRAPHS_PER_GROUP_COUNT} from each of eight groups of
+            {LINK_CHECK_PARAGRAPHS_PER_GROUP_COUNT} from each of eight groups of
             Parliaments. Eight Claude Sonnet readers judged them, one per group.
             A Claude Opus session then re-read every paragraph marked wrong or
-            unsure, and {HAND_CHECK_RECHECKED_RIGHT_CALL_COUNT} of each
+            unsure, and {LINK_CHECK_RECHECKED_RIGHT_CALL_COUNT} of each
             reader&apos;s right calls. No person has read them yet.{' '}
-            {HAND_CHECK_LINKED_SPEECH_COUNT - HAND_CHECK_CORRECT_SPEECH_COUNT}{' '}
-            of the {HAND_CHECK_LINKED_SPEECH_COUNT} was wrong: a caption from a
+            {LINK_CHECK_LINKED_SPEECH_COUNT - LINK_CHECK_CORRECT_SPEECH_COUNT}{' '}
+            of the {LINK_CHECK_LINKED_SPEECH_COUNT} was wrong: a caption from a
             tabled list, which should be credited to no one, carried the name of
             the member whose written answer it follows. No member&apos;s words
             were credited to another member. From this check, between{' '}
-            {HAND_CHECK_RIGHT_SHARE_LOWER_BOUND} and{' '}
-            {HAND_CHECK_RIGHT_SHARE_UPPER_BOUND} of credited paragraphs are
+            {LINK_CHECK_RIGHT_SHARE_LOWER_BOUND} and{' '}
+            {LINK_CHECK_RIGHT_SHARE_UPPER_BOUND} of credited paragraphs are
             right. The range is a Wilson interval at 95% confidence.
           </p>
           <p>
@@ -422,10 +422,10 @@ export const Route = createFileRoute('/coverage/methods')({
           </p>
           <p>
             An earlier check by an AI model, on{' '}
-            {formatSittingDate(UNLINKED_HAND_CHECK_DATE)}, read{' '}
-            {HAND_CHECK_UNLINKED_SPEECH_COUNT} paragraphs from before 10
-            September 2012 that are credited to no one. All{' '}
-            {HAND_CHECK_UNLINKED_SPEECH_COUNT} were right to have no name.
+            {formatSittingDate(UNLINKED_CHECK_DATE)}, read{' '}
+            {UNLINKED_CHECK_SPEECH_COUNT} paragraphs from before 10 September
+            2012 that are credited to no one. All {UNLINKED_CHECK_SPEECH_COUNT}{' '}
+            were right to have no name.
           </p>
           <p>
             On {formatSittingDate(REPAIR_DATE)}, a repair took the name off{' '}
