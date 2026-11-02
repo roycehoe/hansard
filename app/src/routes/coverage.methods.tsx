@@ -27,27 +27,20 @@ import {
   ACCESSIBILITY_CHECK_DATE,
   CORRECTIONS_LOG_URL,
   DATA_LOSS_REGISTER_URL,
-  ERROR_BOUND_RESAMPLE_COUNT,
-  ERROR_CHECK_DATE,
-  ERROR_CHECK_LONG_REPORT_WINDOW_ROW_COUNT,
-  ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT,
-  ERROR_CHECK_SPEECH_COUNT,
-  ERROR_CHECK_WHOLE_REPORT_ROW_LIMIT,
-  ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND,
-  ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN,
-  ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND,
-  ERROR_SHARE_TO_PARLIAMENT_ELEVEN,
-  ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND,
+  FIRST_HAND_CHECK_REPORT_URL,
   HAND_CHECK_ANY_ERROR_BOUND,
+  HAND_CHECK_CATCH_RATE_LOWER_BOUND,
   HAND_CHECK_DATE,
   HAND_CHECK_FLAGGED_SPEECH_COUNT,
-  HAND_CHECK_JUDGED_ONE_AT_A_TIME_SPEECH_COUNT,
+  HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT,
   HAND_CHECK_LIVE_CHECKED_REPORT_COUNT,
   HAND_CHECK_LIVE_MATCHED_REPORT_COUNT,
   HAND_CHECK_NEWER_SYSTEM_SPEECH_COUNT,
   HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_BOUND,
+  HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_SPEECH_COUNT,
   HAND_CHECK_OLDER_SYSTEM_SPEECH_COUNT,
   HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_BOUND,
+  HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_SPEECH_COUNT,
   HAND_CHECK_PLANTED_ERROR_COUNT,
   HAND_CHECK_REPORT_URL,
   HAND_CHECK_SPEECH_COUNT,
@@ -56,14 +49,7 @@ import {
   HAND_CHECK_WRONG_CREDIT_BOUND,
   HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT,
   HOW_THIS_WAS_BUILT_URL,
-  LINK_CHECK_CORRECT_SPEECH_COUNT,
-  LINK_CHECK_DATE,
-  LINK_CHECK_LINKED_SPEECH_COUNT,
-  LINK_CHECK_PARAGRAPHS_PER_GROUP_COUNT,
-  LINK_CHECK_RECHECKED_RIGHT_CALL_COUNT,
   LINK_CHECK_REPORT_URL,
-  LINK_CHECK_RIGHT_SHARE_LOWER_BOUND,
-  LINK_CHECK_RIGHT_SHARE_UPPER_BOUND,
   METHODS_ATTRIBUTION_HEADING_ID,
   METHODS_LAST_REVISED,
   METHODS_PRIVACY_SECTION_ID,
@@ -71,12 +57,8 @@ import {
   PARLIAMENT_FIFTEEN_FIRST_SITTING,
   PARLIAMENT_FOURTEEN_DISSOLVED,
   PARLIAMENT_FOURTEEN_LAST_SITTING,
-  REPAIR_DATE,
-  REPAIR_PROCEDURAL_LINE_COUNT,
-  STOPPING_RULE_URL,
+  SCRAPER_REPORTS_URL,
   TAKEDOWN_DEADLINE_WORKING_DAYS,
-  UNLINKED_CHECK_DATE,
-  UNLINKED_CHECK_SPEECH_COUNT,
 } from '@/constants/coverage/constants'
 import {
   LOST_CHARACTER,
@@ -391,36 +373,36 @@ export const Route = createFileRoute('/coverage/methods')({
             Who said what
           </h2>
           <p>
-            On {formatSittingDate(HAND_CHECK_DATE)}, two AI readers, Claude
-            Sonnet and Claude Opus, finished checking{' '}
+            On {formatSittingDate(HAND_CHECK_DATE)}, an AI reader, Claude
+            Sonnet, checked{' '}
             {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs
             credited to a person, drawn at random from the Legislative Assembly
-            to Parliament 15. Each reader judged every paragraph&apos;s credit
-            against the archive&apos;s stored copy of the Official Report, and a
-            script compared every word with it. That copy matched the live
-            Official Report in {HAND_CHECK_LIVE_MATCHED_REPORT_COUNT} of{' '}
-            {HAND_CHECK_LIVE_CHECKED_REPORT_COUNT} reports checked. They flagged{' '}
-            {HAND_CHECK_FLAGGED_SPEECH_COUNT} paragraphs. Royce Hoe, who runs
-            the site, judged {HAND_CHECK_JUDGED_ONE_AT_A_TIME_SPEECH_COUNT} of
-            them one at a time. The other{' '}
+            to Parliament 15. It judged each paragraph&apos;s credit against the
+            archive&apos;s stored copy of the Official Report, and a script
+            compared every word with it. That copy matched the live Official
+            Report in {HAND_CHECK_LIVE_MATCHED_REPORT_COUNT} of{' '}
+            {HAND_CHECK_LIVE_CHECKED_REPORT_COUNT} reports checked. The reader
+            and the script flagged {HAND_CHECK_FLAGGED_SPEECH_COUNT} paragraphs.
+            Royce Hoe, who runs the site, judged{' '}
+            {HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT} of them himself. The other{' '}
             {HAND_CHECK_FLAGGED_SPEECH_COUNT -
-              HAND_CHECK_JUDGED_ONE_AT_A_TIME_SPEECH_COUNT}{' '}
-            were flagged for their words alone. An AI model sorted their
-            differences by kind, such as a question number the archive leaves
-            out. Royce read examples of each kind and ruled on it, and the model
-            applied his rulings. No person read the other{' '}
+              HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT}{' '}
+            differed from the record only in kinds of difference he had ruled on
+            in an earlier check, such as a question number the archive leaves
+            out, and an AI model applied those rulings. No person read the other{' '}
             {(
               HAND_CHECK_SPEECH_COUNT - HAND_CHECK_FLAGGED_SPEECH_COUNT
             ).toLocaleString(NUMBER_LOCALE)}
-            . {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
-            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} were
-            credited wrongly. In each, the archive credited a member with a line
-            that the record credits to no one. Two were procedural lines, one a
-            heading and one a time stamp. {HAND_CHECK_STRAY_MARK_SPEECH_COUNT}{' '}
-            had only a stray space or a footnote number in brackets, and none
-            had a word missing, added or changed. Each reader caught all{' '}
-            {HAND_CHECK_PLANTED_ERROR_COUNT} wrong credits planted among the
-            paragraphs to test it.
+            . Royce ruled {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
+            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} credited
+            wrongly: a clerk&apos;s record line credited to the minister who
+            spoke before it, and a short reply from the chair.{' '}
+            {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had only a stray space beside
+            italic text, and none had a word missing, added or changed. The
+            reader caught all {HAND_CHECK_PLANTED_ERROR_COUNT} wrong credits
+            planted among the paragraphs to test it. So, at 95% confidence, it
+            catches at least {HAND_CHECK_CATCH_RATE_LOWER_BOUND} of wrong
+            credits of those kinds.
           </p>
           <p>
             From this check, at 95% confidence, no more than{' '}
@@ -428,13 +410,14 @@ export const Route = createFileRoute('/coverage/methods')({
             wrongly, no more than {HAND_CHECK_WORD_ERROR_BOUND} have a word
             missing, added or changed, and no more than{' '}
             {HAND_CHECK_ANY_ERROR_BOUND} have any of these errors or a stray
-            mark. Each bound is one-sided and exact, and holds on its own. All{' '}
-            {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} wrong credits are from before
-            10 September 2012, when the Parliament website moved to a newer
-            system. For the {HAND_CHECK_OLDER_SYSTEM_SPEECH_COUNT} paragraphs
-            from before that date, the bound for a wrong credit is{' '}
-            {HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_BOUND}, and for the{' '}
-            {HAND_CHECK_NEWER_SYSTEM_SPEECH_COUNT} from that date on,{' '}
+            mark. Each bound is one-sided and exact, and holds on its own. The
+            Parliament website moved to a newer system on 10 September 2012.{' '}
+            {HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
+            {HAND_CHECK_OLDER_SYSTEM_SPEECH_COUNT} paragraphs from before that
+            date was credited wrongly, a bound of{' '}
+            {HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_BOUND}, and{' '}
+            {HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
+            {HAND_CHECK_NEWER_SYSTEM_SPEECH_COUNT} from that date on, a bound of{' '}
             {HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_BOUND}. The{' '}
             <LinkExternal href={HAND_CHECK_REPORT_URL}>
               hand check report
@@ -442,80 +425,18 @@ export const Route = createFileRoute('/coverage/methods')({
             lists every paragraph with its verdicts.
           </p>
           <p>
-            In an earlier check, on {formatSittingDate(LINK_CHECK_DATE)}, AI
-            models checked {LINK_CHECK_LINKED_SPEECH_COUNT} paragraphs from the
-            Legislative Assembly to Parliament 15 that are credited to a person
-            against the source text. The paragraphs were drawn at random,{' '}
-            {LINK_CHECK_PARAGRAPHS_PER_GROUP_COUNT} from each of eight groups of
-            Parliaments. Eight Claude Sonnet readers judged them, one per group.
-            A Claude Opus session then re-read every paragraph marked wrong or
-            unsure, and {LINK_CHECK_RECHECKED_RIGHT_CALL_COUNT} of each
-            reader&apos;s right calls.{' '}
-            {LINK_CHECK_LINKED_SPEECH_COUNT - LINK_CHECK_CORRECT_SPEECH_COUNT}{' '}
-            of the {LINK_CHECK_LINKED_SPEECH_COUNT} was wrong: a caption from a
-            tabled list, which should be credited to no one, carried the name of
-            the member whose written answer it follows. No member&apos;s words
-            were credited to another member. From this check, between{' '}
-            {LINK_CHECK_RIGHT_SHARE_LOWER_BOUND} and{' '}
-            {LINK_CHECK_RIGHT_SHARE_UPPER_BOUND} of credited paragraphs are
-            right. The range is a two-sided Wilson interval at 95% confidence.
-          </p>
-          <p>
-            That check covers credited paragraphs only. Checks finished on{' '}
-            {formatSittingDate(ERROR_CHECK_DATE)} read{' '}
-            {ERROR_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs
-            from across the archive, credited or not, against the source text,
-            also by AI models. Claude Sonnet readers read reports drawn at
-            random within groups by report version, report type and period:
-            every row of a report up to {ERROR_CHECK_WHOLE_REPORT_ROW_LIMIT}{' '}
-            rows, and a {ERROR_CHECK_LONG_REPORT_WINDOW_ROW_COUNT}-row window of
-            a longer one. They counted a paragraph as wrong when it was credited
-            to the wrong speaker, when text was lost or repeated, or when a
-            chamber event or a first reading was credited to a speaker. From the
-            Legislative Assembly to Parliament 11,{' '}
-            {ERROR_SHARE_TO_PARLIAMENT_ELEVEN} of paragraphs had one of these
-            errors, and at 95% confidence no more than{' '}
-            {ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND}. In Parliaments 12 to 14
-            the share was {ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN}, at most{' '}
-            {ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND}. In Parliament 15
-            the checks found none in{' '}
-            {ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT.toLocaleString(
-              NUMBER_LOCALE
-            )}{' '}
-            paragraphs, which puts the share at no more than about{' '}
-            {ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND}. These shares are what to
-            expect on a random page. Each upper bound comes from resampling the
-            reports {ERROR_BOUND_RESAMPLE_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
-            times and taking the 95th percentile, because errors cluster in a
-            few reports. Parliament 15&apos;s bound is the exact bound for no
-            errors in{' '}
-            {ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT.toLocaleString(
-              NUMBER_LOCALE
-            )}{' '}
-            paragraphs, about doubled for the same clustering.
-          </p>
-          <p>
-            An earlier check by an AI model, on{' '}
-            {formatSittingDate(UNLINKED_CHECK_DATE)}, read{' '}
-            {UNLINKED_CHECK_SPEECH_COUNT} paragraphs from before 10 September
-            2012 that are credited to no one. All {UNLINKED_CHECK_SPEECH_COUNT}{' '}
-            were right to have no name.
-          </p>
-          <p>
-            On {formatSittingDate(REPAIR_DATE)}, a repair took the name off{' '}
-            {REPAIR_PROCEDURAL_LINE_COUNT.toLocaleString(NUMBER_LOCALE)}{' '}
-            procedural lines, editorial notes and stage directions. The earlier
-            check came before the repair, so it does not cover those lines.
-          </p>
-          <p>
-            The method is set out in the{' '}
-            <LinkExternal href={LINK_CHECK_REPORT_URL}>
-              link check report
+            Earlier checks, among them the{' '}
+            <LinkExternal href={FIRST_HAND_CHECK_REPORT_URL}>
+              first hand check
             </LinkExternal>{' '}
             and the{' '}
-            <LinkExternal href={STOPPING_RULE_URL}>stopping rule</LinkExternal>.
-            Each fix to a credit or to text, found by an audit or reported by a
-            reader, goes in the{' '}
+            <LinkExternal href={LINK_CHECK_REPORT_URL}>link check</LinkExternal>
+            , have their reports in the scraper&apos;s{' '}
+            <LinkExternal href={SCRAPER_REPORTS_URL}>
+              report folder
+            </LinkExternal>
+            . Each fix to a credit or to text, found by an audit or reported by
+            a reader, goes in the{' '}
             <LinkExternal href={CORRECTIONS_LOG_URL}>
               corrections log
             </LinkExternal>
@@ -616,7 +537,7 @@ export const Route = createFileRoute('/coverage/methods')({
                 without a name, so they can&apos;t be credited to a person.
               </li>
               <li>
-                66 reports do not have the latest corrections to who said what.
+                19 reports do not have the latest corrections to who said what.
               </li>
               <li>
                 A member who sat in both the Legislative Assembly (1955 to 1965)
