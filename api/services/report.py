@@ -3,9 +3,11 @@ from typing import Optional
 from sqlmodel import Session
 
 from crud.report import CRUDReport
+from crud.report_asker import CRUDReportAsker
 from crud.speech import CRUDSpeech
 from database.person import Person
 from database.report import Report
+from database.report_asker import ReportAsker
 from database.speech import Speech
 from enums import ReportType, SearchEndpoint, SpeechLinkStatus
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
@@ -13,6 +15,7 @@ from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
 from middleware.takedown import is_report_id_taken_down
 from schemas.report import (
+    AskerData,
     GetReportMatchedWordsResponse,
     GetReportResponse,
     ReferencedReportData,
@@ -88,6 +91,45 @@ def _get_speech_data(
     )
 
 
+def _is_parliamentary_question(report_type: str) -> bool:
+    return (
+        report_type == ReportType.ORAL_ANSWER
+        or report_type == ReportType.WRITTEN_ANSWER
+        or report_type == ReportType.WRITTEN_ANSWER_NA
+    )
+
+
+def _get_asker_data(
+    askers: list[ReportAsker], membership_id_to_person: dict[int, Person]
+) -> list[AskerData]:
+    asker_data: list[AskerData] = []
+    for asker in askers:
+        person = (
+            membership_id_to_person.get(asker.speaker_id)
+            if asker.speaker_id is not None
+            else None
+        )
+        if person is None:
+            continue
+        reader_person = (
+            membership_id_to_person.get(asker.reader_speaker_id)
+            if asker.reader_speaker_id is not None
+            else None
+        )
+        asker_data.append(
+            AskerData(
+                person_id=person.id,
+                person_slug=get_person_slug(person.canonical_name),
+                person_name=person.canonical_name,
+                printed_name=asker.printed_name,
+                reader_person_name=(
+                    reader_person.canonical_name if reader_person is not None else ""
+                ),
+            )
+        )
+    return asker_data
+
+
 def _get_speech_link_data(
     ordinal_to_anchor: dict[int, str],
     speech_ordinal: Optional[int],
@@ -151,8 +193,19 @@ def get_report(
         speaker_label: is_shared_role_speaker_label(speaker_label)
         for speaker_label in {speech.speaker or "" for speech in speeches}
     }
+    askers = (
+        CRUDReportAsker(session).get_all_by_report_id(report.id)
+        if _is_parliamentary_question(report.report_type)
+        else []
+    )
     membership_ids = sorted(
         {speech.speaker_id for speech in speeches if speech.speaker_id is not None}
+        | {asker.speaker_id for asker in askers if asker.speaker_id is not None}
+        | {
+            asker.reader_speaker_id
+            for asker in askers
+            if asker.reader_speaker_id is not None
+        }
     )
     membership_id_to_person = get_membership_id_to_person(membership_ids, session)
     return GetReportResponse(
@@ -177,6 +230,7 @@ def get_report(
             )
             for speech in speeches
         ],
+        askers=_get_asker_data(askers, membership_id_to_person),
         speech_link=_get_speech_link_data(
             ordinal_to_anchor, speech_ordinal, speech_anchor
         ),

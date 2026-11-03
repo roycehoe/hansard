@@ -1,8 +1,8 @@
 # Required indexes
 
-The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: eleven indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. Two more, `ix_speech_transcript_fts` and, since 21 October 2026, `ix_report_title_fts`, still exist, but no API statement uses them. The ninth, `ix_speech_transcript_tsv_sitting_date_rum`, reads the column `speech.sitting_date`. Scraper migration `c93f77e499cc` added both to production on 18 October 2026; see its section below. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026, and its date order changes again with the sitting-date index; "Ranking cost" holds its order clauses and timings. Five scraper migrations of 30 October 2026 change or add more indexes; they reached production on 31 October 2026 and are listed under "Indexes added on 31 October 2026".
+The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: twelve indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. Two more, `ix_speech_transcript_fts` and, since 21 October 2026, `ix_report_title_fts`, still exist, but no API statement uses them. The ninth, `ix_speech_transcript_tsv_sitting_date_rum`, reads the column `speech.sitting_date`. Scraper migration `c93f77e499cc` added both to production on 18 October 2026; see its section below. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026, and its date order changes again with the sitting-date index; "Ranking cost" holds its order clauses and timings. Five scraper migrations of 30 October 2026 change or add more indexes; they reached production on 31 October 2026 and are listed under "Indexes added on 31 October 2026". One more scraper migration, `52f4f7b77f1f` on the scraper's `feat/asked-by` branch, adds the table `report_asker`; production does not have it yet, and its indexes are listed under "Indexes of report_asker".
 
-Every index here except `ix_speech_transcript_tsv_sitting_date_rum` exists and is valid on production, and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes. Five migrations built them:
+Every index here except `ix_speech_transcript_tsv_sitting_date_rum` and the indexes of `report_asker` exists and is valid on production, and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes. Five migrations built them:
 
 - Scraper commit `1f0d8ef` (`feat: add the indexes the read API relies on`, Alembic revision `e5a9c3b7d216`) created seven on 14 October 2026, from 11:01 to 11:07 SGT (392 seconds in total).
 - Commit `e856c26` (revision `f2b8d4a6c913`) added the stored column `speech.transcript_tsv` and `ix_speech_transcript_tsv`. Production took the upgrade on 17 October from 13:44 to 14:00 SGT, together with the attendance constraint (23 minutes; the column rewrites `speech`).
@@ -601,6 +601,29 @@ CREATE INDEX ix_speech_new_transcript_tsv_sitting_date_rum ON speech_new
 - `ix_report_parliament_number_sitting_date` is needed by `GET /sittings` with a `parliament_number`. Its three statements (the highest `volume_number` and `sitting_number` and the report count for each `sitting_date`) filter `report.parliament_number`; this index holds every column they read. Word search reads it for the first sitting date of the Parliament it starts from (see `ix_speech_transcript_tsv_sitting_date_rum`).
 - `ix_attendance_location_name_speaker_id` is needed by `CRUDMembership.get_all_by_location_name`, which `GET /search/speeches` calls for a `constituency`. It lists the `speaker_id` values for the seat names that match, and the index holds both columns.
 - `ix_speech_transcript_tsv_rum` and `ix_speech_transcript_tsv_sitting_date_rum` keep their names and gain `report_type`, so a report type filter on word search can be an index condition instead of a join to `report`. In the sitting-date index `report_type` comes before the attached `sitting_date`, so a type filter narrows the matches the index returns in date order.
+
+## Indexes of report_asker
+
+Scraper migration `52f4f7b77f1f`, on the scraper's `feat/asked-by` branch, creates the table `report_asker` and its indexes. Production does not have it yet, so `GET /reports/{report_slug}` for a parliamentary question (an oral answer, a written answer or a written answer to an oral question) fails until it does. Any other report type never reads the table. The API's `ReportAsker` model reads `id`, `ordinal`, `printed_name`, `report_id`, `speaker_id` and `reader_speaker_id`.
+
+```sql
+-- scraper migration 52f4f7b77f1f
+CREATE UNIQUE INDEX uq_report_asker_report_id_ordinal ON report_asker (report_id, ordinal);
+CREATE INDEX ix_report_asker_report_id ON report_asker (report_id);
+```
+
+Needed by `GET /reports/{report_slug}`, which reads a parliamentary question's askers in the order the record prints them. The planner reads `uq_report_asker_report_id_ordinal`, which holds the filter column and the sort column, so the rows come back in `ordinal` order with no sort step. `ix_report_asker_report_id` sits beside it on the first column alone, and the planner does not choose it for this statement. The statement and its plan, with the table's 34,837 rows on the scratch copy `hansard_asked_by` and the oral answer `oral-answer-3845` (report 156, three askers); production has no `report_asker` table to plan against. Plain `EXPLAIN`:
+
+```sql
+-- report_askers_by_report_id (GET /reports/{report_slug})
+SELECT report_asker.id, report_asker.ordinal, report_asker.printed_name, report_asker.report_id, report_asker.speaker_id, report_asker.reader_speaker_id  FROM report_asker  WHERE report_asker.report_id = 156 ORDER BY report_asker.ordinal;
+```
+
+```text
+-- report_askers_by_report_id (GET /reports/{report_slug}), scratch copy
+Index Scan using uq_report_asker_report_id_ordinal on report_asker  (cost=0.29..8.31 rows=1 width=38)
+  Index Cond: (report_id = 156)
+```
 
 ## Ranking cost
 

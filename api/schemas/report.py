@@ -31,6 +31,14 @@ class ReferencedReportData(BaseModel):
     title: str
 
 
+class AskerData(BaseModel):
+    person_id: int
+    person_slug: str
+    person_name: str
+    printed_name: str
+    reader_person_name: str
+
+
 class GetReportResponse(BaseModel):
     report_slug: str
     title: str
@@ -43,6 +51,7 @@ class GetReportResponse(BaseModel):
     official_record_url: str
     is_text_available: bool
     speeches: list[SpeechData]
+    askers: list[AskerData]
     speech_link: Optional[SpeechLinkData]
     referenced_written_answer: Optional[ReferencedReportData]
     referencing_oral_answer: Optional[ReferencedReportData]

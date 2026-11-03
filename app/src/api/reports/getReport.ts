@@ -39,6 +39,14 @@ export interface ReferencedReportData {
   title: string
 }
 
+export interface AskerData {
+  person_id: number
+  person_slug: string
+  person_name: string
+  printed_name: string
+  reader_person_name: string
+}
+
 export interface GetReportResponse {
   report_slug: string
   title: string
@@ -51,6 +59,7 @@ export interface GetReportResponse {
   official_record_url: string
   is_text_available: boolean
   speeches: SpeechData[]
+  askers: AskerData[]
   speech_link: SpeechLinkData | null
   referenced_written_answer: ReferencedReportData | null
   referencing_oral_answer: ReferencedReportData | null

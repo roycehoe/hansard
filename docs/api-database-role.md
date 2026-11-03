@@ -13,7 +13,7 @@ CREATE ROLE hansard_api LOGIN PASSWORD '<set by Royce>';
 ALTER ROLE hansard_api SET default_transaction_read_only = on;
 GRANT CONNECT ON DATABASE <database> TO hansard_api;
 GRANT USAGE ON SCHEMA public TO hansard_api;
-GRANT SELECT ON report, speech, sitting, attendance, speaker, person, partyaffiliation TO hansard_api;
+GRANT SELECT ON report, speech, sitting, attendance, speaker, person, partyaffiliation, report_asker TO hansard_api;
 GRANT SELECT (id, website_responses_added, sitting_date_responses_added, sittings_added, reports_added, speeches_added, speeches_linked, speeches_named_unlinked, attendances_added, attendances_linked, reports_held_without_text, reports_without_speech_rows, reports_rechecked, reports_changed, latest_sitting_date_with_text, figures, started_at, finished_at, status) ON refresh_run TO hansard_api;
 ```
 
@@ -27,6 +27,7 @@ Connect as `hansard_api` and run:
 
 ```sql
 SELECT count(*) FROM report;
+SELECT count(*) FROM report_asker;
 SELECT status FROM refresh_run LIMIT 1;
 UPDATE report SET title = title WHERE false;
 SET default_transaction_read_only = off;
@@ -34,7 +35,7 @@ UPDATE report SET title = title WHERE false;
 SELECT failure_reason FROM refresh_run LIMIT 1;
 ```
 
-The two `SELECT`s at the top return rows, or no rows from an empty `refresh_run`. The first `UPDATE` fails with "cannot execute UPDATE in a read-only transaction". The second fails with "permission denied for table report", which shows the grant holds even with the read-only option off. The last `SELECT` fails with "permission denied for table refresh_run".
+The three `SELECT`s at the top return rows, or no rows from an empty `refresh_run`. The first `UPDATE` fails with "cannot execute UPDATE in a read-only transaction". The second fails with "permission denied for table report", which shows the grant holds even with the read-only option off. The last `SELECT` fails with "permission denied for table refresh_run".
 
 ## Point the API at it
 

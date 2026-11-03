@@ -7,6 +7,7 @@ from database.party_affiliation import PartyAffiliation
 from database.person import Person
 from database.refresh_run import RefreshRun
 from database.report import Report
+from database.report_asker import ReportAsker
 from database.sitting import Sitting
 from database.speaker import Speaker
 from database.speech import Speech
@@ -22,6 +23,7 @@ pytestmark = [pytest.mark.database, pytest.mark.schema_drift]
         Person,
         RefreshRun,
         Report,
+        ReportAsker,
         Sitting,
         Speaker,
         Speech,
