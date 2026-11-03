@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from sqlmodel import Session
 
 from database.engine import get_session
+from enums import PersonReportFilter
 from schemas.person import (
     GetAllPersonsResponse,
     GetPersonReportsResponse,
@@ -50,6 +51,9 @@ def get_person_reports(
     person_id: int = Path(ge=1, le=_MAX_INTEGER_COLUMN_VALUE),
     page: int = Query(default=1, ge=1, le=_MAX_INTEGER_COLUMN_VALUE),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
+    report_filter: Optional[PersonReportFilter] = Query(default=None, alias="filter"),
     session: Session = Depends(get_session),
 ) -> GetPersonReportsResponse:
-    return person_service.get_person_reports(person_id, page, page_size, session)
+    return person_service.get_person_reports(
+        person_id, page, page_size, report_filter, session
+    )
