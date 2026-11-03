@@ -21,6 +21,7 @@ import {
   CONTACT_EMAIL,
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
+  QUESTION_DEFINITION,
   TEXT_NOT_IN_ARCHIVE_LABEL,
 } from '@/constants/constants'
 import {
@@ -491,6 +492,8 @@ export const Route = createFileRoute('/coverage/methods')({
                 the member who read it out. Questions answered together count
                 once for each member who asked one.
               </dd>
+              <dt className={TERM_CLASS_NAME}>Questions asked</dt>
+              <dd className={DEFINITION_CLASS_NAME}>{QUESTION_DEFINITION}</dd>
             </dl>
           </div>
           {REPORT_TYPE_GROUPS.map((group) => (
