@@ -6,6 +6,7 @@ import {
   formatPartyAffiliationStart,
   formatSittingDate,
   formatSittingDayMonth,
+  getNameListSeparator,
 } from '@/lib/format'
 import type { PartyAffiliationData } from '@/types/people/interfaces'
 import { describe, expect, it } from 'vitest'
@@ -39,6 +40,12 @@ function buildAffiliation(
     source_url: null,
     source_report: null,
   }
+}
+
+function joinNames(names: string[]): string {
+  return names
+    .map((name, index) => `${getNameListSeparator(index, names.length)}${name}`)
+    .join('')
 }
 
 describe('formatSittingDate', () => {
@@ -125,5 +132,19 @@ describe('formatParliamentOption', () => {
     expect(
       formatParliamentOption(buildParliament('1955-04-22', '1959-05-30', 0))
     ).toBe('Legislative Assembly (1955 to 1959)')
+  })
+})
+
+describe('getNameListSeparator', () => {
+  it('writes one name alone', () => {
+    expect(joinNames(['Lim'])).toBe('Lim')
+  })
+
+  it('puts and between two names', () => {
+    expect(joinNames(['Lim', 'Tan'])).toBe('Lim and Tan')
+  })
+
+  it('puts commas between names and and before the last', () => {
+    expect(joinNames(['Lim', 'Tan', 'Ong'])).toBe('Lim, Tan and Ong')
   })
 })

@@ -7,7 +7,7 @@ import {
 
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
-export const METHODS_LAST_REVISED = '2026-11-02'
+export const METHODS_LAST_REVISED = '2026-11-03'
 
 export const METHODS_TERMS_SECTION_ID = 'terms'
 

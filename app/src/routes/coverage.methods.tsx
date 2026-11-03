@@ -66,6 +66,7 @@ import {
   REPORT_TYPE_GROUPS,
   REPORT_TYPE_LABELS,
 } from '@/constants/reports/constants'
+import { ReportType } from '@/constants/reports/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildAttributionFigures } from '@/lib/attribution'
 import { formatSittingDate } from '@/lib/format'
@@ -478,6 +479,18 @@ export const Route = createFileRoute('/coverage/methods')({
               </dd>
               <dt className={TERM_CLASS_NAME}>Absent</dt>
               <dd className={DEFINITION_CLASS_NAME}>{ABSENCE_DEFINITION}</dd>
+              <dt className={TERM_CLASS_NAME}>Parliamentary question (PQ)</dt>
+              <dd className={DEFINITION_CLASS_NAME}>
+                Three report types hold a parliamentary question and its answer:{' '}
+                {REPORT_TYPE_LABELS[ReportType.ORAL_ANSWER]},{' '}
+                {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER]} and{' '}
+                {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER_NA]}. A question
+                counts for the member who asked it. When it stood in the name of
+                a member who was absent and another member asked it for them, it
+                counts for the member whose name it stood in, and its page names
+                the member who read it out. Questions answered together count
+                once for each member who asked one.
+              </dd>
             </dl>
           </div>
           {REPORT_TYPE_GROUPS.map((group) => (
