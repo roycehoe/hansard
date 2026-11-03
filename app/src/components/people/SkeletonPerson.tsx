@@ -35,6 +35,7 @@ export function SkeletonPerson() {
       <SkeletonTableSection />
       <div className="space-y-4">
         <Skeleton className="h-7 w-28" />
+        <Skeleton className="h-9 w-72" />
         <SkeletonReportRows />
       </div>
     </div>

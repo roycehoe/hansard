@@ -1,16 +1,33 @@
 import type { PersonReportData } from '@/api/people/getPersonReports'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
+import { NUMBER_LOCALE } from '@/constants/constants'
+import { PersonReportFilter } from '@/constants/people/enums'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
 import { FileText } from 'lucide-react'
 
 interface ListPersonReportsProps {
   reports: PersonReportData[]
+  filter?: PersonReportFilter
+  personName: string
 }
 
-export function ListPersonReports({ reports }: ListPersonReportsProps) {
+export function ListPersonReports({
+  reports,
+  filter,
+  personName,
+}: ListPersonReportsProps) {
   if (reports.length === 0) {
+    if (filter === PersonReportFilter.ASKED) {
+      return (
+        <NoticeEmpty
+          icon={FileText}
+          title="No questions asked"
+          description={`The record has no parliamentary question asked by ${personName}.`}
+        />
+      )
+    }
     return (
       <NoticeEmpty
         icon={FileText}
@@ -41,10 +58,12 @@ export function ListPersonReports({ reports }: ListPersonReportsProps) {
             {formatParliament(report.parliament_number)}
           </span>
           <BadgeReportType reportType={report.report_type} />
-          <span className="text-muted-foreground text-sm">
-            {report.speech_count}{' '}
-            {report.speech_count === 1 ? 'paragraph' : 'paragraphs'}
-          </span>
+          {report.speech_count > 0 && (
+            <span className="text-muted-foreground text-sm">
+              {report.speech_count.toLocaleString(NUMBER_LOCALE)}{' '}
+              {report.speech_count === 1 ? 'paragraph' : 'paragraphs'}
+            </span>
+          )}
         </li>
       ))}
     </ol>
