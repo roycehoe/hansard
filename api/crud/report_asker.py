@@ -14,3 +14,13 @@ class CRUDReportAsker:
             .order_by(col(ReportAsker.ordinal))
         )
         return list(self.session.exec(statement).all())
+
+    def get_all_report_ids_by_membership_ids(
+        self, membership_ids: list[int]
+    ) -> list[int]:
+        statement = (
+            select(col(ReportAsker.report_id))
+            .where(col(ReportAsker.speaker_id).in_(membership_ids))
+            .distinct()
+        )
+        return list(self.session.exec(statement).all())
