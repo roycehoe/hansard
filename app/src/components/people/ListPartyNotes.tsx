@@ -1,6 +1,11 @@
+import { ListSpellingNote } from '@/components/people/ListSpellingNote'
 import { formatPartyAffiliationStart, formatSourceUrlHost } from '@/lib/format'
 import { getPartyNoteId } from '@/lib/utils'
-import type { PartyAffiliationData, PartyNote } from '@/types/people/interfaces'
+import type {
+  PartyAffiliationData,
+  PartyNote,
+  PersonNameSpellingData,
+} from '@/types/people/interfaces'
 import { Link } from '@tanstack/react-router'
 
 const LINK_CLASS_NAME =
@@ -8,10 +13,16 @@ const LINK_CLASS_NAME =
 
 interface ListPartyNotesProps {
   notes: PartyNote[]
+  nameSpellings?: PersonNameSpellingData[]
 }
 
-export function ListPartyNotes({ notes }: ListPartyNotesProps) {
-  if (notes.length === 0) return null
+export function ListPartyNotes({
+  notes,
+  nameSpellings = [],
+}: ListPartyNotesProps) {
+  const hasSpellingNote = nameSpellings.length > 0
+
+  if (notes.length === 0 && !hasSpellingNote) return null
 
   function renderSource(partyAffiliation: PartyAffiliationData) {
     if (partyAffiliation.source_report !== null) {
@@ -43,10 +54,11 @@ export function ListPartyNotes({ notes }: ListPartyNotesProps) {
 
   return (
     <section
-      aria-label="Party notes"
+      aria-label={hasSpellingNote ? 'Notes' : 'Party notes'}
       className="border-separator text-muted-foreground max-w-prose border-t pt-4 text-sm"
     >
       <ol className="list-decimal space-y-3 pl-5">
+        {hasSpellingNote && <ListSpellingNote nameSpellings={nameSpellings} />}
         {notes.map((note) => (
           <li
             key={note.number}

@@ -14,6 +14,7 @@ import { SkeletonPerson } from '@/components/people/SkeletonPerson'
 import { TableMemberships } from '@/components/people/TableMemberships'
 import { TableParliamentCounts } from '@/components/people/TableParliamentCounts'
 import { TextHandAliasNote } from '@/components/people/TextHandAliasNote'
+import { TextSpellingNoteMarker } from '@/components/people/TextSpellingNoteMarker'
 import { SkeletonReportRows } from '@/components/reports/SkeletonReportRows'
 import {
   Breadcrumb,
@@ -30,6 +31,7 @@ import {
   PERSON_TITLE_SUFFIX,
 } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { formatOtherNames } from '@/lib/personName'
 import { isSittingMember, parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
@@ -125,6 +127,7 @@ export const Route = createFileRoute('/people/$personSlug')({
 
     const { data } = person
     const nameVariants = data.name_variants.join('; ')
+    const otherNames = formatOtherNames(data.name_spellings)
 
     return (
       <div className="space-y-8">
@@ -132,9 +135,18 @@ export const Route = createFileRoute('/people/$personSlug')({
           title={data.canonical_name}
           badge={isSittingMember(data.memberships) && <BadgeSittingMember />}
           description={
-            nameVariants === ''
-              ? undefined
-              : `Also recorded as: ${nameVariants}`
+            nameVariants === '' && otherNames === '' ? undefined : (
+              <>
+                {otherNames !== '' && (
+                  <>
+                    {otherNames}
+                    <TextSpellingNoteMarker />
+                  </>
+                )}
+                {nameVariants !== '' && otherNames !== '' && <br />}
+                {nameVariants !== '' && `Also recorded as: ${nameVariants}`}
+              </>
+            )
           }
           titleAction={
             <ButtonCopyLink
@@ -177,7 +189,10 @@ export const Route = createFileRoute('/people/$personSlug')({
           >
             Memberships
           </h2>
-          <TableMemberships memberships={data.memberships} />
+          <TableMemberships
+            memberships={data.memberships}
+            nameSpellings={data.name_spellings}
+          />
         </section>
         {data.parliament_counts.length > 0 && (
           <section aria-labelledby="counts-heading" className="space-y-2">

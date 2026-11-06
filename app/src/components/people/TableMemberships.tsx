@@ -10,22 +10,29 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { SPELLING_NOTE_NUMBER } from '@/constants/people/constants'
 import { isConstituency } from '@/lib/constituency'
 import { formatParliament } from '@/lib/format'
 import { getMembershipToPartyNote } from '@/lib/utils'
+import type { PersonNameSpellingData } from '@/types/people/interfaces'
 import { Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
 interface TableMembershipsProps {
   memberships: PersonMembershipData[]
+  nameSpellings: PersonNameSpellingData[]
 }
 
-export function TableMemberships({ memberships }: TableMembershipsProps) {
+export function TableMemberships({
+  memberships,
+  nameSpellings,
+}: TableMembershipsProps) {
   const membershipToPartyNote = getMembershipToPartyNote(
     memberships.map((membership) => ({
       label: formatParliament(membership.parliament_number),
       membership,
-    }))
+    })),
+    nameSpellings.length > 0 ? SPELLING_NOTE_NUMBER + 1 : undefined
   )
 
   return (
@@ -76,7 +83,10 @@ export function TableMemberships({ memberships }: TableMembershipsProps) {
           ))}
         </TableBody>
       </Table>
-      <ListPartyNotes notes={[...membershipToPartyNote.values()]} />
+      <ListPartyNotes
+        notes={[...membershipToPartyNote.values()]}
+        nameSpellings={nameSpellings}
+      />
     </div>
   )
 }

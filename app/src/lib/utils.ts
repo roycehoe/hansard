@@ -60,13 +60,14 @@ export function getPartyNoteId(noteNumber: number): string {
 export function getMembershipToPartyNote<
   Membership extends { party_affiliations: PartyAffiliationData[] },
 >(
-  entries: { label: string; membership: Membership }[]
+  entries: { label: string; membership: Membership }[],
+  firstNoteNumber = 1
 ): Map<Membership, PartyNote> {
   const membershipToPartyNote = new Map<Membership, PartyNote>()
   for (const { label, membership } of entries) {
     if (membership.party_affiliations.length === 0) continue
     membershipToPartyNote.set(membership, {
-      number: membershipToPartyNote.size + 1,
+      number: membershipToPartyNote.size + firstNoteNumber,
       label,
       partyAffiliations: membership.party_affiliations,
     })
