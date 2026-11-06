@@ -28,6 +28,7 @@ function buildPerson(memberships: MembershipData[]): PersonData {
     person_slug: 'person',
     canonical_name: 'Person',
     name_variants: [],
+    name_spellings: [],
     memberships,
   }
 }

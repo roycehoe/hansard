@@ -224,6 +224,7 @@ export const Route = createFileRoute('/people/')({
               typedName,
               constituencyWords
             )}
+            typedName={typedName}
             namePattern={buildWordStartPattern(nameWords)}
             constituencyPattern={buildWordStartPattern(constituencyWords)}
           />

@@ -40,6 +40,7 @@ function buildPerson(
     person_slug: String(personId),
     canonical_name: canonicalName,
     name_variants: [],
+    name_spellings: [],
     memberships,
   }
 }

@@ -1,4 +1,6 @@
 import type { PersonData } from '@/api/people/getAllPersons'
+import { PersonNameSpellingKind } from '@/constants/people/enums'
+import type { PersonNameSpellingData } from '@/types/people/interfaces'
 
 const NON_WORD_RUN = /[^\p{L}\p{N}]+/gu
 const INITIAL_RUN = /(?<![\p{L}\p{N}])\p{L}(?: \p{L})+(?![\p{L}\p{N}])/gu
@@ -21,6 +23,10 @@ const SAME_WORDS_RANK = 1
 const WORD_PREFIXES_RANK = 2
 const ACRONYM_RANK = 3
 const ACRONYM_QUERY_WORD = /^\p{L}{3,4}$/u
+const OTHER_NAME_SEPARATOR = ', '
+const OTHER_SPELLING_LABEL = 'Also spelled'
+const OTHER_NAME_LABEL = 'Also printed as'
+const OTHER_NAME_LINE_SEPARATOR = '. '
 
 function getTitleStrippedWords(words: string[]): string[] {
   let start = 0
@@ -130,7 +136,57 @@ function getAcronym(name: string): string {
 }
 
 function getPersonNames(person: PersonData): string[] {
-  return [person.canonical_name, ...person.name_variants]
+  return [
+    person.canonical_name,
+    ...person.name_variants,
+    ...person.name_spellings.map(({ spelling }) => spelling),
+  ]
+}
+
+function getOtherNameSpellings(
+  nameSpellings: PersonNameSpellingData[]
+): PersonNameSpellingData[] {
+  return nameSpellings.filter(
+    ({ kind }) => kind !== PersonNameSpellingKind.CANONICAL
+  )
+}
+
+export function getOtherNameLabel(kind: PersonNameSpellingKind): string {
+  return kind === PersonNameSpellingKind.OTHER_NAME
+    ? OTHER_NAME_LABEL
+    : OTHER_SPELLING_LABEL
+}
+
+export function formatOtherNames(
+  nameSpellings: PersonNameSpellingData[]
+): string {
+  const otherNameSpellings = getOtherNameSpellings(nameSpellings)
+  return [
+    ...new Set(otherNameSpellings.map(({ kind }) => getOtherNameLabel(kind))),
+  ]
+    .map((label) => {
+      const names = otherNameSpellings
+        .filter(({ kind }) => getOtherNameLabel(kind) === label)
+        .map(({ spelling }) => spelling)
+      return `${label} ${names.join(OTHER_NAME_SEPARATOR)}`
+    })
+    .join(OTHER_NAME_LINE_SEPARATOR)
+}
+
+// "Lim Chin Siong" is also a word-prefix match for "Lim Ching Siong", so a
+// spelling shows only when it matches better than the name on the page.
+export function getMatchedNameSpelling(
+  query: string,
+  person: PersonData
+): PersonNameSpellingData | undefined {
+  const canonicalRank = getPersonNameMatchRank(query, [person.canonical_name])
+  return getOtherNameSpellings(person.name_spellings).find(({ spelling }) => {
+    const spellingRank = getPersonNameMatchRank(query, [spelling])
+    return (
+      spellingRank !== undefined &&
+      (canonicalRank === undefined || spellingRank < canonicalRank)
+    )
+  })
 }
 
 // Acronyms such as "lky" count only when the query matches nobody by words,

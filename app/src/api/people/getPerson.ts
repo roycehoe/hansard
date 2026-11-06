@@ -1,5 +1,8 @@
 import { apiGet } from '@/api/client'
-import type { PartyAffiliationData } from '@/types/people/interfaces'
+import type {
+  PartyAffiliationData,
+  PersonNameSpellingData,
+} from '@/types/people/interfaces'
 import { useQuery } from '@tanstack/react-query'
 
 export interface GetPersonRequest {
@@ -27,6 +30,7 @@ export interface GetPersonResponse {
   person_slug: string
   canonical_name: string
   name_variants: string[]
+  name_spellings: PersonNameSpellingData[]
   memberships: PersonMembershipData[]
   parliament_counts: ParliamentCountData[]
 }

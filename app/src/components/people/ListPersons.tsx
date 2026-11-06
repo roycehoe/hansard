@@ -2,6 +2,7 @@ import type { PersonData } from '@/api/people/getAllPersons'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
+import { TextMatchedNameSpelling } from '@/components/people/TextMatchedNameSpelling'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
 import { TextHighlighted } from '@/components/reports/TextHighlighted'
 import { NUMBER_LOCALE } from '@/constants/constants'
@@ -13,12 +14,14 @@ import { Fragment } from 'react'
 
 interface ListPersonsProps {
   persons: PersonData[]
+  typedName: string
   namePattern: RegExp | undefined
   constituencyPattern: RegExp | undefined
 }
 
 export function ListPersons({
   persons,
+  typedName,
   namePattern,
   constituencyPattern,
 }: ListPersonsProps) {
@@ -62,6 +65,11 @@ export function ListPersons({
                 </Link>
                 {isSittingMember(person.memberships) && <BadgeSittingMember />}
               </div>
+              <TextMatchedNameSpelling
+                typedName={typedName}
+                person={person}
+                namePattern={namePattern}
+              />
               <p className="text-muted-foreground text-sm">
                 {person.memberships.map((membership, index) => (
                   <Fragment

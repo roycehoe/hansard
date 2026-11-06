@@ -1,5 +1,11 @@
 import type { PersonData } from '@/api/people/getAllPersons'
-import { getPersonNameMatches, getPersonNameMatchRank } from '@/lib/personName'
+import { PersonNameSpellingKind } from '@/constants/people/enums'
+import {
+  formatOtherNames,
+  getMatchedNameSpelling,
+  getPersonNameMatches,
+  getPersonNameMatchRank,
+} from '@/lib/personName'
 import { describe, expect, it } from 'vitest'
 
 describe('getPersonNameMatchRank', () => {
@@ -98,6 +104,7 @@ describe('getPersonNameMatches', () => {
     person_slug: '',
     canonical_name: name,
     name_variants: [],
+    name_spellings: [],
     memberships: [],
   }))
 
@@ -126,5 +133,124 @@ describe('getPersonNameMatches', () => {
   it('keeps word matches when the query is also an acronym', () => {
     expect(getMatchedNames('tan')).toEqual(['Tan Cheng Bock'])
     expect(getMatchedNames('ng')).toEqual(['Ng Eng Hen'])
+  })
+})
+
+describe('person name spellings', () => {
+  const canonicalNameToOtherNames: [string, string[]][] = [
+    ['Lim Ching Siong', ['Lim Chin Siong']],
+    ['Baharudin Bin Mohamed Ariff', ['Baharuddin Bin Mohamed Ariff']],
+    ['Chew Chin Han', ['Chew Chin Harn']],
+    ['Koo Young', ['Koo Yong']],
+    ['Lai Tha Chai', ['Lai Tai Chai']],
+    ['Zulkifli Bin Mohammed', ['Zulkifli Bin Mohamed']],
+    ['Ahmad Khalis bin Abdul Ghani', ['Ahmad Khalis bin Abdul Gahni']],
+    ['Abdul Nasser Bin Kamaruddin', ['Abdul Nasser Bin Kamarudin']],
+    ['Jek Yeun Thong', ['Jek Yuen Thong']],
+    ['Rahmat Bin Kenap', ['Rahamat Bin Kenap']],
+    ['Yaacob Bin Mohamed', ["Ya'acob Bin Mohamed"]],
+    ['Seet Ai Mee', ['Seet Ai Mei']],
+    ['Mohamad Maidin', ['Mohamed Maidin BPM', 'Mohammad Maidin']],
+    ['Low Por Tuck', ['Lau Peter']],
+  ]
+  const OTHER_NAME_SPELLINGS = canonicalNameToOtherNames.flatMap(
+    ([canonicalName, otherNames]) =>
+      otherNames.map((otherName) => [canonicalName, otherName])
+  )
+
+  function getPerson(
+    canonicalName: string,
+    otherNames: string[],
+    personId: number
+  ): PersonData {
+    return {
+      person_id: personId,
+      person_slug: '',
+      canonical_name: canonicalName,
+      name_variants: [],
+      name_spellings: [
+        {
+          spelling: canonicalName,
+          kind: PersonNameSpellingKind.CANONICAL,
+          note: '',
+        },
+        ...otherNames.map((spelling) => ({
+          spelling,
+          kind:
+            canonicalName === 'Low Por Tuck'
+              ? PersonNameSpellingKind.OTHER_NAME
+              : PersonNameSpellingKind.OTHER_SPELLING,
+          note: '',
+        })),
+      ],
+      memberships: [],
+    }
+  }
+
+  const persons = canonicalNameToOtherNames.map(
+    ([canonicalName, otherNames], index) =>
+      getPerson(canonicalName, otherNames, index)
+  )
+  const personsWithNoSpellings = persons.map((person) => ({
+    ...person,
+    name_spellings: [],
+  }))
+
+  it('covers the 14 people of the spelling notes', () => {
+    expect(
+      new Set(persons.map(({ canonical_name }) => canonical_name)).size
+    ).toBe(14)
+  })
+
+  it.each(OTHER_NAME_SPELLINGS)(
+    'finds %s by %s as an exact match',
+    (canonicalName, otherName) => {
+      expect(
+        getPersonNameMatches(otherName, persons).map(({ person, rank }) => [
+          person.canonical_name,
+          rank,
+        ])
+      ).toEqual([[canonicalName, 0]])
+    }
+  )
+
+  it.each(OTHER_NAME_SPELLINGS)(
+    'has no exact match for %s by %s without the spelling',
+    (canonicalName, otherName) => {
+      expect(
+        getPersonNameMatches(otherName, personsWithNoSpellings).filter(
+          ({ person, rank }) =>
+            person.canonical_name === canonicalName && rank === 0
+        )
+      ).toEqual([])
+    }
+  )
+
+  it('finds nobody by a spelling no source prints', () => {
+    expect(getPersonNameMatches('Lim Chan Siong', persons)).toEqual([])
+  })
+
+  it('names the matched spelling only when it beats the name on the page', () => {
+    const [lim] = persons
+
+    expect(getMatchedNameSpelling('Lim Chin Siong', lim)?.spelling).toBe(
+      'Lim Chin Siong'
+    )
+    expect(getMatchedNameSpelling('Lim Ching Siong', lim)).toBeUndefined()
+    expect(getMatchedNameSpelling('Lim', lim)).toBeUndefined()
+    expect(getMatchedNameSpelling('', lim)).toBeUndefined()
+  })
+
+  it('labels a spelling and a printed name differently', () => {
+    const maidin = persons[12]
+    const low = persons[13]
+
+    expect(formatOtherNames(maidin.name_spellings)).toBe(
+      'Also spelled Mohamed Maidin BPM, Mohammad Maidin'
+    )
+    expect(formatOtherNames(low.name_spellings)).toBe(
+      'Also printed as Lau Peter'
+    )
+    expect(formatOtherNames([])).toBe('')
   })
 })

@@ -1,4 +1,7 @@
-import type { DatePrecision } from '@/constants/people/enums'
+import type {
+  DatePrecision,
+  PersonNameSpellingKind,
+} from '@/constants/people/enums'
 
 export interface PartyAffiliationSourceReportData {
   report_slug: string
@@ -13,6 +16,17 @@ export interface PartyAffiliationData {
   event: string
   source_url: string | null
   source_report: PartyAffiliationSourceReportData | null
+}
+
+export interface PersonNameSpellingData {
+  spelling: string
+  kind: PersonNameSpellingKind
+  note: string
+}
+
+export interface SpellingNoteSegment {
+  text: string
+  url?: string
 }
 
 export interface PartyNote {

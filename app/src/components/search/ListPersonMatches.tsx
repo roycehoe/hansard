@@ -2,6 +2,7 @@ import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
 import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
+import { TextMatchedNameSpelling } from '@/components/people/TextMatchedNameSpelling'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
 import { formatMembershipParliaments, getMembershipParties } from '@/lib/format'
 import { getPersonNameMatches } from '@/lib/personName'
@@ -129,6 +130,7 @@ export function ListPersonMatches({
                     <BadgeSittingMember />
                   )}
                 </div>
+                <TextMatchedNameSpelling typedName={words} person={person} />
                 <p className="text-muted-foreground text-sm">
                   {formatMembershipParliaments(person.memberships)}
                   {getMembershipParties(person.memberships).map((party) => (
