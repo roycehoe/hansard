@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 interface PageHeaderProps {
   title: string
   description?: ReactNode
+  belowDescription?: ReactNode
   breadcrumb?: ReactNode
   aboveTitle?: ReactNode
   actions?: ReactNode
@@ -13,6 +14,7 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   description,
+  belowDescription,
   breadcrumb,
   aboveTitle,
   actions,
@@ -40,6 +42,7 @@ export function PageHeader({
               {description}
             </p>
           )}
+          {belowDescription}
         </div>
         {actions && (
           <div className="flex flex-wrap items-center gap-2">{actions}</div>

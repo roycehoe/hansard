@@ -12,7 +12,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ABSENCE_DEFINITION, NUMBER_LOCALE } from '@/constants/constants'
+import {
+  ABSENCE_DEFINITION,
+  NUMBER_LOCALE,
+  QUESTION_COUNT_LINK_LABEL,
+  QUESTION_DEFINITION,
+} from '@/constants/constants'
 import { formatParliament } from '@/lib/format'
 
 interface TableParliamentCountsProps {
@@ -26,7 +31,7 @@ export function TableParliamentCounts({
     <div className="space-y-4">
       <Table>
         <TableCaption className="sr-only">
-          Paragraphs and attendance by Parliament
+          Paragraphs, questions and attendance by Parliament
         </TableCaption>
         <TableHeader>
           <TableRow>
@@ -35,6 +40,14 @@ export function TableParliamentCounts({
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
               Paragraphs
+            </TableHead>
+            <TableHead scope="col" className="text-right whitespace-normal">
+              <PopoverDefinition
+                definition={QUESTION_DEFINITION}
+                termsLinkLabel={QUESTION_COUNT_LINK_LABEL}
+              >
+                <span className={DEFINED_TERM_CLASS_NAME}>Questions asked</span>
+              </PopoverDefinition>
             </TableHead>
             <TableHead scope="col" className="text-right whitespace-normal">
               Present
@@ -54,6 +67,9 @@ export function TableParliamentCounts({
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {count.speech_count.toLocaleString(NUMBER_LOCALE)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {count.questions_asked_count.toLocaleString(NUMBER_LOCALE)}
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {count.present_count.toLocaleString(NUMBER_LOCALE)}

@@ -21,6 +21,7 @@ export interface PersonMembershipData {
 export interface ParliamentCountData {
   parliament_number: number
   speech_count: number
+  questions_asked_count: number
   present_count: number
   absent_count: number
 }

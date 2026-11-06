@@ -14,6 +14,8 @@ const MONTH_YEAR_FORMAT = 'MMMM yyyy'
 const WWW_PREFIX = /^www\./
 const PERCENTAGE_SCALE = 100
 const PERCENTAGE_DECIMAL_PLACES = 2
+const NAME_LIST_SEPARATOR = ', '
+const NAME_LIST_LAST_SEPARATOR = ' and '
 
 export function formatSittingDate(sittingDate: string): string {
   return format(parseISO(sittingDate), SITTING_DATE_FORMAT)
@@ -91,4 +93,9 @@ export function formatPartyAffiliationStart(
 
 export function formatSourceUrlHost(sourceUrl: string): string {
   return new URL(sourceUrl).hostname.replace(WWW_PREFIX, '')
+}
+
+export function getNameListSeparator(index: number, count: number): string {
+  if (index === 0) return ''
+  return index === count - 1 ? NAME_LIST_LAST_SEPARATOR : NAME_LIST_SEPARATOR
 }

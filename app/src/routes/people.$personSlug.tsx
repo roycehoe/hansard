@@ -25,25 +25,37 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { HTTP_NOT_FOUND, NUMBER_LOCALE } from '@/constants/constants'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  FILTER_ALL,
+  HTTP_NOT_FOUND,
+  NUMBER_LOCALE,
+} from '@/constants/constants'
 import {
   PERSON_ID_TO_HAND_ALIAS_NOTE,
   PERSON_TITLE_SUFFIX,
 } from '@/constants/people/constants'
+import { PersonReportFilter } from '@/constants/people/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatOtherNames, getNameSpellings } from '@/lib/personName'
 import { isSittingMember, parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { z } from 'zod'
+
+const personSearchSchema = z.object({
+  filter: z.enum(PersonReportFilter).optional().catch(undefined),
+})
 
 export const Route = createFileRoute('/people/$personSlug')({
+  validateSearch: personSearchSchema,
   component: function PagePerson() {
     const { personSlug } = Route.useParams()
+    const { filter } = Route.useSearch()
     const navigate = useNavigate()
     const { personId, slug } = parsePersonSlug(personSlug)
     const person = useGetPerson({ person_id: personId })
-    const reports = useGetPersonReports({ person_id: personId })
-    const reportCount = reports.data?.pages[0].total_count
+    const reports = useGetPersonReports({ person_id: personId, filter })
     const canonicalSlug = person.data?.person_slug
     useDocumentTitle(
       person.data && `${person.data.canonical_name}, ${PERSON_TITLE_SUFFIX}`
@@ -55,6 +67,7 @@ export const Route = createFileRoute('/people/$personSlug')({
         void navigate({
           to: '/people/$personSlug',
           params: { personSlug: `${personId}-${canonicalSlug}` },
+          search: true,
           replace: true,
         })
       },
@@ -73,8 +86,25 @@ export const Route = createFileRoute('/people/$personSlug')({
       void reports.fetchNextPage()
     }
 
-    function renderReports() {
-      if (reports.isLoading) return <SkeletonReportRows />
+    function changeTab(nextTab: string) {
+      void navigate({
+        to: '/people/$personSlug',
+        params: { personSlug },
+        search: (previous) => ({
+          ...previous,
+          filter:
+            nextTab === PersonReportFilter.ASKED
+              ? PersonReportFilter.ASKED
+              : undefined,
+        }),
+        resetScroll: false,
+      })
+    }
+
+    function renderReports(personName: string) {
+      if (reports.isLoading || reports.isPlaceholderData) {
+        return <SkeletonReportRows />
+      }
       if (reports.isLoadingError || !reports.data) {
         return (
           <NoticeErrorPersonReports
@@ -85,14 +115,22 @@ export const Route = createFileRoute('/people/$personSlug')({
       }
       const [firstPage] = reports.data.pages
       const personReports = reports.data.pages.flatMap((page) => page.reports)
+      const reportCount =
+        filter === PersonReportFilter.ASKED
+          ? firstPage.questions_asked_count
+          : firstPage.total_count
       return (
         <div className="space-y-4">
-          <ListPersonReports reports={personReports} />
+          <ListPersonReports
+            reports={personReports}
+            filter={filter}
+            personName={personName}
+          />
           {reports.hasNextPage && !reports.isFetchNextPageError && (
             <p role="status" className="text-muted-foreground text-sm">
               Showing {personReports.length.toLocaleString(NUMBER_LOCALE)} of{' '}
-              {firstPage.total_count.toLocaleString(NUMBER_LOCALE)}. More load
-              as you scroll.
+              {reportCount.toLocaleString(NUMBER_LOCALE)}. More load as you
+              scroll.
             </p>
           )}
           <PaginationInfiniteScroll
@@ -104,6 +142,15 @@ export const Route = createFileRoute('/people/$personSlug')({
             shownCount={personReports.length}
           />
         </div>
+      )
+    }
+
+    function renderTabCount(count: number | undefined) {
+      if (count === undefined) return null
+      return (
+        <span className="text-muted-foreground tabular-nums">
+          {count.toLocaleString(NUMBER_LOCALE)}
+        </span>
       )
     }
 
@@ -129,6 +176,7 @@ export const Route = createFileRoute('/people/$personSlug')({
     const nameVariants = data.name_variants.join('; ')
     const nameSpellings = getNameSpellings(data)
     const otherNames = formatOtherNames(nameSpellings)
+    const firstReportsPage = reports.data?.pages[0]
 
     return (
       <div className="space-y-8">
@@ -198,7 +246,7 @@ export const Route = createFileRoute('/people/$personSlug')({
         {data.parliament_counts.length > 0 && (
           <section aria-labelledby="counts-heading" className="space-y-2">
             <h2 id="counts-heading" className="font-serif text-xl lg:text-2xl">
-              Paragraphs and attendance
+              Paragraphs, questions and attendance
             </h2>
             <TableParliamentCounts parliamentCounts={data.parliament_counts} />
             <TextHandAliasNote
@@ -210,14 +258,29 @@ export const Route = createFileRoute('/people/$personSlug')({
         <section aria-labelledby="reports-heading" className="space-y-4">
           <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
             Reports
-            {reportCount !== undefined && (
-              <span className="text-muted-foreground ml-1 font-sans text-sm tabular-nums">
-                {' '}
-                {reportCount.toLocaleString(NUMBER_LOCALE)}
-              </span>
-            )}
           </h2>
-          {renderReports()}
+          <Tabs
+            value={filter ?? FILTER_ALL}
+            onValueChange={changeTab}
+            className="gap-4"
+          >
+            <TabsList>
+              <TabsTrigger value={FILTER_ALL}>
+                All reports
+                {renderTabCount(firstReportsPage?.total_count)}
+              </TabsTrigger>
+              <TabsTrigger value={PersonReportFilter.ASKED}>
+                Questions asked
+                {renderTabCount(firstReportsPage?.questions_asked_count)}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value={FILTER_ALL}>
+              {renderReports(data.canonical_name)}
+            </TabsContent>
+            <TabsContent value={PersonReportFilter.ASKED}>
+              {renderReports(data.canonical_name)}
+            </TabsContent>
+          </Tabs>
         </section>
         <TextSource sittingDate={null} officialRecordUrl={null} />
       </div>

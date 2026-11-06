@@ -8,11 +8,19 @@ from sqlmodel import Session, select
 
 from database.engine import engine
 from database.report import Report
-from schemas.report import GetReportMatchedWordsResponse, GetReportResponse
+from enums import ReportType
+from schemas.report import AskerData, GetReportMatchedWordsResponse, GetReportResponse
+from utils.report_slug import get_report_slug
 
 pytestmark = pytest.mark.database
 
 _MINIMUM_MATCHED_WORD_LENGTH = 4
+_QUESTION_REPORT_SLUG = "oral-answer-3845"
+_QUESTION_ASKER_PRINTED_NAMES = (
+    "Mr Xie Yao Quan",
+    "Ms Hazel Poa",
+    "Mr Patrick Tay Teck Guan",
+)
 
 
 @pytest.fixture
@@ -40,6 +48,36 @@ def test_a_report_answers_200_with_its_shape(
     assert GetReportResponse.model_validate(body).model_dump(mode="json") == body
     assert body["report_slug"] == report_slug
     assert body["speeches"]
+
+
+def test_a_parliamentary_question_answers_its_askers_in_order(
+    api_client: TestClient,
+) -> None:
+    response = api_client.get(f"/reports/{_QUESTION_REPORT_SLUG}")
+
+    assert response.status_code == status.HTTP_200_OK
+    askers = [AskerData.model_validate(asker) for asker in response.json()["askers"]]
+    assert (
+        tuple(asker.printed_name for asker in askers) == _QUESTION_ASKER_PRINTED_NAMES
+    )
+
+
+def test_a_report_that_is_not_a_question_answers_no_askers(
+    api_client: TestClient,
+) -> None:
+    with Session(engine) as session:
+        motion_report_id = session.exec(
+            select(Report.report_id)
+            .where(Report.report_type == ReportType.MOTION)
+            .limit(1)
+        ).one()
+
+    response = api_client.get(
+        f"/reports/{quote(get_report_slug(motion_report_id), safe='')}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["askers"] == []
 
 
 def test_report_matched_words_answer_200_with_their_shape(

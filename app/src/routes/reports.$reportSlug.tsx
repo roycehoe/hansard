@@ -15,6 +15,7 @@ import { NoticeTextNotPublished } from '@/components/reports/NoticeTextNotPublis
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
 import { PopoverReportType } from '@/components/reports/PopoverReportType'
 import { SkeletonReport } from '@/components/reports/SkeletonReport'
+import { TextAskedBy } from '@/components/reports/TextAskedBy'
 import { TextReportProblem } from '@/components/reports/TextReportProblem'
 import {
   Breadcrumb,
@@ -128,6 +129,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
           title={data.title}
           aboveTitle={<PopoverReportType reportType={data.report_type} />}
           description={data.subtitle || undefined}
+          belowDescription={<TextAskedBy askers={data.askers} />}
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>

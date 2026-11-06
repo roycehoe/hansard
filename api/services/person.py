@@ -8,10 +8,12 @@ from crud.party_affiliation import CRUDPartyAffiliation
 from crud.person import CRUDPerson
 from crud.person_name_spelling import CRUDPersonNameSpelling
 from crud.report import CRUDReport
+from crud.report_asker import CRUDReportAsker
 from crud.speech import CRUDSpeech
 from database.person import Person
 from database.report import Report
 from database.speaker import Speaker
+from enums import PersonReportFilter
 from exceptions.person import PersonNotFoundException
 from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
 from schemas.person import (
@@ -162,6 +164,23 @@ def _get_parliament_number_to_speech_count(
     return parliament_number_to_speech_count
 
 
+def _get_parliament_number_to_questions_asked_count(
+    membership_ids: list[int], session: Session
+) -> dict[int, int]:
+    report_ids = CRUDReportAsker(session).get_all_report_ids_by_membership_ids(
+        membership_ids
+    )
+    report_id_to_parliament_number = CRUDReport(
+        session
+    ).get_id_to_parliament_number_by_ids(report_ids)
+    parliament_number_to_questions_asked_count: dict[int, int] = {}
+    for parliament_number in report_id_to_parliament_number.values():
+        parliament_number_to_questions_asked_count[parliament_number] = (
+            parliament_number_to_questions_asked_count.get(parliament_number, 0) + 1
+        )
+    return parliament_number_to_questions_asked_count
+
+
 def get_all_persons(
     parliament_number: Optional[int],
     party: Optional[str],
@@ -240,6 +259,9 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
     parliament_number_to_speech_count = _get_parliament_number_to_speech_count(
         membership_ids, session
     )
+    parliament_number_to_questions_asked_count = (
+        _get_parliament_number_to_questions_asked_count(membership_ids, session)
+    )
     parliament_number_to_present_count = CRUDAttendance(
         session
     ).get_parliament_number_to_count_by_membership_ids_and_is_present(
@@ -252,6 +274,7 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
     )
     parliament_numbers = sorted(
         set(parliament_number_to_speech_count)
+        | set(parliament_number_to_questions_asked_count)
         | set(parliament_number_to_present_count)
         | set(parliament_number_to_absent_count)
     )
@@ -285,6 +308,9 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
                 speech_count=parliament_number_to_speech_count.get(
                     parliament_number, 0
                 ),
+                questions_asked_count=parliament_number_to_questions_asked_count.get(
+                    parliament_number, 0
+                ),
                 present_count=parliament_number_to_present_count.get(
                     parliament_number, 0
                 ),
@@ -298,7 +324,11 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
 
 
 def get_person_reports(
-    person_id: int, page: int, page_size: int, session: Session
+    person_id: int,
+    page: int,
+    page_size: int,
+    report_filter: Optional[PersonReportFilter],
+    session: Session,
 ) -> GetPersonReportsResponse:
     person = _get_validated_person(person_id, session)
     membership_ids = [
@@ -308,11 +338,20 @@ def get_person_reports(
     report_id_to_speech_count = CRUDSpeech(
         session
     ).get_report_id_to_speech_count_by_membership_ids(membership_ids)
+    taken_down_report_ids = get_taken_down_report_ids(session)
     visible_report_ids = set(report_id_to_speech_count).difference(
-        get_taken_down_report_ids(session)
+        taken_down_report_ids
+    )
+    asked_report_ids = set(
+        CRUDReportAsker(session).get_all_report_ids_by_membership_ids(membership_ids)
+    ).difference(taken_down_report_ids)
+    listed_report_ids = (
+        asked_report_ids
+        if report_filter == PersonReportFilter.ASKED
+        else visible_report_ids
     )
     report_ids = CRUDReport(session).get_all_ids_by_ids(
-        list(visible_report_ids),
+        list(listed_report_ids),
         limit=page_size + 1,
         offset=(page - 1) * page_size,
     )
@@ -329,7 +368,7 @@ def get_person_reports(
                 report_type=report_id_to_report[report_id].report_type,
                 sitting_date=report_id_to_report[report_id].sitting_date.date(),
                 parliament_number=report_id_to_report[report_id].parliament_number,
-                speech_count=report_id_to_speech_count[report_id],
+                speech_count=report_id_to_speech_count.get(report_id, 0),
             )
             for report_id in page_report_ids
         ],
@@ -337,6 +376,7 @@ def get_person_reports(
         page_size=page_size,
         has_next_page=len(report_ids) > page_size,
         total_count=len(visible_report_ids),
+        questions_asked_count=len(asked_report_ids),
     )
 
 

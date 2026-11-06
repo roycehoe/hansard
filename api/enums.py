@@ -33,6 +33,10 @@ class SearchSort(StrEnum):
     OLDEST = "oldest"
 
 
+class PersonReportFilter(StrEnum):
+    ASKED = "asked"
+
+
 class SearchEndpoint(StrEnum):
     SPEECHES = "/search/speeches"
     REPORTS = "/search/reports"

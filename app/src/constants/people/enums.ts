@@ -9,3 +9,7 @@ export enum PersonNameSpellingKind {
   TRANSLITERATION = 'TRANSLITERATION',
   OTHER_NAME = 'OTHER_NAME',
 }
+
+export enum PersonReportFilter {
+  ASKED = 'asked',
+}

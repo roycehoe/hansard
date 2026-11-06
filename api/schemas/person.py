@@ -61,6 +61,7 @@ class PersonMembershipData(BaseModel):
 class ParliamentCountData(BaseModel):
     parliament_number: int
     speech_count: int
+    questions_asked_count: int
     present_count: int
     absent_count: int
 
@@ -91,6 +92,7 @@ class GetPersonReportsResponse(BaseModel):
     page_size: int
     has_next_page: bool
     total_count: int
+    questions_asked_count: int
 
 
 class GetAllPartiesResponse(BaseModel):

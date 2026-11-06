@@ -41,6 +41,11 @@ export const TEXT_NOT_IN_ARCHIVE_LABEL = 'Text not in this archive'
 export const ABSENCE_DEFINITION =
   "Listed as absent in the sitting's attendance list. An absence can have many causes, including leave and official duties."
 
+export const QUESTION_DEFINITION =
+  'A question a member puts to a minister, aloud at Question Time or in writing. Ministers answer questions, and the Speaker and Deputy Speakers chair the sitting, so members in those offices ask few or none.'
+
+export const QUESTION_COUNT_LINK_LABEL = 'How questions are counted'
+
 export const DEFAULT_QUERY_RETRY_COUNT = 3
 
 export const SEARCH_BUSY_RETRY_COUNT = 1
