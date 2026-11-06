@@ -13,7 +13,7 @@ CREATE ROLE hansard_api LOGIN PASSWORD '<set by Royce>';
 ALTER ROLE hansard_api SET default_transaction_read_only = on;
 GRANT CONNECT ON DATABASE <database> TO hansard_api;
 GRANT USAGE ON SCHEMA public TO hansard_api;
-GRANT SELECT ON report, speech, sitting, attendance, speaker, person, partyaffiliation TO hansard_api;
+GRANT SELECT ON report, speech, sitting, attendance, speaker, person, personnamespelling, partyaffiliation TO hansard_api;
 GRANT SELECT (id, website_responses_added, sitting_date_responses_added, sittings_added, reports_added, speeches_added, speeches_linked, speeches_named_unlinked, attendances_added, attendances_linked, reports_held_without_text, reports_without_speech_rows, reports_rechecked, reports_changed, latest_sitting_date_with_text, figures, started_at, finished_at, status) ON refresh_run TO hansard_api;
 ```
 

@@ -5,6 +5,7 @@ from database.attendance import Attendance
 from database.engine import engine
 from database.party_affiliation import PartyAffiliation
 from database.person import Person
+from database.person_name_spelling import PersonNameSpelling
 from database.refresh_run import RefreshRun
 from database.report import Report
 from database.sitting import Sitting
@@ -20,6 +21,7 @@ pytestmark = [pytest.mark.database, pytest.mark.schema_drift]
         Attendance,
         PartyAffiliation,
         Person,
+        PersonNameSpelling,
         RefreshRun,
         Report,
         Sitting,

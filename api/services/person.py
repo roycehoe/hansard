@@ -6,6 +6,7 @@ from crud.attendance import CRUDAttendance
 from crud.membership import CRUDMembership
 from crud.party_affiliation import CRUDPartyAffiliation
 from crud.person import CRUDPerson
+from crud.person_name_spelling import CRUDPersonNameSpelling
 from crud.report import CRUDReport
 from crud.speech import CRUDSpeech
 from database.person import Person
@@ -24,12 +25,14 @@ from schemas.person import (
     PartyAffiliationSourceReportData,
     PersonData,
     PersonMembershipData,
+    PersonNameSpellingData,
     PersonReportData,
 )
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
 
 _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
+_NAME_SUFFIX_SEPARATOR = ","
 
 
 def _get_validated_person(person_id: int, session: Session) -> Person:
@@ -93,6 +96,41 @@ def _get_membership_id_to_party_affiliations(
     return membership_id_to_party_affiliations
 
 
+def _get_person_id_to_name_spellings(
+    person_ids: list[int], session: Session
+) -> dict[int, list[PersonNameSpellingData]]:
+    person_id_to_name_spellings: dict[int, list[PersonNameSpellingData]] = {}
+    for person_name_spelling in CRUDPersonNameSpelling(session).get_all_by_person_ids(
+        person_ids
+    ):
+        person_id_to_name_spellings.setdefault(
+            person_name_spelling.person_id, []
+        ).append(
+            PersonNameSpellingData(
+                spelling=person_name_spelling.spelling,
+                kind=person_name_spelling.kind,
+                note=person_name_spelling.note,
+            )
+        )
+    return person_id_to_name_spellings
+
+
+def _get_name_variants(
+    memberships: list[Speaker],
+    canonical_name: str,
+    name_spellings: list[PersonNameSpellingData],
+) -> list[str]:
+    spellings = {name_spelling.spelling for name_spelling in name_spellings}
+    return sorted(
+        {
+            membership.name
+            for membership in memberships
+            if membership.name != canonical_name
+            and membership.name.split(_NAME_SUFFIX_SEPARATOR)[0] not in spellings
+        }
+    )
+
+
 def _get_matching_memberships(
     parliament_number: Optional[int],
     party: Optional[str],
@@ -152,6 +190,7 @@ def get_all_persons(
     membership_id_to_location_names = CRUDAttendance(
         session
     ).get_membership_id_to_location_names_by_membership_ids(membership_ids)
+    person_id_to_name_spellings = _get_person_id_to_name_spellings(person_ids, session)
     person_id_to_memberships: dict[int, list[Speaker]] = {}
     for membership in memberships:
         person_id_to_memberships.setdefault(membership.person_id, []).append(membership)
@@ -161,13 +200,12 @@ def get_all_persons(
                 person_id=person.id,
                 person_slug=get_person_slug(person.canonical_name),
                 canonical_name=person.canonical_name,
-                name_variants=sorted(
-                    {
-                        membership.name
-                        for membership in person_id_to_memberships.get(person.id, [])
-                        if membership.name != person.canonical_name
-                    }
+                name_variants=_get_name_variants(
+                    person_id_to_memberships.get(person.id, []),
+                    person.canonical_name,
+                    person_id_to_name_spellings.get(person.id, []),
                 ),
+                name_spellings=person_id_to_name_spellings.get(person.id, []),
                 memberships=[
                     MembershipData(
                         parliament_number=membership.parliament_number,
@@ -217,18 +255,17 @@ def get_person(person_id: int, session: Session) -> GetPersonResponse:
         | set(parliament_number_to_present_count)
         | set(parliament_number_to_absent_count)
     )
-    name_variants = sorted(
-        {
-            membership.name
-            for membership in memberships
-            if membership.name != person.canonical_name
-        }
+    name_spellings = _get_person_id_to_name_spellings([person_id], session).get(
+        person_id, []
     )
     return GetPersonResponse(
         person_id=person.id,
         person_slug=get_person_slug(person.canonical_name),
         canonical_name=person.canonical_name,
-        name_variants=name_variants,
+        name_variants=_get_name_variants(
+            memberships, person.canonical_name, name_spellings
+        ),
+        name_spellings=name_spellings,
         memberships=[
             PersonMembershipData(
                 parliament_number=membership.parliament_number,

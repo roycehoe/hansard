@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from enums import DatePrecision
+from enums import DatePrecision, PersonNameSpellingKind
 
 
 class PartyAffiliationSourceReportData(BaseModel):
@@ -30,11 +30,18 @@ class MembershipData(BaseModel):
     constituencies: list[str]
 
 
+class PersonNameSpellingData(BaseModel):
+    spelling: str
+    kind: PersonNameSpellingKind
+    note: str
+
+
 class PersonData(BaseModel):
     person_id: int
     person_slug: str
     canonical_name: str
     name_variants: list[str]
+    name_spellings: list[PersonNameSpellingData]
     memberships: list[MembershipData]
 
 
@@ -63,6 +70,7 @@ class GetPersonResponse(BaseModel):
     person_slug: str
     canonical_name: str
     name_variants: list[str]
+    name_spellings: list[PersonNameSpellingData]
     memberships: list[PersonMembershipData]
     parliament_counts: list[ParliamentCountData]
 

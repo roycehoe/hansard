@@ -60,6 +60,13 @@ class DatePrecision(StrEnum):
     MONTH = "MONTH"
 
 
+class PersonNameSpellingKind(StrEnum):
+    CANONICAL = "CANONICAL"
+    OTHER_SPELLING = "OTHER_SPELLING"
+    TRANSLITERATION = "TRANSLITERATION"
+    OTHER_NAME = "OTHER_NAME"
+
+
 class SpeechLinkStatus(StrEnum):
     FOUND = "found"
     MOVED = "moved"

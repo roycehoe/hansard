@@ -66,6 +66,7 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ),
     ("PersonReportData", f"{_PERSON_REPORTS_INTERFACES_FILE}::PersonReportData"),
     ("PartyAffiliationData", f"{_PEOPLE_TYPES_FILE}::PartyAffiliationData"),
+    ("PersonNameSpellingData", f"{_PEOPLE_TYPES_FILE}::PersonNameSpellingData"),
     (
         "PartyAffiliationSourceReportData",
         f"{_PEOPLE_TYPES_FILE}::PartyAffiliationSourceReportData",
