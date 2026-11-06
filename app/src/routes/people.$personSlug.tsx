@@ -31,7 +31,7 @@ import {
   PERSON_TITLE_SUFFIX,
 } from '@/constants/people/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { formatOtherNames } from '@/lib/personName'
+import { formatOtherNames, getNameSpellings } from '@/lib/personName'
 import { isSittingMember, parsePersonSlug } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
@@ -127,7 +127,8 @@ export const Route = createFileRoute('/people/$personSlug')({
 
     const { data } = person
     const nameVariants = data.name_variants.join('; ')
-    const otherNames = formatOtherNames(data.name_spellings)
+    const nameSpellings = getNameSpellings(data)
+    const otherNames = formatOtherNames(nameSpellings)
 
     return (
       <div className="space-y-8">
@@ -191,7 +192,7 @@ export const Route = createFileRoute('/people/$personSlug')({
           </h2>
           <TableMemberships
             memberships={data.memberships}
-            nameSpellings={data.name_spellings}
+            nameSpellings={nameSpellings}
           />
         </section>
         {data.parliament_counts.length > 0 && (

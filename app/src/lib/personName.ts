@@ -139,8 +139,16 @@ function getPersonNames(person: PersonData): string[] {
   return [
     person.canonical_name,
     ...person.name_variants,
-    ...person.name_spellings.map(({ spelling }) => spelling),
+    ...getNameSpellings(person).map(({ spelling }) => spelling),
   ]
+}
+
+// A browser can reuse an API answer for an hour, so the first hour after this
+// field ships can pair the new code with an answer that lacks it.
+export function getNameSpellings(person: {
+  name_spellings: PersonNameSpellingData[]
+}): PersonNameSpellingData[] {
+  return person.name_spellings ?? []
 }
 
 function getOtherNameSpellings(
@@ -180,13 +188,15 @@ export function getMatchedNameSpelling(
   person: PersonData
 ): PersonNameSpellingData | undefined {
   const canonicalRank = getPersonNameMatchRank(query, [person.canonical_name])
-  return getOtherNameSpellings(person.name_spellings).find(({ spelling }) => {
-    const spellingRank = getPersonNameMatchRank(query, [spelling])
-    return (
-      spellingRank !== undefined &&
-      (canonicalRank === undefined || spellingRank < canonicalRank)
-    )
-  })
+  return getOtherNameSpellings(getNameSpellings(person)).find(
+    ({ spelling }) => {
+      const spellingRank = getPersonNameMatchRank(query, [spelling])
+      return (
+        spellingRank !== undefined &&
+        (canonicalRank === undefined || spellingRank < canonicalRank)
+      )
+    }
+  )
 }
 
 // Acronyms such as "lky" count only when the query matches nobody by words,

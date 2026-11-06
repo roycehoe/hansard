@@ -241,6 +241,18 @@ describe('person name spellings', () => {
     expect(getMatchedNameSpelling('', lim)).toBeUndefined()
   })
 
+  it('reads a cached answer from before the field shipped', () => {
+    const person = {
+      ...persons[0],
+      name_spellings: undefined,
+    } as unknown as PersonData
+
+    expect(getPersonNameMatches('Lim Ching Siong', [person])).toEqual([
+      { person, rank: 0 },
+    ])
+    expect(getMatchedNameSpelling('Lim Chin Siong', person)).toBeUndefined()
+  })
+
   it('labels a spelling and a printed name differently', () => {
     const maidin = persons[12]
     const low = persons[13]
