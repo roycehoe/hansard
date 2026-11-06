@@ -137,6 +137,15 @@ export const Route = createFileRoute('/coverage/methods')({
             not mention can make the credit wrong.
           </p>
           <p>
+            Names of elected members follow the Elections Department's spelling,
+            from its candidate results on data.gov.sg and its own by-election
+            pages. People who never stood, such as Nominated Members and
+            colonial officials, have no such entry, so their names come from
+            Parliament's member list or from lists kept by hand. Where another
+            source spells a name differently, the person's page lists that
+            spelling and its source.
+          </p>
+          <p>
             The Parliament website moved to a newer system on 10 September 2012.
             Most of the known gaps below affect reports from before that date.
           </p>
