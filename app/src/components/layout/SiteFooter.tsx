@@ -3,7 +3,6 @@ import { ABOUT_NOT_OFFICIAL_SECTION_ID } from '@/constants/about/constants'
 import {
   CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
-  REPORT_ERROR_FORM_URL,
   RESEARCHERS_FORM_URL,
   SECURITY_POLICY_URL,
   SOURCE_CODE_URL,
@@ -13,12 +12,12 @@ import { formatSittingDate } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
 
 const FOOTER_LINKS = [
-  { label: 'Data quality and methods', to: '/coverage/methods' },
-  { label: 'About the text', to: '/about' },
+  { label: 'Methods', to: '/coverage/methods' },
+  { label: 'About', to: '/about' },
   ...(CONTACT_EMAIL
     ? ([
         {
-          label: 'Report an error or send feedback',
+          label: 'Report an error',
           href: `mailto:${CONTACT_EMAIL}`,
         },
       ] as const)
@@ -35,10 +34,9 @@ const FOOTER_LINKS = [
 ] as const
 
 const EXTERNAL_FOOTER_LINKS = [
-  { label: 'Report an error', href: REPORT_ERROR_FORM_URL },
   { label: 'Official Report', href: OFFICIAL_RECORD_SEARCH_URL },
   { label: 'GitHub', href: SOURCE_CODE_URL },
-  { label: 'Report a vulnerability', href: SECURITY_POLICY_URL },
+  { label: 'Security', href: SECURITY_POLICY_URL },
 ] as const
 
 const LINK_CLASS_NAME =
