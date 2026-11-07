@@ -76,6 +76,7 @@ import {
   REPORT_TYPE_LABELS,
 } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
+import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildAttributionFigures } from '@/lib/attribution'
 import { formatSittingDate } from '@/lib/format'
@@ -698,6 +699,35 @@ export const Route = createFileRoute('/coverage/methods')({
                   Some appendices to the record, such as Committee of Supply
                   estimates, have the type &quot;Presiding officer&apos;s
                   statement&quot;.
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-3 sm:space-y-2">
+              <h3 className={SUBHEADING_CLASS_NAME}>
+                Search
+                <span className="sr-only">: known gaps</span>
+              </h3>
+              <ul className="list-disc space-y-2 pl-5 text-sm">
+                <li>
+                  Search ignores common words such as &quot;the&quot; and
+                  &quot;of&quot;, so a search made only of them finds nothing.
+                </li>
+                <li>
+                  Words without quotes also match other forms, so rent also
+                  finds rents. A quoted word matches only that form.
+                </li>
+                <li>
+                  A minus sign must touch the word it leaves out. With a space
+                  after it, the word is searched like any other.
+                </li>
+                <li>
+                  Search reads the text of each paragraph and the title of each
+                  report, not the sitting date or who spoke. A year or a name
+                  matches where the text prints it.
+                </li>
+                <li>
+                  Search words are limited to {SEARCH_WORDS_MAX_LENGTH}{' '}
+                  characters.
                 </li>
               </ul>
             </div>
