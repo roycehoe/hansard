@@ -5,7 +5,7 @@ import { TextMatchCount } from '@/components/search/TextMatchCount'
 import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
 import {
   EMPTY_FILTERS_DESCRIPTION,
-  EMPTY_WORDS_DESCRIPTION,
+  EMPTY_TITLE_WORDS_DESCRIPTION,
 } from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { isTextPublished } from '@/lib/utils'
@@ -43,7 +43,9 @@ export function ListReportMatches({
             icon={SearchX}
             title={hasWords ? EMPTY_WORDS_TITLE : EMPTY_FILTERS_TITLE}
             description={
-              hasWords ? EMPTY_WORDS_DESCRIPTION : EMPTY_FILTERS_DESCRIPTION
+              hasWords
+                ? EMPTY_TITLE_WORDS_DESCRIPTION
+                : EMPTY_FILTERS_DESCRIPTION
             }
           />
         </div>

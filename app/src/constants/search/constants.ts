@@ -19,7 +19,7 @@ export const SEARCH_WORDS_TOO_LONG_ERROR = `Use ${SEARCH_WORDS_MAX_LENGTH} chara
 
 export const SEARCH_WORDS_TOO_LONG_NOTICE = `Search words are limited to ${SEARCH_WORDS_MAX_LENGTH} characters. Shorten them and search again.`
 
-export const SEARCH_TIPS_TEXT = `Put a word in quotes to find only that form, so "housing" leaves out house. Several words in quotes are found together, in that order. Without quotes, searches also match other forms of a word. OR finds either word, and a minus sign leaves a word out. Up to ${SEARCH_WORDS_MAX_LENGTH} characters.`
+export const SEARCH_TIPS_TEXT = `All search terms must appear in the same paragraph. Common words are ignored. Sitting dates and speakers' names aren't searchable as text, so use the filters instead. Use quotation marks for exact matches: "housing" won't match "house", while "public housing" finds those words together in that order. Without quotes, searches also include other forms of a word. Use OR to search for either term, or a minus sign (-) to exclude one. Maximum ${SEARCH_WORDS_MAX_LENGTH} characters.`
 
 export const SEARCH_WORD_FORMS_NOTE =
   'Words without quotes also match other forms, so housing finds house.'
@@ -53,8 +53,11 @@ export const TITLE_MATCHES_HEADING = 'Title matches'
 
 export const REPORTS_HEADING = 'Reports'
 
-export const EMPTY_WORDS_DESCRIPTION =
-  'Common words such as "the" are ignored. Try different words or a wider date range.'
+export const EMPTY_SPEECH_WORDS_DESCRIPTION =
+  'All search terms must appear in the same paragraph. Try using fewer words. Common words like "the" are ignored.'
+
+export const EMPTY_TITLE_WORDS_DESCRIPTION =
+  'All search terms must appear in the title. Try using fewer words. Common words like "the" are ignored.'
 
 export const EMPTY_FILTERS_DESCRIPTION =
   'Try a wider date range or another Parliament.'
