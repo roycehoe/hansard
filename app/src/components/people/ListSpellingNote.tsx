@@ -57,7 +57,10 @@ export function ListSpellingNote({ nameSpellings }: ListSpellingNoteProps) {
         ))}
       </ul>
       {hasTransliteration && (
-        <p>The two are transliterations of the same name.</p>
+        <p>
+          The two are the same name, written in English letters in different
+          ways.
+        </p>
       )}
     </li>
   )

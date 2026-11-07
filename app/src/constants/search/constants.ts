@@ -19,7 +19,7 @@ export const SEARCH_WORDS_TOO_LONG_ERROR = `Use ${SEARCH_WORDS_MAX_LENGTH} chara
 
 export const SEARCH_WORDS_TOO_LONG_NOTICE = `Search words are limited to ${SEARCH_WORDS_MAX_LENGTH} characters. Shorten them and search again.`
 
-export const SEARCH_TIPS_TEXT = `All search terms must appear in the same paragraph. Common words are ignored. Sitting dates and speakers' names aren't searchable as text, so use the filters instead. Use quotation marks for exact matches: "housing" won't match "house", while "public housing" finds those words together in that order. Without quotes, searches also include other forms of a word. Use OR to search for either term, or a minus sign (-) to exclude one. Maximum ${SEARCH_WORDS_MAX_LENGTH} characters.`
+export const SEARCH_TIPS_TEXT = `All search words must appear in the same paragraph. Common words are ignored. Sitting dates and speakers' names can't be searched as words, so use the filters for those. Put words in quotes to match them exactly: "housing" won't find "house", and "public housing" finds those words together in that order. Without quotes, other forms of a word also match. Put OR between words to find either, or a minus sign (-) before a word to leave it out. Maximum ${SEARCH_WORDS_MAX_LENGTH} characters.`
 
 export const SEARCH_WORD_FORMS_NOTE =
   'Words without quotes also match other forms, so housing finds house.'

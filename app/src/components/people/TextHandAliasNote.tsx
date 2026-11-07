@@ -31,8 +31,8 @@ export function TextHandAliasNote({
           {formatSittingDate(handAliasNote.sittingDate)}
         </Link>{' '}
         prints &quot;{handAliasNote.printedName}&quot;. The record never says
-        that this is {personName}, so the site links the entry to this page by
-        hand. Sources:{' '}
+        that this is {personName}, so I linked the entry to this page by hand.
+        Sources:{' '}
         {handAliasNote.sources.map((source, index) => (
           <Fragment key={source.url}>
             {index > 0 && SOURCE_SEPARATOR}

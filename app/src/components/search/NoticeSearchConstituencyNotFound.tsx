@@ -15,7 +15,7 @@ export function NoticeSearchConstituencyNotFound({
       <NoticeEmpty
         icon={SearchX}
         title={`No constituency called ${constituency}`}
-        description="Check the spelling. A seat can be listed under another name after a boundary change."
+        description="Check the spelling. A constituency can be listed under another name after its boundaries change."
         action={
           <Button variant="outline" asChild>
             <Link to="/people" search={{ constituency }}>

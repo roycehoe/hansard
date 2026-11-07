@@ -82,8 +82,8 @@ export function TableParliamentCounts({
         </TableBody>
       </Table>
       <p className="text-muted-foreground text-sm">
-        Attendance is counted from the sitting lists, and the counts are not a
-        score.
+        Attendance comes from each sitting's attendance list. These counts don't
+        measure how well someone did their job.
       </p>
     </div>
   )
