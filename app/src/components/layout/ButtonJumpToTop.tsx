@@ -1,8 +1,6 @@
 import { Button } from '@/components/ui/button'
-import {
-  JUMP_TO_TOP_PHONE_LIFT_CLASS_NAME,
-  JUMP_TO_TOP_SCREEN_COUNT,
-} from '@/constants/layout/constants'
+import { JUMP_TO_TOP_PHONE_LIFT_CLASS_NAME } from '@/constants/layout/constants'
+import { nextJumpToTopState, type JumpToTopState } from '@/lib/jumpToTop'
 import { moveFocusToPageHeading } from '@/lib/navigationFocus'
 import { cn } from '@/lib/utils'
 import { ArrowUp } from 'lucide-react'
@@ -12,12 +10,15 @@ export function ButtonJumpToTop() {
   const [isVisible, setIsVisible] = useState<boolean>(false)
 
   useEffect(function trackScrollDepth() {
-    function updateVisibility() {
-      setIsVisible(
-        window.scrollY > JUMP_TO_TOP_SCREEN_COUNT * window.innerHeight
-      )
+    let state: JumpToTopState = {
+      lastScrollY: window.scrollY,
+      upwardTravel: 0,
+      isVisible: false,
     }
-    updateVisibility()
+    function updateVisibility() {
+      state = nextJumpToTopState(state, window.scrollY, window.innerHeight)
+      setIsVisible(state.isVisible)
+    }
     window.addEventListener('scroll', updateVisibility, { passive: true })
     return function stopTrackingScrollDepth() {
       window.removeEventListener('scroll', updateVisibility)
