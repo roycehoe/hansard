@@ -188,7 +188,7 @@ export const Route = createFileRoute('/coverage/methods')({
         return (
           <SkeletonCoverageSection
             tableRowCount={COUNTS_SKELETON_ROW_COUNT}
-            isSectionHeading
+            isSectionHeading={false}
           />
         )
       if (coverage.isLoadingError || !coverage.data) return null
@@ -197,7 +197,10 @@ export const Route = createFileRoute('/coverage/methods')({
 
       return (
         <section aria-labelledby="counts-heading" className="space-y-4">
-          <h2 id="counts-heading" className={SECTION_HEADING_CLASS_NAME}>
+          <h2
+            id="counts-heading"
+            className={cn(SECTION_HEADING_CLASS_NAME, 'border-b-0 pb-0')}
+          >
             What the archive holds
           </h2>
           <TableCoverageCounts coverage={coverageData} />
