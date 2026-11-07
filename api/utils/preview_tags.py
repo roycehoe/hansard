@@ -39,7 +39,7 @@ _URI_COMPONENT_SAFE_CHARACTERS = "!*'()"
 
 
 def _get_page_title(title: str) -> str:
-    if title == _SITE_NAME:
+    if title.startswith(_SITE_NAME):
         return title
     return f"{title}{_TITLE_SEPARATOR}{_SITE_NAME}"
 

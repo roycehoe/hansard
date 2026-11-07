@@ -34,9 +34,11 @@ _NOT_OFFICIAL = "This is not an official Parliament site."
 _UNOFFICIAL_TRANSCRIPT = "Unofficial transcript"
 _DEFAULT_TITLE = "Open Hansard"
 _DEFAULT_DESCRIPTION = (
-    "Singapore's Hansard since 1955. "
-    "Search Singapore's Hansard by MP, constituency or date."
+    "A free, unofficial archive of Singapore's Hansard since 1955. "
+    "Search by MP, constituency or date. Not an official Parliament site."
 )
+_HOME_TITLE = "Open Hansard: search Singapore Parliament debates since 1955"
+_REPORT_RECORD_NAME = "Singapore Hansard"
 _PERSON_TITLE_SUFFIX = "speeches in Parliament"
 _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
@@ -49,7 +51,7 @@ _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
 _HOME_PATH = "/"
 _URL_SEPARATOR = "/"
-_UNTITLED_PAGE_PATHS = (_HOME_PATH, "/design", "/palette", "/researchers")
+_UNTITLED_PAGE_PATHS = ("/design", "/palette", "/researchers")
 _COVERAGE_PATH = "/coverage"
 _METHODS_PATH = "/coverage/methods"
 _ABOUT_PATH = "/about"
@@ -103,6 +105,8 @@ def get_not_found_preview() -> PreviewData:
 
 
 def _get_fixed_page_title(path: str) -> Optional[str]:
+    if path == _HOME_PATH:
+        return _HOME_TITLE
     if path == _COVERAGE_PATH:
         return _COVERAGE_TITLE
     if path == _METHODS_PATH:
@@ -216,7 +220,7 @@ def _get_report_description(
 def _get_report_preview(report: Report, session: Session) -> PreviewData:
     sitting_date_label = get_sitting_date_label(report.sitting_date.date())
     return PreviewData(
-        title=f"{report.title}, {sitting_date_label}",
+        title=f"{report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}",
         description=_get_report_description(report.id, sitting_date_label, session),
         preview_type=PreviewType.ARTICLE,
         path=_get_report_path(report),

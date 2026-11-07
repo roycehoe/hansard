@@ -51,5 +51,8 @@ export const DEFAULT_QUERY_RETRY_COUNT = 3
 export const SEARCH_BUSY_RETRY_COUNT = 1
 
 export const SITE_NAME = 'Open Hansard'
+export const HOME_DOCUMENT_TITLE =
+  'Open Hansard: search Singapore Parliament debates since 1955'
+export const REPORT_RECORD_NAME = 'Singapore Hansard'
 
 export const DOCUMENT_TITLE_SEPARATOR = ' · '

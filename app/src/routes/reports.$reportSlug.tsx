@@ -25,7 +25,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { HTTP_GONE, HTTP_NOT_FOUND } from '@/constants/constants'
+import {
+  HTTP_GONE,
+  HTTP_NOT_FOUND,
+  REPORT_RECORD_NAME,
+} from '@/constants/constants'
 import {
   REFERENCED_WRITTEN_ANSWER_LABEL,
   REFERENCING_ORAL_ANSWER_LABEL,
@@ -98,7 +102,8 @@ export const Route = createFileRoute('/reports/$reportSlug')({
       q: highlightTerms.join(' '),
     })
     useDocumentTitle(
-      data && `${data.title}, ${formatSittingDate(data.sitting_date)}`
+      data &&
+        `${data.title}, ${formatSittingDate(data.sitting_date)}, ${REPORT_RECORD_NAME}`
     )
 
     function retryReport() {

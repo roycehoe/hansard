@@ -1,11 +1,16 @@
-import { DOCUMENT_TITLE_SEPARATOR, SITE_NAME } from '@/constants/constants'
+import {
+  DOCUMENT_TITLE_SEPARATOR,
+  HOME_DOCUMENT_TITLE,
+  SITE_NAME,
+} from '@/constants/constants'
 import { useEffect } from 'react'
 
 export function useDocumentTitle(...pageTitleParts: (string | undefined)[]) {
   const isTitleKnown = pageTitleParts.every((part) => part !== undefined)
-  const documentTitle = [...pageTitleParts, SITE_NAME].join(
-    DOCUMENT_TITLE_SEPARATOR
-  )
+  const documentTitle =
+    pageTitleParts.length === 0
+      ? HOME_DOCUMENT_TITLE
+      : [...pageTitleParts, SITE_NAME].join(DOCUMENT_TITLE_SEPARATOR)
 
   useEffect(
     function syncDocumentTitle() {
