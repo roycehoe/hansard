@@ -135,39 +135,44 @@ export const Route = createFileRoute('/coverage/methods')({
             How the text was gathered
           </h2>
           <p>
-            The archive takes the text of each report from the Official Report
-            on the Parliament of Singapore&apos;s website. It splits the text
-            into speeches at each speaker label, the name printed before a
-            speech. It credits each speech to a person when the label is enough
-            to tell who spoke. When the label names only a role, such as
-            &quot;Mr Speaker&quot; or &quot;The Chairman&quot;, the archive
-            credits the person who held that role at the time. Credits to a
-            Deputy Speaker or a Chairman carry an i, because several people hold
-            those roles at once and a change in the chair that the record does
-            not mention can make the credit wrong.
+            The archive copies each report&apos;s text from the Official Report
+            on the Parliament of Singapore&apos;s website and splits it into
+            speeches at each speaker label, the name printed before a speech.
+            When the label is enough to tell who spoke, the archive credits the
+            speech to that person. If it names only a role, such as &quot;Mr
+            Speaker&quot; or &quot;The Chairman&quot;, the archive credits the
+            person who held that role at the time.
           </p>
           <p>
-            Names of elected members follow the Elections Department's spelling,
-            from its candidate results on data.gov.sg and its own by-election
-            pages. People who never stood, such as Nominated Members and
-            colonial officials, have no such entry, so their names come from
-            Parliament's member list or from lists kept by hand. Where another
-            source spells a name differently, the person's page lists that
-            spelling and its source.
+            Credits to a Deputy Speaker or a Chairman carry a small{' '}
+            <sup className="text-primary text-xs">i</sup> beside the
+            person&apos;s name. Several people hold those roles at once, so a
+            change in the chair can make the credit wrong if the record does not
+            mention it.
           </p>
           <p>
-            The Parliament website moved to a newer system on 10 September 2012.
-            Most of the known gaps below affect reports from before that date.
+            Names of elected members follow the Elections Department&apos;s
+            spelling in its candidate results on data.gov.sg and its own
+            by-election pages. People who never stood for election, such as
+            Nominated Members and colonial officials, have no entry there, so
+            their names come from Parliament&apos;s member list or lists kept by
+            hand. If another source spells a name differently, the person&apos;s
+            page lists that spelling and its source.
           </p>
           <p>
-            {withoutTextCount.toLocaleString(NUMBER_LOCALE)} reports have no
-            text.{' '}
+            Parliament&apos;s website moved to a newer system on 10 September
+            2012, and most of the known gaps below affect reports from before
+            that date.
+          </p>
+          <p>
+            Of the {withoutTextCount.toLocaleString(NUMBER_LOCALE)} reports with
+            no text,{' '}
             {coverageData.no_text_by_design_report_count.toLocaleString(
               NUMBER_LOCALE
             )}{' '}
-            are a type the Parliament website publishes without text. The other{' '}
-            {returnedNoTextCount.toLocaleString(NUMBER_LOCALE)} had no text on
-            the Parliament website when the archive was built.
+            are a type Parliament&apos;s website publishes without text. The
+            other {returnedNoTextCount.toLocaleString(NUMBER_LOCALE)} had no
+            text on Parliament&apos;s website when the archive was built.
           </p>
         </section>
       )
@@ -188,22 +193,17 @@ export const Route = createFileRoute('/coverage/methods')({
             What the archive holds
           </h2>
           <TableCoverageCounts coverage={coverageData} />
-          <div className="text-muted-foreground space-y-1 text-sm">
-            {coverageData.text_first_sitting_date !== null &&
-              coverageData.text_last_sitting_date !== null && (
-                <p>
-                  Text covers{' '}
-                  {formatSittingDate(coverageData.text_first_sitting_date)} to{' '}
-                  {formatSittingDate(coverageData.text_last_sitting_date)}.
-                </p>
-              )}
-            {coverageData.attendance_last_sitting_date !== null && (
-              <p>
-                Attendance lists run to{' '}
-                {formatSittingDate(coverageData.attendance_last_sitting_date)}.
+          {coverageData.text_first_sitting_date !== null &&
+            coverageData.text_last_sitting_date !== null && (
+              <p className="text-muted-foreground text-sm">
+                The text covers{' '}
+                {formatSittingDate(coverageData.text_first_sitting_date)} to{' '}
+                {formatSittingDate(coverageData.text_last_sitting_date)}
+                {coverageData.attendance_last_sitting_date !== null &&
+                  `, and attendance lists run to ${formatSittingDate(coverageData.attendance_last_sitting_date)}`}
+                .
               </p>
             )}
-          </div>
           <dl className="max-w-prose space-y-3 text-sm">
             <div className="space-y-1">
               <dt className="font-medium">Paragraph</dt>
@@ -323,13 +323,13 @@ export const Route = createFileRoute('/coverage/methods')({
             Reports by year
           </h2>
           <p>
-            Counts are of what the archive holds. They have not been checked
+            These counts show what the archive holds; they have not been checked
             item by item against the Official Report.
           </p>
           <p>
             Reports per sitting rise from about 20 in Parliament 11 to about 70
-            in Parliament 14, mostly because written answers get one report per
-            question.
+            in Parliament 14, mostly because each written answer gets a separate
+            report for each question.
           </p>
           <TableCoverageYears
             years={coverageData.years}
