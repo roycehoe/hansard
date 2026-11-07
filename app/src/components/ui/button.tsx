@@ -35,6 +35,7 @@ const buttonVariants = cva(
         'icon-sm': 'size-8 any-pointer-coarse:size-11',
         'icon-lg': 'size-10',
         'icon-touch': 'size-9 any-pointer-coarse:size-11',
+        touch: 'h-9 gap-1.5 pr-3 pl-2.5 any-pointer-coarse:h-11',
       },
     },
     defaultVariants: {
