@@ -352,7 +352,7 @@ class CRUDReport:
         return {report_year: report_count for report_year, report_count in rows}
 
     def get_year_to_sitting_count(self) -> dict[int, int]:
-        year = cast(func.extract("year", Report.sitting_date), Integer)
+        year = cast(func.extract("year", col(Report.sitting_date)), Integer)
         statement = (
             select(year, func.count(func.distinct(Report.sitting_date)))
             .group_by(year)
