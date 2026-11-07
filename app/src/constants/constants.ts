@@ -56,3 +56,6 @@ export const HOME_DOCUMENT_TITLE =
 export const REPORT_RECORD_NAME = 'Singapore Hansard'
 
 export const DOCUMENT_TITLE_SEPARATOR = ' · '
+
+export const PAGE_TITLE_CLASS_NAME =
+  'font-serif text-2xl font-semibold break-words outline-hidden lg:text-3xl'

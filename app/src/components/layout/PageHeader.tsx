@@ -1,3 +1,4 @@
+import { PAGE_TITLE_CLASS_NAME } from '@/constants/constants'
 import type { ReactNode } from 'react'
 
 interface PageHeaderProps {
@@ -5,7 +6,6 @@ interface PageHeaderProps {
   description?: ReactNode
   belowDescription?: ReactNode
   breadcrumb?: ReactNode
-  aboveTitle?: ReactNode
   actions?: ReactNode
   titleAction?: ReactNode
   badge?: ReactNode
@@ -16,7 +16,6 @@ export function PageHeader({
   description,
   belowDescription,
   breadcrumb,
-  aboveTitle,
   actions,
   titleAction,
   badge,
@@ -26,12 +25,8 @@ export function PageHeader({
       {breadcrumb}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
-          {aboveTitle && <div>{aboveTitle}</div>}
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h1
-              tabIndex={-1}
-              className="font-serif text-2xl font-semibold break-words outline-hidden lg:text-3xl"
-            >
+            <h1 tabIndex={-1} className={PAGE_TITLE_CLASS_NAME}>
               {title}
             </h1>
             {titleAction}

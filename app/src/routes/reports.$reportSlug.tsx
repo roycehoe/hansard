@@ -2,10 +2,7 @@ import { ApiError } from '@/api/client'
 import type { GetReportResponse } from '@/api/reports/getReport'
 import { useGetReport } from '@/api/reports/getReport'
 import { useGetReportMatchedWords } from '@/api/reports/getReportMatchedWords'
-import { PageHeader } from '@/components/layout/PageHeader'
 import { TextSource } from '@/components/layout/TextSource'
-import { ButtonCopyCitation } from '@/components/reports/ButtonCopyCitation'
-import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { ListReportNeighbours } from '@/components/reports/ListReportNeighbours'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
@@ -14,18 +11,9 @@ import { NoticeReferencedReport } from '@/components/reports/NoticeReferencedRep
 import { NoticeRemovedReport } from '@/components/reports/NoticeRemovedReport'
 import { NoticeTextNotPublished } from '@/components/reports/NoticeTextNotPublished'
 import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailable'
-import { PopoverReportType } from '@/components/reports/PopoverReportType'
+import { SectionReportHeader } from '@/components/reports/SectionReportHeader'
 import { SkeletonReport } from '@/components/reports/SkeletonReport'
-import { TextAskedBy } from '@/components/reports/TextAskedBy'
 import { TextReportProblem } from '@/components/reports/TextReportProblem'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
 import {
   HTTP_GONE,
   HTTP_NOT_FOUND,
@@ -38,11 +26,10 @@ import {
 } from '@/constants/reports/constants'
 import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { buildReportCitation } from '@/lib/citation'
 import { formatSittingDate } from '@/lib/format'
 import { parseHighlightTerms } from '@/lib/highlight'
 import { isTextPublished } from '@/lib/utils'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
 const reportSearchSchema = z.object({
@@ -131,52 +118,10 @@ export const Route = createFileRoute('/reports/$reportSlug')({
 
     return (
       <div className="space-y-8">
-        <PageHeader
-          title={data.title}
-          aboveTitle={<PopoverReportType reportType={data.report_type} />}
-          description={data.subtitle || undefined}
-          belowDescription={<TextAskedBy askers={data.askers} />}
-          breadcrumb={
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link to="/">Home</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link
-                      to="/sittings/$sittingDate"
-                      params={{ sittingDate: data.sitting_date }}
-                    >
-                      {formatSittingDate(data.sitting_date)}
-                    </Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Report</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          }
-          actions={
-            <ButtonCopyCitation
-              citation={buildReportCitation(
-                data.sitting_date,
-                data.volume_number,
-                data.parliament_number
-              )}
-              reportTitle={data.title}
-              reportSlug={data.report_slug}
-              officialRecordUrl={data.official_record_url}
-            />
-          }
-        />
-        <ListReportMetadata report={data} />
-        {renderBody(data, highlightTerms, matchedWordsResponse?.words ?? [])}
+        <div className="space-y-6">
+          <SectionReportHeader report={data} />
+          {renderBody(data, highlightTerms, matchedWordsResponse?.words ?? [])}
+        </div>
         {data.referenced_written_answer !== null && (
           <NoticeReferencedReport
             label={REFERENCED_WRITTEN_ANSWER_LABEL}

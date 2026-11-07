@@ -289,3 +289,12 @@ export const REFERENCING_ORAL_ANSWER_LABEL = 'Related oral answer'
 export const PREVIOUS_REPORT_LABEL = 'Previous report'
 export const NEXT_REPORT_LABEL = 'Next report'
 export const BACK_TO_SITTING_LABEL = 'Back to the sitting'
+
+export const REPORT_HEADER_CLASS_NAME =
+  'border-separator grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-2 border-b pb-4 sm:gap-x-4 sm:gap-y-3'
+export const REPORT_HEADER_TRAIL_CLASS_NAME =
+  'col-start-1 row-start-1 self-center sm:col-span-2'
+export const REPORT_HEADER_MAIN_CLASS_NAME =
+  'col-span-2 row-start-2 flex min-w-0 flex-col gap-1 sm:col-span-1'
+export const REPORT_HEADER_ACTION_CLASS_NAME =
+  'col-start-2 row-start-1 sm:row-start-2'

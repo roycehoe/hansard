@@ -24,13 +24,13 @@ export function ListReportMetadata({ report }: ListReportMetadataProps) {
   ]
 
   return (
-    <dl className="flex flex-wrap gap-x-10 gap-y-3">
+    <dl className="flex flex-wrap gap-x-5">
       {facts.map((fact) => (
-        <div key={fact.label} className="flex flex-col gap-0.5">
-          <dt className="text-muted-foreground text-sm font-medium">
-            {fact.label}
-          </dt>
-          <dd className="text-lg font-medium tabular-nums">{fact.value}</dd>
+        <div key={fact.label} className="flex items-baseline gap-1.5">
+          <dt className="text-muted-foreground text-sm">{fact.label}</dt>
+          <dd className="text-base leading-5 font-medium tabular-nums">
+            {fact.value}
+          </dd>
         </div>
       ))}
     </dl>
