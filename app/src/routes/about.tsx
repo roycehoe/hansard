@@ -34,7 +34,8 @@ const PAGE_TITLE = 'About'
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 underline underline-offset-4'
 
-const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
+const SECTION_HEADING_CLASS_NAME =
+  'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
 
 const LIST_CLASS_NAME = 'list-disc space-y-2 pl-5'
 

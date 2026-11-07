@@ -12,7 +12,8 @@ import { RESEARCHERS_FORM_URL } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 
-const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
+const SECTION_HEADING_CLASS_NAME =
+  'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
 
 export const Route = createFileRoute('/researchers')({
   beforeLoad: function redirectWhileFormUnset() {

@@ -86,7 +86,8 @@ import { Fragment } from 'react'
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 underline underline-offset-4'
 
-const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
+const SECTION_HEADING_CLASS_NAME =
+  'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
 
 const SUBHEADING_CLASS_NAME = 'font-serif text-base font-semibold lg:text-lg'
 
@@ -114,7 +115,7 @@ export const Route = createFileRoute('/coverage/methods')({
 
     function renderTextGathered() {
       if (coverage.isLoading)
-        return <SkeletonCoverageSection tableRowCount={0} />
+        return <SkeletonCoverageSection tableRowCount={0} isSectionHeading />
       if (coverage.isLoadingError || !coverage.data) {
         return (
           <NoticeErrorCoverage
@@ -182,7 +183,10 @@ export const Route = createFileRoute('/coverage/methods')({
     function renderCounts() {
       if (coverage.isLoading)
         return (
-          <SkeletonCoverageSection tableRowCount={COUNTS_SKELETON_ROW_COUNT} />
+          <SkeletonCoverageSection
+            tableRowCount={COUNTS_SKELETON_ROW_COUNT}
+            isSectionHeading
+          />
         )
       if (coverage.isLoadingError || !coverage.data) return null
 
@@ -249,6 +253,7 @@ export const Route = createFileRoute('/coverage/methods')({
         return (
           <SkeletonCoverageSection
             tableRowCount={ATTRIBUTION_SKELETON_ROW_COUNT}
+            isSectionHeading={false}
           />
         )
       if (coverage.isLoadingError || !coverage.data) return null
@@ -309,7 +314,10 @@ export const Route = createFileRoute('/coverage/methods')({
     function renderYears() {
       if (coverage.isLoading)
         return (
-          <SkeletonCoverageSection tableRowCount={YEARS_SKELETON_ROW_COUNT} />
+          <SkeletonCoverageSection
+            tableRowCount={YEARS_SKELETON_ROW_COUNT}
+            isSectionHeading
+          />
         )
       if (coverage.isLoadingError || !coverage.data) return null
 
