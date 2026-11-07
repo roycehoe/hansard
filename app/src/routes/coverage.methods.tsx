@@ -777,7 +777,8 @@ export const Route = createFileRoute('/coverage/methods')({
             the paragraph is no longer there. Older links that end in #s12 carry
             no words to check and can lead to a different paragraph after the
             archive is updated. Using Cite on a paragraph copies its citation,
-            the checked link and a link to the Official Report.
+            the site&apos;s name with the checked link, and a link to the
+            Official Report.
           </p>
         </section>
 

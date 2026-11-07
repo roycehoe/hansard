@@ -1,4 +1,7 @@
-import { LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER } from '@/constants/constants'
+import {
+  LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+  SITE_NAME,
+} from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
 
 export interface SpeakerAttribution {
@@ -194,7 +197,7 @@ export function buildSpeechCite(
   officialRecordUrl: string,
   retrievedOn: string
 ): string {
-  return `${quoteTitle(reportTitle)}, ${speechCitation}. Retrieved from ${permalink} on ${retrievedOn}. Original: ${officialRecordUrl}`
+  return `${quoteTitle(reportTitle)}, ${speechCitation}. ${SITE_NAME}, retrieved from ${permalink} on ${retrievedOn}. Original: ${officialRecordUrl}`
 }
 
 export function buildReportCite(
@@ -204,5 +207,5 @@ export function buildReportCite(
   officialRecordUrl: string,
   retrievedOn: string
 ): string {
-  return `${quoteTitle(reportTitle)}, ${reportCitation}. Retrieved from ${buildReportPermalink(reportSlug)} on ${retrievedOn}. Original: ${officialRecordUrl}`
+  return `${quoteTitle(reportTitle)}, ${reportCitation}. ${SITE_NAME}, retrieved from ${buildReportPermalink(reportSlug)} on ${retrievedOn}. Original: ${officialRecordUrl}`
 }

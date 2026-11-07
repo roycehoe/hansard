@@ -265,7 +265,7 @@ describe('buildSpeechCite', () => {
         '1 March 2026'
       )
     ).toBe(
-      '"Budget Debate", CITATION. Retrieved from https://hansard.example/reports/x#s5 on 1 March 2026. Original: https://sprs.parl.gov.sg/x'
+      '"Budget Debate", CITATION. Open Hansard, retrieved from https://hansard.example/reports/x#s5 on 1 March 2026. Original: https://sprs.parl.gov.sg/x'
     )
   })
 })
@@ -294,7 +294,7 @@ describe('buildReportCite', () => {
         '1 March 2026'
       )
     ).toBe(
-      `"Budget Debate", CITATION. Retrieved from ${SITE_ORIGIN}/reports/x on 1 March 2026. Original: https://sprs.parl.gov.sg/x`
+      `"Budget Debate", CITATION. Open Hansard, retrieved from ${SITE_ORIGIN}/reports/x on 1 March 2026. Original: https://sprs.parl.gov.sg/x`
     )
   })
 })
