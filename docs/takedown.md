@@ -20,7 +20,7 @@ To put the site back behind the password, set `BASIC_AUTH_USERNAME` and `BASIC_A
 
 ## Taking a report down
 
-Royce decides what comes down. When Parliament asks for a report to be removed, the site commits to taking it down within 2 working days of the request.
+I decide what comes down. When Parliament asks for a report to be removed, I take it down within 2 working days of the request.
 
 The list lives in the `TAKEDOWN_REPORT_SLUGS` GitHub secret, so it never appears in the public repo. Every deploy copies it into the `web` component's encrypted environment variable. It holds report slugs separated by commas, such as `written-answer-11589,oral-answer-2041`. Spaces around a comma don't matter. Each change works from a phone, in a mobile browser:
 

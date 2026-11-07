@@ -1,6 +1,6 @@
 # Running cost
 
-This table shows what the site costs to run each quarter and how much use it gets. It also shows how many archive errors were fixed. Royce adds one row at the end of each quarter.
+I'm Royce, and I run the site. At the end of each quarter, I'll add its running cost and visitor figures here so you can see what it costs for the use it gets. I'll also record how many archive errors I fixed during that quarter.
 
 - Visits come from GoatCounter's statistics for the quarter's dates, minus its events.
 - Hosting cost is the sum of the DigitalOcean invoices for the quarter's three months, in US dollars.

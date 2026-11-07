@@ -1,6 +1,6 @@
 # How this was built
 
-AI coding tools wrote most of the code and docs in this repository. Royce Hoe wrote the plans, made the decisions listed below and answers for the result. Everything here comes from the git history and the planning notes written during the work.
+I'm Royce. I built Open Hansard because I wanted to follow MPs' contributions over the years and see how their views changed. I also enjoy reading the older debates. AI coding tools wrote most of the code and documentation, while I wrote the plans and made the decisions described here. The result is my responsibility. This account draws on the git history and the notes I kept during the work.
 
 ## The October burst
 
@@ -18,37 +18,36 @@ The repository started at 19:11 on 13 October 2026. Up to commit `3f9a5ba`, made
 
 38 of those commits landed between 11 pm and 2 am. That pace comes from agents committing one planned step at a time.
 
-Every commit carries Royce's name, because the repository's rule is no attribution trailers. So git can't show which lines a person typed, and this page states the AI use instead.
+Every commit carries my name, and the repository's rule leaves out attribution trailers. That means git alone can't tell you which lines I typed and which came from an agent; this page explains how I used AI.
 
 The data comes from [roycehoe/hansard-scraper](https://github.com/roycehoe/hansard-scraper), a separate repository with its own history. It starts in August 2025, goes almost silent from September 2025 to May 2026, and has 397 commits in October 2026, up to its commit `25e3979` on 19 October.
 
 ## How the work ran
 
-The tool was Claude Code, Anthropic's coding agent, running Claude Opus and Claude Sonnet models. The larger features went through these steps, and each step left a written record.
+I used Claude Code, Anthropic's coding agent, with Claude Opus and Claude Sonnet models. For larger features, I worked through the following process, keeping a written record at each stage.
 
-1. Royce answered the agent's questions about the feature, and the agent wrote his answers into a brief.
+1. I answered the agent's questions about the feature, and it turned my answers into a brief.
 2. The agent wrote a plan and then an execution plan of numbered commits. A separate audit checked the execution plan against the plan before any code was written.
 3. Workers wrote the code, one commit per step.
 4. A validation pass checked the commits against the plan, and a fresh Opus session reviewed the whole change.
 
 The largest example is `hansard-user-stories`. It had 27 steps, an audit with no blockers, 22 of 22 requirements covered at validation, and a final review that found 1 blocker and 13 should-fixes. All 14 were fixed.
 
-## What Royce decided
+## What I decided
 
-- What each feature does, through the briefs.
-- The design. The models proposed changes and Royce picked. On 14 October he accepted 11 of 12 proposals from the AI-look review and 12 of 13 from a second round on search and the People filter. He chose the mahogany accent over an orange timber one, recorded in `docs/adr/0005-palette-from-the-chamber.md`.
+The briefs were where I decided what each feature should do. For the design, the models proposed changes for me to choose from: on 14 October I accepted 11 of 12 proposals from the AI-look review and 12 of 13 from a second round on search and the People filter. I chose the mahogany accent over an orange timber one; [the colour decision](adr/0005-palette-from-the-chamber.md) explains why.
 
 ## Which audits checked the output
 
-- **AI-look review, 14 October.** Three Sonnet researchers looked for patterns that make a site look machine-made, and a judge sorted what they found. The 6 clear fixes were applied. The 12 proposals that changed the design went to Royce.
+- **AI-look review, 14 October.** Three Sonnet researchers looked for patterns that make a site look machine-made, and a judge sorted what they found. The 6 clear fixes were applied. The 12 proposals that changed the design came to me.
 - **Data sanity personas, 16 and 17 October.** Four Sonnet personas, a historian, a legal researcher, a journalist and a citizen, used the site against the production database and compared what they could against SPRS. An Opus pass re-ran every finding and confirmed 14: 2 high, 5 medium and 7 low. A second pass on 17 October found no high-severity regression.
 - **North star audit, 17 October.** An Opus auditor measured the database and both repositories against ten done tests, and the verdict is "Not done". Two tests pass, seven fail and one is unmeasured. Sonnet readers checked 406 rows credited to a person and found 404 right. The audit is `docs/report/north-star-audit-2026-10-17.md` in the scraper repository.
 
-A model ran every check above. In the check of 1,000 credited paragraphs finished on 2 November 2026, Royce judged the 60 that two AI readers and a script flagged, 15 one at a time and 45 by kind of difference, and no person read the other 940.
+A model ran every check above. In the check of 1,000 credited paragraphs finished on 2 November 2026, I judged the 60 that two AI readers and a script flagged, 15 one at a time and 45 by kind of difference, and no person read the other 940.
 
 ## How each change was reviewed
 
-Changes go straight to `master`. The exceptions are two pull requests merged on 17 October and three launch-build branches merged on 18 and 19 October. One person works on the project, so no second person reviews a change before it lands.
+Changes go straight to `master`. The exceptions are two pull requests merged on 17 October and three launch-build branches merged on 18 and 19 October. Since I work on the project alone, there is no second person reviewing changes before they land.
 
 A large feature goes through the steps in "How the work ran": an audit of the execution plan, a validation pass over the commits and a fresh Opus session over the whole change. The audit and validation reports sit in `plans/`, which git ignores, so they are not in this repository. Four features have both reports: `hansard-user-stories`, `coverage-revamp`, `exact-form-quotes` and `coverage-precompute`.
 
@@ -58,13 +57,23 @@ A small change gets no written review. CI must pass before the deploy job runs, 
 
 ## What CI checks and what it does not
 
-`api/tests/` holds a pytest suite, and `app/src/lib/` holds vitest unit tests on the pure functions. CI (`.github/workflows/ci.yml`) runs on every push and pull request. The `app` job runs lint, the Prettier format check, the palette contrast check, the unit tests, the build and a size limit on the first-load JavaScript. The `api` job runs the ruff check, the format check, a basedpyright type check that fails only on errors not in a committed baseline, and the tests that need no database. Its contract check compares the API's response schemas with the frontend's interfaces, and it does not compare enum values. The `schema-drift` job builds the scraper's tables with the scraper's migrations in a throwaway Postgres and runs the API's `schema_drift` tests against them. After a deploy, the `live-site` job opens the home page, a report and a search in headless Chrome. It checks that a heading shows, that the console has no errors and that axe finds no WCAG A or AA violations. The deploy does not wait for it. A separate `audit` job runs `pnpm audit --audit-level high` on the frontend and `pip-audit` on the API's exported lockfile, and uploads a CycloneDX SBOM for each as a build artifact. The deploy does not wait for that job either.
+Automated checks run on every push and pull request, as defined in `.github/workflows/ci.yml`. The API tests use pytest in `api/tests/`, and the frontend uses Vitest to test pure functions in `app/src/lib/`.
+
+The `app` job runs lint, the Prettier format check, the palette contrast check, the unit tests, the build and a size limit on the first-load JavaScript.
+
+The `api` job runs the ruff check, the format check, a basedpyright type check that fails only on errors not in a committed baseline, and the tests that need no database. Its contract check compares the API's response schemas with the frontend's interfaces, and it does not compare enum values.
+
+The `schema-drift` job builds the scraper's tables with the scraper's migrations in a throwaway Postgres and runs the API's `schema_drift` tests against them.
+
+After a deploy, the `live-site` job opens the home page, a report and a search in headless Chrome. It checks that a heading shows, that the console has no errors and that axe finds no WCAG A or AA violations. The deploy does not wait for it.
+
+A separate `audit` job runs `pnpm audit --audit-level high` on the frontend and `pip-audit` on the API's exported lockfile, and uploads a CycloneDX SBOM for each as a build artifact. The deploy does not wait for that job either.
 
 The API tests marked `database` read real rows, so they run only against a local copy of the database. There are no component tests, and the only browser test is the `live-site` job's.
 
 ## What the site does not do
 
-The site calls no language model. Search is Postgres full-text search, and every page is built from stored rows.
+Although I used AI to build the site, it calls no language model when you use it. Postgres searches the stored text, and the pages show records from the database.
 
 ## Since 19 October 2026
 
@@ -72,8 +81,8 @@ The table in "The October burst" stops on 19 October. This section carries the c
 
 - **Commits.** From commit `3f9a5ba` (the last one counted above) to `2a50790`, made at 05:54 on 31 October 2026, there are 379 more commits, all on `master`: 7 on 19 October after 09:03, then 63, 32, 25, 48, 36, 3, 45, 25, 26 and 20 on 20 to 29 October, 46 on 30 October and 3 on 31 October. The repository has 742 commits in all. 12 of the 379 landed between 11 pm and 2 am.
 - **After deploy.** After each deploy, CI requests the coverage, report, search and sitemap URLs on the live site. It tries each up to 6 times, 20 seconds apart, and fails the run if any of them never answers 200.
-- **Rule for what the site shows.** `docs/adr/0006-display-what-the-record-prints.md` records the rule that the site shows a value as the record prints it and puts our reading in a note.
+- **Rule for what the site shows.** `docs/adr/0006-display-what-the-record-prints.md` records the rule that the site shows a value as the record prints it and puts my reading in a note.
 
 ## Contact
 
-Royce Hoe, royceinbox@hotmail.com.
+You can reach me at royceinbox@hotmail.com.

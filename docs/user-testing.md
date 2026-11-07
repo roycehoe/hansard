@@ -1,6 +1,6 @@
 # User testing
 
-Usability sessions with people who read Hansard. Each person does the same five tasks on the live site, by screen share or phone, with Royce watching. This page records when each session ran, who took part, where each person got stuck and what changed because of it.
+Usability sessions with people who read Hansard. Each person does the same five tasks on the live site, by screen share or phone, with me watching. This page records when each session ran, who took part, where each person got stuck and what changed because of it.
 
 ## Tasks
 

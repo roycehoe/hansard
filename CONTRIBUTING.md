@@ -9,7 +9,7 @@ A wrong credit, missing text or wrong date is not a code change. Use the "Report
 ## Proposing a change
 
 1. Open an issue that says what you want to change and why. For a bug, give the page address and what you saw.
-2. Wait for Royce Hoe to reply. He decides whether the change fits the site.
+2. Wait for me (Royce Hoe) to reply. I decide whether the change fits the site.
 3. Fork the repository, make the change, and open a pull request that links the issue.
 
 Keep each pull request to one change. Subjects follow Conventional Commits, such as `fix: sort search results by date`, under 72 characters.
