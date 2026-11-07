@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { TextSource } from '@/components/layout/TextSource'
 import { ButtonCopyCitation } from '@/components/reports/ButtonCopyCitation'
 import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
+import { ListReportNeighbours } from '@/components/reports/ListReportNeighbours'
 import { ListSpeeches } from '@/components/reports/ListSpeeches'
 import { NoticeErrorReport } from '@/components/reports/NoticeErrorReport'
 import { NoticeNotFoundReport } from '@/components/reports/NoticeNotFoundReport'
@@ -188,6 +189,11 @@ export const Route = createFileRoute('/reports/$reportSlug')({
             report={data.referencing_oral_answer}
           />
         )}
+        <ListReportNeighbours
+          sittingDate={data.sitting_date}
+          previousReport={data.previous_report}
+          nextReport={data.next_report}
+        />
         <TextSource
           sittingDate={data.sitting_date}
           officialRecordUrl={

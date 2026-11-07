@@ -55,6 +55,8 @@ class GetReportResponse(BaseModel):
     speech_link: Optional[SpeechLinkData]
     referenced_written_answer: Optional[ReferencedReportData]
     referencing_oral_answer: Optional[ReferencedReportData]
+    previous_report: Optional[ReferencedReportData]
+    next_report: Optional[ReferencedReportData]
 
 
 class GetReportMatchedWordsResponse(BaseModel):

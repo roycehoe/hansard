@@ -63,6 +63,8 @@ export interface GetReportResponse {
   speech_link: SpeechLinkData | null
   referenced_written_answer: ReferencedReportData | null
   referencing_oral_answer: ReferencedReportData | null
+  previous_report: ReferencedReportData | null
+  next_report: ReferencedReportData | null
 }
 
 async function getReportResponse(

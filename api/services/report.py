@@ -168,6 +168,17 @@ def _get_referenced_report_data(
     )
 
 
+def _get_sitting_neighbour_data(
+    sitting_reports: list[Report], neighbour_index: int
+) -> Optional[ReferencedReportData]:
+    if not 0 <= neighbour_index < len(sitting_reports):
+        return None
+    neighbour = sitting_reports[neighbour_index]
+    return ReferencedReportData(
+        report_slug=get_report_slug(neighbour.report_id), title=neighbour.title
+    )
+
+
 def _get_sitting_reports(report: Report, session: Session) -> list[Report]:
     return [
         sitting_report
@@ -208,6 +219,10 @@ def get_report(
         }
     )
     membership_id_to_person = get_membership_id_to_person(membership_ids, session)
+    sitting_reports = _get_sitting_reports(report, session)
+    report_index = [sitting_report.id for sitting_report in sitting_reports].index(
+        report.id
+    )
     return GetReportResponse(
         report_slug=get_report_slug(report.report_id),
         title=report.title,
@@ -238,7 +253,7 @@ def get_report(
             _get_referenced_report_data(
                 report.title,
                 ReportType.WRITTEN_ANSWER_NA,
-                _get_sitting_reports(report, session),
+                sitting_reports,
             )
             if report.report_type == ReportType.ORAL_ANSWER
             else None
@@ -247,11 +262,13 @@ def get_report(
             _get_referenced_report_data(
                 report.title,
                 ReportType.ORAL_ANSWER,
-                _get_sitting_reports(report, session),
+                sitting_reports,
             )
             if report.report_type == ReportType.WRITTEN_ANSWER_NA
             else None
         ),
+        previous_report=_get_sitting_neighbour_data(sitting_reports, report_index - 1),
+        next_report=_get_sitting_neighbour_data(sitting_reports, report_index + 1),
     )
 
 
