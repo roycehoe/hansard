@@ -2,7 +2,9 @@ import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
 import { DatePrecision } from '@/constants/people/enums'
 import {
   formatCalendarDate,
+  formatMembershipSeats,
   formatParliamentOption,
+  formatParliamentRuns,
   formatPartyAffiliationStart,
   formatSittingDate,
   formatSittingDayMonth,
@@ -146,5 +148,87 @@ describe('getNameListSeparator', () => {
 
   it('puts commas between names and and before the last', () => {
     expect(joinNames(['Lim', 'Tan', 'Ong'])).toBe('Lim, Tan and Ong')
+  })
+})
+
+describe('formatParliamentRuns', () => {
+  it('names a single Parliament', () => {
+    expect(formatParliamentRuns([15])).toBe('Parliament 15')
+  })
+
+  it('names the Legislative Assembly once however many rows it has', () => {
+    expect(formatParliamentRuns([0])).toBe('Legislative Assembly')
+    expect(formatParliamentRuns([0, 0])).toBe('Legislative Assembly')
+  })
+
+  it('writes a run of Parliaments as a range', () => {
+    expect(formatParliamentRuns([6, 7, 8, 9, 10, 11, 12, 13, 14, 15])).toBe(
+      'Parliaments 6 to 15'
+    )
+  })
+
+  it('starts a range at the Legislative Assembly', () => {
+    expect(formatParliamentRuns([0, 1, 2])).toBe(
+      'Legislative Assembly to Parliament 2'
+    )
+  })
+
+  it('drops the word after a range of numbers', () => {
+    expect(formatParliamentRuns([4, 5, 6, 7, 8, 9, 10, 12, 13])).toBe(
+      'Parliaments 4 to 10, 12 to 13'
+    )
+  })
+
+  it('separates the Legislative Assembly from a later Parliament', () => {
+    expect(formatParliamentRuns([0, 7])).toBe(
+      'Legislative Assembly, Parliament 7'
+    )
+  })
+
+  it('names a single Parliament after a range', () => {
+    expect(formatParliamentRuns([5, 6, 9])).toBe(
+      'Parliaments 5 to 6, Parliament 9'
+    )
+  })
+
+  it('keeps the word after a single Parliament', () => {
+    expect(formatParliamentRuns([12, 14, 15])).toBe(
+      'Parliament 12, Parliaments 14 to 15'
+    )
+  })
+})
+
+describe('formatMembershipSeats', () => {
+  it('drops a seat the party label already contains', () => {
+    expect(
+      formatMembershipSeats({
+        party: 'Nominated Member of Parliament',
+        constituencies: ['Nominated Member'],
+      })
+    ).toBe('')
+  })
+
+  it('writes nothing when there are no seats', () => {
+    expect(
+      formatMembershipSeats({ party: 'Non-partisan', constituencies: [] })
+    ).toBe('')
+  })
+
+  it('keeps a seat the party label does not contain', () => {
+    expect(
+      formatMembershipSeats({
+        party: 'Progress Singapore Party',
+        constituencies: ['Non-Constituency Member'],
+      })
+    ).toBe('Non-Constituency Member')
+  })
+
+  it('joins two seats with a comma', () => {
+    expect(
+      formatMembershipSeats({
+        party: "People's Action Party",
+        constituencies: ['West Coast-Jurong', 'West Coast-Jurong West'],
+      })
+    ).toBe('West Coast-Jurong, West Coast-Jurong West')
   })
 })

@@ -16,6 +16,7 @@ const PERCENTAGE_SCALE = 100
 const PERCENTAGE_DECIMAL_PLACES = 2
 const NAME_LIST_SEPARATOR = ', '
 const NAME_LIST_LAST_SEPARATOR = ' and '
+const MEMBERSHIP_LIST_SEPARATOR = ', '
 
 export function getToday(): string {
   return format(new Date(), 'yyyy-MM-dd')
@@ -63,6 +64,57 @@ export function formatMembershipParliaments(
   return formatParliamentRange(
     memberships.map((membership) => membership.parliament_number)
   )
+}
+
+function groupParliamentRuns(parliamentNumbers: number[]): number[][] {
+  const runs: number[][] = []
+  for (const parliamentNumber of [...new Set(parliamentNumbers)].sort(
+    (a, b) => a - b
+  )) {
+    const lastRun = runs[runs.length - 1]
+    if (lastRun?.[lastRun.length - 1] === parliamentNumber - 1) {
+      lastRun.push(parliamentNumber)
+    } else {
+      runs.push([parliamentNumber])
+    }
+  }
+  return runs
+}
+
+function isNumberRange(run: number[]): boolean {
+  return run.length > 1 && run[0] !== LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER
+}
+
+function formatParliamentRun(
+  run: number[],
+  isAfterNumberRange: boolean
+): string {
+  const first = run[0]
+  const last = run[run.length - 1]
+  if (first === last) return formatParliament(first)
+  if (first === LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER) {
+    return `${LEGISLATIVE_ASSEMBLY_LABEL} to ${formatParliament(last)}`
+  }
+  return isAfterNumberRange
+    ? `${first} to ${last}`
+    : `Parliaments ${first} to ${last}`
+}
+
+export function formatParliamentRuns(parliamentNumbers: number[]): string {
+  return groupParliamentRuns(parliamentNumbers)
+    .map((run, index, runs) =>
+      formatParliamentRun(run, index > 0 && isNumberRange(runs[index - 1]))
+    )
+    .join(MEMBERSHIP_LIST_SEPARATOR)
+}
+
+export function formatMembershipSeats(membership: {
+  party: string
+  constituencies: string[]
+}): string {
+  return membership.constituencies
+    .filter((constituency) => !membership.party.includes(constituency))
+    .join(MEMBERSHIP_LIST_SEPARATOR)
 }
 
 export function getMembershipParties(memberships: MembershipData[]): string[] {

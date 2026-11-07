@@ -14,6 +14,7 @@ import { SkeletonPerson } from '@/components/people/SkeletonPerson'
 import { TableMemberships } from '@/components/people/TableMemberships'
 import { TableParliamentCounts } from '@/components/people/TableParliamentCounts'
 import { TextHandAliasNote } from '@/components/people/TextHandAliasNote'
+import { TextPersonSummary } from '@/components/people/TextPersonSummary'
 import { TextSpellingNoteMarker } from '@/components/people/TextSpellingNoteMarker'
 import { SkeletonReportRows } from '@/components/reports/SkeletonReportRows'
 import {
@@ -34,11 +35,17 @@ import {
 import {
   PERSON_ID_TO_HAND_ALIAS_NOTE,
   PERSON_TITLE_SUFFIX,
+  SPELLING_NOTE_NUMBER,
 } from '@/constants/people/constants'
 import { PersonReportFilter } from '@/constants/people/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { formatParliament } from '@/lib/format'
 import { formatOtherNames, getNameSpellings } from '@/lib/personName'
-import { isSittingMember, parsePersonSlug } from '@/lib/utils'
+import {
+  getMembershipToPartyNote,
+  isSittingMember,
+  parsePersonSlug,
+} from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { z } from 'zod'
@@ -176,6 +183,13 @@ export const Route = createFileRoute('/people/$personSlug')({
     const nameVariants = data.name_variants.join('; ')
     const nameSpellings = getNameSpellings(data)
     const otherNames = formatOtherNames(nameSpellings)
+    const membershipToPartyNote = getMembershipToPartyNote(
+      data.memberships.map((membership) => ({
+        label: formatParliament(membership.parliament_number),
+        membership,
+      })),
+      nameSpellings.length > 0 ? SPELLING_NOTE_NUMBER + 1 : undefined
+    )
     const firstReportsPage = reports.data?.pages[0]
 
     return (
@@ -184,8 +198,14 @@ export const Route = createFileRoute('/people/$personSlug')({
           title={data.canonical_name}
           badge={isSittingMember(data.memberships) && <BadgeSittingMember />}
           description={
+            <TextPersonSummary
+              memberships={data.memberships}
+              membershipToPartyNote={membershipToPartyNote}
+            />
+          }
+          belowDescription={
             nameVariants === '' && otherNames === '' ? undefined : (
-              <>
+              <p className="text-muted-foreground max-w-prose text-base">
                 {otherNames !== '' && (
                   <>
                     {otherNames}
@@ -194,7 +214,7 @@ export const Route = createFileRoute('/people/$personSlug')({
                 )}
                 {nameVariants !== '' && otherNames !== '' && <br />}
                 {nameVariants !== '' && `Also recorded as: ${nameVariants}`}
-              </>
+              </p>
             )
           }
           titleAction={
@@ -241,6 +261,7 @@ export const Route = createFileRoute('/people/$personSlug')({
           <TableMemberships
             memberships={data.memberships}
             nameSpellings={nameSpellings}
+            membershipToPartyNote={membershipToPartyNote}
           />
         </section>
         {data.parliament_counts.length > 0 && (

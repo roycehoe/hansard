@@ -29,6 +29,7 @@ export function SkeletonPerson() {
     <div className="space-y-8">
       <SkeletonPageHeader
         hasDescription
+        belowDescription={<Skeleton className="h-5 w-40" />}
         actions={<Skeleton className="h-9 w-56" />}
       />
       <SkeletonTableSection />
