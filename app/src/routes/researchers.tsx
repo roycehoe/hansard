@@ -44,44 +44,43 @@ export const Route = createFileRoute('/researchers')({
 
         <section aria-labelledby="holdings-heading" className="space-y-4">
           <h2 id="holdings-heading" className={SECTION_HEADING_CLASS_NAME}>
-            What is here
+            What the archive holds
           </h2>
           <p>
-            The archive holds report text from the Official Report, split into
-            speeches. Each speech is credited to a person when the speaker label
-            is enough to tell who spoke.
+            The archive copies report text from the Official Report and splits
+            it into speeches. It links a speech to a person when the speaker
+            label is enough to tell who spoke.
           </p>
           <p>
-            Reports by year, the sample check and the known gaps are on Data
-            quality and methods.
+            Data quality and methods has the report counts by year, the sample
+            check and the known gaps.
           </p>
         </section>
 
         <section aria-labelledby="download-heading" className="space-y-4">
           <h2 id="download-heading" className={SECTION_HEADING_CLASS_NAME}>
-            No download yet
+            Bulk data
           </h2>
           <p>
-            There is no bulk download yet. I&apos;ll offer one once enough
-            researchers ask for it.
+            I&apos;m Royce, and I run the site. There is no bulk download yet,
+            but I&apos;ll offer one once enough researchers ask for it.
           </p>
         </section>
 
         <section aria-labelledby="form-heading" className="space-y-4">
           <h2 id="form-heading" className={SECTION_HEADING_CLASS_NAME}>
-            Ask for the data
+            Ask for a download
           </h2>
-          <p>To ask for a download, fill in the form.</p>
+          <p>
+            If you want a download, tell me through the form. Your answers come
+            to me, and I use them only to decide whether to offer one.
+          </p>
           <Button asChild>
             <a href={RESEARCHERS_FORM_URL} target="_blank" rel="noreferrer">
-              Open the form
+              Request a download
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </Button>
-          <p className="text-muted-foreground text-sm">
-            I&apos;m Royce, and I run the site. The answers come to me, and I
-            use them only to decide whether to offer a download.
-          </p>
         </section>
       </div>
     )
