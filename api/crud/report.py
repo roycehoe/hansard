@@ -128,7 +128,7 @@ class CRUDReport:
     def get_all_by_sitting_date(self, sitting_date: datetime) -> list[Report]:
         statement = (
             select(Report)
-            .options(defer(Report.markdown_content), defer(Report.content))
+            .options(defer(Report.markdown_content))
             .where(Report.sitting_date == sitting_date)
             .order_by(Report.speech_number, Report.id)
         )
