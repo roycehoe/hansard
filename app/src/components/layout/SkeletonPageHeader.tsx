@@ -4,13 +4,11 @@ import type { ReactNode } from 'react'
 interface SkeletonPageHeaderProps {
   hasDescription: boolean
   belowDescription?: ReactNode
-  actions?: ReactNode
 }
 
 export function SkeletonPageHeader({
   hasDescription,
   belowDescription,
-  actions,
 }: SkeletonPageHeaderProps) {
   return (
     <div className="border-separator space-y-4 border-b pb-6">
@@ -21,7 +19,6 @@ export function SkeletonPageHeader({
           {hasDescription && <Skeleton className="h-5 w-full max-w-sm" />}
           {belowDescription}
         </div>
-        {actions}
       </div>
     </div>
   )

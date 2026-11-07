@@ -211,13 +211,6 @@ export const Route = createFileRoute('/people/$personSlug')({
               path={`/people/${data.person_id}-${data.person_slug}`}
             />
           }
-          actions={
-            <Button asChild variant="outline" size="sm">
-              <Link to="/search" search={{ person: data.person_id }}>
-                Search this person's speeches
-              </Link>
-            </Button>
-          }
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -240,6 +233,40 @@ export const Route = createFileRoute('/people/$personSlug')({
             </Breadcrumb>
           }
         />
+        <section aria-labelledby="reports-heading" className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
+              Reports
+            </h2>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/search" search={{ person: data.person_id }}>
+                Search this person's speeches
+              </Link>
+            </Button>
+          </div>
+          <Tabs
+            value={filter ?? FILTER_ALL}
+            onValueChange={changeTab}
+            className="gap-4"
+          >
+            <TabsList>
+              <TabsTrigger value={FILTER_ALL}>
+                All reports
+                {renderTabCount(firstReportsPage?.total_count)}
+              </TabsTrigger>
+              <TabsTrigger value={PersonReportFilter.ASKED}>
+                Questions asked
+                {renderTabCount(firstReportsPage?.questions_asked_count)}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value={FILTER_ALL}>
+              {renderReports(data.canonical_name)}
+            </TabsContent>
+            <TabsContent value={PersonReportFilter.ASKED}>
+              {renderReports(data.canonical_name)}
+            </TabsContent>
+          </Tabs>
+        </section>
         <section aria-labelledby="memberships-heading" className="space-y-2">
           <h2
             id="memberships-heading"
@@ -265,33 +292,6 @@ export const Route = createFileRoute('/people/$personSlug')({
             />
           </section>
         )}
-        <section aria-labelledby="reports-heading" className="space-y-4">
-          <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
-            Reports
-          </h2>
-          <Tabs
-            value={filter ?? FILTER_ALL}
-            onValueChange={changeTab}
-            className="gap-4"
-          >
-            <TabsList>
-              <TabsTrigger value={FILTER_ALL}>
-                All reports
-                {renderTabCount(firstReportsPage?.total_count)}
-              </TabsTrigger>
-              <TabsTrigger value={PersonReportFilter.ASKED}>
-                Questions asked
-                {renderTabCount(firstReportsPage?.questions_asked_count)}
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value={FILTER_ALL}>
-              {renderReports(data.canonical_name)}
-            </TabsContent>
-            <TabsContent value={PersonReportFilter.ASKED}>
-              {renderReports(data.canonical_name)}
-            </TabsContent>
-          </Tabs>
-        </section>
         <TextSource sittingDate={null} officialRecordUrl={null} />
       </div>
     )

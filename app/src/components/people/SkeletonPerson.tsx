@@ -30,15 +30,17 @@ export function SkeletonPerson() {
       <SkeletonPageHeader
         hasDescription
         belowDescription={<Skeleton className="h-5 w-40" />}
-        actions={<Skeleton className="h-9 w-56" />}
       />
-      <SkeletonTableSection />
-      <SkeletonTableSection />
       <div className="space-y-4">
-        <Skeleton className="h-7 w-28" />
+        <div className="flex items-center justify-between gap-2">
+          <Skeleton className="h-7 w-28" />
+          <Skeleton className="h-8 w-56" />
+        </div>
         <Skeleton className="h-9 w-72" />
         <SkeletonReportRows />
       </div>
+      <SkeletonTableSection />
+      <SkeletonTableSection />
     </div>
   )
 }
