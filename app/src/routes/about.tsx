@@ -120,6 +120,27 @@ export const Route = createFileRoute('/about')({
           </p>
         </section>
 
+        <section aria-labelledby="why-heading" className="space-y-4">
+          <h2 id="why-heading" className={SECTION_HEADING_CLASS_NAME}>
+            Why I built it
+          </h2>
+          <p>
+            I&apos;ve always been curious about what our MPs have said over the
+            years. Do they still stand by what they said ten or twenty years
+            ago? Have their views changed? Are there issues they&apos;ve been
+            particularly passionate about? I wanted a way to find out for
+            myself.
+          </p>
+          <p>
+            The speeches are all public on Parliament&apos;s website, but
+            following an MP across decades is difficult because speeches
+            aren&apos;t linked to the people who gave them. I think people would
+            take more interest in politics if the parliamentary record were
+            easier to explore, so I&apos;ve spent the past three years building
+            this, mostly for fun.
+          </p>
+        </section>
+
         <section aria-labelledby="accuracy-heading" className="space-y-4">
           <h2 id="accuracy-heading" className={SECTION_HEADING_CLASS_NAME}>
             How accurate it is
