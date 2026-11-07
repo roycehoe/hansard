@@ -92,6 +92,8 @@ const SECTION_HEADING_CLASS_NAME =
 
 const SUBHEADING_CLASS_NAME = 'font-serif text-base font-semibold lg:text-lg'
 
+const SUBSECTION_CLASS_NAME = 'space-y-3 sm:space-y-2'
+
 const COUNTS_SKELETON_ROW_COUNT = 10
 
 const YEARS_SKELETON_ROW_COUNT = 8
@@ -559,7 +561,7 @@ export const Route = createFileRoute('/coverage/methods')({
             Terms
           </h2>
           <div className="space-y-8 sm:space-y-6">
-            <div className="space-y-3 sm:space-y-2">
+            <div className={SUBSECTION_CLASS_NAME}>
               <h3 className={SUBHEADING_CLASS_NAME}>The record</h3>
               <dl className={TERM_LIST_CLASS_NAME}>
                 <dt className={TERM_CLASS_NAME}>Sitting</dt>
@@ -593,7 +595,7 @@ export const Route = createFileRoute('/coverage/methods')({
               </dl>
             </div>
             {REPORT_TYPE_GROUPS.map((group) => (
-              <div key={group.heading} className="space-y-3 sm:space-y-2">
+              <div key={group.heading} className={SUBSECTION_CLASS_NAME}>
                 <h3 className={SUBHEADING_CLASS_NAME}>{group.heading}</h3>
                 <dl className={TERM_LIST_CLASS_NAME}>
                   {group.reportTypes.map((reportType) => (
@@ -617,7 +619,7 @@ export const Route = createFileRoute('/coverage/methods')({
             Known gaps
           </h2>
           <div className="space-y-8 sm:space-y-6">
-            <div className="space-y-3 sm:space-y-2">
+            <div className={SUBSECTION_CLASS_NAME}>
               <h3 className={SUBHEADING_CLASS_NAME}>
                 What is missing
                 <span className="sr-only">: known gaps</span>
@@ -641,7 +643,7 @@ export const Route = createFileRoute('/coverage/methods')({
                 </li>
               </ul>
             </div>
-            <div className="space-y-3 sm:space-y-2">
+            <div className={SUBSECTION_CLASS_NAME}>
               <h3 className={SUBHEADING_CLASS_NAME}>
                 Who said what
                 <span className="sr-only">: known gaps</span>
@@ -670,7 +672,7 @@ export const Route = createFileRoute('/coverage/methods')({
                 </li>
               </ul>
             </div>
-            <div className="space-y-3 sm:space-y-2">
+            <div className={SUBSECTION_CLASS_NAME}>
               <h3 className={SUBHEADING_CLASS_NAME}>
                 Text and order
                 <span className="sr-only">: known gaps</span>
@@ -701,7 +703,7 @@ export const Route = createFileRoute('/coverage/methods')({
                 </li>
               </ul>
             </div>
-            <div className="space-y-3 sm:space-y-2">
+            <div className={SUBSECTION_CLASS_NAME}>
               <h3 className={SUBHEADING_CLASS_NAME}>
                 Search
                 <span className="sr-only">: known gaps</span>

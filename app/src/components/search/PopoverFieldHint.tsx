@@ -34,6 +34,7 @@ export function PopoverFieldHint({
   const closeTimeoutRef = useRef<number | undefined>(undefined)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const hintId = useId()
+  const hasAnchor = anchorRef !== undefined
 
   function cancelClose() {
     window.clearTimeout(closeTimeoutRef.current)
@@ -87,7 +88,7 @@ export function PopoverFieldHint({
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      {anchorRef && <PopoverAnchor virtualRef={anchorRef} />}
+      {hasAnchor && <PopoverAnchor virtualRef={anchorRef} />}
       <PopoverTrigger asChild>
         <Button
           ref={buttonRef}
@@ -106,12 +107,12 @@ export function PopoverFieldHint({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        side={anchorRef ? 'bottom' : 'top'}
-        avoidCollisions={anchorRef === undefined}
+        side={hasAnchor ? 'bottom' : 'top'}
+        avoidCollisions={!hasAnchor}
         align="start"
         className={cn(
           'text-sm',
-          anchorRef ? 'w-(--radix-popover-trigger-width) md:min-w-72' : 'w-72'
+          hasAnchor ? 'w-(--radix-popover-trigger-width) md:min-w-72' : 'w-72'
         )}
         onPointerEnter={openOnMouseEnter}
         onPointerLeave={closeOnMouseLeave}
