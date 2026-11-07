@@ -86,59 +86,67 @@ export const Route = createFileRoute('/coverage/')({
           }
         />
 
-        <div className="max-w-3xl space-y-4">
-          <p>
-            This is an unofficial archive of Singapore&apos;s parliamentary
-            debates since 1955.{' '}
-            <Link to="/search" className={UNDERLINED_LINK_CLASS_NAME}>
-              Search the debates
-            </Link>{' '}
-            or{' '}
-            <Link to="/people" className={UNDERLINED_LINK_CLASS_NAME}>
-              browse the people who spoke
-            </Link>
-            .
-          </p>
-
-          {renderSummary()}
-
-          <p id="about-the-text">
-            The text here is copied from the{' '}
-            <a
-              href={OFFICIAL_RECORD_SEARCH_URL}
-              className={UNDERLINED_LINK_CLASS_NAME}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Official Report
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>{' '}
-            and can differ from it. Check the Official Report before you quote
-            it.
-          </p>
-
-          <p>
-            The archive copies each report from the Parliament of
-            Singapore&apos;s website, splits it where a new speaker begins and
-            matches each speaker to a person where it can.{' '}
-            <Link to="/coverage/methods" className={UNDERLINED_LINK_CLASS_NAME}>
-              Data quality and methods
-            </Link>{' '}
-            covers how far to trust the text, the full counts, the known gaps
-            and how to cite.
-          </p>
-
-          {ORIENTATION_PARAGRAPHS.map((paragraph) => (
-            <p key={paragraph.language} lang={paragraph.language}>
-              {paragraph.text}
+        <div className="grid gap-4 lg:grid-cols-[3fr_2fr] lg:gap-12">
+          <div className="min-w-0 space-y-4">
+            <p>
+              This is an unofficial archive of Singapore&apos;s parliamentary
+              debates since 1955.{' '}
+              <Link to="/search" className={UNDERLINED_LINK_CLASS_NAME}>
+                Search the debates
+              </Link>{' '}
+              or{' '}
+              <Link to="/people" className={UNDERLINED_LINK_CLASS_NAME}>
+                browse the people who spoke
+              </Link>
+              .
             </p>
-          ))}
+
+            {renderSummary()}
+
+            <p id="about-the-text">
+              The text here is copied from the{' '}
+              <a
+                href={OFFICIAL_RECORD_SEARCH_URL}
+                className={UNDERLINED_LINK_CLASS_NAME}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Official Report
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>{' '}
+              and can differ from it. Check the Official Report before you quote
+              it.
+            </p>
+
+            <p>
+              The archive copies each report from the Parliament of
+              Singapore&apos;s website, splits it where a new speaker begins and
+              matches each speaker to a person where it can.{' '}
+              <Link
+                to="/coverage/methods"
+                className={UNDERLINED_LINK_CLASS_NAME}
+              >
+                Data quality and methods
+              </Link>{' '}
+              covers how far to trust the text, the full counts, the known gaps
+              and how to cite.
+            </p>
+          </div>
+
+          <div className="min-w-0 space-y-3 text-sm">
+            {ORIENTATION_PARAGRAPHS.map((paragraph) => (
+              <p key={paragraph.language} lang={paragraph.language}>
+                {paragraph.text}
+              </p>
+            ))}
+          </div>
         </div>
 
-        <div className="border-separator text-muted-foreground space-y-2 border-t pt-6 text-sm">
-          <p>Built and run by Royce Hoe.</p>
+        <p className="border-separator text-muted-foreground border-t pt-6 text-sm">
+          Built and run by Royce Hoe.
           {CONTACT_EMAIL && (
-            <p>
+            <>
+              {' '}
               Found an error? Email{' '}
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
@@ -147,9 +155,9 @@ export const Route = createFileRoute('/coverage/')({
                 {CONTACT_EMAIL}
               </a>
               .
-            </p>
+            </>
           )}
-        </div>
+        </p>
       </div>
     )
   },
