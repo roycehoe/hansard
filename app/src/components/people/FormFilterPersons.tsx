@@ -220,7 +220,7 @@ export function FormFilterPersons({
               </SheetContent>
             </Sheet>
             <Button variant="outline" className="flex-1" asChild>
-              <Link to="/people">Clear</Link>
+              <Link to="/people">Clear search</Link>
             </Button>
           </div>
         </>
@@ -233,7 +233,7 @@ export function FormFilterPersons({
           {parliamentField}
           {partyField}
           <Button variant="outline" asChild>
-            <Link to="/people">Clear</Link>
+            <Link to="/people">Clear search</Link>
           </Button>
         </>
       )}

@@ -15,7 +15,7 @@ export function TextPartyNoteMarker({ partyNote }: TextPartyNoteMarkerProps) {
     <sup className="ml-1 text-xs">
       <a
         href={`#${getPartyNoteId(partyNote.number)}`}
-        aria-label={`Party note ${partyNote.number}`}
+        aria-label={`${partyNote.number}, party note`}
         className={LINK_CLASS_NAME}
       >
         {partyNote.number}

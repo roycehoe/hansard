@@ -261,7 +261,7 @@ export const SPEAKER_NOT_RECORDED_LABEL = 'Speaker not recorded'
 
 export const INFERRED_CREDIT_CLOSE_DELAY_MS = 150
 export const INFERRED_CREDIT_METHOD_TEXT =
-  'The archive credits the person who held that role at the time. It works this out from the dates each person held the office, or from where the record of the sitting names who held it.'
+  'The archive credits the person who held the role at the time, using the dates they held office or the names given in the sitting record.'
 export const INFERRED_CREDIT_CAVEAT_TEXT =
   'If the role changed hands and the record does not say so, this credit can be wrong.'
 

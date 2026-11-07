@@ -15,7 +15,7 @@ export function PopoverReadOutBy({
 }: PopoverReadOutByProps) {
   return (
     <PopoverDefinition
-      definition={`The record prints that this question stood in the name of ${printedName}. ${readerName} asked it for them.`}
+      definition={`The record lists this question under ${printedName}, and ${readerName} asked it on their behalf.`}
       termsLinkLabel={QUESTION_CREDIT_LINK_LABEL}
     >
       <span className={DEFINED_TERM_CLASS_NAME}>

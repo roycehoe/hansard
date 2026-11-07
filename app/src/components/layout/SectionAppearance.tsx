@@ -55,7 +55,7 @@ export function SectionAppearance({ isPhone }: SectionAppearanceProps) {
     <div className="flex flex-col gap-3">
       {isReportPage && (
         <FieldsetAppearanceChoice
-          legend="Text"
+          legend="Text size"
           value={appearance.textSize}
           options={TEXT_SIZE_DROPDOWN_OPTIONS}
           isSegmented={isPhone}
@@ -64,7 +64,7 @@ export function SectionAppearance({ isPhone }: SectionAppearanceProps) {
       )}
       {isReportPage && !isPhone && (
         <FieldsetAppearanceChoice
-          legend="Width"
+          legend="Text width"
           value={appearance.width}
           options={CONTENT_WIDTH_DROPDOWN_OPTIONS}
           isSegmented={false}

@@ -16,8 +16,8 @@ export function NoticeErrorSearchExcludedWordsOnly() {
           Add a word to search for
         </h2>
         <p className="text-muted-foreground max-w-100 text-sm">
-          A minus sign only leaves a word out. Add a word to find, or choose a
-          person or seat.
+          A minus sign excludes a word. Add a word to search for, or choose a
+          person or constituency.
         </p>
       </div>
     </div>

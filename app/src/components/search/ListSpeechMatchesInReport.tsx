@@ -147,7 +147,7 @@ export function ListSpeechMatchesInReport({
           >
             {isExpanded
               ? 'Show fewer'
-              : `${hiddenCount.toLocaleString(NUMBER_LOCALE)} more in this report`}
+              : `Show ${hiddenCount.toLocaleString(NUMBER_LOCALE)} more in this report`}
           </Button>
         </div>
       )}

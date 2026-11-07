@@ -212,7 +212,7 @@ export const Route = createFileRoute('/people/')({
                 search={{ party, constituency, name }}
                 className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
               >
-                Include past members
+                Show all Parliaments
               </Link>
             </p>
           )}

@@ -12,7 +12,7 @@ export function NoticeErrorPersonReports({
   return (
     <NoticeError
       title="Couldn't load the reports"
-      description="The reports did not load. Try again in a moment."
+      description="Try again in a moment."
       onRetry={onRetry}
       isRetrying={isRetrying}
     />

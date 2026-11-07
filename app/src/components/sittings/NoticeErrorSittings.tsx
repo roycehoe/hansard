@@ -12,7 +12,7 @@ export function NoticeErrorSittings({
   return (
     <NoticeError
       title="Couldn't load the sittings"
-      description="The sittings did not load. Try again in a moment."
+      description="Try again in a moment."
       onRetry={onRetry}
       isRetrying={isRetrying}
     />

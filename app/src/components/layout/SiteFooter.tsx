@@ -61,7 +61,8 @@ export function SiteFooter() {
           </p>
           {lastCheckedDate !== null && (
             <p className="text-muted-foreground">
-              Last checked {formatSittingDate(lastCheckedDate)}.
+              Last checked for new sittings {formatSittingDate(lastCheckedDate)}
+              .
             </p>
           )}
         </div>

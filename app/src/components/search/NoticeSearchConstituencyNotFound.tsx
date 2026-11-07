@@ -19,7 +19,7 @@ export function NoticeSearchConstituencyNotFound({
         action={
           <Button variant="outline" asChild>
             <Link to="/people" search={{ constituency }}>
-              Look under People
+              Find the constituency under People
             </Link>
           </Button>
         }

@@ -30,7 +30,7 @@ export function ListPersons({
       <NoticeEmpty
         icon={Users}
         title="No people match these filters"
-        description="Try a wider filter or a different spelling."
+        description="Try fewer filters or a different spelling."
       />
     )
   }

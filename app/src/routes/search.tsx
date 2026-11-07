@@ -277,7 +277,7 @@ export const Route = createFileRoute('/search')({
         return (
           <TextSearchNote
             note={`Searching for "${name}" finds mentions of the name, not necessarily speeches by that person.`}
-            linkLabel={`Search for the other terms in ${name}'s speeches instead`}
+            linkLabel={`Search ${name}'s speeches for the remaining words`}
             linkSearch={{
               q: namedPerson.otherWords,
               person: namedPerson.person.person_id,
@@ -291,7 +291,7 @@ export const Route = createFileRoute('/search')({
         return (
           <TextSearchNote
             note={`Searching for "${year}" finds mentions of the year, not necessarily debates held in ${year}.`}
-            linkLabel={`Search for "${otherWords}" in ${year} sittings instead`}
+            linkLabel={`Search ${year} sittings for "${otherWords}"`}
             linkSearch={{
               q: otherWords,
               from: `${year}-01-01`,

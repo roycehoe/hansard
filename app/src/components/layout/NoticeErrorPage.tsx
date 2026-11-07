@@ -20,7 +20,7 @@ export function NoticeErrorPage({ reset }: ErrorComponentProps) {
     <div role="alert" className="space-y-8">
       <PageHeader
         title="This page did not load"
-        description="Something went wrong on our side. Try again in a moment, or go back to the home page."
+        description="Try again in a moment, or return to the home page."
       />
       <div className="flex flex-row flex-wrap items-center gap-4">
         <Button variant="outline" asChild>

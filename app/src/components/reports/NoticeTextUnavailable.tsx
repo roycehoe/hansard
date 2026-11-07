@@ -14,7 +14,7 @@ export function NoticeTextUnavailable({
     <NoticeEmpty
       icon={FileText}
       title={TEXT_NOT_IN_ARCHIVE_LABEL}
-      description="Parliament's site did not give this archive the report's text, so only its title and details are here."
+      description="The archive did not receive this report's text from Parliament's site, so only its title and details are here."
       action={
         <Button variant="outline" asChild>
           <a href={officialRecordUrl} target="_blank" rel="noreferrer">

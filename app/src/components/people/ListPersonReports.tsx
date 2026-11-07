@@ -24,14 +24,14 @@ export function ListPersonReports({
         <NoticeEmpty
           icon={FileText}
           title="No questions asked"
-          description={`The record has no parliamentary question asked by ${personName}.`}
+          description={`The archive has no parliamentary questions credited to ${personName}.`}
         />
       )
     }
     return (
       <NoticeEmpty
         icon={FileText}
-        title="No reports with paragraphs"
+        title="No paragraphs by this person"
         description="No paragraphs by this person are in the archive yet."
       />
     )

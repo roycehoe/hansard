@@ -18,8 +18,8 @@ export function NoticeErrorSearchTimedOut() {
           The search took too long
         </h2>
         <p className="text-muted-foreground max-w-100 text-sm">
-          Narrow it with a Parliament, a type or a date range, then search
-          again.
+          Choose a Parliament, report type or date range to narrow the search,
+          then try again.
         </p>
       </div>
       <Button variant="outline" asChild>

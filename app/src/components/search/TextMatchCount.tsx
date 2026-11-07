@@ -65,7 +65,7 @@ export function TextMatchCount({
                 onClick={focusSearchWords}
                 className={LINK_CLASS_NAME}
               >
-                Only the exact word {exactWord}
+                Search for the exact word {exactWord}
               </Link>
             </>
           )}

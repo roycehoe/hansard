@@ -11,8 +11,8 @@ export function NoticeErrorPerson({
 }: NoticeErrorPersonProps) {
   return (
     <NoticeError
-      title="Couldn't load this person"
-      description="This person did not load. Try again in a moment."
+      title="Couldn't load this person's details"
+      description="Try again in a moment."
       onRetry={onRetry}
       isRetrying={isRetrying}
     />

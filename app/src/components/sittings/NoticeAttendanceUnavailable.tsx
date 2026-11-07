@@ -10,7 +10,7 @@ export function NoticeAttendanceUnavailable() {
   return (
     <NoticeEmpty
       icon={Users}
-      title="Attendance for this sitting isn't in this archive yet"
+      title="Attendance isn't in the archive yet"
       description={
         attendanceLastSittingDate
           ? `Attendance lists run up to ${formatSittingDate(attendanceLastSittingDate)}.`
