@@ -122,10 +122,12 @@ def _get_uncached_coverage(
     session: Session, refresh_run_session: Session
 ) -> GetCoverageResponse:
     year_to_report_count = CRUDReport(session).get_year_to_report_count()
+    year_to_sitting_count = CRUDReport(session).get_year_to_sitting_count()
     year_to_text_report_count = CRUDReport(session).get_year_to_text_report_count()
     years = [
         YearCoverageData(
             year=year,
+            sitting_count=year_to_sitting_count[year],
             report_count=year_to_report_count[year],
             text_report_count=year_to_text_report_count.get(year, 0),
         )

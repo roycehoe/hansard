@@ -25,6 +25,13 @@ def test_coverage_answers_200_with_public_cache_control(
 
 
 @pytest.mark.database
+def test_coverage_years_count_each_sitting_once(api_client: TestClient) -> None:
+    body = api_client.get("/coverage").json()
+
+    assert sum(year["sitting_count"] for year in body["years"]) == body["sitting_count"]
+
+
+@pytest.mark.database
 def test_refresh_answers_200_with_public_cache_control(
     api_client: TestClient,
 ) -> None:

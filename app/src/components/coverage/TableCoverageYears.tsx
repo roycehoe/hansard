@@ -50,14 +50,19 @@ export function TableCoverageYears({
 }: TableCoverageYearsProps) {
   return (
     <Table>
-      <TableCaption className="sr-only">Reports by year</TableCaption>
+      <TableCaption className="sr-only">
+        Sittings and reports by year
+      </TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead scope="col">Year</TableHead>
+          <TableHead scope="col" className="px-1 text-right sm:px-2">
+            Sittings
+          </TableHead>
           <TableHead scope="col" className="text-right">
             Reports
           </TableHead>
-          <TableHead scope="col" className="text-right">
+          <TableHead scope="col" className="text-right whitespace-normal">
             With text
           </TableHead>
           <TableHead scope="col" className="text-right whitespace-normal">
@@ -89,6 +94,9 @@ export function TableCoverageYears({
                   </span>
                 )}
               </TableHead>
+              <TableCell className="px-1 text-right tabular-nums sm:px-2">
+                {year.sitting_count.toLocaleString(NUMBER_LOCALE)}
+              </TableCell>
               <TableCell className="text-right tabular-nums">
                 {year.report_count.toLocaleString(NUMBER_LOCALE)}
               </TableCell>

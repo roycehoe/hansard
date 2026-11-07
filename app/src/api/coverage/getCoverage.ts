@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 
 export interface YearCoverageData {
   year: number
+  sitting_count: number
   report_count: number
   text_report_count: number
 }

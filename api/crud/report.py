@@ -351,6 +351,16 @@ class CRUDReport:
         rows = self.session.exec(statement).all()
         return {report_year: report_count for report_year, report_count in rows}
 
+    def get_year_to_sitting_count(self) -> dict[int, int]:
+        year = cast(func.extract("year", Report.sitting_date), Integer)
+        statement = (
+            select(year, func.count(func.distinct(Report.sitting_date)))
+            .group_by(year)
+            .order_by(year)
+        )
+        rows = self.session.exec(statement).all()
+        return {report_year: sitting_count for report_year, sitting_count in rows}
+
     def get_year_to_text_report_count(self) -> dict[int, int]:
         year = cast(func.extract("year", Report.sitting_date), Integer)
         statement = (

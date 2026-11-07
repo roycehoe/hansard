@@ -58,6 +58,7 @@ import {
   HAND_CHECK_WRONG_CREDIT_BOUND,
   HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT,
   HOW_THIS_WAS_BUILT_URL,
+  IPU_PLENARY_DAYS_URL,
   LINK_CHECK_REPORT_URL,
   METHODS_ATTRIBUTION_HEADING_ID,
   METHODS_LAST_REVISED,
@@ -337,7 +338,7 @@ export const Route = createFileRoute('/coverage/methods')({
       return (
         <section aria-labelledby="years-heading" className="space-y-4">
           <h2 id="years-heading" className={SECTION_HEADING_CLASS_NAME}>
-            Reports by year
+            Sittings and reports by year
           </h2>
           <p>
             These counts show what the archive holds; they have not been checked
@@ -347,6 +348,26 @@ export const Route = createFileRoute('/coverage/methods')({
             Reports per sitting rise from about 20 in Parliament 11 to about 70
             in Parliament 14, mostly because each written answer gets a separate
             report for each question.
+          </p>
+          <p>
+            The Sittings column counts the days the House met in each calendar
+            year, taken from the sitting date of each report in the archive. It
+            reads only dates, so the wrong credits and word errors measured on
+            this page do not touch it.
+          </p>
+          <p>
+            On 7 November 2026 a script compared this count with the sitting
+            numbers in the record. Every number in all 97 volumes has a sitting,
+            apart from two in Parliament 10, where a sitting carries an
+            out-of-sequence number in the place of the missing one. A sitting
+            lost from the very end of a volume would not show in this check. The{' '}
+            <LinkExternal href={IPU_PLENARY_DAYS_URL}>
+              Inter-Parliamentary Union
+            </LinkExternal>{' '}
+            gives the same count for each year from 2017 to 2021, and 36 for
+            2022, where the archive has 35. The record numbers the sittings of
+            2022 from 44 to 78 with no gap, which makes 35, so the archive keeps
+            that figure.
           </p>
           <TableCoverageYears
             years={coverageData.years}

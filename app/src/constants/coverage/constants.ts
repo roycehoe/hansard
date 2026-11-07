@@ -9,6 +9,9 @@ export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
 export const METHODS_LAST_REVISED = '2026-11-07'
 
+export const IPU_PLENARY_DAYS_URL =
+  'https://data.ipu.org/parliament/SG/SG-LC01/working-methods/structure/'
+
 export const METHODS_TERMS_SECTION_ID = 'terms'
 
 export const METHODS_PRIVACY_SECTION_ID = 'privacy'

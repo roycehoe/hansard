@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class YearCoverageData(BaseModel):
     year: int
+    sitting_count: int
     report_count: int
     text_report_count: int
 

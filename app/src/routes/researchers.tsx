@@ -54,8 +54,8 @@ export const Route = createFileRoute('/researchers')({
             each to a person when the speaker label is enough to tell who spoke.
           </p>
           <p>
-            Data quality and methods has the report counts by year, the sample
-            check and the known gaps.
+            Data quality and methods has the sitting and report counts by year,
+            the sample check and the known gaps.
           </p>
         </section>
 
