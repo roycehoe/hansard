@@ -1,4 +1,5 @@
 import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
+import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetSearchReports } from '@/api/search/getSearchReports'
 import type {
@@ -24,7 +25,7 @@ import { NoticeSearchConstituencyNotFound } from '@/components/search/NoticeSear
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
 import { SkeletonFormSearch } from '@/components/search/SkeletonFormSearch'
 import { SkeletonSearchResults } from '@/components/search/SkeletonSearchResults'
-import { TextSearchYearNote } from '@/components/search/TextSearchYearNote'
+import { TextSearchNote } from '@/components/search/TextSearchNote'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -52,9 +53,11 @@ import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { getToday } from '@/lib/format'
+import { getNamedPerson } from '@/lib/personName'
 import {
   getSingleUnquotedWord,
   getTrailingYear,
+  hasSearchOperator,
   isQueryOnlyExcludedWords,
 } from '@/lib/searchQuery'
 import {
@@ -118,6 +121,12 @@ export const Route = createFileRoute('/search')({
     const trailingYear =
       hasWords && parliament === undefined && !from && !to
         ? getTrailingYear(words, Number(today.slice(0, 4)))
+        : undefined
+    const canNamePerson = hasWords && !hasPerson && !hasSearchOperator(words)
+    const allPersons = useGetAllPersons(canNamePerson ? {} : undefined)
+    const namedPerson =
+      canNamePerson && allPersons.data
+        ? getNamedPerson(words, allPersons.data.persons)
         : undefined
     const hasFilter =
       parliament !== undefined ||
@@ -260,6 +269,38 @@ export const Route = createFileRoute('/search')({
           className="w-44"
         />
       )
+    }
+
+    function renderSearchNote() {
+      if (namedPerson !== undefined) {
+        const name = namedPerson.person.canonical_name
+        return (
+          <TextSearchNote
+            note={`Searching for "${name}" finds mentions of the name, not necessarily speeches by that person.`}
+            linkLabel={`Search for the other terms in ${name}'s speeches instead`}
+            linkSearch={{
+              q: namedPerson.otherWords,
+              person: namedPerson.person.person_id,
+            }}
+          />
+        )
+      }
+      if (trailingYear !== undefined) {
+        const { otherWords, year } = trailingYear
+        const lastDayOfYear = `${year}-12-31`
+        return (
+          <TextSearchNote
+            note={`Searching for "${year}" finds mentions of the year, not necessarily debates held in ${year}.`}
+            linkLabel={`Search for "${otherWords}" in ${year} sittings instead`}
+            linkSearch={{
+              q: otherWords,
+              from: `${year}-01-01`,
+              to: lastDayOfYear > today ? today : lastDayOfYear,
+            }}
+          />
+        )
+      }
+      return null
     }
 
     function renderForm() {
@@ -487,13 +528,7 @@ export const Route = createFileRoute('/search')({
         {!isWordsTooLong && (
           <ListPersonMatches words={words} hasPerson={hasPerson} />
         )}
-        {canSearch && trailingYear !== undefined && (
-          <TextSearchYearNote
-            otherWords={trailingYear.otherWords}
-            year={trailingYear.year}
-            today={today}
-          />
-        )}
+        {canSearch && renderSearchNote()}
         {canSearch && renderResults()}
       </div>
     )

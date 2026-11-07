@@ -69,24 +69,31 @@ function isSittingYear(word: string, currentYear: number): boolean {
   return year >= FIRST_SITTING_YEAR && year <= currentYear
 }
 
+export function hasSearchOperator(query: string): boolean {
+  return (
+    QUOTE_CHARACTERS.test(query) ||
+    query
+      .split(/\s+/)
+      .some(
+        (word) =>
+          word.toLowerCase() === OR_OPERATOR || word.startsWith(EXCLUDED_PREFIX)
+      )
+  )
+}
+
 export function getTrailingYear(
   query: string,
   currentYear: number
 ): { otherWords: string; year: string } | undefined {
   const words = query.split(/\s+/).filter((word) => word !== '')
-  if (words.length < 2 || QUOTE_CHARACTERS.test(query)) return undefined
+  if (words.length < 2 || hasSearchOperator(query)) return undefined
   const otherWords = words.slice(0, -1)
   const year = words[words.length - 1]
   const wordBeforeYear = otherWords[otherWords.length - 1]
   if (
     !isSittingYear(year, currentYear) ||
     MONTH_NAMES.has(wordBeforeYear.toLowerCase()) ||
-    otherWords.some(
-      (word) =>
-        word.toLowerCase() === OR_OPERATOR ||
-        word.startsWith(EXCLUDED_PREFIX) ||
-        isSittingYear(word, currentYear)
-    )
+    otherWords.some((word) => isSittingYear(word, currentYear))
   ) {
     return undefined
   }

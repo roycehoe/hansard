@@ -3,6 +3,7 @@ import { PersonNameSpellingKind } from '@/constants/people/enums'
 import {
   formatOtherNames,
   getMatchedNameSpelling,
+  getNamedPerson,
   getPersonNameMatches,
   getPersonNameMatchRank,
 } from '@/lib/personName'
@@ -264,5 +265,51 @@ describe('person name spellings', () => {
       'Also printed as Lau Peter'
     )
     expect(formatOtherNames([])).toBe('')
+  })
+})
+
+describe('getNamedPerson', () => {
+  const PRITAM_SINGH = buildPerson('Pritam Singh')
+  const TERENCE_HO = buildPerson('Terence Ho')
+  const TERENCE_HO_WEE_SAN = buildPerson('Terence Ho Wee San')
+  const PERSONS = [PRITAM_SINGH, TERENCE_HO, TERENCE_HO_WEE_SAN]
+
+  function buildPerson(canonicalName: string): PersonData {
+    return { canonical_name: canonicalName } as PersonData
+  }
+
+  it('finds a full name at the start or end, in any case', () => {
+    expect(getNamedPerson('Pritam Singh GST', PERSONS)).toEqual({
+      person: PRITAM_SINGH,
+      otherWords: 'GST',
+    })
+    expect(getNamedPerson('public housing pritam singh', PERSONS)).toEqual({
+      person: PRITAM_SINGH,
+      otherWords: 'public housing',
+    })
+  })
+
+  it('takes the longest name that fits', () => {
+    expect(getNamedPerson('Terence Ho Wee San budget', PERSONS)).toEqual({
+      person: TERENCE_HO_WEE_SAN,
+      otherWords: 'budget',
+    })
+  })
+
+  it('reads past a title before the name', () => {
+    expect(getNamedPerson('Mr Pritam Singh GST', PERSONS)).toEqual({
+      person: PRITAM_SINGH,
+      otherWords: 'GST',
+    })
+  })
+
+  it('needs other words left over', () => {
+    expect(getNamedPerson('Pritam Singh', PERSONS)).toBeUndefined()
+    expect(getNamedPerson('Mr Pritam Singh', PERSONS)).toBeUndefined()
+  })
+
+  it('needs the full name at an end of the search', () => {
+    expect(getNamedPerson('Pritam GST', PERSONS)).toBeUndefined()
+    expect(getNamedPerson('GST Pritam Singh budget', PERSONS)).toBeUndefined()
   })
 })

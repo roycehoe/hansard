@@ -112,6 +112,49 @@ function getNameMatchRank(
   return undefined
 }
 
+function isSameWords(first: string[], second: string[]): boolean {
+  return (
+    first.join(WORD_SEPARATOR).toLowerCase() ===
+    second.join(WORD_SEPARATOR).toLowerCase()
+  )
+}
+
+function getWordsWithoutName(
+  words: string[],
+  nameWords: string[]
+): string[] | undefined {
+  const atStart = words.slice(0, nameWords.length)
+  if (isSameWords(atStart, nameWords)) return words.slice(nameWords.length)
+  const atEnd = words.slice(-nameWords.length)
+  if (isSameWords(atEnd, nameWords)) return words.slice(0, -nameWords.length)
+  return undefined
+}
+
+export function getNamedPerson(
+  query: string,
+  persons: PersonData[]
+): { person: PersonData; otherWords: string } | undefined {
+  const typedWords = query.split(/\s+/).filter((word) => word !== '')
+  const firstWordAfterTitles = typedWords.findIndex(
+    (word) => !PERSON_TITLE_WORDS.has(getSpacedName(word))
+  )
+  const words = typedWords.slice(firstWordAfterTitles)
+  const [longestMatch] = persons
+    .flatMap((person) => {
+      const nameWords = person.canonical_name.split(WORD_SEPARATOR)
+      const otherWords = getWordsWithoutName(words, nameWords)
+      return otherWords === undefined || otherWords.length === 0
+        ? []
+        : [{ person, nameLength: nameWords.length, otherWords }]
+    })
+    .sort((first, second) => second.nameLength - first.nameLength)
+  if (longestMatch === undefined) return undefined
+  return {
+    person: longestMatch.person,
+    otherWords: longestMatch.otherWords.join(WORD_SEPARATOR),
+  }
+}
+
 export function getPersonNameMatchRank(
   query: string,
   names: string[]
