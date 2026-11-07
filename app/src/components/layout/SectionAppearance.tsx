@@ -89,6 +89,7 @@ export function SectionAppearance({ isPhone }: SectionAppearanceProps) {
             </Label>
             <Switch
               id={columnNumbersSwitchId}
+              className="data-[state=unchecked]:border-input data-[state=unchecked]:bg-secondary *:data-[state=unchecked]:bg-input"
               checked={appearance.columnNumbers === ColumnNumbers.SHOW}
               onCheckedChange={switchColumnNumbers}
             />
