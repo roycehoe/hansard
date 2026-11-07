@@ -17,6 +17,7 @@ import {
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useState } from 'react'
 import { z } from 'zod'
 
 const sittingsSearchSchema = z.object({
@@ -31,6 +32,12 @@ export const Route = createFileRoute('/sittings/')({
     const parliaments = useGetAllParliaments()
     const sittings = useGetAllSittings({ parliament_number: parliament })
     const isChosen = parliament !== undefined
+    // The router scrolls to a hash at render, before a first load has its list.
+    const [isFirstLoad] = useState<boolean>(sittings.isLoading)
+    const hasYearBar =
+      isChosen &&
+      !sittings.isLoadingError &&
+      sittings.data?.sittings.length !== 0
     const activeQuery = isChosen ? sittings : parliaments
 
     function retrySittings() {
@@ -53,7 +60,13 @@ export const Route = createFileRoute('/sittings/')({
         )
       }
       if (isChosen && sittings.data) {
-        return <ListSittingsGrouped sittings={sittings.data.sittings} />
+        return (
+          <ListSittingsGrouped
+            sittings={sittings.data.sittings}
+            parliamentNumber={parliament}
+            isFirstLoad={isFirstLoad}
+          />
+        )
       }
       if (!isChosen && parliaments.data) {
         return <ListParliaments parliaments={parliaments.data.parliaments} />
@@ -65,6 +78,7 @@ export const Route = createFileRoute('/sittings/')({
       <div className="space-y-8">
         <PageHeader
           title="Sittings"
+          hasRule={!hasYearBar}
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>

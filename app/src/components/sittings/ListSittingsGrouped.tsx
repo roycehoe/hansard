@@ -1,67 +1,90 @@
 import type { SittingData } from '@/api/sittings/getAllSittings'
-import { formatSittingDate } from '@/lib/format'
+import { ListYearLinks } from '@/components/sittings/ListYearLinks'
+import { NUMBER_LOCALE } from '@/constants/constants'
+import { formatSittingDayMonth } from '@/lib/format'
+import { formatSittingRunLabel, groupSittingsByYear } from '@/lib/sittingYears'
 import { Link } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { Fragment, useEffect, useMemo } from 'react'
 
 interface ListSittingsGroupedProps {
   sittings: SittingData[]
+  parliamentNumber: number
+  isFirstLoad: boolean
 }
 
-export function ListSittingsGrouped({ sittings }: ListSittingsGroupedProps) {
-  const isGroupedBySession = sittings.every(
-    (sitting) => sitting.session_number !== null
+export function ListSittingsGrouped({
+  sittings,
+  parliamentNumber,
+  isFirstLoad,
+}: ListSittingsGroupedProps) {
+  const sittingYears = useMemo(() => groupSittingsByYear(sittings), [sittings])
+  const years = useMemo(
+    () => sittingYears.map((sittingYear) => sittingYear.year),
+    [sittingYears]
   )
 
-  const groups = useMemo(() => {
-    const sittingsByGroupKey = new Map<number, SittingData[]>()
-    for (const sitting of sittings) {
-      const groupKey = isGroupedBySession
-        ? sitting.session_number
-        : sitting.volume_number
-      if (groupKey === null) continue
-      sittingsByGroupKey.set(groupKey, [
-        ...(sittingsByGroupKey.get(groupKey) ?? []),
-        sitting,
-      ])
-    }
-    return [...sittingsByGroupKey.entries()]
-  }, [sittings, isGroupedBySession])
+  useEffect(
+    function scrollToLinkedYearOnFirstLoad() {
+      if (!isFirstLoad) return
+      const heading = document.getElementById(window.location.hash.slice(1))
+      heading?.scrollIntoView()
+      heading?.focus({ preventScroll: true })
+    },
+    [isFirstLoad]
+  )
+
+  if (years.length === 0) return null
 
   return (
-    <div className="space-y-8">
-      {groups.map(([groupKey, groupSittings]) => (
-        <section key={groupKey} className="space-y-2">
-          <h2 className="font-serif text-xl lg:text-2xl">
-            {isGroupedBySession ? `Session ${groupKey}` : `Volume ${groupKey}`}
+    <div className="-mt-6 space-y-8">
+      <ListYearLinks years={years} parliamentNumber={parliamentNumber} />
+      {sittingYears.map(({ year, runs }) => (
+        <section key={year} data-year={year}>
+          <h2
+            id={String(year)}
+            tabIndex={-1}
+            className="mb-1 scroll-mt-14 font-serif text-xl outline-hidden lg:text-2xl"
+          >
+            {year}
           </h2>
-          <ol>
-            {groupSittings.map((sitting) => (
-              <li
-                key={sitting.sitting_date}
-                className="border-separator border-b py-3 last:border-b-0"
-              >
-                <Link
-                  to="/sittings/$sittingDate"
-                  params={{ sittingDate: sitting.sitting_date }}
-                  className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background flex flex-wrap gap-x-4 gap-y-1 rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
-                >
-                  <span className="font-medium">
-                    {formatSittingDate(sitting.sitting_date)}
-                  </span>
-                  {sitting.sitting_number !== null && (
-                    <span>Sitting {sitting.sitting_number}</span>
-                  )}
-                  {isGroupedBySession && (
-                    <span>Volume {sitting.volume_number}</span>
-                  )}
-                  <span className="text-muted-foreground">
-                    {sitting.report_count}{' '}
-                    {sitting.report_count === 1 ? 'report' : 'reports'}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
+          {runs.map((run) => (
+            <Fragment key={run.sittings[0].sitting_date}>
+              <h3 className="text-muted-foreground mt-4 pb-1 text-sm font-medium first-of-type:mt-0">
+                {formatSittingRunLabel(run)}
+              </h3>
+              <ol className="sm:max-w-120">
+                {run.sittings.map((sitting) => (
+                  <li
+                    key={sitting.sitting_date}
+                    className="border-separator border-b last:border-b-0"
+                  >
+                    <Link
+                      to="/sittings/$sittingDate"
+                      params={{ sittingDate: sitting.sitting_date }}
+                      className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background grid min-h-11 scroll-mt-14 grid-cols-[1fr_84px_96px] items-center gap-x-2 rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                      <span className="font-medium">
+                        {formatSittingDayMonth(sitting.sitting_date)}
+                        <span className="sr-only"> {year}</span>
+                      </span>
+                      <span className="text-muted-foreground text-sm tabular-nums">
+                        {sitting.sitting_number !== null && (
+                          <>
+                            Sitting {sitting.sitting_number}
+                            <span className="sr-only">,</span>
+                          </>
+                        )}
+                      </span>
+                      <span className="text-muted-foreground text-right text-sm tabular-nums">
+                        {sitting.report_count.toLocaleString(NUMBER_LOCALE)}{' '}
+                        {sitting.report_count === 1 ? 'report' : 'reports'}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </Fragment>
+          ))}
         </section>
       ))}
     </div>

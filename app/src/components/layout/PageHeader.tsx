@@ -1,4 +1,5 @@
 import { PAGE_TITLE_CLASS_NAME } from '@/constants/constants'
+import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
 
 interface PageHeaderProps {
@@ -9,6 +10,7 @@ interface PageHeaderProps {
   actions?: ReactNode
   titleAction?: ReactNode
   badge?: ReactNode
+  hasRule?: boolean
 }
 
 export function PageHeader({
@@ -19,9 +21,12 @@ export function PageHeader({
   actions,
   titleAction,
   badge,
+  hasRule = true,
 }: PageHeaderProps) {
   return (
-    <div className="border-separator space-y-4 border-b pb-6">
+    <div
+      className={cn('space-y-4', hasRule && 'border-separator border-b pb-6')}
+    >
       {breadcrumb}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
