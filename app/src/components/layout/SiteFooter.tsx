@@ -9,6 +9,7 @@ import {
 } from '@/constants/constants'
 import { METHODS_PRIVACY_SECTION_ID } from '@/constants/coverage/constants'
 import { formatSittingDate } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
 const FOOTER_LINKS = [
@@ -42,13 +43,18 @@ const EXTERNAL_FOOTER_LINKS = [
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
+const NAV_LINK_CLASS_NAME = cn(
+  LINK_CLASS_NAME,
+  'any-pointer-coarse:block any-pointer-coarse:px-2 any-pointer-coarse:py-3'
+)
+
 export function SiteFooter() {
   const refresh = useGetRefresh()
   const lastCheckedDate = refresh.data?.last_checked_date ?? null
 
   return (
     <footer className="bg-muted text-muted-foreground border-separator border-t">
-      <div className="max-w-page-xl mx-auto flex w-full flex-col gap-3 px-5 py-5 text-sm sm:px-6 md:px-7 md:py-7">
+      <div className="max-w-page-xl mx-auto flex w-full flex-col gap-3 px-5 py-5 text-sm sm:px-6 md:px-7 md:py-7 any-pointer-coarse:gap-0 any-pointer-coarse:pb-2 md:any-pointer-coarse:pb-4">
         <div className="space-y-1">
           <p className="font-medium">
             <Link
@@ -67,18 +73,18 @@ export function SiteFooter() {
           )}
         </div>
         <nav aria-label="Footer">
-          <ul className="flex flex-wrap gap-x-5 gap-y-1">
+          <ul className="flex flex-wrap gap-x-5 gap-y-1 any-pointer-coarse:-mx-2 any-pointer-coarse:gap-x-1 any-pointer-coarse:gap-y-0">
             {FOOTER_LINKS.map((item) => (
               <li key={item.label} className="whitespace-nowrap">
                 {'href' in item ? (
-                  <a href={item.href} className={LINK_CLASS_NAME}>
+                  <a href={item.href} className={NAV_LINK_CLASS_NAME}>
                     {item.label}
                   </a>
                 ) : (
                   <Link
                     to={item.to}
                     hash={'hash' in item ? item.hash : undefined}
-                    className={LINK_CLASS_NAME}
+                    className={NAV_LINK_CLASS_NAME}
                   >
                     {item.label}
                   </Link>
@@ -89,7 +95,7 @@ export function SiteFooter() {
               <li key={item.label} className="whitespace-nowrap">
                 <a
                   href={item.href}
-                  className={LINK_CLASS_NAME}
+                  className={NAV_LINK_CLASS_NAME}
                   target="_blank"
                   rel="noreferrer"
                 >
