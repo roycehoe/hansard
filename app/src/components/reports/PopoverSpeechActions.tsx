@@ -10,12 +10,16 @@ import { buildSpeechActions } from '@/lib/speechActions'
 import { EllipsisVertical, Flag, Link2, Quote } from 'lucide-react'
 import { useState } from 'react'
 
+const DOTS_WRAPPER_CLASS_NAME =
+  'float-right -mr-1.5 ml-1.5 flex h-lh items-center sm:hidden'
+
 export function PopoverSpeechActions(props: SpeechActionContext) {
   const { ordinal, citation } = props
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { copySpeechLink, copySpeechCitation, errorEmailHref } =
     buildSpeechActions(props)
   const actionsLabel = `Actions for paragraph ${ordinal}`
+  const [hasOpened, setHasOpened] = useState<boolean>(false)
 
   function closeMenu() {
     setIsOpen(false)
@@ -31,19 +35,33 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
     closeMenu()
   }
 
+  function openFirstMenu() {
+    setHasOpened(true)
+    setIsOpen(true)
+  }
+
+  const dotsButton = (
+    <Button
+      type="button"
+      variant="quiet-toggle"
+      size="icon-line"
+      aria-label={actionsLabel}
+      onClick={hasOpened ? undefined : openFirstMenu}
+    >
+      <EllipsisVertical aria-hidden="true" />
+    </Button>
+  )
+
+  // Most readers never open a paragraph's menu, so the popover is built on the
+  // first tap. Until then the dots are a plain button.
+  if (!hasOpened) {
+    return <span className={DOTS_WRAPPER_CLASS_NAME}>{dotsButton}</span>
+  }
+
   return (
-    <span className="float-right -mr-1.5 ml-1.5 flex h-lh items-center sm:hidden">
+    <span className={DOTS_WRAPPER_CLASS_NAME}>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="quiet-toggle"
-            size="icon-line"
-            aria-label={actionsLabel}
-          >
-            <EllipsisVertical aria-hidden="true" />
-          </Button>
-        </PopoverTrigger>
+        <PopoverTrigger asChild>{dotsButton}</PopoverTrigger>
         <PopoverContent
           align="end"
           sideOffset={6}
