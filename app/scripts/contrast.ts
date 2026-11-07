@@ -52,7 +52,6 @@ const PAIRS: Pair[] = [
   ...pairs('success-foreground', ['success'], TEXT_MINIMUM),
   ...pairs('warning-foreground', ['warning'], TEXT_MINIMUM),
   ...pairs('info-foreground', ['info'], TEXT_MINIMUM),
-  ...pairs('reading-foreground', ['reading'], TEXT_MINIMUM),
   ...pairs('highlight-foreground', ['highlight'], TEXT_MINIMUM),
   ...pairs('tag-foreground', ['tag'], TEXT_MINIMUM),
   ...pairs('status-foreground', ['status'], TEXT_MINIMUM),
@@ -61,9 +60,6 @@ const PAIRS: Pair[] = [
     ['band', 'band-hover', 'band-active'],
     TEXT_MINIMUM
   ),
-  ...pairs('sidebar-foreground', ['sidebar'], TEXT_MINIMUM),
-  ...pairs('sidebar-primary-foreground', ['sidebar-primary'], TEXT_MINIMUM),
-  ...pairs('sidebar-accent-foreground', ['sidebar-accent'], TEXT_MINIMUM),
   // Secondary text, links and state text on every surface they appear on
   ...pairs(
     'muted-foreground',
@@ -74,41 +70,27 @@ const PAIRS: Pair[] = [
       'secondary-hover',
       'secondary-active',
       'accent',
-      'reading',
     ],
     TEXT_MINIMUM
   ),
-  ...pairs(
-    'primary',
-    [...SURFACES, 'reading', 'muted', 'popover'],
-    TEXT_MINIMUM
-  ),
+  ...pairs('primary', [...SURFACES, 'muted', 'popover'], TEXT_MINIMUM),
   // The shared-link flash puts a link on `accent` for up to 1.5 seconds. Gold
   // is 3.86:1 there in light, which is accepted, so this floor sits below
   // TEXT_MINIMUM but above anything worse than today's value.
   ...pairs('primary', ['accent'], 3.8),
-  ...pairs(
-    'primary-hover',
-    [...SURFACES, 'reading', 'muted', 'popover'],
-    TEXT_MINIMUM
-  ),
+  ...pairs('primary-hover', [...SURFACES, 'muted', 'popover'], TEXT_MINIMUM),
   ...pairs('visited', [...SURFACES, 'muted'], TEXT_MINIMUM),
   ...pairs('destructive', SURFACES, TEXT_MINIMUM),
   ...pairs('success', SURFACES, TEXT_MINIMUM),
   ...pairs('warning', SURFACES, TEXT_MINIMUM),
   ...pairs('info', SURFACES, TEXT_MINIMUM),
-  // Borders, focus rings and chart marks
+  // Borders and focus rings
   ...pairs('border', SURFACES, UI_MINIMUM),
   ...pairs('status-border', ['status', ...SURFACES], UI_MINIMUM),
   ...pairs('input', [...SURFACES, 'muted', 'secondary'], UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
   ...pairs('band-border', ['band'], UI_MINIMUM),
   ...pairs('band-ring', ['band'], UI_MINIMUM),
-  ...pairs('sidebar-border', ['sidebar'], UI_MINIMUM),
-  ...pairs('sidebar-ring', ['sidebar'], UI_MINIMUM),
-  ...['chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5'].flatMap((chart) =>
-    pairs(chart, SURFACES, UI_MINIMUM)
-  ),
 ]
 
 // Tokens with no contrast minimum (decorative lines, the dialog scrim) that

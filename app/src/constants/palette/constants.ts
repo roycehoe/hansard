@@ -15,8 +15,6 @@ export const TOKEN_GROUP_TITLES: Record<(typeof TOKEN_GROUPS)[number], string> =
     surfaces: 'Surfaces',
     text: 'Text',
     borders: 'Borders',
-    charts: 'Charts',
-    sidebar: 'Sidebar',
   }
 
 export const THUMBNAIL_PATH = '/palette-photos'

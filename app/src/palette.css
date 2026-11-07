@@ -10,7 +10,6 @@
   --table-timber: #a64f17;
   --floor-carpet: #fff3c5;
   --floor-carpet-76: #b7b19c;
-  --floor-carpet-88: #ddd8c2;
   --floor-carpet-93: #eee8d2;
   --floor-carpet-96: #f8f2dc;
   --panelling-20: #22110c;
@@ -21,20 +20,11 @@
   --panelling-35: #4d332c;
   --panelling-37: #533831;
   --panelling-45: #694e46;
-  --panelling-68: #dc795d;
-  --panelling-74: #bda59e;
   --panelling-80: #e1b1a3;
-  --panelling-85: #ecc3b7;
-  --panelling-90: #f7d5cc;
-  --seat-leather-34: #552926;
-  --seat-leather-65: #c5766f;
-  --seat-leather-90: #fbd3cf;
-  --table-timber-24: #2d1a10;
   --table-timber-33: #4a2d1e;
   --table-timber-43: #674837;
   --table-timber-55: #8f6753;
   --table-timber-58: #9d6e56;
-  --table-timber-60: #be6431;
   --table-timber-62: #a57c67;
   --table-timber-83: #e1bfae;
   --table-timber-84: #e4c2b2;
@@ -68,10 +58,7 @@
   --lawn-94: #e5f0d3;
   --lawn-sunlit-75: #a5b961;
   --sky-blue-40: #0c4a7a;
-  --sky-blue-65: #6194c4;
   --sky-blue-75: #8bb2d9;
-  --orchid-lilac-88: #e8cbf9;
-  --orchid-lilac-38: #513460;
   --orchid-lilac-44: #6b3884;
   --orchid-lilac-80: #dca4f9;
   --background: var(--floor-carpet-96);
@@ -96,8 +83,6 @@
   --warning-foreground: var(--flag-white);
   --info: var(--sky-blue-40);
   --info-foreground: var(--flag-white);
-  --reading: var(--flag-white);
-  --reading-foreground: var(--panelling-24);
   --separator: var(--table-timber-83);
   --overlay: var(--panelling-20);
   --primary-hover: var(--gold-lace-46);
@@ -124,19 +109,6 @@
   --border: var(--table-timber-58);
   --input: var(--table-timber-58);
   --ring: var(--gold-lace-52);
-  --chart-1: var(--panelling);
-  --chart-2: var(--lawn);
-  --chart-3: var(--sky-blue-40);
-  --chart-4: var(--gold-lace);
-  --chart-5: var(--table-timber);
-  --sidebar: var(--table-timber-93);
-  --sidebar-foreground: var(--panelling-24);
-  --sidebar-primary: var(--panelling);
-  --sidebar-primary-foreground: var(--flag-white);
-  --sidebar-accent: var(--table-timber-88);
-  --sidebar-accent-foreground: var(--panelling-24);
-  --sidebar-border: var(--table-timber-58);
-  --sidebar-ring: var(--panelling);
 }
 
 .dark {
@@ -163,8 +135,6 @@
   --warning-foreground: var(--panelling-20);
   --info: var(--sky-blue-75);
   --info-foreground: var(--panelling-20);
-  --reading: var(--table-timber-24);
-  --reading-foreground: var(--floor-carpet-88);
   --separator: var(--panelling-35);
   --overlay: var(--panelling-20);
   --primary-hover: var(--gold-lace-78);
@@ -191,17 +161,4 @@
   --border: var(--table-timber-55);
   --input: var(--table-timber-62);
   --ring: var(--gold-lace-72);
-  --chart-1: var(--panelling-68);
-  --chart-2: var(--lawn-sunlit);
-  --chart-3: var(--sky-blue-65);
-  --chart-4: var(--gold-lace);
-  --chart-5: var(--table-timber-60);
-  --sidebar: var(--panelling-25);
-  --sidebar-foreground: var(--floor-carpet-93);
-  --sidebar-primary: var(--panelling-80);
-  --sidebar-primary-foreground: var(--panelling-shade);
-  --sidebar-accent: var(--table-timber-33);
-  --sidebar-accent-foreground: var(--floor-carpet-93);
-  --sidebar-border: var(--table-timber-55);
-  --sidebar-ring: var(--panelling-80);
 }
