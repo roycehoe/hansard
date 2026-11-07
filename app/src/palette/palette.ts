@@ -874,6 +874,48 @@ export const TOKENS: readonly Token[] = [
     dark: 'seat-leather-65',
   },
   {
+    name: 'band',
+    group: 'surfaces',
+    light: 'panelling',
+    dark: 'panelling-25',
+  },
+  {
+    name: 'band-foreground',
+    group: 'text',
+    light: 'flag-white',
+    dark: 'floor-carpet-93',
+  },
+  {
+    name: 'band-hover',
+    group: 'surfaces',
+    light: 'panelling-mid',
+    dark: 'panelling-31',
+  },
+  {
+    name: 'band-active',
+    group: 'surfaces',
+    light: 'panelling-shade',
+    dark: 'panelling-35',
+  },
+  {
+    name: 'band-ring',
+    group: 'borders',
+    light: 'crest-gold',
+    dark: 'crest-gold',
+  },
+  {
+    name: 'band-border',
+    group: 'borders',
+    light: 'panelling-80',
+    dark: 'table-timber-62',
+  },
+  {
+    name: 'band-edge',
+    group: 'borders',
+    light: 'panelling',
+    dark: 'panelling-35',
+  },
+  {
     name: 'border',
     group: 'borders',
     light: 'table-timber-58',

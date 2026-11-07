@@ -30,7 +30,7 @@ export function SheetSiteMenu() {
       <SheetTrigger asChild>
         <Button
           type="button"
-          variant="outline"
+          variant="inverse"
           size="icon-touch"
           aria-label="Menu"
         >

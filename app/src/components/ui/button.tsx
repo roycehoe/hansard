@@ -25,6 +25,8 @@ const buttonVariants = cva(
         'quiet-toggle':
           'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-secondary-active data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
+        inverse:
+          'border border-band-border bg-transparent text-band-foreground hover:bg-band-hover active:bg-band-active focus-visible:ring-band-ring focus-visible:ring-offset-band',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

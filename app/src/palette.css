@@ -109,6 +109,13 @@
   --tag: var(--seat-leather-90);
   --tag-foreground: var(--panelling-24);
   --tag-border: var(--seat-leather);
+  --band: var(--panelling);
+  --band-foreground: var(--flag-white);
+  --band-hover: var(--panelling-mid);
+  --band-active: var(--panelling-shade);
+  --band-ring: var(--crest-gold);
+  --band-border: var(--panelling-80);
+  --band-edge: var(--panelling);
   --border: var(--table-timber-58);
   --input: var(--table-timber-58);
   --ring: var(--gold-lace-52);
@@ -167,6 +174,13 @@
   --tag: var(--seat-leather-34);
   --tag-foreground: var(--floor-carpet-93);
   --tag-border: var(--seat-leather-65);
+  --band: var(--panelling-25);
+  --band-foreground: var(--floor-carpet-93);
+  --band-hover: var(--panelling-31);
+  --band-active: var(--panelling-35);
+  --band-ring: var(--crest-gold);
+  --band-border: var(--table-timber-62);
+  --band-edge: var(--panelling-35);
   --border: var(--table-timber-55);
   --input: var(--table-timber-62);
   --ring: var(--gold-lace-72);

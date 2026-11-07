@@ -103,6 +103,13 @@
   --color-destructive-active: var(--destructive-active);
   --color-highlight: var(--highlight);
   --color-highlight-foreground: var(--highlight-foreground);
+  --color-band: var(--band);
+  --color-band-foreground: var(--band-foreground);
+  --color-band-hover: var(--band-hover);
+  --color-band-active: var(--band-active);
+  --color-band-ring: var(--band-ring);
+  --color-band-border: var(--band-border);
+  --color-band-edge: var(--band-edge);
   --color-tag: var(--tag);
   --color-tag-foreground: var(--tag-foreground);
   --color-tag-border: var(--tag-border);

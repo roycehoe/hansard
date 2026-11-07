@@ -55,6 +55,11 @@ const PAIRS: Pair[] = [
   ...pairs('reading-foreground', ['reading'], TEXT_MINIMUM),
   ...pairs('highlight-foreground', ['highlight'], TEXT_MINIMUM),
   ...pairs('tag-foreground', ['tag'], TEXT_MINIMUM),
+  ...pairs(
+    'band-foreground',
+    ['band', 'band-hover', 'band-active'],
+    TEXT_MINIMUM
+  ),
   ...pairs('sidebar-foreground', ['sidebar'], TEXT_MINIMUM),
   ...pairs('sidebar-primary-foreground', ['sidebar-primary'], TEXT_MINIMUM),
   ...pairs('sidebar-accent-foreground', ['sidebar-accent'], TEXT_MINIMUM),
@@ -96,6 +101,8 @@ const PAIRS: Pair[] = [
   ...pairs('tag-border', ['tag', ...SURFACES], UI_MINIMUM),
   ...pairs('input', [...SURFACES, 'muted', 'secondary'], UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
+  ...pairs('band-border', ['band'], UI_MINIMUM),
+  ...pairs('band-ring', ['band'], UI_MINIMUM),
   ...pairs('sidebar-border', ['sidebar'], UI_MINIMUM),
   ...pairs('sidebar-ring', ['sidebar'], UI_MINIMUM),
   ...['chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5'].flatMap((chart) =>

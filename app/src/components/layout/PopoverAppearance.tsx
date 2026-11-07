@@ -15,7 +15,7 @@ export function PopoverAppearance() {
       <PopoverTrigger asChild>
         <Button
           type="button"
-          variant="outline"
+          variant="inverse"
           size="icon-touch"
           aria-label="Appearance"
           title="Appearance"

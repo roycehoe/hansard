@@ -49,7 +49,7 @@ export function SiteHeader() {
   const wordmark = (
     <Link
       to="/"
-      className="text-foreground focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-serif text-2xl font-semibold outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
+      className="text-band-foreground focus-visible:ring-band-ring focus-visible:ring-offset-band rounded-sm font-serif text-2xl font-semibold outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
     >
       Open Hansard
     </Link>
@@ -57,18 +57,19 @@ export function SiteHeader() {
 
   if (isPhone) {
     return (
-      <header className="bg-background border-separator border-b">
+      <header className="bg-band border-band-edge border-b">
         <div className="flex items-center gap-2 px-5 py-3">
           {wordmark}
           <div className="ml-auto flex items-center gap-2">
             <Button
               ref={searchButtonRef}
               type="button"
-              variant={isSearchOpen ? 'secondary' : 'outline'}
+              variant="inverse"
               size="icon-touch"
               aria-label={isSearchOpen ? 'Close search' : 'Search'}
               aria-expanded={isSearchOpen}
               onClick={toggleSearch}
+              className={isSearchOpen ? 'bg-band-hover' : undefined}
             >
               {isSearchOpen ? <X /> : <Search />}
             </Button>
@@ -80,7 +81,7 @@ export function SiteHeader() {
             role="search"
             aria-label="Site search"
             onSubmit={submitSearch}
-            className="border-separator flex items-center gap-2 border-t px-5 py-3"
+            className="border-band-hover flex items-center gap-2 border-t px-5 py-3"
           >
             <Label htmlFor="site-search" className="sr-only">
               Search the record
@@ -92,9 +93,14 @@ export function SiteHeader() {
               name="q"
               placeholder="Search"
               onKeyDown={closeSearchOnEscape}
-              className="any-pointer-coarse:h-11"
+              className="bg-background focus-visible:ring-band-ring focus-visible:ring-offset-band any-pointer-coarse:h-11"
             />
-            <Button type="submit" size="icon-touch" aria-label="Search">
+            <Button
+              type="submit"
+              variant="inverse"
+              size="icon-touch"
+              aria-label="Search"
+            >
               <Search />
             </Button>
           </form>
@@ -104,7 +110,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="bg-background border-separator border-b">
+    <header className="bg-band border-band-edge border-b">
       <div className="max-w-page-xl mx-auto flex w-full flex-wrap items-center gap-x-8 gap-y-3 px-5 py-3 sm:px-6 md:px-7">
         {wordmark}
         <nav
@@ -116,7 +122,7 @@ export function SiteHeader() {
               <li key={item.label}>
                 <Link
                   to={item.to}
-                  className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background inline-block rounded-sm py-1 text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 data-[status=active]:font-medium"
+                  className="text-band-foreground focus-visible:ring-band-ring focus-visible:ring-offset-band inline-block rounded-sm py-1 text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 data-[status=active]:font-medium"
                 >
                   {item.label}
                 </Link>
@@ -139,9 +145,14 @@ export function SiteHeader() {
               type="search"
               name="q"
               placeholder="Search"
-              className="w-40 sm:w-64"
+              className="bg-background focus-visible:ring-band-ring focus-visible:ring-offset-band w-40 sm:w-64"
             />
-            <Button type="submit" size="icon" aria-label="Search">
+            <Button
+              type="submit"
+              variant="inverse"
+              size="icon"
+              aria-label="Search"
+            >
               <Search />
             </Button>
           </form>
