@@ -80,7 +80,7 @@ export function SectionAppearance({ isPhone }: SectionAppearanceProps) {
       />
       {isReportPage &&
         (isPhone ? (
-          <div className="border-separator flex min-h-11 items-center justify-between border-t pt-1.5">
+          <div className="flex min-h-11 items-center justify-between">
             <Label
               htmlFor={columnNumbersSwitchId}
               className="text-base font-normal"

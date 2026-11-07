@@ -44,7 +44,7 @@ export function FieldsetAppearanceChoice({
           isSegmented ? (
             <Label
               key={option.value}
-              className="has-[[data-state=checked]]:bg-primary has-[[data-state=checked]]:text-primary-foreground has-focus-visible:ring-ring h-11 cursor-pointer justify-center has-focus-visible:ring-2 has-focus-visible:ring-inset has-[[data-state=checked]]:font-semibold"
+              className="has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:text-accent-foreground has-focus-visible:ring-ring h-11 cursor-pointer justify-center has-focus-visible:ring-2 has-focus-visible:ring-inset has-[[data-state=checked]]:font-semibold"
             >
               <RadioGroupItem
                 value={option.value}

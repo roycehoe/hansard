@@ -1,4 +1,4 @@
-import { PopoverAppearance } from '@/components/layout/PopoverAppearance'
+import { SectionAppearance } from '@/components/layout/SectionAppearance'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -41,9 +41,9 @@ export function SheetSiteMenu() {
         side="right"
         showCloseButton={false}
         onCloseAutoFocus={keepFocusOnNewPage}
-        className="px-5"
+        className="bg-popover text-popover-foreground h-dvh w-[85%] gap-0 overflow-y-auto p-0"
       >
-        <SheetHeader className="flex-row items-center justify-between border-b-0 px-0">
+        <SheetHeader className="flex-row items-center justify-between border-b-0 px-5 py-3">
           <SheetTitle>Menu</SheetTitle>
           <SheetDescription hidden />
           <SheetClose asChild>
@@ -57,14 +57,14 @@ export function SheetSiteMenu() {
             </Button>
           </SheetClose>
         </SheetHeader>
-        <nav aria-label="Main">
-          <ul>
+        <nav aria-label="Main" className="px-2">
+          <ul className="flex flex-col gap-0.5">
             {NAV_ITEMS.map((item) => (
-              <li key={item.label} className="border-separator border-b">
+              <li key={item.label}>
                 <Link
                   to={item.to}
                   onClick={closeMenu}
-                  className="text-primary hover:text-primary-hover focus-visible:ring-ring flex min-h-11 items-center rounded-sm text-base outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-inset data-[status=active]:font-medium"
+                  className="hover:bg-accent active:bg-accent data-[status=active]:bg-accent focus-visible:ring-ring flex min-h-12 items-center rounded-md px-3 text-base outline-hidden focus-visible:ring-2 focus-visible:ring-inset data-[status=active]:font-semibold"
                 >
                   {item.label}
                 </Link>
@@ -72,9 +72,12 @@ export function SheetSiteMenu() {
             ))}
           </ul>
         </nav>
-        <div className="flex min-h-11 items-center justify-between">
-          <span aria-hidden="true">Appearance</span>
-          <PopoverAppearance />
+        <div
+          role="group"
+          aria-label="Appearance"
+          className="border-separator mt-4 border-t px-5 pt-4 pb-5"
+        >
+          <SectionAppearance isPhone />
         </div>
       </SheetContent>
     </Sheet>
