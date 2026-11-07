@@ -13,6 +13,7 @@ interface TextTranscriptProps {
   label?: ReactNode
   transcriptStyle: TranscriptStyle
   highlightPattern?: RegExp
+  trailing?: ReactNode
 }
 
 export function TextTranscript({
@@ -20,6 +21,7 @@ export function TextTranscript({
   label,
   transcriptStyle,
   highlightPattern,
+  trailing,
 }: TextTranscriptProps) {
   const segments = parseTranscriptInline(transcript)
 
@@ -43,18 +45,21 @@ export function TextTranscript({
         }
         return <span key={index}>{text}</span>
       })}
+      {trailing}
     </>
   )
 
   if (transcriptStyle === TranscriptStyle.HEADING) {
     return (
-      <h3 className="font-serif text-lg leading-7 font-semibold">{content}</h3>
+      <h3 className="flow-root font-serif text-lg leading-7 font-semibold">
+        {content}
+      </h3>
     )
   }
   return (
     <p
       className={cn(
-        'font-serif',
+        'flow-root font-serif',
         transcriptStyle === TranscriptStyle.MUTED &&
           'text-muted-foreground text-sm leading-7 italic in-data-[text-size=large]:text-lg in-data-[text-size=large]:leading-8 in-data-[text-size=small]:text-xs in-data-[text-size=small]:leading-6',
         transcriptStyle === TranscriptStyle.STAGE_DIRECTION &&

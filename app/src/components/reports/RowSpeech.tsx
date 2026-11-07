@@ -2,6 +2,7 @@ import type { SpeechData } from '@/api/reports/getReport'
 import { HoverCardPerson } from '@/components/people/HoverCardPerson'
 import { ActionBarSpeechCopy } from '@/components/reports/ActionBarSpeechCopy'
 import { PopoverInferredCredit } from '@/components/reports/PopoverInferredCredit'
+import { PopoverSpeechActions } from '@/components/reports/PopoverSpeechActions'
 import { TextTranscript } from '@/components/reports/TextTranscript'
 import { TooltipColumnNote } from '@/components/reports/TooltipColumnNote'
 import { COLUMN_MARKER_APPEARANCE_CLASS_NAME } from '@/constants/appearance/constants'
@@ -56,10 +57,10 @@ function getRowMarginClass(
   isContinuation: boolean
 ): string {
   if (isStageDirection(previousSpeechKind)) {
-    if (isStageDirection(speech.kind)) return 'mt-1'
-    if (speech.kind === SpeechKind.DOCUMENT_TEXT) return 'mt-2'
+    if (isStageDirection(speech.kind)) return 'mt-4 sm:mt-1'
+    if (speech.kind === SpeechKind.DOCUMENT_TEXT) return 'mt-4 sm:mt-2'
   }
-  return isContinuation ? 'mt-3' : 'mt-6'
+  return isContinuation ? 'mt-4 sm:mt-3' : 'mt-6'
 }
 
 export function RowSpeech({
@@ -88,6 +89,15 @@ export function RowSpeech({
         speech.person_name
       )
     : undefined
+
+  const speechActionContext = {
+    reportSlug,
+    reportTitle,
+    ordinal: speech.ordinal,
+    anchor: speech.anchor,
+    officialRecordUrl,
+    citation,
+  }
 
   function renderSpeakerLabel() {
     if (!hasSpeakerLabel && speech.kind === SpeechKind.SPEECH) {
@@ -184,16 +194,10 @@ export function RowSpeech({
           label={renderSpeakerLabel()}
           transcriptStyle={getTranscriptStyle(speech)}
           highlightPattern={highlightPattern}
+          trailing={<PopoverSpeechActions {...speechActionContext} />}
         />
       </div>
-      <ActionBarSpeechCopy
-        reportSlug={reportSlug}
-        reportTitle={reportTitle}
-        ordinal={speech.ordinal}
-        anchor={speech.anchor}
-        officialRecordUrl={officialRecordUrl}
-        citation={citation}
-      />
+      <ActionBarSpeechCopy {...speechActionContext} />
     </article>
   )
 }

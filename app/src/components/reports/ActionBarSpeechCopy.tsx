@@ -15,7 +15,7 @@ export function ActionBarSpeechCopy(props: SpeechActionContext) {
     buildSpeechActions(props)
 
   return (
-    <div className="flex shrink-0 items-start opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:opacity-100">
+    <div className="hidden shrink-0 items-start opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 sm:flex any-pointer-coarse:opacity-100">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button

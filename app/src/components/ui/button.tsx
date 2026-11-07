@@ -22,6 +22,8 @@ const buttonVariants = cva(
           'border border-input bg-transparent font-normal text-foreground justify-between hover:bg-accent hover:text-accent-foreground active:bg-secondary-active',
         quiet:
           'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-secondary-active',
+        'quiet-toggle':
+          'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-secondary-active data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
@@ -36,6 +38,8 @@ const buttonVariants = cva(
         'icon-lg': 'size-10',
         'icon-touch': 'size-9 any-pointer-coarse:size-11',
         touch: 'h-9 gap-1.5 pr-3 pl-2.5 any-pointer-coarse:h-11',
+        'icon-line': 'relative size-7 after:absolute after:-inset-2',
+        row: 'h-11 w-full justify-start gap-2 px-2 font-normal',
       },
     },
     defaultVariants: {
