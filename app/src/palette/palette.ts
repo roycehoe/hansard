@@ -492,6 +492,55 @@ export const COLOURS = [
     derivation: 'L 0.50',
   },
   {
+    name: 'gold-lace-40',
+    hex: '#604103',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.40, C 0.082',
+  },
+  {
+    name: 'gold-lace-46',
+    hex: '#755000',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.46, C 0.096',
+  },
+  {
+    name: 'gold-lace-52',
+    hex: '#896016',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.52, C 0.10',
+  },
+  {
+    name: 'gold-lace-65',
+    hex: '#9d8c74',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.65, C 0.04',
+  },
+  {
+    name: 'gold-lace-72',
+    hex: '#c69b57',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.72, C 0.10',
+  },
+  {
+    name: 'gold-lace-78',
+    hex: '#daae6a',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.78, C 0.10',
+  },
+  {
+    name: 'gold-lace-84',
+    hex: '#f0c27f',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.84, C 0.10',
+  },
+  {
     name: 'crest-red-43',
     hex: '#97061f',
     source: 'state-crest',
@@ -568,6 +617,20 @@ export const COLOURS = [
     derivedFrom: 'orchid-lilac',
     derivation: 'L 0.38, C 0.08',
   },
+  {
+    name: 'orchid-lilac-44',
+    hex: '#6b3884',
+    source: 'vanda-miss-joaquim',
+    derivedFrom: 'orchid-lilac',
+    derivation: 'L 0.44, C 0.13',
+  },
+  {
+    name: 'orchid-lilac-80',
+    hex: '#dca4f9',
+    source: 'vanda-miss-joaquim',
+    derivedFrom: 'orchid-lilac',
+    derivation: 'L 0.80, C 0.13',
+  },
 ] as const satisfies readonly Colour[]
 
 export type ColourName = (typeof COLOURS)[number]['name']
@@ -631,14 +694,14 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'primary',
     group: 'accents',
-    light: 'panelling',
-    dark: 'panelling-80',
+    light: 'gold-lace-52',
+    dark: 'gold-lace-72',
   },
   {
     name: 'primary-foreground',
     group: 'text',
     light: 'flag-white',
-    dark: 'panelling-shade',
+    dark: 'panelling-20',
   },
   {
     name: 'secondary',
@@ -741,20 +804,20 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'primary-hover',
     group: 'accents',
-    light: 'panelling-mid',
-    dark: 'panelling-85',
+    light: 'gold-lace-46',
+    dark: 'gold-lace-78',
   },
   {
     name: 'primary-active',
     group: 'accents',
-    light: 'panelling-shade',
-    dark: 'panelling-90',
+    light: 'gold-lace-40',
+    dark: 'gold-lace-84',
   },
   {
     name: 'visited',
     group: 'accents',
     light: 'panelling-45',
-    dark: 'panelling-74',
+    dark: 'gold-lace-65',
   },
   {
     name: 'secondary-hover',
@@ -783,8 +846,8 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'highlight',
     group: 'accents',
-    light: 'orchid-lilac-88',
-    dark: 'orchid-lilac-38',
+    light: 'orchid-lilac-80',
+    dark: 'orchid-lilac-44',
   },
   {
     name: 'highlight-foreground',
@@ -822,7 +885,12 @@ export const TOKENS: readonly Token[] = [
     light: 'table-timber-58',
     dark: 'table-timber-62',
   },
-  { name: 'ring', group: 'borders', light: 'panelling', dark: 'panelling-80' },
+  {
+    name: 'ring',
+    group: 'borders',
+    light: 'gold-lace-52',
+    dark: 'gold-lace-72',
+  },
   {
     name: 'chart-1',
     group: 'charts',

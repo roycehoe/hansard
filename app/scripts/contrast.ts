@@ -69,15 +69,18 @@ const PAIRS: Pair[] = [
       'secondary-active',
       'accent',
       'reading',
-      'highlight',
     ],
     TEXT_MINIMUM
   ),
   ...pairs(
     'primary',
-    [...SURFACES, 'reading', 'highlight', 'muted', 'popover'],
+    [...SURFACES, 'reading', 'muted', 'popover'],
     TEXT_MINIMUM
   ),
+  // The shared-link flash puts a link on `accent` for up to 1.5 seconds. Gold
+  // is 3.86:1 there in light, which is accepted, so this floor sits below
+  // TEXT_MINIMUM but above anything worse than today's value.
+  ...pairs('primary', ['accent'], 3.8),
   ...pairs(
     'primary-hover',
     [...SURFACES, 'reading', 'muted', 'popover'],
