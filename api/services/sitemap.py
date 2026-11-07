@@ -15,6 +15,7 @@ from utils.sitemap_xml import SitemapUrl, get_sitemap_index_xml, get_urlset_xml
 SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
 _MAX_URLS_PER_FILE = 20_000
 _URL_SEPARATOR = "/"
+_PAGE_PATHS = ("/", "/people", "/sittings", "/coverage")
 _ROBOTS_TXT_LINES = ("User-agent: *", "Disallow: /search", "Allow: /")
 
 # NOTE: replaced whole and never mutated, so a request thread never reads a half-written answer
@@ -34,6 +35,9 @@ def _get_kind_to_sitemap_urls(
         get_taken_down_report_id_candidates()
     )
     return {
+        "pages": [
+            SitemapUrl(f"{site_origin}{page_path}", None) for page_path in _PAGE_PATHS
+        ],
         "sittings": [
             SitemapUrl(
                 f"{site_origin}/sittings/{sitting_date.date().isoformat()}",

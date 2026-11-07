@@ -17,6 +17,8 @@ _SITE_URL = "https://hansard.example.sg"
 _SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9"
 _LOCATION_TAG = f"{{{_SITEMAP_NAMESPACE}}}loc"
 _PERSON_ID_SEPARATOR = "-"
+# NOTE: these pages have no API record, so _get_api_path has nothing to build for them; test_sitemap_files.py checks that they are listed
+_PAGES_SITEMAP_FILE_NAME = "sitemap-pages-1.xml"
 
 
 @pytest.fixture
@@ -49,6 +51,8 @@ def test_a_sample_of_sitemap_urls_resolve_as_pages_and_through_the_api(
     assert index_response.status_code == status.HTTP_200_OK
     page_urls: list[str] = []
     for sitemap_url in _get_locations(index_response.text):
+        if sitemap_url.endswith(_PAGES_SITEMAP_FILE_NAME):
+            continue
         file_response = sitemap_client.get(urlsplit(sitemap_url).path)
         assert file_response.status_code == status.HTTP_200_OK
         page_urls.extend(_get_locations(file_response.text))
