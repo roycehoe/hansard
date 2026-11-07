@@ -799,7 +799,9 @@ export const Route = createFileRoute('/coverage/methods')({
               from, the browser, the screen size, and the country and region.
               Search words are never sent. Copy link, Cite and the links in
               search notes are counted when used, without the text copied or the
-              words searched.
+              words searched. The site keeps the date of your last visit in your
+              browser and counts a return visit, without sending that date or
+              anything that identifies you.
             </p>
           )}
           <p>

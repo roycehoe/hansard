@@ -3,4 +3,5 @@ export enum AnalyticsEvent {
   CITE = 'cite',
   SEARCH_BUSY = 'search-busy',
   SEARCH_NOTE_LINK = 'search-note-link',
+  RETURNING_VISIT = 'returning-visit',
 }

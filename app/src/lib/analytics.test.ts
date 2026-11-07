@@ -1,4 +1,4 @@
-import { getCountedPath } from '@/lib/analytics'
+import { getCountedPath, isReturningVisit } from '@/lib/analytics'
 import { describe, expect, it } from 'vitest'
 
 describe('getCountedPath', () => {
@@ -16,5 +16,19 @@ describe('getCountedPath', () => {
 
   it('leaves other paths without a search string', () => {
     expect(getCountedPath('/search', '?q=housing', false)).toBe('/search')
+  })
+})
+
+describe('isReturningVisit', () => {
+  it('is false on the first visit', () => {
+    expect(isReturningVisit(null, 'Sat Nov 07 2026')).toBe(false)
+  })
+
+  it('is false on a second visit the same day', () => {
+    expect(isReturningVisit('Sat Nov 07 2026', 'Sat Nov 07 2026')).toBe(false)
+  })
+
+  it('is true when the last visit was on an earlier day', () => {
+    expect(isReturningVisit('Fri Nov 06 2026', 'Sat Nov 07 2026')).toBe(true)
   })
 })

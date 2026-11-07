@@ -9,3 +9,4 @@ export const COUNTED_REPORT_QUERY_KEYS = ['s', 'q']
 export const COUNT_QUERY_FIELD = 'q'
 export const COUNT_TITLE_FIELD = 't'
 export const COUNT_REFERRER_FIELD = 'r'
+export const LAST_VISIT_STORAGE_KEY = 'last-visit'

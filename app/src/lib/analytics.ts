@@ -7,9 +7,10 @@ import {
   COUNT_REFERRER_FIELD,
   COUNT_TITLE_FIELD,
   COUNTED_REPORT_QUERY_KEYS,
+  LAST_VISIT_STORAGE_KEY,
   QUERY_COUNTED_PATH_PREFIX,
 } from '@/constants/analytics/constants'
-import type { AnalyticsEvent } from '@/constants/analytics/enums'
+import { AnalyticsEvent } from '@/constants/analytics/enums'
 import { ANALYTICS_URL } from '@/constants/constants'
 
 interface GoatCounterCountOptions {
@@ -93,6 +94,27 @@ export function countEvent(name: AnalyticsEvent): void {
   sendCount({ path: name, event: true })
 }
 
+export function isReturningVisit(
+  lastVisitDate: string | null,
+  today: string
+): boolean {
+  return lastVisitDate !== null && lastVisitDate !== today
+}
+
+function countReturningVisit(): void {
+  const today = new Date().toDateString()
+  let lastVisitDate: string | null = null
+  try {
+    lastVisitDate = localStorage.getItem(LAST_VISIT_STORAGE_KEY)
+    localStorage.setItem(LAST_VISIT_STORAGE_KEY, today)
+  } catch {
+    /* storage unavailable: count no return visit */
+  }
+  if (isReturningVisit(lastVisitDate, today)) {
+    countEvent(AnalyticsEvent.RETURNING_VISIT)
+  }
+}
+
 export function loadAnalytics(): void {
   if (!isCountAddressValid(ANALYTICS_URL) || isAnalyticsScriptAdded) return
   isAnalyticsScriptAdded = true
@@ -105,6 +127,7 @@ export function loadAnalytics(): void {
   script.dataset.goatcounterSettings = ANALYTICS_SCRIPT_SETTINGS
   script.addEventListener('load', () => {
     countPageView(window.location.pathname, window.location.search)
+    countReturningVisit()
   })
   document.head.appendChild(script)
 }
