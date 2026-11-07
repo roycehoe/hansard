@@ -79,6 +79,7 @@ import { ReportType } from '@/constants/reports/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildAttributionFigures } from '@/lib/attribution'
 import { formatSittingDate } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
@@ -87,7 +88,7 @@ const LINK_CLASS_NAME =
 
 const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
 
-const SUBHEADING_CLASS_NAME = 'font-serif text-lg lg:text-xl'
+const SUBHEADING_CLASS_NAME = 'font-serif text-base font-semibold lg:text-lg'
 
 const COUNTS_SKELETON_ROW_COUNT = 10
 
@@ -96,11 +97,11 @@ const YEARS_SKELETON_ROW_COUNT = 8
 const ATTRIBUTION_SKELETON_ROW_COUNT = 5
 
 const TERM_LIST_CLASS_NAME =
-  'grid gap-x-8 gap-y-2 text-sm sm:grid-cols-[14rem_1fr]'
+  'grid gap-x-8 text-sm sm:grid-cols-[14rem_1fr] sm:gap-y-3'
 
-const TERM_CLASS_NAME = 'font-medium'
+const TERM_CLASS_NAME = 'font-medium not-first:mt-5 sm:not-first:mt-0'
 
-const DEFINITION_CLASS_NAME = 'text-muted-foreground max-w-prose'
+const DEFINITION_CLASS_NAME = 'text-muted-foreground mt-1 max-w-prose sm:mt-0'
 
 export const Route = createFileRoute('/coverage/methods')({
   component: function PageCoverageMethods() {
@@ -204,7 +205,7 @@ export const Route = createFileRoute('/coverage/methods')({
                 .
               </p>
             )}
-          <dl className="max-w-prose space-y-3 text-sm">
+          <dl className="max-w-prose space-y-5 text-sm sm:space-y-3">
             <div className="space-y-1">
               <dt className="font-medium">Paragraph</dt>
               <dd className="text-muted-foreground">
@@ -256,7 +257,9 @@ export const Route = createFileRoute('/coverage/methods')({
 
       return (
         <>
-          <h3 className={SUBHEADING_CLASS_NAME}>
+          <h3
+            className={cn(SUBHEADING_CLASS_NAME, 'mt-8 mb-3 sm:mt-6 sm:mb-2')}
+          >
             How many paragraphs are credited to a person
           </h3>
           <p className="text-muted-foreground text-sm">
@@ -269,7 +272,7 @@ export const Route = createFileRoute('/coverage/methods')({
             show whether the credit is right. The sample checks above test for
             mistakes.
           </p>
-          <dl className="max-w-prose space-y-3 text-sm">
+          <dl className="max-w-prose space-y-5 text-sm sm:space-y-3">
             <div className="space-y-1">
               <dt className="font-medium">With a speaker label, credited</dt>
               <dd className="text-muted-foreground">
@@ -546,144 +549,150 @@ export const Route = createFileRoute('/coverage/methods')({
           <h2 id="terms-heading" className={SECTION_HEADING_CLASS_NAME}>
             Terms
           </h2>
-          <div className="space-y-2">
-            <h3 className={SUBHEADING_CLASS_NAME}>The record</h3>
-            <dl className={TERM_LIST_CLASS_NAME}>
-              <dt className={TERM_CLASS_NAME}>Sitting</dt>
-              <dd className={DEFINITION_CLASS_NAME}>A day the House met.</dd>
-              <dt className={TERM_CLASS_NAME}>Report</dt>
-              <dd className={DEFINITION_CLASS_NAME}>
-                One item of business in a sitting, such as one question and its
-                answer, or one reading of a bill.
-              </dd>
-              <dt className={TERM_CLASS_NAME}>{TEXT_NOT_IN_ARCHIVE_LABEL}</dt>
-              <dd className={DEFINITION_CLASS_NAME}>
-                Parliament&apos;s website lists the report, but the archive
-                could not get its text. Only the title and details are here.
-              </dd>
-              <dt className={TERM_CLASS_NAME}>Absent</dt>
-              <dd className={DEFINITION_CLASS_NAME}>{ABSENCE_DEFINITION}</dd>
-              <dt className={TERM_CLASS_NAME}>Parliamentary question (PQ)</dt>
-              <dd className={DEFINITION_CLASS_NAME}>
-                Three report types hold a parliamentary question and its answer:{' '}
-                {REPORT_TYPE_LABELS[ReportType.ORAL_ANSWER]},{' '}
-                {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER]} and{' '}
-                {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER_NA]}. A question
-                counts for the member who asked it. If an absent member&apos;s
-                question was asked by another member on their behalf, it counts
-                for the absent member. The question&apos;s page names the member
-                who read it out. Questions answered together count once for each
-                member who asked one.
-              </dd>
-              <dt className={TERM_CLASS_NAME}>Questions asked</dt>
-              <dd className={DEFINITION_CLASS_NAME}>{QUESTION_DEFINITION}</dd>
-            </dl>
-          </div>
-          {REPORT_TYPE_GROUPS.map((group) => (
-            <div key={group.heading} className="space-y-2">
-              <h3 className={SUBHEADING_CLASS_NAME}>{group.heading}</h3>
+          <div className="space-y-8 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-2">
+              <h3 className={SUBHEADING_CLASS_NAME}>The record</h3>
               <dl className={TERM_LIST_CLASS_NAME}>
-                {group.reportTypes.map((reportType) => (
-                  <Fragment key={reportType}>
-                    <dt className={TERM_CLASS_NAME}>
-                      {REPORT_TYPE_LABELS[reportType]}
-                    </dt>
-                    <dd className={DEFINITION_CLASS_NAME}>
-                      {REPORT_TYPE_DESCRIPTIONS[reportType]}
-                    </dd>
-                  </Fragment>
-                ))}
+                <dt className={TERM_CLASS_NAME}>Sitting</dt>
+                <dd className={DEFINITION_CLASS_NAME}>A day the House met.</dd>
+                <dt className={TERM_CLASS_NAME}>Report</dt>
+                <dd className={DEFINITION_CLASS_NAME}>
+                  One item of business in a sitting, such as one question and
+                  its answer, or one reading of a bill.
+                </dd>
+                <dt className={TERM_CLASS_NAME}>{TEXT_NOT_IN_ARCHIVE_LABEL}</dt>
+                <dd className={DEFINITION_CLASS_NAME}>
+                  Parliament&apos;s website lists the report, but the archive
+                  could not get its text. Only the title and details are here.
+                </dd>
+                <dt className={TERM_CLASS_NAME}>Absent</dt>
+                <dd className={DEFINITION_CLASS_NAME}>{ABSENCE_DEFINITION}</dd>
+                <dt className={TERM_CLASS_NAME}>Parliamentary question (PQ)</dt>
+                <dd className={DEFINITION_CLASS_NAME}>
+                  Three report types hold a parliamentary question and its
+                  answer: {REPORT_TYPE_LABELS[ReportType.ORAL_ANSWER]},{' '}
+                  {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER]} and{' '}
+                  {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER_NA]}. A question
+                  counts for the member who asked it. If an absent member&apos;s
+                  question was asked by another member on their behalf, it
+                  counts for the absent member. The question&apos;s page names
+                  the member who read it out. Questions answered together count
+                  once for each member who asked one.
+                </dd>
+                <dt className={TERM_CLASS_NAME}>Questions asked</dt>
+                <dd className={DEFINITION_CLASS_NAME}>{QUESTION_DEFINITION}</dd>
               </dl>
             </div>
-          ))}
+            {REPORT_TYPE_GROUPS.map((group) => (
+              <div key={group.heading} className="space-y-3 sm:space-y-2">
+                <h3 className={SUBHEADING_CLASS_NAME}>{group.heading}</h3>
+                <dl className={TERM_LIST_CLASS_NAME}>
+                  {group.reportTypes.map((reportType) => (
+                    <Fragment key={reportType}>
+                      <dt className={TERM_CLASS_NAME}>
+                        {REPORT_TYPE_LABELS[reportType]}
+                      </dt>
+                      <dd className={DEFINITION_CLASS_NAME}>
+                        {REPORT_TYPE_DESCRIPTIONS[reportType]}
+                      </dd>
+                    </Fragment>
+                  ))}
+                </dl>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section aria-labelledby="gaps-heading" className="space-y-4">
           <h2 id="gaps-heading" className={SECTION_HEADING_CLASS_NAME}>
             Known gaps
           </h2>
-          <div className="space-y-2">
-            <h3 className={SUBHEADING_CLASS_NAME}>
-              What is missing
-              <span className="sr-only">: known gaps</span>
-            </h3>
-            <ul className="list-disc space-y-2 pl-5 text-sm">
-              <li>
-                Text that is not part of any speech, such as headings and the
-                lines before the first speaker, is not shown on report pages. It
-                is about 1.2% of the text from before 10 September 2012.
-              </li>
-              <li>
-                The sitting of 18 March 1986 has no session number, so the
-                sittings of Parliament 6 are listed by volume instead of by
-                session.
-              </li>
-              <li>
-                There were no sittings between{' '}
-                {formatSittingDate(PARLIAMENT_FOURTEEN_LAST_SITTING)} and{' '}
-                {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}, so none
-                are missing from that period. Parliament 14 was dissolved on{' '}
-                {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}.
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <h3 className={SUBHEADING_CLASS_NAME}>
-              Who said what
-              <span className="sr-only">: known gaps</span>
-            </h3>
-            <ul className="list-disc space-y-2 pl-5 text-sm">
-              <li>
-                About 9,000 paragraphs are labelled &quot;The Chairman&quot;
-                without a name, so they can&apos;t be credited to a person.
-              </li>
-              <li>
-                19 reports do not have the latest corrections to who said what.
-              </li>
-              <li>
-                A member who sat in both the Legislative Assembly (1955 to 1965)
-                and Parliament 1 has one membership, listed as Parliament 1.
-              </li>
-              <li>
-                Party is the one a member stood for at the election that seated
-                them. A change of party during a membership shows as a note
-                beside the party, with the date, what happened and a source. If
-                there is no note, the change does not show. A Nominated Member
-                shows the seat type in place of a party, and two show
-                &quot;NA&quot;.
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <h3 className={SUBHEADING_CLASS_NAME}>
-              Text and order
-              <span className="sr-only">: known gaps</span>
-            </h3>
-            <ul className="list-disc space-y-2 pl-5 text-sm">
-              <li>
-                In 149 reports from before 10 September 2012, some words run
-                together, so a search for either word can miss the passage.
-              </li>
-              <li>
-                Parliament&apos;s copy of some older reports lost characters,
-                mostly fractions such as ½ and ¾. Each shows as {LOST_CHARACTER}
-                , and the true character isn&apos;t known.
-              </li>
-              <li>
-                In 403 sittings before 10 September 2012, the order of about
-                1,800 reports within the sitting is not known.
-              </li>
-              <li>
-                In 78 sittings from 16 August 2016 to 7 October 2026, 1,997
-                reports share their place in the order with another report, so
-                the archive cannot tell which comes first.
-              </li>
-              <li>
-                Some appendices to the record, such as Committee of Supply
-                estimates, have the type &quot;Presiding officer&apos;s
-                statement&quot;.
-              </li>
-            </ul>
+          <div className="space-y-8 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-2">
+              <h3 className={SUBHEADING_CLASS_NAME}>
+                What is missing
+                <span className="sr-only">: known gaps</span>
+              </h3>
+              <ul className="list-disc space-y-2 pl-5 text-sm">
+                <li>
+                  Text that is not part of any speech, such as headings and the
+                  lines before the first speaker, is not shown on report pages.
+                  It is about 1.2% of the text from before 10 September 2012.
+                </li>
+                <li>
+                  The sitting of 18 March 1986 has no session number, so the
+                  sittings of Parliament 6 are listed by volume instead of by
+                  session.
+                </li>
+                <li>
+                  There were no sittings between{' '}
+                  {formatSittingDate(PARLIAMENT_FOURTEEN_LAST_SITTING)} and{' '}
+                  {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}, so none
+                  are missing from that period. Parliament 14 was dissolved on{' '}
+                  {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}.
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-3 sm:space-y-2">
+              <h3 className={SUBHEADING_CLASS_NAME}>
+                Who said what
+                <span className="sr-only">: known gaps</span>
+              </h3>
+              <ul className="list-disc space-y-2 pl-5 text-sm">
+                <li>
+                  About 9,000 paragraphs are labelled &quot;The Chairman&quot;
+                  without a name, so they can&apos;t be credited to a person.
+                </li>
+                <li>
+                  19 reports do not have the latest corrections to who said
+                  what.
+                </li>
+                <li>
+                  A member who sat in both the Legislative Assembly (1955 to
+                  1965) and Parliament 1 has one membership, listed as
+                  Parliament 1.
+                </li>
+                <li>
+                  Party is the one a member stood for at the election that
+                  seated them. A change of party during a membership shows as a
+                  note beside the party, with the date, what happened and a
+                  source. If there is no note, the change does not show. A
+                  Nominated Member shows the seat type in place of a party, and
+                  two show &quot;NA&quot;.
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-3 sm:space-y-2">
+              <h3 className={SUBHEADING_CLASS_NAME}>
+                Text and order
+                <span className="sr-only">: known gaps</span>
+              </h3>
+              <ul className="list-disc space-y-2 pl-5 text-sm">
+                <li>
+                  In 149 reports from before 10 September 2012, some words run
+                  together, so a search for either word can miss the passage.
+                </li>
+                <li>
+                  Parliament&apos;s copy of some older reports lost characters,
+                  mostly fractions such as ½ and ¾. Each shows as{' '}
+                  {LOST_CHARACTER}, and the true character isn&apos;t known.
+                </li>
+                <li>
+                  In 403 sittings before 10 September 2012, the order of about
+                  1,800 reports within the sitting is not known.
+                </li>
+                <li>
+                  In 78 sittings from 16 August 2016 to 7 October 2026, 1,997
+                  reports share their place in the order with another report, so
+                  the archive cannot tell which comes first.
+                </li>
+                <li>
+                  Some appendices to the record, such as Committee of Supply
+                  estimates, have the type &quot;Presiding officer&apos;s
+                  statement&quot;.
+                </li>
+              </ul>
+            </div>
           </div>
         </section>
 
