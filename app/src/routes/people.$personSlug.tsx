@@ -3,7 +3,6 @@ import { useGetPerson } from '@/api/people/getPerson'
 import { useGetPersonReports } from '@/api/people/getPersonReports'
 import { ButtonCopyLink } from '@/components/layout/ButtonCopyLink'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import { TextSource } from '@/components/layout/TextSource'
 import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
@@ -127,28 +126,18 @@ export const Route = createFileRoute('/people/$personSlug')({
           ? firstPage.questions_asked_count
           : firstPage.total_count
       return (
-        <div className="space-y-4">
-          <ListPersonReports
-            reports={personReports}
-            filter={filter}
-            personName={personName}
-          />
-          {reports.hasNextPage && !reports.isFetchNextPageError && (
-            <p role="status" className="text-muted-foreground text-sm">
-              Showing {personReports.length.toLocaleString(NUMBER_LOCALE)} of{' '}
-              {reportCount.toLocaleString(NUMBER_LOCALE)}. More load as you
-              scroll.
-            </p>
-          )}
-          <PaginationInfiniteScroll
-            hasNextPage={reports.hasNextPage}
-            isFetchingNextPage={reports.isFetchingNextPage}
-            isFetchNextPageError={reports.isFetchNextPageError}
-            onLoadMore={loadMoreReports}
-            loadingRows={<SkeletonReportRows />}
-            shownCount={personReports.length}
-          />
-        </div>
+        <ListPersonReports
+          key={personId}
+          personId={personId}
+          reports={personReports}
+          reportCount={reportCount}
+          filter={filter}
+          personName={personName}
+          hasNextPage={reports.hasNextPage}
+          isFetchingNextPage={reports.isFetchingNextPage}
+          isFetchNextPageError={reports.isFetchNextPageError}
+          onLoadMore={loadMoreReports}
+        />
       )
     }
 

@@ -1,8 +1,6 @@
-import { Button } from '@/components/ui/button'
-import { Spinner } from '@/components/ui/spinner'
+import { NoticeErrorLoadMore } from '@/components/layout/NoticeErrorLoadMore'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { useLoadMoreOnScroll } from '@/hooks/useLoadMoreOnScroll'
-import { RotateCw, TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 interface PaginationInfiniteScrollProps {
@@ -35,29 +33,10 @@ export function PaginationInfiniteScroll({
 
   if (isFetchNextPageError) {
     return (
-      <div className="border-separator flex flex-wrap items-center gap-4 border-t py-4">
-        <div className="flex flex-row gap-4">
-          <TriangleAlert className="text-destructive" />
-          <p className="text-destructive">More results did not load.</p>
-        </div>
-        <Button
-          variant="outline"
-          disabled={isFetchingNextPage}
-          onClick={onLoadMore}
-        >
-          {isFetchingNextPage ? (
-            <>
-              <Spinner />
-              Retrying…
-            </>
-          ) : (
-            <>
-              <RotateCw className="h-4 w-4" />
-              Try again
-            </>
-          )}
-        </Button>
-      </div>
+      <NoticeErrorLoadMore
+        onRetry={onLoadMore}
+        isRetrying={isFetchingNextPage}
+      />
     )
   }
   if (isFetchingNextPage) {
