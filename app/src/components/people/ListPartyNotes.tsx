@@ -55,9 +55,9 @@ export function ListPartyNotes({
   return (
     <section
       aria-label={hasSpellingNote ? 'Notes' : 'Party notes'}
-      className="border-separator text-muted-foreground max-w-prose border-t pt-4 text-sm"
+      className="border-separator text-muted-foreground border-t pt-4 text-sm"
     >
-      <ol className="list-decimal space-y-3 pl-5">
+      <ol className="max-w-prose list-decimal space-y-3 pl-5">
         {hasSpellingNote && <ListSpellingNote nameSpellings={nameSpellings} />}
         {notes.map((note) => (
           <li

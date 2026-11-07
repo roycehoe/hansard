@@ -20,33 +20,35 @@ export function TextHandAliasNote({
   if (handAliasNote === undefined) return null
 
   return (
-    <p className="border-separator text-muted-foreground max-w-prose border-t pt-4 text-sm">
-      The attendance list of{' '}
-      <Link
-        to="/sittings/$sittingDate"
-        params={{ sittingDate: handAliasNote.sittingDate }}
-        className={LINK_CLASS_NAME}
-      >
-        {formatSittingDate(handAliasNote.sittingDate)}
-      </Link>{' '}
-      prints &quot;{handAliasNote.printedName}&quot;. The record never says that
-      this is {personName}, so the site links the entry to this page by hand.
-      Sources:{' '}
-      {handAliasNote.sources.map((source, index) => (
-        <Fragment key={source.url}>
-          {index > 0 && SOURCE_SEPARATOR}
-          <a
-            href={source.url}
-            className={LINK_CLASS_NAME}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {source.label}
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
-        </Fragment>
-      ))}
-      .
-    </p>
+    <div className="border-separator border-t pt-4">
+      <p className="text-muted-foreground max-w-prose text-sm">
+        The attendance list of{' '}
+        <Link
+          to="/sittings/$sittingDate"
+          params={{ sittingDate: handAliasNote.sittingDate }}
+          className={LINK_CLASS_NAME}
+        >
+          {formatSittingDate(handAliasNote.sittingDate)}
+        </Link>{' '}
+        prints &quot;{handAliasNote.printedName}&quot;. The record never says
+        that this is {personName}, so the site links the entry to this page by
+        hand. Sources:{' '}
+        {handAliasNote.sources.map((source, index) => (
+          <Fragment key={source.url}>
+            {index > 0 && SOURCE_SEPARATOR}
+            <a
+              href={source.url}
+              className={LINK_CLASS_NAME}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {source.label}
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </Fragment>
+        ))}
+        .
+      </p>
+    </div>
   )
 }
