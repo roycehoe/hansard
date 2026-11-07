@@ -6,18 +6,18 @@ const HOME_LINKS = [
   {
     title: "Read a day's debates",
     description:
-      "Pick a Parliament, then a date, to read that day's reports and see who attended.",
+      'Choose a Parliament and date to read the reports and see who attended.',
     to: '/sittings',
   },
   {
     title: 'Look up a person',
     description:
-      'Find a person by name or constituency to read their speeches and see their attendance.',
+      'Search by name or constituency to find their speeches and attendance.',
     to: '/people',
   },
   {
     title: 'See what the archive covers',
-    description: 'The years and counts it holds, and where the gaps are.',
+    description: 'Check the years, counts and gaps in the archive.',
     to: '/coverage',
   },
 ] as const
@@ -27,7 +27,7 @@ export const Route = createFileRoute('/')({
     useDocumentTitle()
     return (
       <div className="space-y-8">
-        <PageHeader title="Find what an MP said in Singapore's Parliament since 1955" />
+        <PageHeader title="Search Singapore's parliamentary debates since 1955" />
         <ul>
           {HOME_LINKS.map((item) => (
             <li
