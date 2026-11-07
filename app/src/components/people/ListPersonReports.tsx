@@ -18,7 +18,6 @@ function readIsExpanded(storageKey: string): boolean {
   try {
     return sessionStorage.getItem(storageKey) === EXPANDED_STORAGE_VALUE
   } catch {
-    /* storage unavailable: start with the first rows */
     return false
   }
 }

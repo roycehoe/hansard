@@ -39,7 +39,7 @@ const buttonVariants = cva(
         'icon-touch': 'size-9 any-pointer-coarse:size-11',
         touch: 'h-9 gap-1.5 pr-3 pl-2.5 any-pointer-coarse:h-11',
         'icon-line': 'relative size-7 after:absolute after:-inset-2',
-        row: 'h-11 w-full justify-start gap-2 px-2 font-normal',
+        'full-row': 'h-11 w-full justify-start gap-2 px-2 font-normal',
       },
     },
     defaultVariants: {

@@ -32,7 +32,6 @@ export const Route = createFileRoute('/sittings/')({
     const parliaments = useGetAllParliaments()
     const sittings = useGetAllSittings({ parliament_number: parliament })
     const isChosen = parliament !== undefined
-    // The router scrolls to a hash at render, before a first load has its list.
     const [isFirstLoad] = useState<boolean>(sittings.isLoading)
     const hasYearBar =
       isChosen &&

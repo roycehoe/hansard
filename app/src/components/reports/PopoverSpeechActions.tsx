@@ -53,7 +53,7 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
           <Button
             type="button"
             variant="ghost"
-            size="row"
+            size="full-row"
             onClick={copyLinkAndClose}
           >
             <Link2 aria-hidden="true" />
@@ -63,7 +63,7 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
             <Button
               type="button"
               variant="ghost"
-              size="row"
+              size="full-row"
               onClick={copyCitationAndClose}
             >
               <Quote aria-hidden="true" />
@@ -71,7 +71,7 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
             </Button>
           )}
           {CONTACT_EMAIL && (
-            <Button asChild variant="ghost" size="row">
+            <Button asChild variant="ghost" size="full-row">
               <a href={errorEmailHref} onClick={closeMenu}>
                 <Flag aria-hidden="true" />
                 Report an error
