@@ -54,7 +54,7 @@ export const Route = createFileRoute('/coverage/')({
 
       return (
         <p>
-          It covers the Legislative Assembly and Parliament from{' '}
+          The archive covers the Legislative Assembly and Parliament from{' '}
           {formatSittingDate(coverageData.first_sitting_date)} to{' '}
           {formatSittingDate(coverageData.last_sitting_date)}, with{' '}
           {coverageData.report_count.toLocaleString(NUMBER_LOCALE)} reports from{' '}
@@ -89,22 +89,22 @@ export const Route = createFileRoute('/coverage/')({
         <div className="grid gap-4 lg:grid-cols-[3fr_2fr] lg:gap-12">
           <div className="min-w-0 space-y-4">
             <p>
-              This is an unofficial archive of Singapore&apos;s parliamentary
-              debates since 1955.{' '}
+              This is an unofficial, English-only archive of Singapore&apos;s
+              parliamentary debates since 1955.{' '}
               <Link to="/search" className={UNDERLINED_LINK_CLASS_NAME}>
                 Search the debates
               </Link>{' '}
               or{' '}
               <Link to="/people" className={UNDERLINED_LINK_CLASS_NAME}>
-                browse the people who spoke
-              </Link>
-              .
+                look up a person
+              </Link>{' '}
+              to read what they said.
             </p>
 
             {renderSummary()}
 
             <p id="about-the-text">
-              The text here is copied from the{' '}
+              The archive copies text from the Parliament of Singapore&apos;s{' '}
               <a
                 href={OFFICIAL_RECORD_SEARCH_URL}
                 className={UNDERLINED_LINK_CLASS_NAME}
@@ -113,23 +113,21 @@ export const Route = createFileRoute('/coverage/')({
               >
                 Official Report
                 <span className="sr-only"> (opens in a new tab)</span>
-              </a>{' '}
-              and can differ from it. Check the Official Report before you quote
-              it.
+              </a>
+              , splits each report where a new speaker begins and links speeches
+              to a person when it can identify who spoke. The copy can differ,
+              so check the Official Report before quoting.
             </p>
 
             <p>
-              The archive copies each report from the Parliament of
-              Singapore&apos;s website, splits it where a new speaker begins and
-              matches each speaker to a person where it can.{' '}
               <Link
                 to="/coverage/methods"
                 className={UNDERLINED_LINK_CLASS_NAME}
               >
                 Data quality and methods
               </Link>{' '}
-              covers how far to trust the text, the full counts, the known gaps
-              and how to cite.
+              explains how far to trust the text and how to cite it, and lists
+              the full counts and known gaps.
             </p>
           </div>
 
@@ -147,7 +145,7 @@ export const Route = createFileRoute('/coverage/')({
           {CONTACT_EMAIL && (
             <>
               {' '}
-              Found an error? Email{' '}
+              To report an error, email{' '}
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
                 className={UNDERLINED_LINK_CLASS_NAME}
