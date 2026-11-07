@@ -858,20 +858,14 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'tag',
     group: 'accents',
-    light: 'seat-leather-90',
-    dark: 'seat-leather-34',
+    light: 'panelling',
+    dark: 'panelling',
   },
   {
     name: 'tag-foreground',
     group: 'text',
-    light: 'panelling-24',
+    light: 'flag-white',
     dark: 'floor-carpet-93',
-  },
-  {
-    name: 'tag-border',
-    group: 'borders',
-    light: 'seat-leather',
-    dark: 'seat-leather-65',
   },
   {
     name: 'band',

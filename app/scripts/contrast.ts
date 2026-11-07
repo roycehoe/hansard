@@ -98,7 +98,6 @@ const PAIRS: Pair[] = [
   ...pairs('info', SURFACES, TEXT_MINIMUM),
   // Borders, focus rings and chart marks
   ...pairs('border', SURFACES, UI_MINIMUM),
-  ...pairs('tag-border', ['tag', ...SURFACES], UI_MINIMUM),
   ...pairs('input', [...SURFACES, 'muted', 'secondary'], UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
   ...pairs('band-border', ['band'], UI_MINIMUM),

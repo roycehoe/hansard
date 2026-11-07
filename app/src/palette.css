@@ -106,9 +106,8 @@
   --destructive-active: var(--crest-red-43);
   --highlight: var(--orchid-lilac-80);
   --highlight-foreground: var(--panelling-24);
-  --tag: var(--seat-leather-90);
-  --tag-foreground: var(--panelling-24);
-  --tag-border: var(--seat-leather);
+  --tag: var(--panelling);
+  --tag-foreground: var(--flag-white);
   --band: var(--panelling);
   --band-foreground: var(--flag-white);
   --band-hover: var(--panelling-mid);
@@ -171,9 +170,8 @@
   --destructive-active: var(--crest-red-79);
   --highlight: var(--orchid-lilac-44);
   --highlight-foreground: var(--floor-carpet-93);
-  --tag: var(--seat-leather-34);
+  --tag: var(--panelling);
   --tag-foreground: var(--floor-carpet-93);
-  --tag-border: var(--seat-leather-65);
   --band: var(--panelling-25);
   --band-foreground: var(--floor-carpet-93);
   --band-hover: var(--panelling-31);

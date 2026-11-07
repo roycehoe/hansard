@@ -120,7 +120,10 @@ export function ListSpeechMatches({
                   <span>
                     {formatParliament(group.speeches[0].parliament_number)}
                   </span>
-                  <BadgeReportType reportType={group.speeches[0].report_type} />
+                  <BadgeReportType
+                    reportType={group.speeches[0].report_type}
+                    variant="tag-quiet"
+                  />
                 </div>
                 <ListSpeechMatchesInReport
                   reportSlug={group.reportSlug}

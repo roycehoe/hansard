@@ -33,7 +33,10 @@ export function ListSittingReports({
               {report.subtitle}
             </span>
           )}
-          <BadgeReportType reportType={report.report_type} />
+          <BadgeReportType
+            reportType={report.report_type}
+            variant="tag-quiet"
+          />
           {!report.is_text_available &&
             isTextPublished(report.report_type, sittingDate) && (
               <Badge variant="outline">{TEXT_NOT_IN_ARCHIVE_LABEL}</Badge>

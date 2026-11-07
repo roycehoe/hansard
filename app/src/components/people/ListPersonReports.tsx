@@ -111,7 +111,10 @@ export function ListPersonReports({
             <span className="text-muted-foreground text-sm">
               {formatParliament(report.parliament_number)}
             </span>
-            <BadgeReportType reportType={report.report_type} />
+            <BadgeReportType
+              reportType={report.report_type}
+              variant="tag-quiet"
+            />
             {report.speech_count > 0 && (
               <span className="text-muted-foreground text-sm">
                 {report.speech_count.toLocaleString(NUMBER_LOCALE)}{' '}

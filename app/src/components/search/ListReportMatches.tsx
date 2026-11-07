@@ -80,7 +80,10 @@ export function ListReportMatches({
                 <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                   <span>{formatSittingDate(result.sitting_date)}</span>
                   <span>{formatParliament(result.parliament_number)}</span>
-                  <BadgeReportType reportType={result.report_type} />
+                  <BadgeReportType
+                    reportType={result.report_type}
+                    variant="tag-quiet"
+                  />
                   {!result.is_text_available &&
                     isTextPublished(
                       result.report_type,

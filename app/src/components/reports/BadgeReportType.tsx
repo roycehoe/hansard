@@ -5,14 +5,16 @@ import type { ReportType } from '@/constants/reports/enums'
 interface BadgeReportTypeProps {
   reportType: string
   className?: string
+  variant?: 'tag' | 'tag-quiet'
 }
 
 export function BadgeReportType({
   reportType,
   className,
+  variant = 'tag',
 }: BadgeReportTypeProps) {
   return (
-    <Badge variant="tag" className={className}>
+    <Badge variant={variant} className={className}>
       {REPORT_TYPE_LABELS[reportType as ReportType] ?? reportType}
     </Badge>
   )
