@@ -17,6 +17,10 @@ const PERCENTAGE_DECIMAL_PLACES = 2
 const NAME_LIST_SEPARATOR = ', '
 const NAME_LIST_LAST_SEPARATOR = ' and '
 
+export function getToday(): string {
+  return format(new Date(), 'yyyy-MM-dd')
+}
+
 export function formatSittingDate(sittingDate: string): string {
   return format(parseISO(sittingDate), SITTING_DATE_FORMAT)
 }

@@ -1,6 +1,7 @@
 import {
   getSearchDateError,
   getSingleUnquotedWord,
+  getTrailingYear,
   isQueryOnlyExcludedWords,
 } from '@/lib/searchQuery'
 import { describe, expect, it } from 'vitest'
@@ -69,5 +70,53 @@ describe('getSearchDateError', () => {
     expect(getSearchDateError('', today)).toBeUndefined()
     expect(getSearchDateError('1955-04-22', today)).toBeUndefined()
     expect(getSearchDateError(today, today)).toBeUndefined()
+  })
+})
+
+describe('getTrailingYear', () => {
+  const CURRENT_YEAR = 2026
+
+  it('splits the last word off when it is a sitting year', () => {
+    expect(getTrailingYear('Constitution 1984', CURRENT_YEAR)).toEqual({
+      otherWords: 'Constitution',
+      year: '1984',
+    })
+    expect(getTrailingYear('Companies Act 1967', CURRENT_YEAR)).toEqual({
+      otherWords: 'Companies Act',
+      year: '1967',
+    })
+  })
+
+  it('takes the first and latest sitting years', () => {
+    expect(getTrailingYear('budget 1955', CURRENT_YEAR)?.year).toBe('1955')
+    expect(getTrailingYear('budget 2026', CURRENT_YEAR)?.year).toBe('2026')
+  })
+
+  it('needs a year inside the sitting years', () => {
+    expect(getTrailingYear('budget 1954', CURRENT_YEAR)).toBeUndefined()
+    expect(getTrailingYear('Vision 2030', CURRENT_YEAR)).toBeUndefined()
+  })
+
+  it('needs the year last and alone', () => {
+    expect(getTrailingYear('1984', CURRENT_YEAR)).toBeUndefined()
+    expect(getTrailingYear('2000 workers', CURRENT_YEAR)).toBeUndefined()
+    expect(
+      getTrailingYear('Constitution 1984 1985', CURRENT_YEAR)
+    ).toBeUndefined()
+    expect(getTrailingYear('Constitution 1980s', CURRENT_YEAR)).toBeUndefined()
+  })
+
+  it('leaves out a date', () => {
+    expect(getTrailingYear('July 1984', CURRENT_YEAR)).toBeUndefined()
+    expect(getTrailingYear('25 july 1984', CURRENT_YEAR)).toBeUndefined()
+  })
+
+  it('leaves out a search with quotes, OR or a minus sign', () => {
+    expect(getTrailingYear('Constitution "1984"', CURRENT_YEAR)).toBeUndefined()
+    expect(
+      getTrailingYear('“public housing” 1984', CURRENT_YEAR)
+    ).toBeUndefined()
+    expect(getTrailingYear('tax or budget 1984', CURRENT_YEAR)).toBeUndefined()
+    expect(getTrailingYear('tax -budget 1984', CURRENT_YEAR)).toBeUndefined()
   })
 })

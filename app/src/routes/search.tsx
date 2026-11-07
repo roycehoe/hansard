@@ -24,6 +24,7 @@ import { NoticeSearchConstituencyNotFound } from '@/components/search/NoticeSear
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
 import { SkeletonFormSearch } from '@/components/search/SkeletonFormSearch'
 import { SkeletonSearchResults } from '@/components/search/SkeletonSearchResults'
+import { TextSearchYearNote } from '@/components/search/TextSearchYearNote'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -50,8 +51,10 @@ import {
 import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { getToday } from '@/lib/format'
 import {
   getSingleUnquotedWord,
+  getTrailingYear,
   isQueryOnlyExcludedWords,
 } from '@/lib/searchQuery'
 import {
@@ -111,6 +114,11 @@ export const Route = createFileRoute('/search')({
       words !== '' &&
       !(isQueryOnlyExcludedWords(words) && (hasPerson || hasConstituency))
     const exactWord = hasWords ? getSingleUnquotedWord(words) : undefined
+    const today = getToday()
+    const trailingYear =
+      hasWords && parliament === undefined && !from && !to
+        ? getTrailingYear(words, Number(today.slice(0, 4)))
+        : undefined
     const hasFilter =
       parliament !== undefined ||
       !!from ||
@@ -478,6 +486,13 @@ export const Route = createFileRoute('/search')({
         {isWordsTooLong && <NoticeSearchWordsTooLong />}
         {!isWordsTooLong && (
           <ListPersonMatches words={words} hasPerson={hasPerson} />
+        )}
+        {canSearch && trailingYear !== undefined && (
+          <TextSearchYearNote
+            otherWords={trailingYear.otherWords}
+            year={trailingYear.year}
+            today={today}
+          />
         )}
         {canSearch && renderResults()}
       </div>

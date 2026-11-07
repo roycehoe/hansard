@@ -11,6 +11,22 @@ const WHITESPACE = /\s/
 const QUOTE_CHARACTERS = /["“”]/
 const EXCLUDED_PREFIX = '-'
 const OR_OPERATOR = 'or'
+const YEAR_PATTERN = /^\d{4}$/
+const FIRST_SITTING_YEAR = Number(FIRST_SITTING_DATE.slice(0, 4))
+const MONTH_NAMES = new Set([
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
+])
 
 // Port of is_query_only_excluded_words in api/utils/search_query.py. Keep the two in step.
 export function isQueryOnlyExcludedWords(query: string): boolean {
@@ -45,6 +61,36 @@ export function getSingleUnquotedWord(query: string): string | undefined {
     return undefined
   }
   return query
+}
+
+function isSittingYear(word: string, currentYear: number): boolean {
+  if (!YEAR_PATTERN.test(word)) return false
+  const year = Number(word)
+  return year >= FIRST_SITTING_YEAR && year <= currentYear
+}
+
+export function getTrailingYear(
+  query: string,
+  currentYear: number
+): { otherWords: string; year: string } | undefined {
+  const words = query.split(/\s+/).filter((word) => word !== '')
+  if (words.length < 2 || QUOTE_CHARACTERS.test(query)) return undefined
+  const otherWords = words.slice(0, -1)
+  const year = words[words.length - 1]
+  const wordBeforeYear = otherWords[otherWords.length - 1]
+  if (
+    !isSittingYear(year, currentYear) ||
+    MONTH_NAMES.has(wordBeforeYear.toLowerCase()) ||
+    otherWords.some(
+      (word) =>
+        word.toLowerCase() === OR_OPERATOR ||
+        word.startsWith(EXCLUDED_PREFIX) ||
+        isSittingYear(word, currentYear)
+    )
+  ) {
+    return undefined
+  }
+  return { otherWords: otherWords.join(' '), year }
 }
 
 export function getSearchDateError(

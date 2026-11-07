@@ -723,8 +723,9 @@ export const Route = createFileRoute('/coverage/methods')({
               . GoatCounter stores no IP addresses or other personal data. For
               each visit it records the page address, the site the visitor came
               from, the browser, the screen size, and the country and region.
-              Search words are never sent. Copy link and Cite are counted when
-              used, without the text copied.
+              Search words are never sent. Copy link, Cite and the links in
+              search notes are counted when used, without the text copied or the
+              words searched.
             </p>
           )}
           <p>

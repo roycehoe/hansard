@@ -39,13 +39,12 @@ import {
 } from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { formatParliamentOption } from '@/lib/format'
+import { formatParliamentOption, getToday } from '@/lib/format'
 import { filterParliamentsByMembership } from '@/lib/membershipFilter'
 import { getSearchDateError } from '@/lib/searchQuery'
 import { getSortWithoutWords } from '@/lib/utils'
 import type { MembershipFilters } from '@/types/search/interfaces'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { format } from 'date-fns'
 import { CircleHelp, Info } from 'lucide-react'
 import { useState } from 'react'
 import {
@@ -55,10 +54,6 @@ import {
   useWatch,
 } from 'react-hook-form'
 import { z } from 'zod'
-
-function getToday(): string {
-  return format(new Date(), 'yyyy-MM-dd')
-}
 
 const formSchema = z
   .object({
