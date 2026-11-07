@@ -1,24 +1,34 @@
 import { Button } from '@/components/ui/button'
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { FIELD_HINT_CLOSE_DELAY_MS } from '@/constants/search/constants'
+import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
-import type { FocusEvent, MouseEvent, PointerEvent } from 'react'
+import type {
+  FocusEvent,
+  MouseEvent,
+  PointerEvent,
+  ReactNode,
+  RefObject,
+} from 'react'
 import { useEffect, useId, useRef, useState } from 'react'
 
 interface PopoverFieldHintProps {
   icon: LucideIcon
   label: string
-  hint: string
+  hint: ReactNode
+  anchorRef?: RefObject<HTMLDivElement | null>
 }
 
 export function PopoverFieldHint({
   icon: Icon,
   label,
   hint,
+  anchorRef,
 }: PopoverFieldHintProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const closeTimeoutRef = useRef<number | undefined>(undefined)
@@ -77,6 +87,7 @@ export function PopoverFieldHint({
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
+      {anchorRef && <PopoverAnchor virtualRef={anchorRef} />}
       <PopoverTrigger asChild>
         <Button
           ref={buttonRef}
@@ -95,9 +106,13 @@ export function PopoverFieldHint({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        side="top"
+        side={anchorRef ? 'bottom' : 'top'}
+        avoidCollisions={anchorRef === undefined}
         align="start"
-        className="w-72 text-sm"
+        className={cn(
+          'text-sm',
+          anchorRef ? 'w-(--radix-popover-trigger-width) md:min-w-72' : 'w-72'
+        )}
         onPointerEnter={openOnMouseEnter}
         onPointerLeave={closeOnMouseLeave}
         onOpenAutoFocus={keepFocusOnButton}
@@ -105,9 +120,9 @@ export function PopoverFieldHint({
       >
         {hint}
       </PopoverContent>
-      <span id={hintId} className="sr-only">
+      <div id={hintId} className="sr-only">
         {hint}
-      </span>
+      </div>
     </Popover>
   )
 }

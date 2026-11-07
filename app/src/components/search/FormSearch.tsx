@@ -4,6 +4,7 @@ import { FormSearchSort } from '@/components/search/FormSearchSort'
 import { PopoverConstituencyFilter } from '@/components/search/PopoverConstituencyFilter'
 import { PopoverFieldHint } from '@/components/search/PopoverFieldHint'
 import { PopoverPersonFilter } from '@/components/search/PopoverPersonFilter'
+import { TextSearchHelp } from '@/components/search/TextSearchHelp'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,7 +33,6 @@ import {
   FIRST_SITTING_DATE,
   SEARCH_DATE_OUT_OF_RANGE_ERROR,
   SEARCH_FORM_ID,
-  SEARCH_TIPS_TEXT,
   SEARCH_WORDS_INPUT_ID,
   SEARCH_WORDS_MAX_LENGTH,
   SEARCH_WORDS_TOO_LONG_ERROR,
@@ -46,7 +46,7 @@ import { getSortWithoutWords } from '@/lib/utils'
 import type { MembershipFilters } from '@/types/search/interfaces'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CircleHelp, Info } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   Controller,
   type FieldErrors,
@@ -130,6 +130,7 @@ export function FormSearch({
   const { isMatching: isPhone } = useMediaQuery(PHONE_MEDIA_QUERY)
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false)
   const [isInvalidSubmit, setIsInvalidSubmit] = useState<boolean>(false)
+  const wordsInputRef = useRef<HTMLDivElement>(null)
   const activeFilterCount = countActiveFilters(defaultValues)
   const hasWords = useWatch({ control, name: 'q' }).trim() !== ''
   const parliament = useWatch({ control, name: 'parliament' })
@@ -232,16 +233,19 @@ export function FormSearch({
         <PopoverFieldHint
           icon={CircleHelp}
           label="Search tips"
-          hint={SEARCH_TIPS_TEXT}
+          hint={<TextSearchHelp />}
+          anchorRef={wordsInputRef}
         />
       </div>
-      <Input
-        id={SEARCH_WORDS_INPUT_ID}
-        type="search"
-        aria-invalid={errors.q ? true : undefined}
-        aria-describedby={errors.q ? wordsErrorId : undefined}
-        {...register('q')}
-      />
+      <div ref={wordsInputRef}>
+        <Input
+          id={SEARCH_WORDS_INPUT_ID}
+          type="search"
+          aria-invalid={errors.q ? true : undefined}
+          aria-describedby={errors.q ? wordsErrorId : undefined}
+          {...register('q')}
+        />
+      </div>
       {errors.q && (
         <p id={wordsErrorId} className="text-destructive text-sm">
           {errors.q.message}

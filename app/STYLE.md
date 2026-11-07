@@ -1086,6 +1086,7 @@ These choices stay on purpose, even though one or more sources call them AI tell
 - **shadcn primitives.** anti-ai-slop and Hallmark name the untouched shadcn card as an AI tell. The primitives here carry the overrides in `docs/sgds-tokens.md`, and new overrides are recorded there.
 - **The lilac search highlight.** Purple is the most cited AI colour. `--highlight` is a text highlight sampled from the national flower under the insignia palette (`docs/palette.md`), not a purple brand accent or a gradient.
 - **Monospace on `/palette`.** It sets hex, RGB and OKLCH values and token names, which is functional.
+- **Monospace in the search help.** It sets the exact characters a reader types, such as the quotes in `"carbon tax"`, which is functional.
 - **All-caps report titles.** They come from the Official Report source data.
 
 ### Review checklist
