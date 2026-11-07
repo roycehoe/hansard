@@ -14,6 +14,7 @@ import {
 import { SpeechKind, SpeechLinkStatus } from '@/constants/reports/enums'
 import { buildHighlightPattern } from '@/lib/highlight'
 import { isLinkedSpeech } from '@/lib/linkedSpeech'
+import { scrollAgainWhenFontsLoad } from '@/lib/scrollAgain'
 import { Fragment, useEffect } from 'react'
 
 interface ListSpeechesProps {
@@ -29,7 +30,9 @@ function getScrollTargetId(speechLink: SpeechLinkData | null): string {
   return window.location.hash.slice(1)
 }
 
-function scrollToLinkedSpeech(speechLink: SpeechLinkData | null) {
+function scrollToLinkedSpeech(
+  speechLink: SpeechLinkData | null
+): (() => void) | undefined {
   const targetId = getScrollTargetId(speechLink)
   if (targetId === '') return
   const speechElement = document.getElementById(targetId)
@@ -38,6 +41,11 @@ function scrollToLinkedSpeech(speechLink: SpeechLinkData | null) {
   const scrollTargetElement = noticeElement ?? speechElement
   scrollTargetElement.scrollIntoView()
   speechElement.focus({ preventScroll: true })
+  return scrollAgainWhenFontsLoad({
+    fontsReady: document.fonts.ready,
+    getScrollY: () => window.scrollY,
+    scroll: () => scrollTargetElement.scrollIntoView(),
+  })
 }
 
 function getPreviousSpeakerLabel(
@@ -63,7 +71,7 @@ export function ListSpeeches({
 }: ListSpeechesProps) {
   useEffect(
     function scrollToSpeechOnLoad() {
-      scrollToLinkedSpeech(report.speech_link)
+      return scrollToLinkedSpeech(report.speech_link)
     },
     [report.speech_link]
   )
