@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-const SITTING_ROW_COUNT = 8
+const SITTING_ROW_COUNT = 16
 const YEAR_LINK_COUNT = 6
 
 export function SkeletonSittingsGrouped() {
