@@ -184,7 +184,7 @@ export const Route = createFileRoute('/about')({
           <ul className={LIST_CLASS_NAME}>
             {CONTACT_EMAIL && (
               <li>
-                &quot;Report an error&quot; beside a speech, or &quot;Report a
+                &quot;Report an error&quot; on a paragraph, or &quot;Report a
                 problem with this report&quot; on a report page. Each opens an
                 email with the link filled in.
               </li>

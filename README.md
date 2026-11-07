@@ -32,7 +32,7 @@ You can start with a person, a sitting or a subject and follow the links between
 - [Find your MP](https://openhansard.sg/people?constituency=Ang%20Mo%20Kio&parliament=15) by choosing a constituency on the people page, starting with the latest Parliament.
 - [A person's page](https://openhansard.sg/people/399-louis-ng-kok-kwang) brings their memberships, attendance and contributions together by Parliament, with links to the reports they contributed to.
 - [A report](https://openhansard.sg/reports/written-answer-16079) groups the text into speeches, with links to speakers where they've been identified. The transcript keeps its original spelling, even when a misspelt speaker label links to the right person.
-- [A speech link](https://openhansard.sg/reports/written-answer-16079?s=1&q=asked+the+minister+for+manpower+a+apart+from) takes you straight to a contribution. Copy link, Cite and Report an error sit beside each speech so you can share it, quote it or flag a problem where you found it.
+- [A speech link](https://openhansard.sg/reports/written-answer-16079?s=1&q=asked+the+minister+for+manpower+a+apart+from) takes you straight to a contribution. Copy link, Cite and Report an error sit on each paragraph so you can share it, quote it or flag a problem where you found it.
 - [A sitting](https://openhansard.sg/sittings/2024-03-06) puts the day's reports beside its lists of members present and absent.
 - [Search](https://openhansard.sg/search?q=heat%20stress) lets you follow a subject through speeches and report titles, then narrow it by Parliament, date, report type, person or constituency.
 
@@ -49,7 +49,7 @@ The records come from my separate [hansard-scraper](https://github.com/roycehoe/
 
 ## Report an error
 
-If you find something wrong, email me at royceinbox@hotmail.com. The "Report an error" link beside each speech fills in its address for you, which helps me find the passage you mean. If you prefer to report it publicly, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml).
+If you find something wrong, email me at royceinbox@hotmail.com. The "Report an error" action on each paragraph fills in its speech's address for you, which helps me find the passage you mean. If you prefer to report it publicly, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml).
 
 ## Who runs it
 

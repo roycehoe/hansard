@@ -746,11 +746,11 @@ export const Route = createFileRoute('/coverage/methods')({
           </h2>
           <p>
             The site shows a column number beside a paragraph only where the
-            record prints one. Using Cite beside a paragraph adds that number
-            after the volume, as the record prints it, even if the site marks it
-            as a likely misprint. Copy citation on a report adds no column
-            number. A court document needs one, so if the citation has none,
-            find the passage in the{' '}
+            record prints one. Using Cite on a paragraph adds that number after
+            the volume, as the record prints it, even if the site marks it as a
+            likely misprint. Copy citation on a report adds no column number. A
+            court document needs one, so if the citation has none, find the
+            passage in the{' '}
             <a
               href={OFFICIAL_RECORD_SEARCH_URL}
               className={LINK_CLASS_NAME}
@@ -771,8 +771,8 @@ export const Route = createFileRoute('/coverage/methods')({
             report starts with those words, the link opens the report and says
             the paragraph is no longer there. Older links that end in #s12 carry
             no words to check and can lead to a different paragraph after the
-            archive is updated. Using Cite beside a paragraph copies its
-            citation, the checked link and a link to the Official Report.
+            archive is updated. Using Cite on a paragraph copies its citation,
+            the checked link and a link to the Official Report.
           </p>
         </section>
 

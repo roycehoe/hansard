@@ -4,7 +4,7 @@ Errors found in the archive, by an audit or by a reader's report, and the fix fo
 
 ## Reporting an error
 
-- Email royceinbox@hotmail.com. The "Report an error" link beside each speech opens an email with that speech's link filled in. Each Report page also has a "Report a problem with this report" link.
+- Email royceinbox@hotmail.com. The "Report an error" action on each paragraph opens an email with that speech's link filled in. Each Report page also has a "Report a problem with this report" link.
 - Or open a public issue with the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml).
 
 ## What happens next
