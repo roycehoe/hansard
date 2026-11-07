@@ -1,6 +1,3 @@
-// organize-imports-ignore
-import '@/lib/zodConfig'
-
 import { ApiError } from '@/api/client'
 import { NoticeErrorPage } from '@/components/layout/NoticeErrorPage'
 import { NoticeNotFoundPage } from '@/components/layout/NoticeNotFoundPage'
