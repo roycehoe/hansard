@@ -14,21 +14,14 @@ import {
 } from '@/constants/about/constants'
 import {
   CONTACT_EMAIL,
-  NUMBER_LOCALE,
   REPORT_ERROR_FORM_URL,
   RESEARCHERS_FORM_URL,
   SITE_NAME,
 } from '@/constants/constants'
 import {
   CORRECTIONS_LOG_URL,
-  ERROR_CHECK_DATE,
-  ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT,
-  ERROR_CHECK_SPEECH_COUNT,
-  ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND,
   ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN,
-  ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND,
   ERROR_SHARE_TO_PARLIAMENT_ELEVEN,
-  ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND,
   METHODS_ATTRIBUTION_HEADING_ID,
   TAKEDOWN_DEADLINE_WORKING_DAYS,
 } from '@/constants/coverage/constants'
@@ -36,7 +29,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
-const PAGE_TITLE = 'About the text'
+const PAGE_TITLE = 'About'
 
 const LINK_CLASS_NAME =
   'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 underline underline-offset-4'
@@ -44,12 +37,6 @@ const LINK_CLASS_NAME =
 const SECTION_HEADING_CLASS_NAME = 'font-serif text-xl lg:text-2xl'
 
 const LIST_CLASS_NAME = 'list-disc space-y-2 pl-5'
-
-const PER_TEN_THOUSAND_IN_ONE_PERCENT = 100
-
-function convertShareToPerTenThousand(share: string): number {
-  return Math.round(Number.parseFloat(share) * PER_TEN_THOUSAND_IN_ONE_PERCENT)
-}
 
 function renderContactEmailLink() {
   return (
@@ -66,8 +53,7 @@ export const Route = createFileRoute('/about')({
     return (
       <div className="space-y-8">
         <PageHeader
-          title={PAGE_TITLE}
-          description={`Whose text ${SITE_NAME} shows, how far to trust it, and how to get an error fixed or a report removed.`}
+          title={`About ${SITE_NAME}`}
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -85,38 +71,21 @@ export const Route = createFileRoute('/about')({
           }
         />
 
-        <section aria-labelledby="whose-heading" className="space-y-4">
-          <h2 id="whose-heading" className={SECTION_HEADING_CLASS_NAME}>
-            Whose text it is
-          </h2>
-          <p>
-            The words of every report belong to the Parliament of Singapore,
-            which publishes them as the Official Report on its website.{' '}
-            {SITE_NAME} keeps a copy of that text, splits each report into
-            speeches and adds search. Where the printed name is enough to tell
-            who spoke, it credits the speech to that person.
-          </p>
-          <p>
-            The code that does this is open source under the MIT licence, which
-            covers the code and not Parliament&apos;s text.
-          </p>
-        </section>
-
         <section
           id={ABOUT_NOT_OFFICIAL_SECTION_ID}
           aria-labelledby="official-heading"
           className="space-y-4"
         >
           <h2 id="official-heading" className={SECTION_HEADING_CLASS_NAME}>
-            Not an official site
+            An unofficial archive
           </h2>
           <p>
-            {SITE_NAME} is not an official Parliament site. I&apos;m Royce, and
-            I built it and run it on my own. If you are quoting a debate in
+            I&apos;m Royce, and I built {SITE_NAME} and run it on my own. It is
+            not an official Parliament site. If you&apos;re quoting a debate in
             print or citing it in a court document, use the Official Report on
-            Parliament&apos;s website, because that is the authoritative text.
-            Report pages here link to Parliament&apos;s copy of the same report,
-            so you can check what you read against it.
+            Parliament&apos;s website because it is the authoritative text.
+            Report pages here link to Parliament&apos;s copy of the same report
+            so you can check it.
           </p>
         </section>
 
@@ -125,72 +94,68 @@ export const Route = createFileRoute('/about')({
             Why I built it
           </h2>
           <p>
-            I&apos;ve always been curious about what our MPs have said over the
+            I&apos;ve always been curious about what MPs have said over the
             years. Do they still stand by what they said ten or twenty years
             ago? Have their views changed? Are there issues they&apos;ve been
             particularly passionate about? I wanted a way to find out for
             myself.
           </p>
           <p>
-            The speeches are all public on Parliament&apos;s website, but
-            following an MP across decades is difficult because speeches
-            aren&apos;t linked to the people who gave them. I think people would
-            take more interest in politics if the parliamentary record were
-            easier to explore, so I&apos;ve spent the past three years building
-            this, mostly for fun.
+            The speeches are public on Parliament&apos;s website, but they
+            aren&apos;t linked to the people who gave them, which makes it
+            difficult to follow an MP across decades. I think people would take
+            more interest in politics if the parliamentary record were easier to
+            explore. I&apos;ve spent the past three years building this, mostly
+            for fun.
+          </p>
+        </section>
+
+        <section aria-labelledby="whose-heading" className="space-y-4">
+          <h2 id="whose-heading" className={SECTION_HEADING_CLASS_NAME}>
+            Parliament&apos;s text
+          </h2>
+          <p>
+            The words in the reports belong to the Parliament of Singapore,
+            which publishes them on its website as the Official Report. The
+            archive copies that text and splits each report into speeches so you
+            can search them. When the speaker label is enough to tell who spoke,
+            the archive links the speech to that person.
+          </p>
+          <p>
+            The code is open source under the MIT licence. That licence does not
+            cover Parliament&apos;s text.
           </p>
         </section>
 
         <section aria-labelledby="accuracy-heading" className="space-y-4">
           <h2 id="accuracy-heading" className={SECTION_HEADING_CLASS_NAME}>
-            How accurate it is
+            How accurate is the copy?
           </h2>
           <p>
-            The archive can introduce errors that the Official Report does not
-            have: a speech credited to the wrong person, text lost or repeated,
-            or a chamber event credited to a speaker. Checks finished on{' '}
-            {formatSittingDate(ERROR_CHECK_DATE)} compared{' '}
-            {ERROR_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs
-            with Parliament&apos;s text to find how often this happens.
+            The archive can introduce mistakes that the Official Report does not
+            have. It can credit a speech to the wrong person, leave out or
+            repeat text, or show something that happened in the chamber as
+            someone&apos;s words.
           </p>
+          <p>Checks against the Official Report found:</p>
           <ul className={LIST_CLASS_NAME}>
             <li>
-              In reports from 1955 to 2011,{' '}
-              {convertShareToPerTenThousand(ERROR_SHARE_TO_PARLIAMENT_ELEVEN)}{' '}
-              paragraphs in 10,000 had one of these errors, and very likely no
-              more than{' '}
-              {convertShareToPerTenThousand(
-                ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND
-              )}
-              .
+              In reports from 1955 to 2011, {ERROR_SHARE_TO_PARLIAMENT_ELEVEN}{' '}
+              of paragraphs had one of these mistakes.
             </li>
             <li>
               In reports from 2011 to 2025,{' '}
-              {convertShareToPerTenThousand(
-                ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN
-              )}{' '}
-              in 10,000 did, and very likely no more than{' '}
-              {convertShareToPerTenThousand(
-                ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND
-              )}
-              .
+              {ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN} of paragraphs did.
             </li>
             <li>
-              In the current Parliament the checks found none in{' '}
-              {ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT.toLocaleString(
-                NUMBER_LOCALE
-              )}{' '}
-              paragraphs, and very likely no more than about{' '}
-              {convertShareToPerTenThousand(
-                ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND
-              )}{' '}
-              in 10,000 have one.
+              In the current Parliament, no mistakes were found in the
+              paragraphs checked.
             </li>
           </ul>
           <p>
-            &quot;Very likely&quot; here means at 95% confidence. The checks
-            picked paragraphs at random, so each rate is what to expect on any
-            page from those years. How the checks were done is on{' '}
+            These checks cover only part of the archive, so they can miss
+            mistakes, including in the current Parliament. I explain how the
+            checks were done on{' '}
             <Link
               to="/coverage/methods"
               hash={METHODS_ATTRIBUTION_HEADING_ID}
@@ -208,20 +173,19 @@ export const Route = createFileRoute('/about')({
           </h2>
           <p>
             If the text here doesn&apos;t match the Official Report, or a speech
-            is credited to the wrong person, tell me and I&apos;ll fix it. Each
-            fix goes in the{' '}
+            is credited to the wrong person, tell me and I&apos;ll fix it. The{' '}
             <LinkExternal href={CORRECTIONS_LOG_URL}>
               corrections log
-            </LinkExternal>
-            , newest first, so you can see what changed and when.
+            </LinkExternal>{' '}
+            lists each fix, newest first, with what changed and when.
           </p>
-          <p>{CONTACT_EMAIL ? 'Three ways' : 'One way'} to report an error:</p>
+          <p>You can report an error through:</p>
           <ul className={LIST_CLASS_NAME}>
             {CONTACT_EMAIL && (
               <li>
                 &quot;Report an error&quot; beside a speech, or &quot;Report a
                 problem with this report&quot; on a report page. Each opens an
-                email with the link already filled in.
+                email with the link filled in.
               </li>
             )}
             <li>
@@ -229,22 +193,21 @@ export const Route = createFileRoute('/about')({
               <LinkExternal href={REPORT_ERROR_FORM_URL}>
                 Report an error form
               </LinkExternal>{' '}
-              on GitHub. Issues there are public.
+              on GitHub, where issues are public.
             </li>
-            {CONTACT_EMAIL && <li>Email {renderContactEmailLink()}.</li>}
+            {CONTACT_EMAIL && <li>Email to {renderContactEmailLink()}.</li>}
           </ul>
           <p>
-            Mistakes in the Official Report itself are a different matter. The
-            site shows those as Parliament printed them, because it is a copy of
-            the record and not a corrected edition. Where I think a printed
-            value is wrong, such as a column number out of step with the columns
-            around it, a note beside it gives my reading.
+            The site keeps mistakes in the Official Report as Parliament printed
+            them because it is a copy of the record. If I think a printed value
+            is wrong, such as a column number out of step with the surrounding
+            columns, a note beside it gives my reading.
           </p>
         </section>
 
         <section aria-labelledby="removal-heading" className="space-y-4">
           <h2 id="removal-heading" className={SECTION_HEADING_CLASS_NAME}>
-            Removal
+            Removing a report
           </h2>
           <p>
             Anyone can ask me to take a report off the site.
@@ -257,14 +220,14 @@ export const Route = createFileRoute('/about')({
             )}
           </p>
           <p>
-            If the request comes from Parliament, I&apos;ll take the report down
-            within {TAKEDOWN_DEADLINE_WORKING_DAYS} working days and won&apos;t
-            ask for a reason. I decide on any other request.
+            If Parliament asks, I&apos;ll take the report down within{' '}
+            {TAKEDOWN_DEADLINE_WORKING_DAYS} working days without asking for a
+            reason. I decide on other requests.
           </p>
           <p>
-            A removed report&apos;s address shows &quot;Report removed&quot;,
-            and the report drops out of search, its sitting&apos;s list and its
-            speakers&apos; pages.
+            The page at that address will say &quot;Report removed&quot;. The
+            report will also disappear from search, its sitting&apos;s list and
+            the pages of the people who spoke in it.
           </p>
         </section>
 
@@ -274,8 +237,8 @@ export const Route = createFileRoute('/about')({
           </h2>
           <p>
             Scripts and crawlers may read the site and its API at one request
-            per second or slower. They must send a User-Agent header that names
-            who runs them and how to reach them, for example{' '}
+            per second or slower. Send a User-Agent header that identifies who
+            runs the script or crawler and how to contact them, such as{' '}
             <code className="font-mono text-sm">
               research-bot (+name@example.org)
             </code>
@@ -287,11 +250,11 @@ export const Route = createFileRoute('/about')({
             {RESEARCHERS_FORM_URL && (
               <>
                 {' '}
-                If you need more than the site gives you, tell me on the{' '}
+                If you need more data, use the{' '}
                 <Link to="/researchers" hash="form-heading">
                   researchers&apos; form
                 </Link>{' '}
-                what you need and what it is for.
+                to describe what you need and what it is for.
               </>
             )}
           </p>
@@ -302,8 +265,8 @@ export const Route = createFileRoute('/about')({
             Contact
           </h2>
           <p>
-            {CONTACT_EMAIL && `You can email me at ${CONTACT_EMAIL}. `}The
-            source code is on GitHub.
+            {CONTACT_EMAIL && `Email me at ${CONTACT_EMAIL}. `}The source code
+            is on GitHub.
           </p>
         </section>
 
