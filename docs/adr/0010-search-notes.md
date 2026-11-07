@@ -1,0 +1,28 @@
+# 0010. When search may add a note
+
+In November 2026 a reader emailed that `Constitution 1984` did not show the 1984 Constitution (Amendment) Bill debates. Search needs every word in one paragraph, and a sitting's date is not in the text, so all 46 results came from elsewhere. Fixing that one search would invite a stream of one-off hints, so Royce asked for a rule first. An independent ruling wrote the framework below, recorded in `plans/search-suggestions-ruling.md`, and Royce adopted it on 7 November 2026.
+
+Search may add a note only when a hidden search rule leaves out or adds records and nothing on the page says so. The note states that rule, stays true under every reading of the words, and leaves the results alone until the reader clicks.
+
+**Terms.** A result is what the matching rules return. Help is text that is the same for every search. An error means the search could not run. A suggestion is anything else shown because of what this reader typed or got back, which points them at a different search. Stemming, stop words, the hyphen split and the `lky` name match are matching rules, so this ADR does not cover them. Changing a matching rule is a separate decision.
+
+**Ladder.** Take the lowest rung that ends the silence: nothing, help text, a note on a condition, or that note plus one link. Anything that changes results is off the ladder.
+
+**Gates.** A suggestion passes all eight. One no means drop a rung or stop.
+
+| Gate | Test |
+| --- | --- |
+| G1 Named rule | You can point at the code line or data gap behind the miss, and the note states that rule. |
+| G2 Silent effect | Name the stored field the word could refer to (text, date, speaker, title), or the form the rule adds or drops. The rule leaves out or adds a class of records and nothing on the page says so. A failure the reader can see and fix from the screen fails this gate. |
+| G3 True under every reading | Take each field from G2. The sentence is true and not foolish under each. It never asks or guesses what they meant. |
+| G4 Same for everyone, from this page | The condition fits one sentence and reads the typed words, the filters, counts on the page, stored tables the page already loads, and fixed closed sets such as month names. No history, popularity, model, spelling dictionary, or list someone must choose or keep up. |
+| G5 Results untouched | List, order, count, tab and address stay as they were until a click. The link is an ordinary search address with visible, removable filters. |
+| G6 Small | One suggestion on a page, two sentences, 25 words not counting the reader's own words, one link, muted text. No alert role, popup or typing-time help. |
+| G7 Cheap | One subsystem. No new table, column, index or extension. No extra search request. Removable in one commit, with a test that failed first. |
+| G8 Tested live | A named reader report or a measured miss, plus 8 firing queries and 4 silent ones. For each firing query, read the link's first page and write which reading it answers. Most must answer one. A note may fire when it isn't needed. It may never be false. |
+
+**Banned.** Did you mean, spelling correction, synonyms, acronym expansion in search words, related or popular searches, autocomplete from other readers, curated topics or events, automatic filters, rewrites based on a guess at meaning, anything from a language model, any correction of printed text.
+
+**The year note.** It shows when the last typed word is the only bare year from 1955 to this year, at least one word comes before it, that word is not a month name, the words hold no quote, OR or minus sign, and no date or Parliament filter is set. It reads "Searching for "1984" finds mentions of the year, not necessarily debates held in 1984." with a link that moves the year to the date filter. The check is `getTrailingYear` in `app/src/lib/searchQuery.ts`, so no search runs for it. Clicks count as the `search-note-link` event with no words sent, and the note is deleted if a quarter shows no clicks.
+
+**Evidence stays thin.** The site records no search words and no usability session has run, so a note rests on one reader's report and measured misses. A silent miss rarely reaches an inbox, so one email says little about how often a miss happens.
