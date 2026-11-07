@@ -238,7 +238,7 @@ export const Route = createFileRoute('/people/$personSlug')({
             <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
               Reports
             </h2>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="link" size="sm">
               <Link to="/search" search={{ person: data.person_id }}>
                 Search this person's speeches
               </Link>
