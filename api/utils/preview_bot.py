@@ -25,6 +25,4 @@ def get_preview_bot_name(user_agent: str) -> Optional[str]:
         return "Mastodon"
     if "cardyb" in lowered_user_agent:
         return "Bluesky"
-    if "applebot" in lowered_user_agent:
-        return "Apple"
     return None
