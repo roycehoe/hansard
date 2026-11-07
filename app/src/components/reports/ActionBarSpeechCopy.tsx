@@ -4,56 +4,15 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { AnalyticsEvent } from '@/constants/analytics/enums'
 import { CONTACT_EMAIL } from '@/constants/constants'
-import { countEvent } from '@/lib/analytics'
-import { buildSpeechCite, buildSpeechPermalink } from '@/lib/citation'
-import { formatCalendarDate } from '@/lib/format'
-import { buildErrorEmailHref, copyTextWithToast } from '@/lib/utils'
+import type { SpeechActionContext } from '@/lib/speechActions'
+import { buildSpeechActions } from '@/lib/speechActions'
 import { Flag, Link2, Quote } from 'lucide-react'
 
-interface ActionBarSpeechCopyProps {
-  reportSlug: string
-  reportTitle: string
-  ordinal: number
-  anchor: string
-  officialRecordUrl: string
-  citation?: string
-}
-
-export function ActionBarSpeechCopy({
-  reportSlug,
-  reportTitle,
-  ordinal,
-  anchor,
-  officialRecordUrl,
-  citation,
-}: ActionBarSpeechCopyProps) {
-  const speechPermalink = buildSpeechPermalink(reportSlug, ordinal, anchor)
-
-  function copySpeechLink() {
-    countEvent(AnalyticsEvent.COPY_LINK)
-    return copyTextWithToast(
-      speechPermalink,
-      'Link copied',
-      "Couldn't copy the link"
-    )
-  }
-
-  function copySpeechCitation() {
-    countEvent(AnalyticsEvent.CITE)
-    return copyTextWithToast(
-      buildSpeechCite(
-        citation ?? '',
-        reportTitle,
-        speechPermalink,
-        officialRecordUrl,
-        formatCalendarDate(new Date())
-      ),
-      'Citation copied',
-      "Couldn't copy the citation"
-    )
-  }
+export function ActionBarSpeechCopy(props: SpeechActionContext) {
+  const { ordinal, citation } = props
+  const { copySpeechLink, copySpeechCitation, errorEmailHref } =
+    buildSpeechActions(props)
 
   return (
     <div className="flex shrink-0 items-start opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:opacity-100">
@@ -92,10 +51,7 @@ export function ActionBarSpeechCopy({
           <TooltipTrigger asChild>
             <Button asChild variant="quiet" size="icon-sm">
               <a
-                href={buildErrorEmailHref(
-                  `Error in ${reportTitle}`,
-                  speechPermalink
-                )}
+                href={errorEmailHref}
                 aria-label={`Report an error in paragraph ${ordinal}`}
               >
                 <Flag aria-hidden="true" />
