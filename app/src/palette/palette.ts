@@ -576,6 +576,27 @@ export const COLOURS = [
     derivation: 'L 0.791, C 0.12',
   },
   {
+    name: 'lawn-30',
+    hex: '#293214',
+    source: 'house-2013',
+    derivedFrom: 'lawn',
+    derivation: 'L 0.30, C 0.05',
+  },
+  {
+    name: 'lawn-42',
+    hex: '#425511',
+    source: 'house-2013',
+    derivedFrom: 'lawn',
+    derivation: 'L 0.42, C 0.094',
+  },
+  {
+    name: 'lawn-94',
+    hex: '#e5f0d3',
+    source: 'house-2013',
+    derivedFrom: 'lawn',
+    derivation: 'L 0.94, C 0.04',
+  },
+  {
     name: 'lawn-sunlit-75',
     hex: '#a5b961',
     source: 'house-2023-01',
@@ -908,6 +929,24 @@ export const TOKENS: readonly Token[] = [
     group: 'borders',
     light: 'panelling',
     dark: 'panelling-35',
+  },
+  {
+    name: 'status',
+    group: 'surfaces',
+    light: 'lawn-94',
+    dark: 'lawn-30',
+  },
+  {
+    name: 'status-foreground',
+    group: 'text',
+    light: 'lawn-42',
+    dark: 'lawn-sunlit-75',
+  },
+  {
+    name: 'status-border',
+    group: 'borders',
+    light: 'lawn',
+    dark: 'lawn-sunlit',
   },
   {
     name: 'border',

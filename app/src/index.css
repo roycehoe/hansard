@@ -110,6 +110,9 @@
   --color-band-ring: var(--band-ring);
   --color-band-border: var(--band-border);
   --color-band-edge: var(--band-edge);
+  --color-status: var(--status);
+  --color-status-foreground: var(--status-foreground);
+  --color-status-border: var(--status-border);
   --color-tag: var(--tag);
   --color-tag-foreground: var(--tag-foreground);
   --color-border: var(--border);

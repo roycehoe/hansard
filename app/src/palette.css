@@ -63,6 +63,9 @@
   --crest-red-68: #ef6666;
   --crest-red-75: #ff8481;
   --crest-red-79: #ff9b97;
+  --lawn-30: #293214;
+  --lawn-42: #425511;
+  --lawn-94: #e5f0d3;
   --lawn-sunlit-75: #a5b961;
   --sky-blue-40: #0c4a7a;
   --sky-blue-65: #6194c4;
@@ -115,6 +118,9 @@
   --band-ring: var(--crest-gold);
   --band-border: var(--panelling-80);
   --band-edge: var(--panelling);
+  --status: var(--lawn-94);
+  --status-foreground: var(--lawn-42);
+  --status-border: var(--lawn);
   --border: var(--table-timber-58);
   --input: var(--table-timber-58);
   --ring: var(--gold-lace-52);
@@ -179,6 +185,9 @@
   --band-ring: var(--crest-gold);
   --band-border: var(--table-timber-62);
   --band-edge: var(--panelling-35);
+  --status: var(--lawn-30);
+  --status-foreground: var(--lawn-sunlit-75);
+  --status-border: var(--lawn-sunlit);
   --border: var(--table-timber-55);
   --input: var(--table-timber-62);
   --ring: var(--gold-lace-72);

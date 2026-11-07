@@ -55,6 +55,7 @@ const PAIRS: Pair[] = [
   ...pairs('reading-foreground', ['reading'], TEXT_MINIMUM),
   ...pairs('highlight-foreground', ['highlight'], TEXT_MINIMUM),
   ...pairs('tag-foreground', ['tag'], TEXT_MINIMUM),
+  ...pairs('status-foreground', ['status'], TEXT_MINIMUM),
   ...pairs(
     'band-foreground',
     ['band', 'band-hover', 'band-active'],
@@ -98,6 +99,7 @@ const PAIRS: Pair[] = [
   ...pairs('info', SURFACES, TEXT_MINIMUM),
   // Borders, focus rings and chart marks
   ...pairs('border', SURFACES, UI_MINIMUM),
+  ...pairs('status-border', ['status', ...SURFACES], UI_MINIMUM),
   ...pairs('input', [...SURFACES, 'muted', 'secondary'], UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
   ...pairs('band-border', ['band'], UI_MINIMUM),

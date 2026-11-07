@@ -169,6 +169,8 @@ const BADGE_VARIANTS = [
   'warning',
   'info',
   'tag',
+  'tag-quiet',
+  'status',
 ] as const
 
 export function SectionData() {
