@@ -1,40 +1,40 @@
 # Docs index
 
-What each file here is for and who reads it. The code's conventions are in `CLAUDE.md` at the root, `api/CLAUDE.md` and `app/CLAUDE.md`, not here.
+I keep the background to Open Hansard here: how I built it, why I made particular decisions, and what's involved in maintaining it. If you're new to the project, start with the [main README](../README.md). For work on the code, the [root CLAUDE.md](../CLAUDE.md) gives an overview, with more specific conventions in the [website](../app/CLAUDE.md) and [API](../api/CLAUDE.md) guides.
 
 ## Files
 
 | File | What it is | Who reads it |
 | --- | --- | --- |
-| `how-this-was-built.md` | Royce's statement of how AI tools built the site, which audits checked it and how each change was reviewed. | Visitors and reviewers |
-| `corrections.md` | How an error is reported and the fix for each one found so far. | Visitors, and Royce when he fixes one |
-| `user-testing.md` | The dated record of the usability sessions: who took part, the tasks, where each person got stuck and what changed. | Visitors and reviewers |
-| `running-cost.md` | The quarterly table of visits, hosting cost, cost per 1,000 visits and errors fixed. | Visitors, and Royce when he adds a row |
-| `takedown.md` | Public mode and the takedown list: what each setting hides and how a report comes down. | Royce, when he runs the site |
-| `api-database-role.md` | The SQL that creates the API's read-only Postgres role. Royce runs it on the remote database. | Royce, and anyone changing database access |
-| `security.md` | What the site exposes, the control on each part and what was left out. | Reviewers, and anyone changing access, headers or the deploy |
-| `required-indexes.md` | Every index the API's queries need, with the definition, the endpoints and the query plans. The launch gate for the database. | Anyone changing a query or a migration |
-| `database-upgrade.md` | The signals that mean the database plan is too small, and what to try before paying for a bigger one. | Royce, when he runs the site |
-| `palette.md` | The colour tokens, where each came from and the contrast each reaches. | Anyone touching colour |
-| `palette-preview.html` | A page that shows the palette. Open it in a browser. | Anyone touching colour |
-| `palette-v2-preview.html` | The v2 changes proposed for the first palette (see `palette.md`), kept as a record. | Anyone touching colour |
-| `sgds-tokens.md` | How the non-colour Singapore Government Design System tokens map onto the Tailwind theme. | Anyone touching spacing, type or radii |
-| `palette/` | `research.md` and the source photos the colours were sampled from. | Anyone auditing where a colour came from |
-| `images/` | The banner and the report screenshot shown in the root `README.md`. | The root `README.md` |
+| [how-this-was-built.md](how-this-was-built.md) | My account of building with AI tools, the decisions I made, and what the audits and reviews did and didn't check. | Visitors and reviewers |
+| [corrections.md](corrections.md) | Where to report an error and follow the fixes, including what was wrong and how it changed. | Readers reporting errors, and me when I fix them |
+| [user-testing.md](user-testing.md) | The plan for usability sessions, with the tasks I'll ask readers to try and a log for findings once sessions begin. | Visitors and reviewers |
+| [running-cost.md](running-cost.md) | How I'll track visits, hosting costs and corrections each quarter, including the calculation for cost per 1,000 visits. | Readers interested in running costs, and site maintainers |
+| [takedown.md](takedown.md) | Instructions for controlling public access and taking a report down, including how to check that it's hidden. | Me, or anyone maintaining the site |
+| [api-database-role.md](api-database-role.md) | The database setup I use to give the API read-only access, with checks that it cannot change the records. | Anyone setting up or changing database access |
+| [security.md](security.md) | A look at what the site exposes, the protections around it, and what's outside their scope. | Reviewers and anyone changing how the site is secured or deployed |
+| [required-indexes.md](required-indexes.md) | The database indexes behind the API's queries, with definitions, query plans and past performance measurements to help investigate slow requests. | Anyone changing queries or the database |
+| [database-upgrade.md](database-upgrade.md) | What would persuade me to pay for a larger database, and what to try before that. | Me, or anyone maintaining the site |
+| [palette.md](palette.md) | Where the site's colours came from and how their contrast was checked, with earlier choices kept for reference. | Anyone working with the site's colours |
+| [palette-preview.html](palette-preview.html) | A browser preview for seeing the palette's colours together in light and dark themes. | Anyone working with the site's colours |
+| [palette-v2-preview.html](palette-v2-preview.html) | A preview of the changes proposed to the first palette, kept alongside the history in [palette.md](palette.md). | Anyone looking through the colour choices |
+| [sgds-tokens.md](sgds-tokens.md) | How spacing, typography and other non-colour design values from the Singapore Government Design System carry over into the site's Tailwind theme. | Anyone working on the site's layout or typography |
+| [palette/](palette/) | The colour research in [research.md](palette/research.md), source notes and reusable assets. The current chamber photos are cited in [palette.md](palette.md) but aren't included because they lack an open licence. | Anyone tracing the colours or checking asset sources |
+| [images/](images/) | The banner and report screenshot used to introduce the project in the main README. | Anyone updating the main README's images |
 
 ## Decisions
 
-Read these before changing how the API touches the database, how the site is branded, how pages are addressed, or how values are displayed.
+These architecture decision records (ADRs) explain why I built parts of the site the way I did, including the compromises involved. If you're considering a change to the database access, design, links or treatment of the parliamentary record, the relevant decision is a useful place to start. Read its amendments too; some choices have changed as the project has developed.
 
 | ADR | Decision |
 | --- | --- |
-| `adr/0001-read-only-api.md` | The API only reads the database. |
-| `adr/0002-no-government-identity-marks.md` | The site borrows colours, never government artwork. |
-| `adr/0003-search-indexes-in-scraper.md` | The scraper owns every index the API relies on. |
-| `adr/0004-permanent-urls.md` | URLs are built from SPRS ids and dates, not database keys, so they survive a rebuild. |
-| `adr/0005-palette-from-the-chamber.md` | The palette comes from the debating chamber. |
-| `adr/0006-display-what-the-record-prints.md` | The site shows what the record prints, and our reading goes in a note. |
-| `adr/0007-site-name-and-dataset-name.md` | The website is Open Hansard, and the scraper's dataset keeps the name Singapore Parliamentary Record. |
-| `adr/0008-pages-render-on-the-client.md` | Pages render in the browser only. The server writes the head and never the page text. |
-| `adr/0009-ai-readers-person-judges-flags.md` | Two AI readers read every row of the hand check, and a person judges only the rows they flag. |
-| `adr/0010-search-notes.md` | Search may add a note only when a hidden rule leaves out or adds records, and it never changes the results. |
+| [adr/0001-read-only-api.md](adr/0001-read-only-api.md) | Why I keep the API read-only and leave changes to the database with the scraper. |
+| [adr/0002-no-government-identity-marks.md](adr/0002-no-government-identity-marks.md) | How I borrow colours and design patterns without using government identity marks that could make the site look official. |
+| [adr/0003-search-indexes-in-scraper.md](adr/0003-search-indexes-in-scraper.md) | Why search uses PostgreSQL, with the scraper responsible for the indexes it needs. |
+| [adr/0004-permanent-urls.md](adr/0004-permanent-urls.md) | How links are meant to survive archive updates, and the limits that remain for person and speech links. |
+| [adr/0005-palette-from-the-chamber.md](adr/0005-palette-from-the-chamber.md) | Why I chose colours from the debating chamber, and how the source photos' licences limit their use. |
+| [adr/0006-display-what-the-record-prints.md](adr/0006-display-what-the-record-prints.md) | Why the site preserves what the record prints, with my interpretation in a note beside it. |
+| [adr/0007-site-name-and-dataset-name.md](adr/0007-site-name-and-dataset-name.md) | Why I named the website Open Hansard while keeping Singapore Parliamentary Record as the dataset's name, so existing citations still make sense. |
+| [adr/0008-pages-render-on-the-client.md](adr/0008-pages-render-on-the-client.md) | Why pages load their text in the browser while the server supplies titles and sharing information, and what that costs readers and search engines. |
+| [adr/0009-ai-readers-person-judges-flags.md](adr/0009-ai-readers-person-judges-flags.md) | How I use AI checks to find possible errors for review, including decisions made by category and the process for repeat checks. |
+| [adr/0010-search-notes.md](adr/0010-search-notes.md) | Why search may add a note when a hidden rule leaves out or adds records, and why the note never changes the results. |
