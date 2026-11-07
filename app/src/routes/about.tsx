@@ -222,7 +222,8 @@ export const Route = createFileRoute('/about')({
           <p>
             If Parliament asks, I&apos;ll take the report down within{' '}
             {TAKEDOWN_DEADLINE_WORKING_DAYS} working days without asking for a
-            reason. I decide on other requests.
+            reason. For requests from anyone else, I&apos;ll decide whether to
+            remove the report.
           </p>
           <p>
             The page at that address will say &quot;Report removed&quot;. The

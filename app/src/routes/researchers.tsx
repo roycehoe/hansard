@@ -47,9 +47,10 @@ export const Route = createFileRoute('/researchers')({
             What the archive holds
           </h2>
           <p>
-            The archive copies report text from the Official Report and splits
-            it into speeches. It links a speech to a person when the speaker
-            label is enough to tell who spoke.
+            If you&apos;re following a person&apos;s contributions across
+            Parliaments, the archive brings their speeches together. It copies
+            text from the Official Report, splits it into speeches and links
+            each to a person when the speaker label is enough to tell who spoke.
           </p>
           <p>
             Data quality and methods has the report counts by year, the sample

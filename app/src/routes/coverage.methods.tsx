@@ -740,12 +740,12 @@ export const Route = createFileRoute('/coverage/methods')({
             {TAKEDOWN_DEADLINE_WORKING_DAYS} working days.
           </p>
           <p>
-            If I stop working on it, the site keeps running without me. A daily
-            job adds new sittings until the hosting is no longer paid for or
-            Parliament&apos;s website changes. No one else holds access to the
-            hosting or the database. The code for the site and the scraper stays
-            public on GitHub under the MIT licence, so anyone can rebuild the
-            database from Parliament&apos;s website.
+            A daily job adds new sittings without me, for as long as the hosting
+            is paid for and Parliament&apos;s website doesn&apos;t change. No
+            one else holds access to the hosting or the database. The code for
+            the site and the scraper stays public on GitHub under the MIT
+            licence, so anyone can rebuild the database from Parliament&apos;s
+            website.
           </p>
         </section>
 
