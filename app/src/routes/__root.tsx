@@ -1,3 +1,4 @@
+import { ButtonJumpToTop } from '@/components/layout/ButtonJumpToTop'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -23,6 +24,7 @@ export const Route = createRootRoute({
           <Outlet />
         </main>
         <SiteFooter />
+        <ButtonJumpToTop />
         {import.meta.env.DEV && <TanStackRouterDevtools />}
       </div>
     </TooltipProvider>
