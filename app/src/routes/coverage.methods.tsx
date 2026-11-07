@@ -28,6 +28,14 @@ import {
   ACCESSIBILITY_CHECK_DATE,
   CORRECTIONS_LOG_URL,
   DATA_LOSS_REGISTER_URL,
+  ERROR_CHECK_DATE,
+  ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT,
+  ERROR_CHECK_SPEECH_COUNT,
+  ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND,
+  ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN,
+  ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND,
+  ERROR_SHARE_TO_PARLIAMENT_ELEVEN,
+  ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND,
   FIRST_HAND_CHECK_REPORT_URL,
   HAND_CHECK_ANY_ERROR_BOUND,
   HAND_CHECK_CATCH_RATE_LOWER_BOUND,
@@ -252,14 +260,14 @@ export const Route = createFileRoute('/coverage/methods')({
             How many paragraphs are credited to a person
           </h3>
           <p className="text-muted-foreground text-sm">
-            Measured on {formatSittingDate(measuredOn)}. These shares change
-            only when they are measured again, so they can trail the counts
-            under What the archive holds.
+            These shares were measured on {formatSittingDate(measuredOn)}. They
+            change only when measured again, so they can trail the counts under
+            What the archive holds.
           </p>
           <p>
             These figures count paragraphs credited to a person. They do not
-            show whether the credit is right. Only the sample check above tests
-            that.
+            show whether the credit is right. The sample checks above test for
+            mistakes.
           </p>
           <dl className="max-w-prose space-y-3 text-sm">
             <div className="space-y-1">
@@ -360,11 +368,11 @@ export const Route = createFileRoute('/coverage/methods')({
         />
 
         <p>
-          This page is for anyone who wants to check the archive before relying
-          on it. It covers how the text was gathered, how often a speech is
-          credited to the wrong person, what is missing and how to cite it.
-          I&apos;m Royce, and I built the archive and run the site. If you want
-          to know which tools I used and how the work ran, read{' '}
+          I&apos;m Royce, and I built the archive and run the site. This page
+          explains how the text was gathered, how the checks measure mistakes in
+          who said what, what is missing and how to cite the text. If you want
+          to check the archive before relying on it, start here. For the tools I
+          used and how the work ran, read{' '}
           <LinkExternal href={HOW_THIS_WAS_BUILT_URL}>
             How this was built
           </LinkExternal>
@@ -386,78 +394,144 @@ export const Route = createFileRoute('/coverage/methods')({
             Who said what
           </h2>
           <p>
+            Checks completed on {formatSittingDate(ERROR_CHECK_DATE)} compared{' '}
+            {ERROR_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs,
+            picked at random, with Parliament&apos;s text. They looked for three
+            kinds of mistake the archive can introduce: a speech credited to the
+            wrong person, text lost or repeated, and something that happened in
+            the chamber shown as someone&apos;s words.
+          </p>
+          <ul className="list-disc space-y-2 pl-5">
+            <li>
+              In reports from 1955 to 2011, {ERROR_SHARE_TO_PARLIAMENT_ELEVEN}{' '}
+              of paragraphs had one of these mistakes. At 95% confidence, no
+              more than {ERROR_SHARE_TO_PARLIAMENT_ELEVEN_BOUND} did.
+            </li>
+            <li>
+              In reports from 2011 to 2025,{' '}
+              {ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN} had one. At 95%
+              confidence, no more than{' '}
+              {ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN_BOUND} did.
+            </li>
+            <li>
+              In the current Parliament, the checks found none in{' '}
+              {ERROR_CHECK_PARLIAMENT_FIFTEEN_SPEECH_COUNT.toLocaleString(
+                NUMBER_LOCALE
+              )}{' '}
+              paragraphs. At 95% confidence, no more than about{' '}
+              {ERROR_SHARE_PARLIAMENT_FIFTEEN_BOUND} have one.
+            </li>
+          </ul>
+          <p>
+            Because the paragraphs were picked at random, these rates estimate
+            how often the mistakes occur in reports from those years.
+          </p>
+          <p>
             On {formatSittingDate(HAND_CHECK_DATE)}, an AI reader, Claude
             Sonnet, checked{' '}
             {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs
             credited to a person, drawn at random from the Legislative Assembly
-            to Parliament 15. It judged each paragraph&apos;s credit against the
-            archive&apos;s stored copy of the Official Report, and a script
-            compared every word with it. That copy matched the live Official
-            Report in {HAND_CHECK_LIVE_MATCHED_REPORT_COUNT} of{' '}
-            {HAND_CHECK_LIVE_CHECKED_REPORT_COUNT} reports checked. The reader
-            and the script flagged {HAND_CHECK_FLAGGED_SPEECH_COUNT} paragraphs,
-            and I judged {HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT} of them
-            myself. The other{' '}
+            to Parliament 15. It checked who each paragraph was credited to
+            against the archive&apos;s stored copy of the Official Report, while
+            a script compared every word with that copy. The stored copy matched
+            the live Official Report in {HAND_CHECK_LIVE_MATCHED_REPORT_COUNT}{' '}
+            of {HAND_CHECK_LIVE_CHECKED_REPORT_COUNT} reports checked.
+          </p>
+          <p>
+            The reader and script flagged {HAND_CHECK_FLAGGED_SPEECH_COUNT}{' '}
+            paragraphs. I judged {HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT}{' '}
+            myself; the other{' '}
             {HAND_CHECK_FLAGGED_SPEECH_COUNT -
               HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT}{' '}
-            differed from the record only in kinds of difference I had already
-            ruled on in an earlier check, such as a question number the archive
-            leaves out, so an AI model applied those rulings to them. No person
-            read the other{' '}
+            differed from the record only in ways I had already ruled on in an
+            earlier check, such as a question number the archive leaves out. An
+            AI model applied those rulings to the{' '}
+            {HAND_CHECK_FLAGGED_SPEECH_COUNT -
+              HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT}{' '}
+            paragraphs. No person read the other{' '}
             {(
               HAND_CHECK_SPEECH_COUNT - HAND_CHECK_FLAGGED_SPEECH_COUNT
             ).toLocaleString(NUMBER_LOCALE)}
-            . I ruled that {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
-            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} was credited
-            wrongly: a clerk&apos;s record line credited to the minister who
-            spoke before it. {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had only a
-            stray space beside italic text, and none had a word missing, added
-            or changed. The reader caught all {HAND_CHECK_PLANTED_ERROR_COUNT}{' '}
-            wrong credits planted among the paragraphs to test it. So, at 95%
-            confidence, it catches at least {HAND_CHECK_CATCH_RATE_LOWER_BOUND}{' '}
-            of wrong credits of those kinds.
+            .
           </p>
           <p>
-            From this check, at 95% confidence, no more than{' '}
-            {HAND_CHECK_WRONG_CREDIT_BOUND} of credited paragraphs are credited
-            wrongly, no more than {HAND_CHECK_WORD_ERROR_BOUND} have a word
-            missing, added or changed, and no more than{' '}
-            {HAND_CHECK_ANY_ERROR_BOUND} have any of these errors or a stray
-            mark. Each bound is one-sided and exact, and holds on its own. The
-            Parliament website moved to a newer system on 10 September 2012.{' '}
-            {HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
+            I ruled that {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
+            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} was credited
+            wrongly: a clerk&apos;s record line credited to the minister who
+            spoke before it. Another {HAND_CHECK_STRAY_MARK_SPEECH_COUNT} had
+            only a stray space beside italic text, and none had a word missing,
+            added or changed. The reader also caught all{' '}
+            {HAND_CHECK_PLANTED_ERROR_COUNT} wrong credits planted among the
+            paragraphs to test it. At 95% confidence, it catches at least{' '}
+            {HAND_CHECK_CATCH_RATE_LOWER_BOUND} of wrong credits of those kinds.
+          </p>
+          <p>
+            The {formatSittingDate(HAND_CHECK_DATE)} check gives these upper
+            limits, each at 95% confidence:
+          </p>
+          <ul className="list-disc space-y-2 pl-5">
+            <li>
+              No more than {HAND_CHECK_WRONG_CREDIT_BOUND} of credited
+              paragraphs are credited wrongly.
+            </li>
+            <li>
+              No more than {HAND_CHECK_WORD_ERROR_BOUND} have a word missing,
+              added or changed.
+            </li>
+            <li>
+              No more than {HAND_CHECK_ANY_ERROR_BOUND} have any of these errors
+              or a stray mark.
+            </li>
+          </ul>
+          <p>
+            These are exact, one-sided statistical bounds: each sets an upper
+            limit and holds on its own. The {HAND_CHECK_WRONG_CREDIT_BOUND}{' '}
+            limit does not conflict with the {ERROR_SHARE_TO_PARLIAMENT_ELEVEN}{' '}
+            rate found in the older reports on{' '}
+            {formatSittingDate(ERROR_CHECK_DATE)}. It is an upper limit from a
+            smaller check of{' '}
+            {HAND_CHECK_SPEECH_COUNT.toLocaleString(NUMBER_LOCALE)} paragraphs;
+            the larger {formatSittingDate(ERROR_CHECK_DATE)} check can give
+            tighter limits.
+          </p>
+          <p>
+            The {formatSittingDate(HAND_CHECK_DATE)} check also separates
+            paragraphs by when Parliament&apos;s website moved to a newer
+            system, on 10 September 2012. Of the{' '}
             {HAND_CHECK_OLDER_SYSTEM_SPEECH_COUNT} paragraphs from before that
-            date was credited wrongly, a bound of{' '}
-            {HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_BOUND}, and{' '}
-            {HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_SPEECH_COUNT} of the{' '}
-            {HAND_CHECK_NEWER_SYSTEM_SPEECH_COUNT} from that date on, a bound of{' '}
+            date, {HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_SPEECH_COUNT} was
+            credited wrongly, giving an upper limit of{' '}
+            {HAND_CHECK_OLDER_SYSTEM_WRONG_CREDIT_BOUND}. Of the{' '}
+            {HAND_CHECK_NEWER_SYSTEM_SPEECH_COUNT} from that date on,{' '}
+            {HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_SPEECH_COUNT} were credited
+            wrongly, giving an upper limit of{' '}
             {HAND_CHECK_NEWER_SYSTEM_WRONG_CREDIT_BOUND}. The{' '}
             <LinkExternal href={HAND_CHECK_REPORT_URL}>
               hand check report
             </LinkExternal>{' '}
-            lists every paragraph with its verdicts.
+            lists every paragraph and its verdicts.
           </p>
           <p>
-            Earlier checks, among them the{' '}
+            Reports from earlier checks, including the{' '}
             <LinkExternal href={FIRST_HAND_CHECK_REPORT_URL}>
               first hand check
             </LinkExternal>{' '}
             and the{' '}
             <LinkExternal href={LINK_CHECK_REPORT_URL}>link check</LinkExternal>
-            , have their reports in the scraper&apos;s{' '}
+            , are in the scraper&apos;s{' '}
             <LinkExternal href={SCRAPER_REPORTS_URL}>
               report folder
             </LinkExternal>
-            . Each fix to a credit or to text, found by an audit or reported by
-            a reader, goes in the{' '}
+            . Each fix to text or to who it credits, whether found by an audit
+            or reported by a reader, goes in the{' '}
             <LinkExternal href={CORRECTIONS_LOG_URL}>
               corrections log
             </LinkExternal>
-            , and each step that changes or drops source text is in the{' '}
+            . The{' '}
             <LinkExternal href={DATA_LOSS_REGISTER_URL}>
               data-loss register
-            </LinkExternal>
-            .
+            </LinkExternal>{' '}
+            records each step that changes or drops source text.
           </p>
           {renderAttributionFigures()}
         </section>
@@ -484,8 +558,8 @@ export const Route = createFileRoute('/coverage/methods')({
               </dd>
               <dt className={TERM_CLASS_NAME}>{TEXT_NOT_IN_ARCHIVE_LABEL}</dt>
               <dd className={DEFINITION_CLASS_NAME}>
-                Parliament&apos;s site lists the report but did not give this
-                archive its text, so only its title and details are here.
+                Parliament&apos;s website lists the report, but the archive
+                could not get its text. Only the title and details are here.
               </dd>
               <dt className={TERM_CLASS_NAME}>Absent</dt>
               <dd className={DEFINITION_CLASS_NAME}>{ABSENCE_DEFINITION}</dd>
@@ -495,11 +569,11 @@ export const Route = createFileRoute('/coverage/methods')({
                 {REPORT_TYPE_LABELS[ReportType.ORAL_ANSWER]},{' '}
                 {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER]} and{' '}
                 {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER_NA]}. A question
-                counts for the member who asked it. When it stood in the name of
-                a member who was absent and another member asked it for them, it
-                counts for the member whose name it stood in, and its page names
-                the member who read it out. Questions answered together count
-                once for each member who asked one.
+                counts for the member who asked it. If an absent member&apos;s
+                question was asked by another member on their behalf, it counts
+                for the absent member. The question&apos;s page names the member
+                who read it out. Questions answered together count once for each
+                member who asked one.
               </dd>
               <dt className={TERM_CLASS_NAME}>Questions asked</dt>
               <dd className={DEFINITION_CLASS_NAME}>{QUESTION_DEFINITION}</dd>
@@ -545,10 +619,10 @@ export const Route = createFileRoute('/coverage/methods')({
                 session.
               </li>
               <li>
-                No sittings fall between{' '}
+                There were no sittings between{' '}
                 {formatSittingDate(PARLIAMENT_FOURTEEN_LAST_SITTING)} and{' '}
-                {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}, and none
-                are missing. Parliament 14 was dissolved on{' '}
+                {formatSittingDate(PARLIAMENT_FIFTEEN_FIRST_SITTING)}, so none
+                are missing from that period. Parliament 14 was dissolved on{' '}
                 {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}.
               </li>
             </ul>
@@ -573,9 +647,10 @@ export const Route = createFileRoute('/coverage/methods')({
               <li>
                 Party is the one a member stood for at the election that seated
                 them. A change of party during a membership shows as a note
-                beside the party, with the date, what happened and a source. A
-                change with no note does not show. A Nominated Member shows the
-                seat type in place of a party, and two show &quot;NA&quot;.
+                beside the party, with the date, what happened and a source. If
+                there is no note, the change does not show. A Nominated Member
+                shows the seat type in place of a party, and two show
+                &quot;NA&quot;.
               </li>
             </ul>
           </div>
@@ -625,11 +700,11 @@ export const Route = createFileRoute('/coverage/methods')({
           </h2>
           <p>
             The site shows a column number beside a paragraph only where the
-            record prints one. Cite on a paragraph adds that number after the
-            volume, as the record prints it, even where the site marks it as a
-            likely misprint. Copy citation on a report adds no column number. A
-            court document needs one. Where a citation has none, find the
-            passage in the{' '}
+            record prints one. Using Cite beside a paragraph adds that number
+            after the volume, as the record prints it, even if the site marks it
+            as a likely misprint. Copy citation on a report adds no column
+            number. A court document needs one, so if the citation has none,
+            find the passage in the{' '}
             <a
               href={OFFICIAL_RECORD_SEARCH_URL}
               className={LINK_CLASS_NAME}
@@ -650,8 +725,8 @@ export const Route = createFileRoute('/coverage/methods')({
             report starts with those words, the link opens the report and says
             the paragraph is no longer there. Older links that end in #s12 carry
             no words to check and can lead to a different paragraph after the
-            archive is updated. Cite on a paragraph copies its citation with the
-            checked link and a link to the Official Report.
+            archive is updated. Using Cite beside a paragraph copies its
+            citation, the checked link and a link to the Official Report.
           </p>
         </section>
 
@@ -679,15 +754,14 @@ export const Route = createFileRoute('/coverage/methods')({
             Accessibility
           </h2>
           <p>
-            The target is WCAG 2.2 at level AA. After each deploy, axe, an
-            automated checker, tests the home page, a report and a search on the
-            live site. Before each deploy, a script checks every pair of colours
-            against the WCAG contrast minimum. On{' '}
-            {formatSittingDate(ACCESSIBILITY_CHECK_DATE)}, I went through the
-            same three pages with the keyboard alone and with VoiceOver on a
-            Mac, and found no problems. Automated checks find only some
-            failures, and no one who uses a screen reader every day has tested
-            the site.
+            I aim for the site to meet WCAG 2.2 at level AA. After each deploy,
+            axe, an automated checker, tests the home page, a report and a
+            search on the live site. Before each deploy, a script checks every
+            pair of colours against the WCAG contrast minimum. On{' '}
+            {formatSittingDate(ACCESSIBILITY_CHECK_DATE)}, I went through those
+            three pages with the keyboard alone and with VoiceOver on a Mac, and
+            found no problems. Automated checks find only some failures, and no
+            one who uses a screen reader every day has tested the site.
           </p>
           {CONTACT_EMAIL && (
             <p>
@@ -729,10 +803,10 @@ export const Route = createFileRoute('/coverage/methods')({
             </p>
           )}
           <p>
-            The site sets no cookies of its own. Cloudflare, the network in
-            front of the site, sets one cookie, __cf_bm, to tell bots from
-            people. It lasts 30 minutes. Cloudflare and DigitalOcean, which
-            hosts the site, see the IP address of each request.
+            The site sets no cookies of its own. Cloudflare runs the network in
+            front of the site and sets one cookie, __cf_bm, to tell bots from
+            people. The cookie lasts 30 minutes. Cloudflare and DigitalOcean,
+            which hosts the site, see the IP address of each request.
           </p>
           {ANALYTICS_URL && (
             <p>
