@@ -593,7 +593,7 @@ export function NoticeErrorSpeeches({
           Couldn't load the speeches
         </p>
         <p className="text-muted-foreground max-w-100 text-sm">
-          The speeches did not load. Try again in a moment.
+          Try again in a moment.
         </p>
       </div>
 
@@ -1458,7 +1458,7 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 - **Puffery and AI vocabulary** (also: promotional language). "Seamless", "powerful", "robust", "crucial", "serves as", "delve". Fix: delete the adjective and name the capability. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
   Before (illustrative): `Seamlessly browse the full parliamentary record.` After: `Browse every report and sitting.`
 - **Apologising and "please"** (also: politeness padding, "Oops" voice). "Sorry", "oops", "unfortunately", "please", "kindly". Fix: say what failed and the next step. [GOV.UK error message](https://design-system.service.gov.uk/components/error-message/).
-  Before: `There was an issue fetching the speeches. Please try again.` After: `The speeches did not load. Try again in a moment.`
+  Before: `There was an issue fetching the speeches. Please try again.` After: `Couldn't load the speeches` as the heading, with `Try again in a moment.` below it.
 - **Passive or narrated system voice** (also: log-line voice). "Has been", "was processed", a missing actor. Fix: active voice, or a result phrase. A plain agentless failure ("Changes weren't saved") is fine. [GOV.UK A to Z](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/style-guides/a-to-z-style-guide/).
   Before (illustrative): `Your link has been generated and copied.` After: `Link copied`.
 - **Restating the label** (also: echo copy). A tooltip, placeholder or `aria-label` that repeats the visible label, or adds "button" or "icon". Fix: delete it, or say what the label does not. [Microsoft, writing for all abilities](https://learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities).
@@ -1470,7 +1470,7 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 - **Generic action labels** (also: Submit, OK). A button that names no action, or a label that fits any product. Fix: a verb plus the object it acts on. [Anthropic, frontend-design](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md).
   Before (illustrative): `<Button>Submit</Button>` on the search form. After: `<Button>Search</Button>`, or `Copy citation` where the object needs naming.
 - **Guessing the cause** (also: blaming the reader). An error that names a cause the app can't know. Fix: say what failed and the next step, and name a cause only when the code knows it. [Impeccable](https://github.com/pbakaus/impeccable).
-  Before: `The report did not load. Check your connection and try again.` on a 5xx, where the reader's connection worked (`main.tsx` retries 5xx and network failures alike). After: `The report did not load. Try again in a moment.`
+  Before: `The report did not load. Check your connection and try again.` on a 5xx, where the reader's connection worked (`main.tsx` retries 5xx and network failures alike). After: `Couldn't load the report` as the heading, with `Try again in a moment.` below it.
 - **Invented figures and claims** (also: fabricated stats, made-up features). A count, date, update cadence or capability that the data doesn't back. Fix: every figure comes from the API or a constant traced to the data, and every claim describes something the app does. [DeSlop](https://github.com/nate-zz/DeSlop).
   Before: `toast.info('Hansard updates after each sitting')` when speech text stops at 8 April 2025. After: a true statement, or nothing.
 - **Broken plurals and unformatted counts.** "1 speeches", or "11308" on one page and "1,068,620" on the next. Fix: choose the singular for 1, and format every count with `toLocaleString(NUMBER_LOCALE)` from `@/constants/constants`. [anti-ai-slop](https://github.com/Vinayak-Shukla-03/anti-ai-slop).
@@ -1495,7 +1495,7 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 
 ### Explanatory pages
 
-About the text, Data quality and methods, For researchers and `docs/corrections.md` are prose that Royce writes to the reader. Three rules differ there, because the job of these pages is to explain and to make promises a person stands behind.
+About, Data quality and methods, For researchers and `docs/corrections.md` are prose that Royce writes to the reader. Three rules differ there, because the job of these pages is to explain and to make promises a person stands behind.
 
 - **Write as "I".** Say "I'm Royce" where the page first says "I", and write "I" after that. Leave the surname out of first-person text, because nobody introduces themselves that way. A byline such as "Built and run by Royce Hoe" is a signature and keeps the full name. Never write "we", since one person runs the site. Things the software does keep the archive or the site as their subject ("The archive splits each report into speeches").
 - **Keep the reason.** Over-explaining is a symptom of toasts, notices and labels. On these pages the reason is often the point, so keep the "because" that says why a rule exists or what a figure means.
