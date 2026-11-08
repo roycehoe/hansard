@@ -51,10 +51,10 @@ export function ListYearLinks({ years, parliamentNumber }: ListYearLinksProps) {
               onClick={jumpToYear}
               aria-current={year === activeYear ? 'location' : undefined}
               className={cn(
-                'hover:text-primary-hover focus-visible:ring-ring flex h-11 min-w-9 items-center justify-center border-b-2 border-transparent text-sm tabular-nums outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-inset sm:h-10',
+                'focus-visible:ring-ring flex h-11 min-w-9 items-center justify-center border-b-2 border-transparent text-sm tabular-nums outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-inset sm:h-10',
                 year === activeYear
-                  ? 'border-primary text-foreground font-semibold'
-                  : 'text-primary'
+                  ? 'border-primary-border text-foreground font-semibold'
+                  : 'text-link'
               )}
             >
               {year}

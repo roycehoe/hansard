@@ -52,7 +52,7 @@ function ListAttendanceGroup({
                     params={{
                       personSlug: `${member.person_id}-${member.person_slug}`,
                     }}
-                    className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm underline underline-offset-4 outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                    className="text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm underline underline-offset-4 outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
                   >
                     {member.person_name}
                   </Link>

@@ -14,7 +14,7 @@ import { RotateCw, TriangleAlert } from 'lucide-react'
 import { useId, useState } from 'react'
 
 const LINK_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+  'text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm text-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
 const LOADING_ROW_COUNT = 2
 
@@ -125,7 +125,7 @@ export function ListSpeechMatchesInReport({
               className="group focus-visible:ring-ring focus-visible:ring-offset-background block space-y-1 rounded-sm outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
             >
               {speech.speaker_label !== '' && (
-                <p className="text-primary group-hover:text-primary-hover font-semibold group-hover:underline">
+                <p className="text-link font-semibold group-hover:underline">
                   {speech.speaker_label}
                 </p>
               )}

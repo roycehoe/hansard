@@ -276,13 +276,6 @@ export const COLOURS = [
     derivation: 'L 0.37, C 0.04',
   },
   {
-    name: 'panelling-45',
-    hex: '#694e46',
-    source: 'chamber',
-    derivedFrom: 'panelling',
-    derivation: 'L 0.45, C 0.04',
-  },
-  {
     name: 'panelling-80',
     hex: '#e1b1a3',
     source: 'chamber',
@@ -420,55 +413,6 @@ export const COLOURS = [
     source: 'speaker-gown',
     derivedFrom: 'gold-lace',
     derivation: 'L 0.50',
-  },
-  {
-    name: 'gold-lace-40',
-    hex: '#604103',
-    source: 'speaker-gown',
-    derivedFrom: 'gold-lace',
-    derivation: 'L 0.40, C 0.082',
-  },
-  {
-    name: 'gold-lace-46',
-    hex: '#755000',
-    source: 'speaker-gown',
-    derivedFrom: 'gold-lace',
-    derivation: 'L 0.46, C 0.096',
-  },
-  {
-    name: 'gold-lace-52',
-    hex: '#896016',
-    source: 'speaker-gown',
-    derivedFrom: 'gold-lace',
-    derivation: 'L 0.52, C 0.10',
-  },
-  {
-    name: 'gold-lace-65',
-    hex: '#9d8c74',
-    source: 'speaker-gown',
-    derivedFrom: 'gold-lace',
-    derivation: 'L 0.65, C 0.04',
-  },
-  {
-    name: 'gold-lace-72',
-    hex: '#c69b57',
-    source: 'speaker-gown',
-    derivedFrom: 'gold-lace',
-    derivation: 'L 0.72, C 0.10',
-  },
-  {
-    name: 'gold-lace-78',
-    hex: '#daae6a',
-    source: 'speaker-gown',
-    derivedFrom: 'gold-lace',
-    derivation: 'L 0.78, C 0.10',
-  },
-  {
-    name: 'gold-lace-84',
-    hex: '#f0c27f',
-    source: 'speaker-gown',
-    derivedFrom: 'gold-lace',
-    derivation: 'L 0.84, C 0.10',
   },
   {
     name: 'crest-red-43',
@@ -622,14 +566,14 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'primary',
     group: 'accents',
-    light: 'gold-lace-52',
-    dark: 'gold-lace-72',
+    light: 'panelling',
+    dark: 'panelling',
   },
   {
     name: 'primary-foreground',
     group: 'text',
     light: 'flag-white',
-    dark: 'panelling-20',
+    dark: 'floor-carpet-93',
   },
   {
     name: 'secondary',
@@ -720,20 +664,32 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'primary-hover',
     group: 'accents',
-    light: 'gold-lace-46',
-    dark: 'gold-lace-78',
+    light: 'panelling-mid',
+    dark: 'panelling-mid',
   },
   {
     name: 'primary-active',
     group: 'accents',
-    light: 'gold-lace-40',
-    dark: 'gold-lace-84',
+    light: 'panelling-shade',
+    dark: 'panelling-shade',
+  },
+  {
+    name: 'primary-border',
+    group: 'borders',
+    light: 'panelling',
+    dark: 'panelling-80',
+  },
+  {
+    name: 'link',
+    group: 'accents',
+    light: 'sky-blue-40',
+    dark: 'sky-blue-75',
   },
   {
     name: 'visited',
     group: 'accents',
-    light: 'panelling-45',
-    dark: 'gold-lace-65',
+    light: 'orchid-lilac-44',
+    dark: 'orchid-lilac-80',
   },
   {
     name: 'secondary-hover',
@@ -762,8 +718,8 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'highlight',
     group: 'accents',
-    light: 'orchid-lilac-80',
-    dark: 'orchid-lilac-44',
+    light: 'table-timber-83',
+    dark: 'table-timber-43',
   },
   {
     name: 'highlight-foreground',
@@ -858,7 +814,7 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'ring',
     group: 'borders',
-    light: 'gold-lace-52',
-    dark: 'gold-lace-72',
+    light: 'sky-blue-40',
+    dark: 'sky-blue-75',
   },
 ]

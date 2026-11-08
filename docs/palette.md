@@ -12,6 +12,7 @@ The current palette comes from the debating chamber in Parliament House and repl
 4. Derived colours keep the parent's OKLCH hue and set the lightness, and usually the chroma. Where the result falls outside sRGB, chroma is lowered until it fits.
 5. The first draft kept the page and panels on the stone walls and changed only the primary and the tags. It was too close to v1 ("there is hardly any difference"), so three variants with chamber surfaces were drawn up, with a timber, a leather and a mahogany primary. Royce chose mahogany on 17 Oct 2026. Leather was turned down because its hue (26) is the gown red's and near the PSP and SDP reds, and timber because an orange-brown primary on a cream page is the cream, serif and terracotta look `app/STYLE.md` lists as an AI tell.
 6. On 7 Nov 2026 the site revamp moved links, buttons and the focus ring from mahogany to the gold lace (primary #896016 in light, #c69b57 in dark), after the audit of draft 3. Against the body text a mahogany link was 1.88:1 in light and 1.55:1 in dark, and the gold is 2.95:1 and 2.62:1, and in light it differs from the text by hue as well as lightness. The header became a mahogany band with light text, and its controls use the `inverse` button variant. Report tags became the solid panelling chip on a report's own page and a pale chip with a border on lists. The Sitting MP and Current labels took a pale green status chip. The sidebar, chart and reading tokens, which nothing drew, were deleted with the named colours only they used, and the tag border went with the solid chip's edge. The search highlight moved to orchid-lilac-80 and -44.
+7. On 8 Nov 2026 Royce replaced the gold. It sat at hue 77 among browns at hue 40 to 60, close enough to read as a stray brown but far enough to look out of place, and as link, button and focus colour at once it marked nothing in particular. Links and the focus ring are now the evening sky blue (#0c4a7a in light, #8bb2d9 in dark), the hue the browser uses for links, 8.2:1 on the page in both themes. Opened links are the orchid lilac (#6b3884 and #dca4f9), where before they were a quieter brown only 1.2:1 from an unopened link. Buttons fill with the mahogany panelling in both themes, with a `panelling-80` edge in dark because the fill is 2.1:1 on the dark page. The lilac left the search highlight, which moved to the pale timber (`table-timber-83` in light, `-43` in dark). The gold lace steps used only by the old primary were deleted, and `gold-lace-50` and `crest-gold` stay for the warning and the band's focus ring.
 
 Caveats:
 
@@ -66,8 +67,8 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | card-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
 | popover | surface | #ffffff | #301b16 | flag-white / panelling-25 | S17 (v1) / derived from C1 |
 | popover-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
-| primary | accent | #896016 | #c69b57 | gold-lace-52 / gold-lace-72 | derived from S6 (v1) / derived from S6 (v1) |
-| primary-foreground | text | #ffffff | #22110c | flag-white / panelling-20 | S17 (v1) / derived from C1 |
+| primary | accent (button) | #6d3e31 | #6d3e31 | panelling / panelling | C1 / C1 |
+| primary-foreground | text | #ffffff | #eee8d2 | flag-white / floor-carpet-93 | S17 (v1) / derived from C6 |
 | secondary | surface | #f3d8ca | #422922 | table-timber-90 / panelling-31 | derived from C5 / derived from C1 |
 | secondary-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
 | muted | surface | #f7e3da | #38231d | table-timber-93 / panelling-28 | derived from C5 / derived from C1 |
@@ -84,14 +85,16 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | info-foreground | text | #ffffff | #22110c | flag-white / panelling-20 | S17 (v1) / derived from C1 |
 | separator | border (decorative) | #e1bfae | #4d332c | table-timber-83 / panelling-35 | derived from C5 / derived from C1 |
 | overlay | surface (scrim) | #22110c | #22110c | panelling-20 / panelling-20 | derived from C1 / derived from C1 |
-| primary-hover | accent (hover) | #755000 | #daae6a | gold-lace-46 / gold-lace-78 | derived from S6 (v1) / derived from S6 (v1) |
-| primary-active | accent (active) | #604103 | #f0c27f | gold-lace-40 / gold-lace-84 | derived from S6 (v1) / derived from S6 (v1) |
-| visited | accent (opened link) | #694e46 | #9d8c74 | panelling-45 / gold-lace-65 | derived from C1 / derived from S6 (v1) |
+| primary-hover | accent (hover) | #5b2f24 | #5b2f24 | panelling-mid / panelling-mid | C2 / C2 |
+| primary-active | accent (active) | #4a251b | #4a251b | panelling-shade / panelling-shade | C3 / C3 |
+| primary-border | border (button edge) | #6d3e31 | #e1b1a3 | panelling / panelling-80 | C1 / derived from C1 |
+| link | accent (link) | #0c4a7a | #8bb2d9 | sky-blue-40 / sky-blue-75 | derived from S22 (v1) / derived from S22 (v1) |
+| visited | accent (opened link) | #6b3884 | #dca4f9 | orchid-lilac-44 / orchid-lilac-80 | derived from S20 (v1) / derived from S20 (v1) |
 | secondary-hover | surface (hover) | #ebcdbe | #4d332c | table-timber-87 / panelling-35 | derived from C5 / derived from C1 |
 | secondary-active | surface (active) | #e4c2b2 | #533831 | table-timber-84 / panelling-37 | derived from C5 / derived from C1 |
 | destructive-hover | state (hover) | #b00826 | #ff8481 | crest-red-48 / crest-red-75 | derived from S18 (v1) / derived from S18 (v1) |
 | destructive-active | state (active) | #97061f | #ff9b97 | crest-red-43 / crest-red-79 | derived from S18 (v1) / derived from S18 (v1) |
-| highlight | accent (search matches) | #dca4f9 | #6b3884 | orchid-lilac-80 / orchid-lilac-44 | derived from S20 (v1) / derived from S20 (v1) |
+| highlight | accent (search matches) | #e1bfae | #674837 | table-timber-83 / table-timber-43 | derived from C5 / derived from C5 |
 | highlight-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
 | tag | surface (chip) | #6d3e31 | #6d3e31 | panelling / panelling | C1 / C1 |
 | tag-foreground | text | #ffffff | #eee8d2 | flag-white / floor-carpet-93 | S17 (v1) / derived from C6 |
@@ -107,9 +110,9 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | status-border | border (chip) | #596d2c | #7a8c34 | lawn / lawn-sunlit | S13 (v1) / S14 (v1) |
 | border | border | #9d6e56 | #8f6753 | table-timber-58 / table-timber-55 | derived from C5 / derived from C5 |
 | input | border | #9d6e56 | #a57c67 | table-timber-58 / table-timber-62 | derived from C5 / derived from C5 |
-| ring | border (focus) | #896016 | #c69b57 | gold-lace-52 / gold-lace-72 | derived from S6 (v1) / derived from S6 (v1) |
+| ring | border (focus) | #0c4a7a | #8bb2d9 | sky-blue-40 / sky-blue-75 | derived from S22 (v1) / derived from S22 (v1) |
 
-The light theme sets near-black panelling text on the floor carpet's cream, with white cards and white cards. Pale timber makes the panels, hover surfaces and lines. The gold lace from the Speaker's gown is the one accent: links, buttons and the focus ring. The mahogany panelling is the header band and the tags, and a pale green chip marks a status such as Sitting MP. The dark theme sets cream carpet text on a background derived from the panelling. The states, the search highlight and white keep their v1 sources.
+The light theme sets near-black panelling text on the floor carpet's cream, with white cards and white cards. Pale timber makes the panels, hover surfaces and lines. Links and the focus ring are the evening sky blue, opened links the orchid lilac, and buttons the mahogany panelling. The panelling is also the header band and the tags, and a pale green chip marks a status such as Sitting MP. The dark theme sets cream carpet text on a background derived from the panelling. The states, the link colours and white keep their v1 sources.
 
 ## Derived colours
 
@@ -118,50 +121,43 @@ Each derived colour keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1),
 | Name | Value | Parent | How | Tokens |
 |---|---|---|---|---|
 | floor-carpet-76 | #b7b19c | C6 floor-carpet | L 0.76, C 0.03 | muted-foreground (dark) |
-| floor-carpet-93 | #eee8d2 | C6 floor-carpet | L 0.93, C 0.03 | foreground (dark), card-foreground (dark), popover-foreground (dark), secondary-foreground (dark), accent-foreground (dark), highlight-foreground (dark), tag-foreground (dark), band-foreground (dark) |
+| floor-carpet-93 | #eee8d2 | C6 floor-carpet | L 0.93, C 0.03 | foreground (dark), card-foreground (dark), popover-foreground (dark), primary-foreground (dark), secondary-foreground (dark), accent-foreground (dark), highlight-foreground (dark), tag-foreground (dark), band-foreground (dark) |
 | floor-carpet-96 | #f8f2dc | C6 floor-carpet | L 0.96, C 0.03 | background (light) |
-| panelling-20 | #22110c | C1 panelling | L 0.20, C 0.03 | background (dark), primary-foreground (dark), destructive-foreground (dark), success-foreground (dark), warning-foreground (dark), info-foreground (dark), overlay (light), overlay (dark) |
+| panelling-20 | #22110c | C1 panelling | L 0.20, C 0.03 | background (dark), destructive-foreground (dark), success-foreground (dark), warning-foreground (dark), info-foreground (dark), overlay (light), overlay (dark) |
 | panelling-24 | #281c19 | C1 panelling | L 0.24, C 0.02 | foreground (light), card-foreground (light), popover-foreground (light), secondary-foreground (light), accent-foreground (light), highlight-foreground (light) |
 | panelling-25 | #301b16 | C1 panelling | L 0.25, C 0.035 | card (dark), popover (dark), band (dark) |
 | panelling-28 | #38231d | C1 panelling | L 0.28, C 0.035 | muted (dark) |
 | panelling-31 | #422922 | C1 panelling | L 0.31, C 0.04 | secondary (dark), band-hover (dark) |
 | panelling-35 | #4d332c | C1 panelling | L 0.35, C 0.04 | separator (dark), secondary-hover (dark), band-active (dark), band-edge (dark) |
 | panelling-37 | #533831 | C1 panelling | L 0.37, C 0.04 | secondary-active (dark) |
-| panelling-45 | #694e46 | C1 panelling | L 0.45, C 0.04 | visited (light) |
-| panelling-80 | #e1b1a3 | C1 panelling | L 0.80, C 0.06 | band-border (light) |
+| panelling-80 | #e1b1a3 | C1 panelling | L 0.80, C 0.06 | band-border (light), primary-border (dark) |
 | table-timber-33 | #4a2d1e | C5 table-timber | L 0.33, C 0.05 | accent (dark) |
-| table-timber-43 | #674837 | C5 table-timber | L 0.43, C 0.05 | muted-foreground (light) |
+| table-timber-43 | #674837 | C5 table-timber | L 0.43, C 0.05 | muted-foreground (light), highlight (dark) |
 | table-timber-55 | #8f6753 | C5 table-timber | L 0.55, C 0.06 | border (dark) |
 | table-timber-58 | #9d6e56 | C5 table-timber | L 0.58, C 0.07 | border (light), input (light) |
 | table-timber-62 | #a57c67 | C5 table-timber | L 0.62, C 0.06 | band-border (dark), input (dark) |
-| table-timber-83 | #e1bfae | C5 table-timber | L 0.83, C 0.045 | separator (light) |
+| table-timber-83 | #e1bfae | C5 table-timber | L 0.83, C 0.045 | separator (light), highlight (light) |
 | table-timber-84 | #e4c2b2 | C5 table-timber | L 0.84, C 0.045 | secondary-active (light) |
 | table-timber-87 | #ebcdbe | C5 table-timber | L 0.87, C 0.04 | secondary-hover (light) |
 | table-timber-88 | #efd0c1 | C5 table-timber | L 0.88, C 0.04 | accent (light) |
 | table-timber-90 | #f3d8ca | C5 table-timber | L 0.90, C 0.035 | secondary (light) |
 | table-timber-93 | #f7e3da | C5 table-timber | L 0.93, C 0.025 | muted (light) |
-| gold-lace-40 | #604103 | S6 (v1) gold-lace | L 0.40, C 0.082 | primary-active (light) |
-| gold-lace-46 | #755000 | S6 (v1) gold-lace | L 0.46, C 0.096 | primary-hover (light) |
-| gold-lace-52 | #896016 | S6 (v1) gold-lace | L 0.52, C 0.1 | primary (light), ring (light) |
-| gold-lace-65 | #9d8c74 | S6 (v1) gold-lace | L 0.65, C 0.04 | visited (dark) |
-| gold-lace-72 | #c69b57 | S6 (v1) gold-lace | L 0.72, C 0.1 | primary (dark), ring (dark) |
-| gold-lace-78 | #daae6a | S6 (v1) gold-lace | L 0.78, C 0.1 | primary-hover (dark) |
-| gold-lace-84 | #f0c27f | S6 (v1) gold-lace | L 0.84, C 0.1 | primary-active (dark) |
 | lawn-30 | #293214 | S13 (v1) lawn | L 0.30, C 0.05 | status (dark) |
 | lawn-42 | #425511 | S13 (v1) lawn | L 0.42, C 0.094 | status-foreground (light) |
 | lawn-94 | #e5f0d3 | S13 (v1) lawn | L 0.94, C 0.04 | status (light) |
-| orchid-lilac-44 | #6b3884 | S20 (v1) orchid-lilac | L 0.44, C 0.13 | highlight (dark) |
-| orchid-lilac-80 | #dca4f9 | S20 (v1) orchid-lilac | L 0.80, C 0.13 | highlight (light) |
+| orchid-lilac-44 | #6b3884 | S20 (v1) orchid-lilac | L 0.44, C 0.13 | visited (light) |
+| orchid-lilac-80 | #dca4f9 | S20 (v1) orchid-lilac | L 0.80, C 0.13 | visited (dark) |
 
 Why the steps:
 
 - `floor-carpet-96` is the page. The sampled carpet is a strong yellow (C 0.061), so the page keeps the hue at half the chroma. The other carpet steps are text and hover colours for the dark theme.
 - The light timber steps (`table-timber-93` down to `table-timber-83`) are surfaces from quiet panel to pressed button to divider. `table-timber-58` is the control border, 3.23:1 on the panels at its tightest; `table-timber-43` is muted text, 4.5:1 on every light surface it meets.
 - The dark panelling steps (`panelling-20` to `panelling-37`) are the page, cards, panels and pressed states, with chroma raised to 0.03 to 0.04 so the dark theme reads as mahogany rather than black. `table-timber-62` is the dark input border, because the 0.55 step fell under 3:1 on the dark panels.
-- `gold-lace-52` to `-40` are the light primary and its hover and pressed steps, and `gold-lace-72` to `-84` the dark ones. Primary is the gold lace from the Speaker's gown, at hue 77, darkened until it holds 4.5:1 as link text on the page and the white cards in light. `gold-lace-65` is the dark visited link, a quieter gold at C 0.04.
-- `panelling-80` is the header band's control border in light. The band, its hover and pressed steps and the tags use the sampled panelling (`panelling`, `panelling-mid`, `panelling-shade`) and the dark panelling steps.
+- Buttons fill with the sampled panelling (`panelling`, `panelling-mid`, `panelling-shade`) in both themes. On the dark page that fill is 2.1:1, so a button carries a `primary-border` edge of `panelling-80`.
+- `panelling-80` is the header band's control border in light and the button edge in dark. The band, its hover and pressed steps and the tags use the sampled panelling (`panelling`, `panelling-mid`, `panelling-shade`) and the dark panelling steps.
 - `lawn-94`, `lawn-42` and `lawn-30` are the status chip's pale fill, its light text and its dark fill. Its edge and dark text reuse `lawn`, `lawn-sunlit` and `lawn-sunlit-75`.
-- `orchid-lilac-80` and `-44` are the search highlight, moved from the earlier pale and deep steps to the L 0.80 and 0.44 steps.
+- `orchid-lilac-44` and `-80` are opened links, 7.4:1 on the light page and 9.3:1 on the dark one. Against an unopened sky blue link the ratio is about 1.1:1, so hue alone tells the two apart, as on most of the web.
+- `table-timber-83` and `-43` are the search highlight, behind body text at 9.7:1 in light and 6.7:1 in dark.
 
 ## Contrast
 
@@ -176,9 +172,9 @@ pass  13.35  foreground on muted  (#281c19 on #f7e3da, min 4.5)
 pass  12.19  foreground on secondary  (#281c19 on #f3d8ca, min 4.5)
 pass  16.53  card-foreground on card  (#281c19 on #ffffff, min 4.5)
 pass  16.53  popover-foreground on popover  (#281c19 on #ffffff, min 4.5)
-pass   5.60  primary-foreground on primary  (#ffffff on #896016, min 4.5)
-pass   7.23  primary-foreground on primary-hover  (#ffffff on #755000, min 4.5)
-pass   9.31  primary-foreground on primary-active  (#ffffff on #604103, min 4.5)
+pass   8.81  primary-foreground on primary  (#ffffff on #6d3e31, min 4.5)
+pass  11.19  primary-foreground on primary-hover  (#ffffff on #5b2f24, min 4.5)
+pass  13.36  primary-foreground on primary-active  (#ffffff on #4a251b, min 4.5)
 pass  12.19  secondary-foreground on secondary  (#281c19 on #f3d8ca, min 4.5)
 pass  11.03  secondary-foreground on secondary-hover  (#281c19 on #ebcdbe, min 4.5)
 pass   9.96  secondary-foreground on secondary-active  (#281c19 on #e4c2b2, min 4.5)
@@ -189,7 +185,7 @@ pass   8.89  destructive-foreground on destructive-active  (#ffffff on #97061f, 
 pass   5.76  success-foreground on success  (#ffffff on #596d2c, min 4.5)
 pass   6.03  warning-foreground on warning  (#ffffff on #7b5e2f, min 4.5)
 pass   9.23  info-foreground on info  (#ffffff on #0c4a7a, min 4.5)
-pass   8.44  highlight-foreground on highlight  (#281c19 on #dca4f9, min 4.5)
+pass   9.65  highlight-foreground on highlight  (#281c19 on #e1bfae, min 4.5)
 pass   8.81  tag-foreground on tag  (#ffffff on #6d3e31, min 4.5)
 pass   6.99  status-foreground on status  (#425511 on #e5f0d3, min 4.5)
 pass   8.81  band-foreground on band  (#ffffff on #6d3e31, min 4.5)
@@ -202,18 +198,14 @@ pass   6.05  muted-foreground on secondary  (#674837 on #f3d8ca, min 4.5)
 pass   5.47  muted-foreground on secondary-hover  (#674837 on #ebcdbe, min 4.5)
 pass   4.95  muted-foreground on secondary-active  (#674837 on #e4c2b2, min 4.5)
 pass   5.65  muted-foreground on accent  (#674837 on #efd0c1, min 4.5)
-pass   5.00  primary on background  (#896016 on #f8f2dc, min 4.5)
-pass   5.60  primary on card  (#896016 on #ffffff, min 4.5)
-pass   4.52  primary on muted  (#896016 on #f7e3da, min 4.5)
-pass   5.60  primary on popover  (#896016 on #ffffff, min 4.5)
-pass   3.86  primary on accent  (#896016 on #efd0c1, min 3.8)
-pass   6.45  primary-hover on background  (#755000 on #f8f2dc, min 4.5)
-pass   7.23  primary-hover on card  (#755000 on #ffffff, min 4.5)
-pass   5.84  primary-hover on muted  (#755000 on #f7e3da, min 4.5)
-pass   7.23  primary-hover on popover  (#755000 on #ffffff, min 4.5)
-pass   6.74  visited on background  (#694e46 on #f8f2dc, min 4.5)
-pass   7.56  visited on card  (#694e46 on #ffffff, min 4.5)
-pass   6.10  visited on muted  (#694e46 on #f7e3da, min 4.5)
+pass   8.23  link on background  (#0c4a7a on #f8f2dc, min 4.5)
+pass   9.23  link on card  (#0c4a7a on #ffffff, min 4.5)
+pass   7.45  link on muted  (#0c4a7a on #f7e3da, min 4.5)
+pass   9.23  link on popover  (#0c4a7a on #ffffff, min 4.5)
+pass   6.35  link on accent  (#0c4a7a on #efd0c1, min 4.5)
+pass   7.42  visited on background  (#6b3884 on #f8f2dc, min 4.5)
+pass   8.32  visited on card  (#6b3884 on #ffffff, min 4.5)
+pass   6.72  visited on muted  (#6b3884 on #f7e3da, min 4.5)
 pass   5.25  destructive on background  (#c8102e on #f8f2dc, min 4.5)
 pass   5.88  destructive on card  (#c8102e on #ffffff, min 4.5)
 pass   5.13  success on background  (#596d2c on #f8f2dc, min 4.5)
@@ -231,8 +223,10 @@ pass   3.90  input on background  (#9d6e56 on #f8f2dc, min 3)
 pass   4.38  input on card  (#9d6e56 on #ffffff, min 3)
 pass   3.53  input on muted  (#9d6e56 on #f7e3da, min 3)
 pass   3.23  input on secondary  (#9d6e56 on #f3d8ca, min 3)
-pass   5.00  ring on background  (#896016 on #f8f2dc, min 3)
-pass   5.60  ring on card  (#896016 on #ffffff, min 3)
+pass   8.23  ring on background  (#0c4a7a on #f8f2dc, min 3)
+pass   9.23  ring on card  (#0c4a7a on #ffffff, min 3)
+pass   7.86  primary-border on background  (#6d3e31 on #f8f2dc, min 3)
+pass   8.81  primary-border on card  (#6d3e31 on #ffffff, min 3)
 pass   4.62  band-border on band  (#e1b1a3 on #6d3e31, min 3)
 pass   3.93  band-ring on band  (#d8a459 on #6d3e31, min 3)
 
@@ -244,9 +238,9 @@ pass  12.00  foreground on muted  (#eee8d2 on #38231d, min 4.5)
 pass  10.88  foreground on secondary  (#eee8d2 on #422922, min 4.5)
 pass  13.22  card-foreground on card  (#eee8d2 on #301b16, min 4.5)
 pass  13.22  popover-foreground on popover  (#eee8d2 on #301b16, min 4.5)
-pass   7.13  primary-foreground on primary  (#22110c on #c69b57, min 4.5)
-pass   8.88  primary-foreground on primary-hover  (#22110c on #daae6a, min 4.5)
-pass  11.03  primary-foreground on primary-active  (#22110c on #f0c27f, min 4.5)
+pass   7.18  primary-foreground on primary  (#eee8d2 on #6d3e31, min 4.5)
+pass   9.12  primary-foreground on primary-hover  (#eee8d2 on #5b2f24, min 4.5)
+pass  10.89  primary-foreground on primary-active  (#eee8d2 on #4a251b, min 4.5)
 pass  10.88  secondary-foreground on secondary  (#eee8d2 on #422922, min 4.5)
 pass   9.37  secondary-foreground on secondary-hover  (#eee8d2 on #4d332c, min 4.5)
 pass   8.65  secondary-foreground on secondary-active  (#eee8d2 on #533831, min 4.5)
@@ -257,7 +251,7 @@ pass   9.01  destructive-foreground on destructive-active  (#22110c on #ff9b97, 
 pass   8.42  success-foreground on success  (#22110c on #a5b961, min 4.5)
 pass   8.13  warning-foreground on warning  (#22110c on #d8a459, min 4.5)
 pass   8.21  info-foreground on info  (#22110c on #8bb2d9, min 4.5)
-pass   6.78  highlight-foreground on highlight  (#eee8d2 on #6b3884, min 4.5)
+pass   6.69  highlight-foreground on highlight  (#eee8d2 on #674837, min 4.5)
 pass   7.18  tag-foreground on tag  (#eee8d2 on #6d3e31, min 4.5)
 pass   6.22  status-foreground on status  (#a5b961 on #293214, min 4.5)
 pass  13.22  band-foreground on band  (#eee8d2 on #301b16, min 4.5)
@@ -270,18 +264,14 @@ pass   6.22  muted-foreground on secondary  (#b7b19c on #422922, min 4.5)
 pass   5.36  muted-foreground on secondary-hover  (#b7b19c on #4d332c, min 4.5)
 pass   4.95  muted-foreground on secondary-active  (#b7b19c on #533831, min 4.5)
 pass   5.80  muted-foreground on accent  (#b7b19c on #4a2d1e, min 4.5)
-pass   7.13  primary on background  (#c69b57 on #22110c, min 4.5)
-pass   6.36  primary on card  (#c69b57 on #301b16, min 4.5)
-pass   5.77  primary on muted  (#c69b57 on #38231d, min 4.5)
-pass   6.36  primary on popover  (#c69b57 on #301b16, min 4.5)
-pass   4.88  primary on accent  (#c69b57 on #4a2d1e, min 3.8)
-pass   8.88  primary-hover on background  (#daae6a on #22110c, min 4.5)
-pass   7.92  primary-hover on card  (#daae6a on #301b16, min 4.5)
-pass   7.18  primary-hover on muted  (#daae6a on #38231d, min 4.5)
-pass   7.92  primary-hover on popover  (#daae6a on #301b16, min 4.5)
-pass   5.58  visited on background  (#9d8c74 on #22110c, min 4.5)
-pass   4.97  visited on card  (#9d8c74 on #301b16, min 4.5)
-pass   4.51  visited on muted  (#9d8c74 on #38231d, min 4.5)
+pass   8.21  link on background  (#8bb2d9 on #22110c, min 4.5)
+pass   7.32  link on card  (#8bb2d9 on #301b16, min 4.5)
+pass   6.64  link on muted  (#8bb2d9 on #38231d, min 4.5)
+pass   7.32  link on popover  (#8bb2d9 on #301b16, min 4.5)
+pass   5.62  link on accent  (#8bb2d9 on #4a2d1e, min 4.5)
+pass   9.29  visited on background  (#dca4f9 on #22110c, min 4.5)
+pass   8.29  visited on card  (#dca4f9 on #301b16, min 4.5)
+pass   7.52  visited on muted  (#dca4f9 on #38231d, min 4.5)
 pass   5.86  destructive on background  (#ef6666 on #22110c, min 4.5)
 pass   5.23  destructive on card  (#ef6666 on #301b16, min 4.5)
 pass   8.42  success on background  (#a5b961 on #22110c, min 4.5)
@@ -299,8 +289,10 @@ pass   4.92  input on background  (#a57c67 on #22110c, min 3)
 pass   4.39  input on card  (#a57c67 on #301b16, min 3)
 pass   3.98  input on muted  (#a57c67 on #38231d, min 3)
 pass   3.61  input on secondary  (#a57c67 on #422922, min 3)
-pass   7.13  ring on background  (#c69b57 on #22110c, min 3)
-pass   6.36  ring on card  (#c69b57 on #301b16, min 3)
+pass   8.21  ring on background  (#8bb2d9 on #22110c, min 3)
+pass   7.32  ring on card  (#8bb2d9 on #301b16, min 3)
+pass   9.55  primary-border on background  (#e1b1a3 on #22110c, min 3)
+pass   8.52  primary-border on card  (#e1b1a3 on #301b16, min 3)
 pass   4.39  band-border on band  (#a57c67 on #301b16, min 3)
 pass   7.24  band-ring on band  (#d8a459 on #301b16, min 3)
 ```

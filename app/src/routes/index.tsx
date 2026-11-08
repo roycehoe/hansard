@@ -38,7 +38,7 @@ export const Route = createFileRoute('/')({
                 to={item.to}
                 className="group hover:bg-muted focus-visible:ring-ring focus-visible:ring-offset-background block space-y-1 rounded-sm px-2 py-4 outline-hidden transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-offset-2"
               >
-                <h2 className="text-primary group-hover:text-primary-hover font-serif text-lg font-semibold group-hover:underline">
+                <h2 className="text-link font-serif text-lg font-semibold group-hover:underline">
                   {item.title}
                 </h2>
                 <p className="text-muted-foreground text-sm">

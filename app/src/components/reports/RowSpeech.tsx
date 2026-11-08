@@ -137,7 +137,7 @@ export function RowSpeech({
             params={{
               personSlug: `${speech.person_id}-${speech.person_slug}`,
             }}
-            className="text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-semibold outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+            className="text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-semibold outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             {speech.speaker_label}
           </Link>

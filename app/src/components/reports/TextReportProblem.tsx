@@ -6,7 +6,7 @@ interface TextReportProblemProps {
 }
 
 const LINK_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm underline underline-offset-4 outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+  'text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm underline underline-offset-4 outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
 function buildReportProblemHref(title: string): string {
   return buildErrorEmailHref(

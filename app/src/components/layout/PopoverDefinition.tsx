@@ -14,7 +14,7 @@ interface PopoverDefinitionProps {
 }
 
 const LINK_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+  'text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
 export const DEFINED_TERM_CLASS_NAME =
   'decoration-muted-foreground underline decoration-dotted underline-offset-4'

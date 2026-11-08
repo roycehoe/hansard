@@ -41,7 +41,7 @@ export function SectionReportHeader({ report }: SectionReportHeaderProps) {
           <BreadcrumbItem>
             <BreadcrumbLink
               asChild
-              className="max-sm:text-primary max-sm:-my-1.5 max-sm:inline-flex max-sm:items-center max-sm:gap-1 max-sm:py-3 max-sm:font-medium"
+              className="max-sm:text-link max-sm:-my-1.5 max-sm:inline-flex max-sm:items-center max-sm:gap-1 max-sm:py-3 max-sm:font-medium"
             >
               <Link
                 to="/sittings/$sittingDate"

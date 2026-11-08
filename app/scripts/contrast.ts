@@ -73,12 +73,7 @@ const PAIRS: Pair[] = [
     ],
     TEXT_MINIMUM
   ),
-  ...pairs('primary', [...SURFACES, 'muted', 'popover'], TEXT_MINIMUM),
-  // The shared-link flash puts a link on `accent` for up to 1.5 seconds. Gold
-  // is 3.86:1 there in light, which is accepted, so this floor sits below
-  // TEXT_MINIMUM but above anything worse than today's value.
-  ...pairs('primary', ['accent'], 3.8),
-  ...pairs('primary-hover', [...SURFACES, 'muted', 'popover'], TEXT_MINIMUM),
+  ...pairs('link', [...SURFACES, 'muted', 'popover', 'accent'], TEXT_MINIMUM),
   ...pairs('visited', [...SURFACES, 'muted'], TEXT_MINIMUM),
   ...pairs('destructive', SURFACES, TEXT_MINIMUM),
   ...pairs('success', SURFACES, TEXT_MINIMUM),
@@ -89,6 +84,7 @@ const PAIRS: Pair[] = [
   ...pairs('status-border', ['status', ...SURFACES], UI_MINIMUM),
   ...pairs('input', [...SURFACES, 'muted', 'secondary'], UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
+  ...pairs('primary-border', SURFACES, UI_MINIMUM),
   ...pairs('band-border', ['band'], UI_MINIMUM),
   ...pairs('band-ring', ['band'], UI_MINIMUM),
 ]

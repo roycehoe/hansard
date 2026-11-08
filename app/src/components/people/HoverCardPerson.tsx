@@ -19,7 +19,7 @@ const OPEN_DELAY_MS = 400
 const CLOSE_DELAY_MS = 150
 
 const LINK_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+  'text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
 
 const SKELETON_VALUE_CLASS_NAME = 'flex h-5 items-center'
 

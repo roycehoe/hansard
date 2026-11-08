@@ -19,7 +19,6 @@
   --panelling-31: #422922;
   --panelling-35: #4d332c;
   --panelling-37: #533831;
-  --panelling-45: #694e46;
   --panelling-80: #e1b1a3;
   --table-timber-33: #4a2d1e;
   --table-timber-43: #674837;
@@ -41,13 +40,6 @@
   --crest-red: #c8102e;
   --crest-gold: #d8a459;
   --gold-lace-50: #7b5e2f;
-  --gold-lace-40: #604103;
-  --gold-lace-46: #755000;
-  --gold-lace-52: #896016;
-  --gold-lace-65: #9d8c74;
-  --gold-lace-72: #c69b57;
-  --gold-lace-78: #daae6a;
-  --gold-lace-84: #f0c27f;
   --crest-red-43: #97061f;
   --crest-red-48: #b00826;
   --crest-red-68: #ef6666;
@@ -67,7 +59,7 @@
   --card-foreground: var(--panelling-24);
   --popover: var(--flag-white);
   --popover-foreground: var(--panelling-24);
-  --primary: var(--gold-lace-52);
+  --primary: var(--panelling);
   --primary-foreground: var(--flag-white);
   --secondary: var(--table-timber-90);
   --secondary-foreground: var(--panelling-24);
@@ -85,14 +77,16 @@
   --info-foreground: var(--flag-white);
   --separator: var(--table-timber-83);
   --overlay: var(--panelling-20);
-  --primary-hover: var(--gold-lace-46);
-  --primary-active: var(--gold-lace-40);
-  --visited: var(--panelling-45);
+  --primary-hover: var(--panelling-mid);
+  --primary-active: var(--panelling-shade);
+  --primary-border: var(--panelling);
+  --link: var(--sky-blue-40);
+  --visited: var(--orchid-lilac-44);
   --secondary-hover: var(--table-timber-87);
   --secondary-active: var(--table-timber-84);
   --destructive-hover: var(--crest-red-48);
   --destructive-active: var(--crest-red-43);
-  --highlight: var(--orchid-lilac-80);
+  --highlight: var(--table-timber-83);
   --highlight-foreground: var(--panelling-24);
   --tag: var(--panelling);
   --tag-foreground: var(--flag-white);
@@ -108,7 +102,7 @@
   --status-border: var(--lawn);
   --border: var(--table-timber-58);
   --input: var(--table-timber-58);
-  --ring: var(--gold-lace-52);
+  --ring: var(--sky-blue-40);
 }
 
 .dark {
@@ -119,8 +113,8 @@
   --card-foreground: var(--floor-carpet-93);
   --popover: var(--panelling-25);
   --popover-foreground: var(--floor-carpet-93);
-  --primary: var(--gold-lace-72);
-  --primary-foreground: var(--panelling-20);
+  --primary: var(--panelling);
+  --primary-foreground: var(--floor-carpet-93);
   --secondary: var(--panelling-31);
   --secondary-foreground: var(--floor-carpet-93);
   --muted: var(--panelling-28);
@@ -137,14 +131,16 @@
   --info-foreground: var(--panelling-20);
   --separator: var(--panelling-35);
   --overlay: var(--panelling-20);
-  --primary-hover: var(--gold-lace-78);
-  --primary-active: var(--gold-lace-84);
-  --visited: var(--gold-lace-65);
+  --primary-hover: var(--panelling-mid);
+  --primary-active: var(--panelling-shade);
+  --primary-border: var(--panelling-80);
+  --link: var(--sky-blue-75);
+  --visited: var(--orchid-lilac-80);
   --secondary-hover: var(--panelling-35);
   --secondary-active: var(--panelling-37);
   --destructive-hover: var(--crest-red-75);
   --destructive-active: var(--crest-red-79);
-  --highlight: var(--orchid-lilac-44);
+  --highlight: var(--table-timber-43);
   --highlight-foreground: var(--floor-carpet-93);
   --tag: var(--panelling);
   --tag-foreground: var(--floor-carpet-93);
@@ -160,5 +156,5 @@
   --status-border: var(--lawn-sunlit);
   --border: var(--table-timber-55);
   --input: var(--table-timber-62);
-  --ring: var(--gold-lace-72);
+  --ring: var(--sky-blue-75);
 }

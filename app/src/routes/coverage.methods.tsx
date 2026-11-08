@@ -86,7 +86,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
 const LINK_CLASS_NAME =
-  'text-primary hover:text-primary-hover focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 underline underline-offset-4'
+  'text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 underline underline-offset-4'
 
 const SECTION_HEADING_CLASS_NAME =
   'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
@@ -151,10 +151,9 @@ export const Route = createFileRoute('/coverage/methods')({
           </p>
           <p>
             Credits to a Deputy Speaker or a Chairman carry a small{' '}
-            <sup className="text-primary text-xs">i</sup> beside the
-            person&apos;s name. Several people hold those roles at once, so a
-            change in the chair can make the credit wrong if the record does not
-            mention it.
+            <sup className="text-link text-xs">i</sup> beside the person&apos;s
+            name. Several people hold those roles at once, so a change in the
+            chair can make the credit wrong if the record does not mention it.
           </p>
           <p>
             Names of elected members follow the Elections Department&apos;s
