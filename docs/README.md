@@ -38,3 +38,4 @@ These architecture decision records (ADRs) explain why I built parts of the site
 | [adr/0008-pages-render-on-the-client.md](adr/0008-pages-render-on-the-client.md) | Why pages load their text in the browser while the server supplies titles and sharing information, and what that costs readers and search engines. |
 | [adr/0009-ai-readers-person-judges-flags.md](adr/0009-ai-readers-person-judges-flags.md) | How I use AI checks to find possible errors for review, including decisions made by category and the process for repeat checks. |
 | [adr/0010-search-notes.md](adr/0010-search-notes.md) | Why search may add a note when a hidden rule leaves out or adds records, and why the note never changes the results. |
+| [adr/0011-links-come-from-fixed-rules.md](adr/0011-links-come-from-fixed-rules.md) | Why every link between records comes from a fixed rule, and why similarity scores and AI matching may not make one. |
