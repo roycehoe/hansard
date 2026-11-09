@@ -17,6 +17,7 @@ class ErrorCode(StrEnum):
     SEARCH_BUSY = "search.busy"
     SEARCH_EXCLUDED_WORDS_ONLY = "search.excluded_words_only"
     SEARCH_CONSTITUENCY_NOT_FOUND = "search.constituency_not_found"
+    ENDPOINT_NOT_FOUND = "endpoint.not_found"
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +63,9 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ),
     ErrorCode.SEARCH_CONSTITUENCY_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Constituency not found."
+    ),
+    ErrorCode.ENDPOINT_NOT_FOUND: ErrorSpec(
+        status.HTTP_404_NOT_FOUND, "Endpoint not found."
     ),
 }
 

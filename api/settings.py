@@ -20,6 +20,7 @@ class AppSettings(BaseSettings):
     goatcounter_site_url: Optional[str] = None
     goatcounter_api_token: Optional[str] = None
     is_public_mode: bool = Field(default=False, validation_alias="PUBLIC_MODE")
+    is_unreleased_endpoints_enabled: bool = False
 
     @field_validator("is_public_mode", mode="before")
     @classmethod
