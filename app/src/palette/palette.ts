@@ -682,8 +682,8 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'link',
     group: 'accents',
-    light: 'sky-blue-40',
-    dark: 'sky-blue-75',
+    light: 'panelling',
+    dark: 'panelling-80',
   },
   {
     name: 'visited',

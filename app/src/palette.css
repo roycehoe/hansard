@@ -80,7 +80,7 @@
   --primary-hover: var(--panelling-mid);
   --primary-active: var(--panelling-shade);
   --primary-border: var(--panelling);
-  --link: var(--sky-blue-40);
+  --link: var(--panelling);
   --visited: var(--orchid-lilac-44);
   --secondary-hover: var(--table-timber-87);
   --secondary-active: var(--table-timber-84);
@@ -134,7 +134,7 @@
   --primary-hover: var(--panelling-mid);
   --primary-active: var(--panelling-shade);
   --primary-border: var(--panelling-80);
-  --link: var(--sky-blue-75);
+  --link: var(--panelling-80);
   --visited: var(--orchid-lilac-80);
   --secondary-hover: var(--panelling-35);
   --secondary-active: var(--panelling-37);
