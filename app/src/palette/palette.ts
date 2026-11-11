@@ -676,6 +676,12 @@ export const TOKENS: readonly Token[] = [
     dark: 'panelling-20',
   },
   {
+    name: 'primary-rest',
+    group: 'accents',
+    light: 'panelling-shade',
+    dark: 'panelling-shade',
+  },
+  {
     name: 'primary-hover',
     group: 'accents',
     light: 'panelling-mid',
@@ -684,13 +690,19 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'primary-active',
     group: 'accents',
-    light: 'panelling-shade',
-    dark: 'panelling-shade',
+    light: 'panelling',
+    dark: 'panelling',
   },
   {
     name: 'primary-border',
     group: 'borders',
     light: 'panelling',
+    dark: 'panelling-80',
+  },
+  {
+    name: 'primary-rest-border',
+    group: 'borders',
+    light: 'panelling-shade',
     dark: 'panelling-80',
   },
   {

@@ -92,11 +92,13 @@
   --color-info-foreground: var(--info-foreground);
   --color-separator: var(--separator);
   --color-overlay: var(--overlay);
+  --color-primary-rest: var(--primary-rest);
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--primary-active);
   --color-visited: var(--visited);
   --color-link: var(--link);
   --color-primary-border: var(--primary-border);
+  --color-primary-rest-border: var(--primary-rest-border);
   --color-secondary-hover: var(--secondary-hover);
   --color-secondary-active: var(--secondary-active);
   --color-destructive-hover: var(--destructive-hover);

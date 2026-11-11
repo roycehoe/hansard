@@ -79,9 +79,11 @@
   --info-foreground: var(--flag-white);
   --separator: var(--table-timber-83);
   --overlay: var(--panelling-20);
+  --primary-rest: var(--panelling-shade);
   --primary-hover: var(--panelling-mid);
-  --primary-active: var(--panelling-shade);
+  --primary-active: var(--panelling);
   --primary-border: var(--panelling);
+  --primary-rest-border: var(--panelling-shade);
   --link: var(--panelling);
   --visited: var(--orchid-lilac-44);
   --secondary-hover: var(--table-timber-87);
@@ -133,9 +135,11 @@
   --info-foreground: var(--panelling-20);
   --separator: var(--panelling-35);
   --overlay: var(--panelling-20);
+  --primary-rest: var(--panelling-shade);
   --primary-hover: var(--panelling-mid);
-  --primary-active: var(--panelling-shade);
+  --primary-active: var(--panelling);
   --primary-border: var(--panelling-80);
+  --primary-rest-border: var(--panelling-80);
   --link: var(--panelling-80);
   --visited: var(--orchid-lilac-80);
   --secondary-hover: var(--panelling-35);

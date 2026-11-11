@@ -35,7 +35,7 @@ const PAIRS: Pair[] = [
   ...pairs('popover-foreground', ['popover'], TEXT_MINIMUM),
   ...pairs(
     'primary-foreground',
-    ['primary', 'primary-hover', 'primary-active'],
+    ['primary', 'primary-rest', 'primary-hover', 'primary-active'],
     TEXT_MINIMUM
   ),
   ...pairs(
@@ -85,6 +85,7 @@ const PAIRS: Pair[] = [
   ...pairs('input', [...SURFACES, 'muted', 'secondary'], UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
   ...pairs('primary-border', SURFACES, UI_MINIMUM),
+  ...pairs('primary-rest-border', SURFACES, UI_MINIMUM),
   ...pairs('band-border', ['band'], UI_MINIMUM),
   ...pairs('band-ring', ['band'], UI_MINIMUM),
 ]
