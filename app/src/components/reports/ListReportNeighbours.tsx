@@ -21,7 +21,7 @@ interface RowNeighbourProps {
 }
 
 const LINK_CLASS_NAME =
-  'text-link visited:text-visited focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-medium outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+  'text-link visited:text-visited focus-visible:outline-ring rounded-sm font-medium outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
 
 function RowNeighbour({ label, sittingDate, report }: RowNeighbourProps) {
   return (

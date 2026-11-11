@@ -4,7 +4,7 @@ import { Slot } from 'radix-ui'
 import * as React from 'react'
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors duration-150 outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:border-destructive disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors duration-150 outline-hidden focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ring focus-visible:outline-offset-2 aria-invalid:border-destructive disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -26,7 +26,7 @@ const buttonVariants = cva(
           'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-secondary-active data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
         link: 'text-link underline-offset-4 hover:underline',
         inverse:
-          'border border-band-border bg-transparent text-band-foreground hover:bg-band-hover active:bg-band-active focus-visible:ring-band-ring focus-visible:ring-offset-band',
+          'border border-band-border bg-transparent text-band-foreground hover:bg-band-hover active:bg-band-active focus-visible:outline-band-ring',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

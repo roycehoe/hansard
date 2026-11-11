@@ -39,6 +39,8 @@
   --flag-white: #ffffff;
   --crest-red: #c8102e;
   --crest-gold: #d8a459;
+  --crest-gold-58: #a06f1e;
+  --crest-gold-66: #ba873b;
   --gold-lace-50: #7b5e2f;
   --crest-red-43: #97061f;
   --crest-red-48: #b00826;
@@ -102,7 +104,7 @@
   --status-border: var(--lawn);
   --border: var(--table-timber-58);
   --input: var(--table-timber-58);
-  --ring: var(--sky-blue-40);
+  --ring: var(--crest-gold-58);
 }
 
 .dark {
@@ -156,5 +158,5 @@
   --status-border: var(--lawn-sunlit);
   --border: var(--table-timber-55);
   --input: var(--table-timber-62);
-  --ring: var(--sky-blue-75);
+  --ring: var(--crest-gold-66);
 }

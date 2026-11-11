@@ -64,7 +64,7 @@ export function TableMemberships({
                       <Link
                         to="/search"
                         search={{ constituency }}
-                        className="text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+                        className="text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
                       >
                         {constituency}
                       </Link>

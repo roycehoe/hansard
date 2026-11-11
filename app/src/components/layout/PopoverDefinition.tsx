@@ -14,7 +14,7 @@ interface PopoverDefinitionProps {
 }
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2'
+  'text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
 
 export const DEFINED_TERM_CLASS_NAME =
   'decoration-muted-foreground underline decoration-dotted underline-offset-4'
@@ -29,7 +29,7 @@ export function PopoverDefinition({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="focus-visible:ring-ring focus-visible:ring-offset-background inline-flex cursor-pointer rounded-sm text-left outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
+          className="focus-visible:outline-ring inline-flex cursor-pointer rounded-sm text-left outline-hidden focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
         >
           {children}
           <span className="sr-only">, what this means</span>

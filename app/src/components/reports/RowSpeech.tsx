@@ -137,7 +137,7 @@ export function RowSpeech({
             params={{
               personSlug: `${speech.person_id}-${speech.person_slug}`,
             }}
-            className="text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm font-semibold outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2"
+            className="text-link focus-visible:outline-ring rounded-sm font-semibold outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
           >
             {speech.speaker_label}
           </Link>
@@ -177,7 +177,7 @@ export function RowSpeech({
       id={`s${speech.ordinal}`}
       tabIndex={-1}
       className={cn(
-        'group focus-visible:ring-ring focus-visible:ring-offset-background flex scroll-mt-24 flex-col rounded-sm outline-hidden first-of-type:mt-0 focus-visible:ring-2 focus-visible:ring-offset-2 sm:flex-row sm:gap-2',
+        'group focus-visible:outline-ring flex scroll-mt-24 flex-col rounded-sm outline-hidden first-of-type:mt-0 focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid sm:flex-row sm:gap-2',
         getRowMarginClass(speech, previousSpeechKind, isContinuation),
         isLinkedTarget && 'bg-accent animate-linked-speech-fade'
       )}

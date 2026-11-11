@@ -46,7 +46,7 @@ export const columns = columnHelper.columns([
       <Tooltip delayDuration={500}>
         <TooltipTrigger asChild>
           <p
-            className="focus-visible:ring-ring focus-visible:ring-offset-background max-w-80 truncate outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
+            className="focus-visible:outline-ring max-w-80 truncate outline-hidden focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
             tabIndex={0}
           >
             {title.getValue()}

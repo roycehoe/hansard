@@ -14,7 +14,7 @@ import type { MouseEvent } from 'react'
 import { useState } from 'react'
 
 const TRIGGER_CLASS_NAME =
-  'text-muted-foreground hover:text-foreground focus-visible:ring-ring focus-visible:ring-offset-background cursor-help rounded-sm text-xs leading-7 tabular-nums underline decoration-dotted underline-offset-2 outline-hidden transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-offset-2'
+  'text-muted-foreground hover:text-foreground focus-visible:outline-ring cursor-help rounded-sm text-xs leading-7 tabular-nums underline decoration-dotted underline-offset-2 outline-hidden transition-colors duration-150 focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
 
 interface TooltipColumnNoteProps {
   columnStart: number

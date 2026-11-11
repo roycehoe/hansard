@@ -7,7 +7,7 @@ import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm outline-hidden hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 underline underline-offset-4'
+  'text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2 underline underline-offset-4'
 
 function focusSearchWords() {
   document.getElementById(SEARCH_WORDS_INPUT_ID)?.focus()

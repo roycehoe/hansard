@@ -64,7 +64,7 @@ export function SheetSiteMenu() {
                 <Link
                   to={item.to}
                   onClick={closeMenu}
-                  className="hover:bg-accent active:bg-accent data-[status=active]:bg-accent focus-visible:ring-ring flex min-h-12 items-center rounded-md px-3 text-base outline-hidden focus-visible:ring-2 focus-visible:ring-inset data-[status=active]:font-semibold"
+                  className="hover:bg-accent active:bg-accent data-[status=active]:bg-accent focus-visible:outline-ring flex min-h-12 items-center rounded-md px-3 text-base outline-hidden focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-solid data-[status=active]:font-semibold"
                 >
                   {item.label}
                 </Link>

@@ -14,6 +14,7 @@ The current palette comes from the debating chamber in Parliament House and repl
 6. On 7 Nov 2026 the site revamp moved links, buttons and the focus ring from mahogany to the gold lace (primary #896016 in light, #c69b57 in dark), after the audit of draft 3. Against the body text a mahogany link was 1.88:1 in light and 1.55:1 in dark, and the gold is 2.95:1 and 2.62:1, and in light it differs from the text by hue as well as lightness. The header became a mahogany band with light text, and its controls use the `inverse` button variant. Report tags became the solid panelling chip on a report's own page and a pale chip with a border on lists. The Sitting MP and Current labels took a pale green status chip. The sidebar, chart and reading tokens, which nothing drew, were deleted with the named colours only they used, and the tag border went with the solid chip's edge. The search highlight moved to orchid-lilac-80 and -44.
 7. On 8 Nov 2026 Royce replaced the gold. It sat at hue 77 among browns at hue 40 to 60, close enough to read as a stray brown but far enough to look out of place, and as link, button and focus colour at once it marked nothing in particular. Links and the focus ring are now the evening sky blue (#0c4a7a in light, #8bb2d9 in dark), the hue the browser uses for links, 8.2:1 on the page in both themes. Opened links are the orchid lilac (#6b3884 and #dca4f9), where before they were a quieter brown only 1.2:1 from an unopened link. Buttons fill with the mahogany panelling in both themes, with a `panelling-80` edge in dark because the fill is 2.1:1 on the dark page. The lilac left the search highlight, which moved to the pale timber (`table-timber-83` in light, `-43` in dark). The gold lace steps used only by the old primary were deleted, and `gold-lace-50` and `crest-gold` stay for the warning and the band's focus ring.
 8. On 11 Nov 2026 Royce turned down the sky blue links as ugly among the browns and cream. Links went back to the colours they had before 7 November: the mahogany panelling (#6d3e31, 7.86:1 on the page) in light and `panelling-80` (#e1b1a3, 9.55:1) in dark. The cost is the one step 6 names: against the body text a link is 1.88:1 in light and 1.55:1 in dark, so it differs from the text by lightness alone. Opened links stay the orchid lilac, and the focus ring stays the sky blue, 8.2:1 on the page in both themes, because the crest gold the band uses is 2.0:1 on the light page.
+9. Later on 11 Nov 2026 Royce turned down the sky blue focus ring as too bright and bold, and picked a quieter gold from four drafts. The focus ring is now a 1px outline 2px outside the control, in two darker steps of the crest gold: `crest-gold-58` (#a06f1e, 3.91:1 on the page) in light and `crest-gold-66` (#ba873b, 5.74:1) in dark. Crest gold itself stays on the band, where it is 3.93:1. The ring is an outline rather than a box shadow, so a link that wraps onto two lines gets one shape around both lines instead of two boxes that cross.
 
 Caveats:
 
@@ -111,9 +112,9 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | status-border | border (chip) | #596d2c | #7a8c34 | lawn / lawn-sunlit | S13 (v1) / S14 (v1) |
 | border | border | #9d6e56 | #8f6753 | table-timber-58 / table-timber-55 | derived from C5 / derived from C5 |
 | input | border | #9d6e56 | #a57c67 | table-timber-58 / table-timber-62 | derived from C5 / derived from C5 |
-| ring | border (focus) | #0c4a7a | #8bb2d9 | sky-blue-40 / sky-blue-75 | derived from S22 (v1) / derived from S22 (v1) |
+| ring | border (focus) | #a06f1e | #ba873b | crest-gold-58 / crest-gold-66 | derived from S19 (v1) / derived from S19 (v1) |
 
-The light theme sets near-black panelling text on the floor carpet's cream, with white cards and white cards. Pale timber makes the panels, hover surfaces and lines. Links and buttons are the mahogany panelling, with links in its pale `panelling-80` step in dark. Opened links are the orchid lilac and the focus ring the evening sky blue. The panelling is also the header band and the tags, and a pale green chip marks a status such as Sitting MP. The dark theme sets cream carpet text on a background derived from the panelling. The states, the opened-link lilac, the focus ring and white keep their v1 sources.
+The light theme sets near-black panelling text on the floor carpet's cream, with white cards and white cards. Pale timber makes the panels, hover surfaces and lines. Links and buttons are the mahogany panelling, with links in its pale `panelling-80` step in dark. Opened links are the orchid lilac and the focus ring a dark step of the crest gold. The panelling is also the header band and the tags, and a pale green chip marks a status such as Sitting MP. The dark theme sets cream carpet text on a background derived from the panelling. The states, the opened-link lilac, the focus ring and white keep their v1 sources.
 
 ## Derived colours
 
@@ -148,6 +149,8 @@ Each derived colour keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1),
 | lawn-94 | #e5f0d3 | S13 (v1) lawn | L 0.94, C 0.04 | status (light) |
 | orchid-lilac-44 | #6b3884 | S20 (v1) orchid-lilac | L 0.44, C 0.13 | visited (light) |
 | orchid-lilac-80 | #dca4f9 | S20 (v1) orchid-lilac | L 0.80, C 0.13 | visited (dark) |
+| crest-gold-58 | #a06f1e | S19 (v1) crest-gold | L 0.58 | ring (light) |
+| crest-gold-66 | #ba873b | S19 (v1) crest-gold | L 0.66 | ring (dark) |
 
 Why the steps:
 
@@ -158,6 +161,7 @@ Why the steps:
 - `panelling-80` is the header band's control border in light, and the button edge and the link colour in dark. The band, its hover and pressed steps and the tags use the sampled panelling (`panelling`, `panelling-mid`, `panelling-shade`) and the dark panelling steps.
 - `lawn-94`, `lawn-42` and `lawn-30` are the status chip's pale fill, its light text and its dark fill. Its edge and dark text reuse `lawn`, `lawn-sunlit` and `lawn-sunlit-75`.
 - `orchid-lilac-44` and `-80` are opened links, 7.4:1 on the light page and 9.3:1 on the dark one. Against an unopened mahogany link the ratio is 1.06:1 in light and 1.03:1 in dark, so hue alone tells the two apart, as on most of the web.
+- `crest-gold-58` and `-66` are the focus ring. Crest gold is 2.0:1 on the light page, so the light step is dark enough to clear 3:1 on every fill a ring can sit on, the hover fill lowest at 3.02:1. The dark step is 5.74:1 on the page.
 - `table-timber-83` and `-43` are the search highlight, behind body text at 9.7:1 in light and 6.7:1 in dark.
 
 ## Contrast
@@ -224,8 +228,8 @@ pass   3.90  input on background  (#9d6e56 on #f8f2dc, min 3)
 pass   4.38  input on card  (#9d6e56 on #ffffff, min 3)
 pass   3.53  input on muted  (#9d6e56 on #f7e3da, min 3)
 pass   3.23  input on secondary  (#9d6e56 on #f3d8ca, min 3)
-pass   8.23  ring on background  (#0c4a7a on #f8f2dc, min 3)
-pass   9.23  ring on card  (#0c4a7a on #ffffff, min 3)
+pass   3.91  ring on background  (#a06f1e on #f8f2dc, min 3)
+pass   4.39  ring on card  (#a06f1e on #ffffff, min 3)
 pass   7.86  primary-border on background  (#6d3e31 on #f8f2dc, min 3)
 pass   8.81  primary-border on card  (#6d3e31 on #ffffff, min 3)
 pass   4.62  band-border on band  (#e1b1a3 on #6d3e31, min 3)
@@ -290,8 +294,8 @@ pass   4.92  input on background  (#a57c67 on #22110c, min 3)
 pass   4.39  input on card  (#a57c67 on #301b16, min 3)
 pass   3.98  input on muted  (#a57c67 on #38231d, min 3)
 pass   3.61  input on secondary  (#a57c67 on #422922, min 3)
-pass   8.21  ring on background  (#8bb2d9 on #22110c, min 3)
-pass   7.32  ring on card  (#8bb2d9 on #301b16, min 3)
+pass   5.74  ring on background  (#ba873b on #22110c, min 3)
+pass   5.11  ring on card  (#ba873b on #301b16, min 3)
 pass   9.55  primary-border on background  (#e1b1a3 on #22110c, min 3)
 pass   8.52  primary-border on card  (#e1b1a3 on #301b16, min 3)
 pass   4.39  band-border on band  (#a57c67 on #301b16, min 3)

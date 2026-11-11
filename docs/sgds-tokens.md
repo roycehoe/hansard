@@ -146,12 +146,12 @@ The page wrapper in `__root.tsx`, `SiteHeader.tsx` and `SiteFooter.tsx` uses `ma
 
 ## Focus
 
-| SGDS token             | SGDS value                             | Our token          | Our value          | SGDS source    |
-| ---------------------- | -------------------------------------- | ------------------ | ------------------ | -------------- |
-| `outline-focus`        | 2px solid (colour is a blue primitive) | `ring-2 ring-ring` | 2px solid `--ring` | `root.css:377` |
-| `outline-offset-focus` | -2px (inset)                           | `ring-offset-2`    | 2px outside        | `root.css:378` |
+| SGDS token             | SGDS value                             | Our token                | Our value          | SGDS source    |
+| ---------------------- | -------------------------------------- | ------------------------ | ------------------ | -------------- |
+| `outline-focus`        | 2px solid (colour is a blue primitive) | `outline-1 outline-ring` | 1px solid `--ring` | `root.css:377` |
+| `outline-offset-focus` | -2px (inset)                           | `outline-offset-2`       | 2px outside        | `root.css:378` |
 
-Width matches. Offset and colour differ on purpose, see below.
+Width, offset and colour differ on purpose, see below.
 
 ## Shadows
 
@@ -189,7 +189,7 @@ Tailwind v4 has no named duration namespace, so durations use the numeric `durat
 - **Medium weight.** SGDS has 300, 400, 600 and 700 only. We keep `font-medium` (500) for menu items, buttons and labels because Inter is variable and the extra step helps small text.
 - **Responsive type, no 1440px step.** Responsive roles are applied with breakpoint prefixes (`text-2xl lg:text-3xl`). SGDS adds a third step at 1440px (32, 28 and 24px for heading-lg, md and sm); 32 and 28 have no matching token, so we stop at the 1024px values for all three.
 - **Page title one role down.** SGDS reboot maps `h1` to heading-xl (32/36/40px, `reboot.css:88-92`). Our page title uses heading-lg (28/30), one level down, because a serif h1 at 30px already reads large in a dense research tool.
-- **Focus ring.** SGDS draws a 2px inset outline in a blue primitive. We keep `outline-hidden` plus a 2px `ring-ring` with a 2px offset in `--ring`, so the colour stays a semantic token and passes the contrast check against both themes.
+- **Focus ring.** SGDS draws a 2px inset outline in a blue primitive. We draw a 1px outline 2px outside the control in `--ring`, a dark step of the crest gold, which Royce picked on 11 Nov 2026 as quieter than a 2px ring. It is an outline rather than a `ring` box shadow, so a link that wraps gets one shape around both lines. Rows that fill a menu or a list, such as the site menu links and the year links, draw it 1px inside the edge with `-outline-offset-1`. Each control keeps `outline-hidden` at rest and adds `focus-visible:outline-solid`, because `outline-hidden` would otherwise hold the style at none. The colour stays a semantic token and passes the contrast check against both themes.
 - **Control heights.** shadcn's 32/36/40 px stay. This is a research tool where people scan dense tables, and both scales clear WCAG 2.5.8 (decision 28). SGDS buttons are 32, 40, 48, 56px (`base/button.css:156` for the 48px default, `styles/form-text-control.css:37` for inputs at 48px). 36px (`h-9`) is not an SGDS step.
 - **Radius for cards.** SGDS surfaces use 12px, so `Card` moved to `rounded-lg`. `rounded-sm` stays on menu items, which is the SGDS indicator radius (4px).
 - **Badge radius.** `Badge` uses `rounded-sm` (4px), the SGDS indicator radius, in every variant, not shadcn's `rounded-full` pill. Royce accepted this in the 14 Oct 2026 AI-look review (proposal T6), so it overrides the shadcn default.

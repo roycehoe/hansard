@@ -408,6 +408,20 @@ export const COLOURS = [
   { name: 'crest-red', hex: '#c8102e', source: 'state-crest' },
   { name: 'crest-gold', hex: '#d8a459', source: 'state-crest' },
   {
+    name: 'crest-gold-58',
+    hex: '#a06f1e',
+    source: 'state-crest',
+    derivedFrom: 'crest-gold',
+    derivation: 'L 0.58',
+  },
+  {
+    name: 'crest-gold-66',
+    hex: '#ba873b',
+    source: 'state-crest',
+    derivedFrom: 'crest-gold',
+    derivation: 'L 0.66',
+  },
+  {
     name: 'gold-lace-50',
     hex: '#7b5e2f',
     source: 'speaker-gown',
@@ -814,7 +828,7 @@ export const TOKENS: readonly Token[] = [
   {
     name: 'ring',
     group: 'borders',
-    light: 'sky-blue-40',
-    dark: 'sky-blue-75',
+    light: 'crest-gold-58',
+    dark: 'crest-gold-66',
   },
 ]
