@@ -93,7 +93,7 @@ export function SiteHeader() {
               name="q"
               placeholder="Search"
               onKeyDown={closeSearchOnEscape}
-              className="bg-background focus-visible:outline-band-ring any-pointer-coarse:h-11"
+              className="bg-background focus-visible:border-band-ring any-pointer-coarse:h-11"
             />
             <Button
               type="submit"
@@ -122,7 +122,7 @@ export function SiteHeader() {
               <li key={item.label}>
                 <Link
                   to={item.to}
-                  className="text-band-foreground focus-visible:outline-band-ring inline-block rounded-sm py-1 text-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid data-[status=active]:font-medium"
+                  className="text-band-foreground focus-visible:decoration-band-ring inline-block py-1 text-sm outline-hidden hover:underline focus-visible:underline data-[status=active]:font-medium"
                 >
                   {item.label}
                 </Link>
@@ -145,7 +145,7 @@ export function SiteHeader() {
               type="search"
               name="q"
               placeholder="Search"
-              className="bg-background focus-visible:outline-band-ring w-40 sm:w-64"
+              className="bg-background focus-visible:border-band-ring w-40 sm:w-64"
             />
             <Button
               type="submit"

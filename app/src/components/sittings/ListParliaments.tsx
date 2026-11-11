@@ -18,7 +18,7 @@ export function ListParliaments({ parliaments }: ListParliamentsProps) {
           <Link
             to="/sittings"
             search={{ parliament: parliament.parliament_number }}
-            className="text-link focus-visible:outline-ring flex flex-col gap-1 rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
+            className="text-link focus-visible:decoration-ring flex flex-col gap-1 outline-hidden hover:underline focus-visible:underline"
           >
             <span className="text-base font-medium">
               {formatParliament(parliament.parliament_number)}

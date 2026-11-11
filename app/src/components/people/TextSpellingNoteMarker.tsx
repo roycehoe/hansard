@@ -4,7 +4,7 @@ import {
 } from '@/constants/people/constants'
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
+  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 export function TextSpellingNoteMarker() {
   return (

@@ -21,7 +21,7 @@ import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
+  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 const UNDERLINED_LINK_CLASS_NAME = `${LINK_CLASS_NAME} underline underline-offset-4`
 

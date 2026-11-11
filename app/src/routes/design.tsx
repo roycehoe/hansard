@@ -29,7 +29,7 @@ export const Route = createFileRoute('/design')({
             <a
               key={section.id}
               href={`#${section.id}`}
-              className="text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
+              className="text-link focus-visible:decoration-ring outline-hidden hover:underline focus-visible:underline"
             >
               {section.label}
             </a>

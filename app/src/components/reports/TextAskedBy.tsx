@@ -9,7 +9,7 @@ interface TextAskedByProps {
 }
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm font-medium outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
+  'text-link font-medium outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 export function TextAskedBy({ askers }: TextAskedByProps) {
   if (askers.length === 0) return null

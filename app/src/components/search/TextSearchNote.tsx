@@ -4,7 +4,7 @@ import { countEvent } from '@/lib/analytics'
 import { Link } from '@tanstack/react-router'
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2 underline underline-offset-4'
+  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
 function followNoteLink() {
   countEvent(AnalyticsEvent.SEARCH_NOTE_LINK)

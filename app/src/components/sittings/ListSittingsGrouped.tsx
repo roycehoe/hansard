@@ -61,7 +61,7 @@ export function ListSittingsGrouped({
                     <Link
                       to="/sittings/$sittingDate"
                       params={{ sittingDate: sitting.sitting_date }}
-                      className="text-link visited:text-visited focus-visible:outline-ring grid min-h-11 scroll-mt-14 grid-cols-[1fr_84px_96px] items-center gap-x-2 rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
+                      className="text-link visited:text-visited focus-visible:decoration-ring grid min-h-11 scroll-mt-14 grid-cols-[1fr_84px_96px] items-center gap-x-2 outline-hidden hover:underline focus-visible:underline"
                     >
                       <span className="font-medium">
                         {formatSittingDayMonth(sitting.sitting_date)}

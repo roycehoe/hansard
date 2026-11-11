@@ -21,7 +21,7 @@ export function NoticeHighlighting({
         params={{ reportSlug }}
         search={(previous) => ({ ...previous, hl: undefined })}
         hash={hash}
-        className="text-link focus-visible:outline-ring rounded-sm underline underline-offset-4 outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
+        className="text-link focus-visible:decoration-ring underline underline-offset-4 outline-hidden hover:underline focus-visible:underline"
       >
         Clear highlighting
       </Link>

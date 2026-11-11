@@ -32,7 +32,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 const PAGE_TITLE = 'About'
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2 underline underline-offset-4'
+  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
 const SECTION_HEADING_CLASS_NAME =
   'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'

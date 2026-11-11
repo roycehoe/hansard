@@ -23,7 +23,7 @@ const PERSON_MATCHES_MAX_LISTED = 3
 const SEARCH_OPERATOR_PATTERN = /"|\sOR\s|(^|\s)-/
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
+  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 function getPersonsMergedById(
   first: PersonData[],

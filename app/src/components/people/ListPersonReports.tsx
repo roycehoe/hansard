@@ -101,7 +101,7 @@ export function ListPersonReports({
             <Link
               to="/reports/$reportSlug"
               params={{ reportSlug: report.report_slug }}
-              className="text-link visited:text-visited focus-visible:outline-ring rounded-sm font-medium outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
+              className="text-link visited:text-visited focus-visible:decoration-ring font-medium outline-hidden hover:underline focus-visible:underline"
             >
               {report.title}
             </Link>

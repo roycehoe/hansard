@@ -9,12 +9,13 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { VISIBLE_SPEECH_MATCHES_PER_REPORT } from '@/constants/search/constants'
+import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { RotateCw, TriangleAlert } from 'lucide-react'
 import { useId, useState } from 'react'
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm text-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
+  'text-link text-sm outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 const LOADING_ROW_COUNT = 2
 
@@ -122,10 +123,14 @@ export function ListSpeechMatchesInReport({
               search={{ hl: highlightWords }}
               hash={`s${speech.ordinal}`}
               hashScrollIntoView={false}
-              className="group focus-visible:outline-ring block space-y-1 rounded-sm outline-hidden focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
+              className={cn(
+                'group block space-y-1 rounded-sm outline-hidden',
+                speech.speaker_label === '' &&
+                  'focus-visible:outline-ring focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid'
+              )}
             >
               {speech.speaker_label !== '' && (
-                <p className="text-link font-semibold group-hover:underline">
+                <p className="text-link group-focus-visible:decoration-ring font-semibold group-hover:underline group-focus-visible:underline">
                   {speech.speaker_label}
                 </p>
               )}

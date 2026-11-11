@@ -12,7 +12,7 @@ interface NoticeColourProvenanceProps {
 }
 
 const LINK_CLASSES =
-  'rounded-sm text-link underline-offset-4 outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-ring focus-visible:outline-offset-2'
+  'text-link underline-offset-4 outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 function NoticeSourcePhoto({
   source,

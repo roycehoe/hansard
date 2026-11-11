@@ -2,7 +2,7 @@ import { getPartyNoteId } from '@/lib/utils'
 import type { PartyNote } from '@/types/people/interfaces'
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
+  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 interface TextPartyNoteMarkerProps {
   partyNote: PartyNote | undefined

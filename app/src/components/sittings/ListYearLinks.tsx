@@ -51,7 +51,7 @@ export function ListYearLinks({ years, parliamentNumber }: ListYearLinksProps) {
               onClick={jumpToYear}
               aria-current={year === activeYear ? 'location' : undefined}
               className={cn(
-                'focus-visible:outline-ring flex h-11 min-w-9 items-center justify-center border-b-2 border-transparent text-sm tabular-nums outline-hidden hover:underline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-solid sm:h-10',
+                'focus-visible:decoration-ring flex h-11 min-w-9 items-center justify-center border-b-2 border-transparent text-sm tabular-nums outline-hidden hover:underline focus-visible:underline sm:h-10',
                 year === activeYear
                   ? 'border-primary-border text-foreground font-semibold'
                   : 'text-link'

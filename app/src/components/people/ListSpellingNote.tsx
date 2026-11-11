@@ -9,7 +9,7 @@ import { Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
 const LINK_CLASS_NAME =
-  'text-link focus-visible:outline-ring rounded-sm underline underline-offset-4 outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2'
+  'text-link underline underline-offset-4 outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 const REPORT_PATH_PREFIX = '/reports/'
 

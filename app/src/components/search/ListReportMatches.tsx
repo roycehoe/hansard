@@ -72,7 +72,7 @@ export function ListReportMatches({
                     to="/reports/$reportSlug"
                     params={{ reportSlug: result.report_slug }}
                     search={{ hl: highlightWords }}
-                    className="text-link visited:text-visited focus-visible:outline-ring rounded-sm outline-hidden hover:underline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid"
+                    className="text-link visited:text-visited focus-visible:decoration-ring outline-hidden hover:underline focus-visible:underline"
                   >
                     {result.title}
                   </Link>

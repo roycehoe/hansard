@@ -9,24 +9,24 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'border border-primary-border bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active',
+          'border border-primary-border bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active focus-visible:outline-hidden focus-visible:border-ring',
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive-hover active:bg-destructive-active',
         outline:
-          'border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground active:bg-secondary-active',
+          'border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground active:bg-secondary-active focus-visible:outline-hidden focus-visible:border-ring',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-secondary-hover active:bg-secondary-active',
         ghost:
           'hover:bg-accent hover:text-accent-foreground active:bg-secondary-active',
         field:
-          'border border-input bg-transparent font-normal text-foreground justify-between hover:bg-accent hover:text-accent-foreground active:bg-secondary-active',
+          'border border-input bg-transparent font-normal text-foreground justify-between hover:bg-accent hover:text-accent-foreground active:bg-secondary-active focus-visible:outline-hidden focus-visible:border-ring',
         quiet:
           'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-secondary-active',
         'quiet-toggle':
           'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-secondary-active data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
-        link: 'text-link underline-offset-4 hover:underline',
+        link: 'text-link underline-offset-4 hover:underline focus-visible:outline-hidden focus-visible:underline focus-visible:decoration-ring',
         inverse:
-          'border border-band-border bg-transparent text-band-foreground hover:bg-band-hover active:bg-band-active focus-visible:outline-band-ring',
+          'border border-band-border bg-transparent text-band-foreground hover:bg-band-hover active:bg-band-active focus-visible:outline-hidden focus-visible:border-band-ring',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',
