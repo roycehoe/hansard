@@ -442,7 +442,7 @@ export function FormSearch({
         <>
           {wordsField}
           <div className="flex w-full items-center gap-2">
-            <Button type="submit" className="flex-1">
+            <Button type="submit" variant="outline" className="flex-1">
               Search
             </Button>
             <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
@@ -497,7 +497,9 @@ export function FormSearch({
           {fromField}
           {toField}
           {sortField}
-          <Button type="submit">Search</Button>
+          <Button type="submit" variant="outline">
+            Search
+          </Button>
         </>
       )}
     </form>
