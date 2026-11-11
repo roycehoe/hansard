@@ -861,6 +861,8 @@ Every variant in `button.tsx` must define all three states using the correspondi
 
 The disabled state is handled globally in the base class — do not override it per variant unless the variant requires a transparent background when disabled (e.g. `ghost` variants).
 
+Recorded exception: `default` rests on `primary-rest`, a step darker than `primary`, so its hover and pressed fills get lighter rather than darker. `primary` stays the fill of checked controls such as the radio and the switch.
+
 Recorded exception: `outline`, `ghost`, `quiet` and `quiet-toggle` have no fill of their own, so they use the shared `accent` surface for hover (`hover:bg-accent hover:text-accent-foreground`) and `secondary-active` for pressed. `quiet` is a ghost button with muted text for small actions repeated on every item in a list, such as the per-speech copy buttons. `quiet-toggle` is `quiet` that keeps its hover fill while its popover is open, for the paragraph menu button on phones. `link` has no background in any state; its hover is the underline only.
 
 ---

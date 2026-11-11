@@ -15,6 +15,7 @@ The current palette comes from the debating chamber in Parliament House and repl
 7. On 8 Nov 2026 Royce replaced the gold. It sat at hue 77 among browns at hue 40 to 60, close enough to read as a stray brown but far enough to look out of place, and as link, button and focus colour at once it marked nothing in particular. Links and the focus ring are now the evening sky blue (#0c4a7a in light, #8bb2d9 in dark), the hue the browser uses for links, 8.2:1 on the page in both themes. Opened links are the orchid lilac (#6b3884 and #dca4f9), where before they were a quieter brown only 1.2:1 from an unopened link. Buttons fill with the mahogany panelling in both themes, with a `panelling-80` edge in dark because the fill is 2.1:1 on the dark page. The lilac left the search highlight, which moved to the pale timber (`table-timber-83` in light, `-43` in dark). The gold lace steps used only by the old primary were deleted, and `gold-lace-50` and `crest-gold` stay for the warning and the band's focus ring.
 8. On 11 Nov 2026 Royce turned down the sky blue links as ugly among the browns and cream. Links went back to the colours they had before 7 November: the mahogany panelling (#6d3e31, 7.86:1 on the page) in light and `panelling-80` (#e1b1a3, 9.55:1) in dark. The cost is the one step 6 names: against the body text a link is 1.88:1 in light and 1.55:1 in dark, so it differs from the text by lightness alone. Opened links stay the orchid lilac, and the focus ring stays the sky blue, 8.2:1 on the page in both themes, because the crest gold the band uses is 2.0:1 on the light page.
 9. Later on 11 Nov 2026 Royce turned down the sky blue focus ring as too bright and bold, and picked a quieter gold from four drafts. The focus ring is now a 1px outline 2px outside the control, in two darker steps of the crest gold: `crest-gold-58` (#a06f1e, 3.91:1 on the page) in light and `crest-gold-66` (#ba873b, 5.74:1) in dark. Crest gold itself stays on the band, where it is 3.93:1. The ring is an outline rather than a box shadow, so a link that wraps onto two lines gets one shape around both lines instead of two boxes that cross.
+10. Later again on 11 Nov 2026 Royce asked for the edge of a control to turn gold in place of a line drawn around it. Boxes, pickers, tabs, choices and the bordered buttons now turn their own 1px edge gold on focus, `band-ring` on the header band. Links that underline on hover draw that underline in gold on focus. Controls with neither, such as icon buttons, menu rows and the skip link, keep the 1px gold outline. The same day the default button swapped its resting and pressed colours, so it gets lighter under the pointer. It rests on `panelling-shade` (#4a251b) through the new `primary-rest` token, hovers on `panelling-mid` (#5b2f24) and presses on `panelling` (#6d3e31). Its edge, `primary-rest-border`, matches the fill in light and stays `panelling-80` in dark. `primary` stays `panelling` for the checkbox, radio, switch and calendar, because the darker fill would drop the radio dot in the dark appearance menu from 1.84:1 to 1.21:1.
 
 Caveats:
 
@@ -69,7 +70,7 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | card-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
 | popover | surface | #ffffff | #301b16 | flag-white / panelling-25 | S17 (v1) / derived from C1 |
 | popover-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
-| primary | accent (button) | #6d3e31 | #6d3e31 | panelling / panelling | C1 / C1 |
+| primary | accent (checked controls) | #6d3e31 | #6d3e31 | panelling / panelling | C1 / C1 |
 | primary-foreground | text | #ffffff | #eee8d2 | flag-white / floor-carpet-93 | S17 (v1) / derived from C6 |
 | secondary | surface | #f3d8ca | #422922 | table-timber-90 / panelling-31 | derived from C5 / derived from C1 |
 | secondary-foreground | text | #281c19 | #eee8d2 | panelling-24 / floor-carpet-93 | derived from C1 / derived from C6 |
@@ -87,9 +88,11 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | info-foreground | text | #ffffff | #22110c | flag-white / panelling-20 | S17 (v1) / derived from C1 |
 | separator | border (decorative) | #e1bfae | #4d332c | table-timber-83 / panelling-35 | derived from C5 / derived from C1 |
 | overlay | surface (scrim) | #22110c | #22110c | panelling-20 / panelling-20 | derived from C1 / derived from C1 |
+| primary-rest | accent (button) | #4a251b | #4a251b | panelling-shade / panelling-shade | C3 / C3 |
 | primary-hover | accent (hover) | #5b2f24 | #5b2f24 | panelling-mid / panelling-mid | C2 / C2 |
-| primary-active | accent (active) | #4a251b | #4a251b | panelling-shade / panelling-shade | C3 / C3 |
-| primary-border | border (button edge) | #6d3e31 | #e1b1a3 | panelling / panelling-80 | C1 / derived from C1 |
+| primary-active | accent (active) | #6d3e31 | #6d3e31 | panelling / panelling | C1 / C1 |
+| primary-border | border (checked control edge) | #6d3e31 | #e1b1a3 | panelling / panelling-80 | C1 / derived from C1 |
+| primary-rest-border | border (button edge) | #4a251b | #e1b1a3 | panelling-shade / panelling-80 | C3 / derived from C1 |
 | link | accent (link) | #6d3e31 | #e1b1a3 | panelling / panelling-80 | C1 / derived from C1 |
 | visited | accent (opened link) | #6b3884 | #dca4f9 | orchid-lilac-44 / orchid-lilac-80 | derived from S20 (v1) / derived from S20 (v1) |
 | secondary-hover | surface (hover) | #ebcdbe | #4d332c | table-timber-87 / panelling-35 | derived from C5 / derived from C1 |
@@ -132,7 +135,7 @@ Each derived colour keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1),
 | panelling-31 | #422922 | C1 panelling | L 0.31, C 0.04 | secondary (dark), band-hover (dark) |
 | panelling-35 | #4d332c | C1 panelling | L 0.35, C 0.04 | separator (dark), secondary-hover (dark), band-active (dark), band-edge (dark) |
 | panelling-37 | #533831 | C1 panelling | L 0.37, C 0.04 | secondary-active (dark) |
-| panelling-80 | #e1b1a3 | C1 panelling | L 0.80, C 0.06 | band-border (light), primary-border (dark) |
+| panelling-80 | #e1b1a3 | C1 panelling | L 0.80, C 0.06 | band-border (light), primary-border (dark), primary-rest-border (dark) |
 | table-timber-33 | #4a2d1e | C5 table-timber | L 0.33, C 0.05 | accent (dark) |
 | table-timber-43 | #674837 | C5 table-timber | L 0.43, C 0.05 | muted-foreground (light), highlight (dark) |
 | table-timber-55 | #8f6753 | C5 table-timber | L 0.55, C 0.06 | border (dark) |
@@ -157,11 +160,11 @@ Why the steps:
 - `floor-carpet-96` is the page. The sampled carpet is a strong yellow (C 0.061), so the page keeps the hue at half the chroma. The other carpet steps are text and hover colours for the dark theme.
 - The light timber steps (`table-timber-93` down to `table-timber-83`) are surfaces from quiet panel to pressed button to divider. `table-timber-58` is the control border, 3.23:1 on the panels at its tightest; `table-timber-43` is muted text, 4.5:1 on every light surface it meets.
 - The dark panelling steps (`panelling-20` to `panelling-37`) are the page, cards, panels and pressed states, with chroma raised to 0.03 to 0.04 so the dark theme reads as mahogany rather than black. `table-timber-62` is the dark input border, because the 0.55 step fell under 3:1 on the dark panels.
-- Buttons fill with the sampled panelling (`panelling`, `panelling-mid`, `panelling-shade`) in both themes. On the dark page that fill is 2.1:1, so a button carries a `primary-border` edge of `panelling-80`.
+- The default button rests on `panelling-shade`, hovers on `panelling-mid` and presses on `panelling`, the sampled panelling in both themes. On the dark page the resting fill is 1.36:1, so the button carries a `primary-rest-border` edge of `panelling-80`.
 - `panelling-80` is the header band's control border in light, and the button edge and the link colour in dark. The band, its hover and pressed steps and the tags use the sampled panelling (`panelling`, `panelling-mid`, `panelling-shade`) and the dark panelling steps.
 - `lawn-94`, `lawn-42` and `lawn-30` are the status chip's pale fill, its light text and its dark fill. Its edge and dark text reuse `lawn`, `lawn-sunlit` and `lawn-sunlit-75`.
 - `orchid-lilac-44` and `-80` are opened links, 7.4:1 on the light page and 9.3:1 on the dark one. Against an unopened mahogany link the ratio is 1.06:1 in light and 1.03:1 in dark, so hue alone tells the two apart, as on most of the web.
-- `crest-gold-58` and `-66` are the focus ring. Crest gold is 2.0:1 on the light page, so the light step is dark enough to clear 3:1 on every fill a ring can sit on, the hover fill lowest at 3.02:1. The dark step is 5.74:1 on the page.
+- `crest-gold-58` and `-66` are the focus mark, drawn as a control's edge, a link's underline or the outline. Crest gold is 2.0:1 on the light page, so the light step is dark enough to clear 3:1 on every fill a ring can sit on, the hover fill lowest at 3.02:1. The dark step is 5.74:1 on the page.
 - `table-timber-83` and `-43` are the search highlight, behind body text at 9.7:1 in light and 6.7:1 in dark.
 
 ## Contrast
@@ -178,8 +181,9 @@ pass  12.19  foreground on secondary  (#281c19 on #f3d8ca, min 4.5)
 pass  16.53  card-foreground on card  (#281c19 on #ffffff, min 4.5)
 pass  16.53  popover-foreground on popover  (#281c19 on #ffffff, min 4.5)
 pass   8.81  primary-foreground on primary  (#ffffff on #6d3e31, min 4.5)
+pass  13.36  primary-foreground on primary-rest  (#ffffff on #4a251b, min 4.5)
 pass  11.19  primary-foreground on primary-hover  (#ffffff on #5b2f24, min 4.5)
-pass  13.36  primary-foreground on primary-active  (#ffffff on #4a251b, min 4.5)
+pass   8.81  primary-foreground on primary-active  (#ffffff on #6d3e31, min 4.5)
 pass  12.19  secondary-foreground on secondary  (#281c19 on #f3d8ca, min 4.5)
 pass  11.03  secondary-foreground on secondary-hover  (#281c19 on #ebcdbe, min 4.5)
 pass   9.96  secondary-foreground on secondary-active  (#281c19 on #e4c2b2, min 4.5)
@@ -232,6 +236,8 @@ pass   3.91  ring on background  (#a06f1e on #f8f2dc, min 3)
 pass   4.39  ring on card  (#a06f1e on #ffffff, min 3)
 pass   7.86  primary-border on background  (#6d3e31 on #f8f2dc, min 3)
 pass   8.81  primary-border on card  (#6d3e31 on #ffffff, min 3)
+pass  11.91  primary-rest-border on background  (#4a251b on #f8f2dc, min 3)
+pass  13.36  primary-rest-border on card  (#4a251b on #ffffff, min 3)
 pass   4.62  band-border on band  (#e1b1a3 on #6d3e31, min 3)
 pass   3.93  band-ring on band  (#d8a459 on #6d3e31, min 3)
 
@@ -244,8 +250,9 @@ pass  10.88  foreground on secondary  (#eee8d2 on #422922, min 4.5)
 pass  13.22  card-foreground on card  (#eee8d2 on #301b16, min 4.5)
 pass  13.22  popover-foreground on popover  (#eee8d2 on #301b16, min 4.5)
 pass   7.18  primary-foreground on primary  (#eee8d2 on #6d3e31, min 4.5)
+pass  10.89  primary-foreground on primary-rest  (#eee8d2 on #4a251b, min 4.5)
 pass   9.12  primary-foreground on primary-hover  (#eee8d2 on #5b2f24, min 4.5)
-pass  10.89  primary-foreground on primary-active  (#eee8d2 on #4a251b, min 4.5)
+pass   7.18  primary-foreground on primary-active  (#eee8d2 on #6d3e31, min 4.5)
 pass  10.88  secondary-foreground on secondary  (#eee8d2 on #422922, min 4.5)
 pass   9.37  secondary-foreground on secondary-hover  (#eee8d2 on #4d332c, min 4.5)
 pass   8.65  secondary-foreground on secondary-active  (#eee8d2 on #533831, min 4.5)
@@ -298,6 +305,8 @@ pass   5.74  ring on background  (#ba873b on #22110c, min 3)
 pass   5.11  ring on card  (#ba873b on #301b16, min 3)
 pass   9.55  primary-border on background  (#e1b1a3 on #22110c, min 3)
 pass   8.52  primary-border on card  (#e1b1a3 on #301b16, min 3)
+pass   9.55  primary-rest-border on background  (#e1b1a3 on #22110c, min 3)
+pass   8.52  primary-rest-border on card  (#e1b1a3 on #301b16, min 3)
 pass   4.39  band-border on band  (#a57c67 on #301b16, min 3)
 pass   7.24  band-ring on band  (#d8a459 on #301b16, min 3)
 ```

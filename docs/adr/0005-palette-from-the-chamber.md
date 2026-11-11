@@ -10,4 +10,6 @@ Amended 11 Nov 2026. Links are no longer sky blue. They return to the mahogany p
 
 Amended later on 11 Nov 2026. The focus ring is no longer sky blue, because Royce found it too bright and bold. It is a 1px outline 2px outside the control, in two darker steps of the crest gold: #a06f1e in light, 3.91:1 on the page, and #ba873b in dark, 5.74:1. The header band keeps the crest gold itself.
 
+Amended again on 11 Nov 2026. A control with an edge marks focus by turning that edge gold, and a link that underlines on hover draws the underline in gold. Other controls keep the 1px gold outline. The default button rests on the darkest panelling step, #4a251b, and gets lighter on hover (#5b2f24) and when pressed (#6d3e31), the reverse of before.
+
 No openly licensed photo of the current chamber exists, so this palette breaks the first palette's rule that every source photo has a known open licence and is committed for traceability. The samples come from Parliament's own photo of the empty chamber, rechecked against broadcast frames. The photos are not in the repo. `docs/palette.md` cites each one by URL with its crop box, and the `/palette` page links to the photo instead of showing it. ADR 0002 still applies: colours only, no crest, Mace or other mark sampled or shown. Anyone adding a chamber photo to the repo or the site needs a licence for it first.
