@@ -111,7 +111,7 @@ export function PopoverFieldHint({
         avoidCollisions={!hasAnchor}
         align="start"
         className={cn(
-          'text-sm',
+          'max-h-(--radix-popover-content-available-height) overflow-y-auto text-sm',
           hasAnchor ? 'w-(--radix-popover-trigger-width) md:min-w-72' : 'w-72'
         )}
         onPointerEnter={openOnMouseEnter}
