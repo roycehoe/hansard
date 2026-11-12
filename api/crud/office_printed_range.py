@@ -16,3 +16,15 @@ class CRUDOfficePrintedRange:
             )
         )
         return list(self.session.exec(statement).all())
+
+    def get_all_by_membership_ids(
+        self, membership_ids: list[int]
+    ) -> list[OfficePrintedRange]:
+        statement = (
+            select(OfficePrintedRange)
+            .where(col(OfficePrintedRange.speaker_id).in_(membership_ids))
+            .order_by(
+                col(OfficePrintedRange.first_sitting_date), col(OfficePrintedRange.id)
+            )
+        )
+        return list(self.session.exec(statement).all())
