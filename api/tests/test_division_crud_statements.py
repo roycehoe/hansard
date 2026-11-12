@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any, Callable, cast
+from typing import Any, Callable, Optional, cast
 
 import pytest
 from sqlalchemy.dialects import postgresql
@@ -49,11 +49,11 @@ def _get_compiled_statement(call: Callable[[Session], object]) -> str:
 
 
 def _get_division_page_statement(
-    parliament_number: int | None = None,
-    date_from: date | None = None,
-    date_to: date | None = None,
-    sprs_report_ids: list[str] | None = None,
-    excluded_report_ids: list[int] | None = None,
+    parliament_number: Optional[int] = None,
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+    sprs_report_ids: Optional[list[str]] = None,
+    excluded_report_ids: Optional[list[int]] = None,
 ) -> str:
     return _get_compiled_statement(
         lambda session: CRUDDivision(session).get_all_filtered(
@@ -69,7 +69,7 @@ def _get_division_page_statement(
 
 
 def _get_division_count_statement(
-    excluded_report_ids: list[int] | None = None,
+    excluded_report_ids: Optional[list[int]] = None,
 ) -> str:
     return _get_compiled_statement(
         lambda session: CRUDDivision(session).get_count_filtered(
