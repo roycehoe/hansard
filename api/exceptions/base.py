@@ -23,6 +23,7 @@ class ErrorCode(StrEnum):
     ENDPOINT_NOT_FOUND = "endpoint.not_found"
     OFFICE_MINISTRY_NOT_FOUND = "office.ministry_not_found"
     OFFICE_MEMBERSHIP_NOT_FOUND = "office.membership_not_found"
+    DIVISION_NOT_FOUND = "division.not_found"
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,6 +83,9 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ),
     ErrorCode.OFFICE_MEMBERSHIP_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Membership not found."
+    ),
+    ErrorCode.DIVISION_NOT_FOUND: ErrorSpec(
+        status.HTTP_404_NOT_FOUND, "Division not found."
     ),
 }
 

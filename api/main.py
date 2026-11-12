@@ -9,6 +9,7 @@ from routers import (
     attached_file,
     bill,
     coverage,
+    division,
     health,
     leave_period,
     office,
@@ -66,3 +67,4 @@ app.include_router(bill.router)
 app.include_router(act.router)
 app.include_router(office.router)
 app.include_router(attached_file.router)
+app.include_router(division.router)

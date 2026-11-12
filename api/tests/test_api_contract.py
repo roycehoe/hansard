@@ -43,6 +43,8 @@ _ACT_INTERFACES_FILE = "src/api/acts/getAct.ts"
 _ACT_PEOPLE_INTERFACES_FILE = "src/api/acts/getActPeople.ts"
 _PERSON_BILLS_INTERFACES_FILE = "src/api/people/getPersonBills.ts"
 _OFFICES_INTERFACES_FILE = "src/api/offices/getOffices.ts"
+_ALL_DIVISIONS_INTERFACES_FILE = "src/api/divisions/getAllDivisions.ts"
+_DIVISION_INTERFACES_FILE = "src/api/divisions/getDivision.ts"
 
 _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("GetCoverageResponse", f"{_COVERAGE_INTERFACES_FILE}::GetCoverageResponse"),
@@ -243,6 +245,18 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
         "GetReportOfficesResponse",
         f"{_OFFICES_INTERFACES_FILE}::GetReportOfficesResponse",
     ),
+    (
+        "GetAllDivisionsResponse",
+        f"{_ALL_DIVISIONS_INTERFACES_FILE}::GetAllDivisionsResponse",
+    ),
+    ("DivisionData", f"{_ALL_DIVISIONS_INTERFACES_FILE}::DivisionData"),
+    ("GetDivisionResponse", f"{_DIVISION_INTERFACES_FILE}::GetDivisionResponse"),
+    ("DivisionVoteData", f"{_DIVISION_INTERFACES_FILE}::DivisionVoteData"),
+    (
+        "DivisionPartyCountData",
+        f"{_DIVISION_INTERFACES_FILE}::DivisionPartyCountData",
+    ),
+    ("DivisionMinutesData", f"{_DIVISION_INTERFACES_FILE}::DivisionMinutesData"),
 )
 
 # NOTE: the frontend never calls /parties or /search-counts, so these have no interface.
