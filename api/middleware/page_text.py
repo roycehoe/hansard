@@ -127,13 +127,15 @@ _REPORT_NOUN = "report"
 _REPORTS_NOUN = "reports"
 _MORE_THAN_PREFIX = "more than"
 _NO_SPEECH_MATCHES_NOTE = (
-    "No speech matches. All search terms must appear in the same paragraph. "
-    'Try using fewer words. Common words like "the" are ignored.'
+    "No speech matches. Words joined by spaces or AND must appear in the same "
+    "paragraph. Try fewer required words or remove an exclusion. "
+    'Common words like "the" are ignored.'
 )
 _NO_SPEECHES_NOTE = "No speeches. Try a wider date range or another Parliament."
 _NO_TITLE_MATCHES_NOTE = (
-    "No title matches. All search terms must appear in the title. "
-    'Try using fewer words. Common words like "the" are ignored.'
+    "No title matches. Words joined by spaces or AND must appear in the same "
+    "report title. Try fewer required words or remove an exclusion. "
+    'Common words like "the" are ignored.'
 )
 _NO_REPORTS_NOTE = "No reports. Try a wider date range or another Parliament."
 _TITLE_MATCHES_LINK_TEXT = "Title matches"
