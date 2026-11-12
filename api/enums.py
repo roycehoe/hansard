@@ -100,3 +100,31 @@ class ReportLinkRelation(StrEnum):
     CORRECTED_BY = "corrected_by"
     REFERS_TO = "refers_to"
     CONTINUES = "continues"
+
+
+class LeaveEntryFormat(StrEnum):
+    STRUCTURED_LIST = "STRUCTURED_LIST"
+    PROSE_RANGE = "PROSE_RANGE"
+    PROSE_SINGLE_DAY = "PROSE_SINGLE_DAY"
+    PROSE_DAY_LIST = "PROSE_DAY_LIST"
+    PROSE_DURATION = "PROSE_DURATION"
+    PROSE_MIXED = "PROSE_MIXED"
+    TABLE_ROW = "TABLE_ROW"
+    UNREAD = "UNREAD"
+
+
+class LeaveNameSource(StrEnum):
+    PRINTED = "PRINTED"
+    CARRIED_FROM_ROW_ABOVE = "CARRIED_FROM_ROW_ABOVE"
+    NONE = "NONE"
+
+
+class LeaveYearSource(StrEnum):
+    NEAREST_TO_SITTING = "NEAREST_TO_SITTING"
+    PRINTED_IN_ENTRY = "PRINTED_IN_ENTRY"
+    PRINTED_COLUMN_HEADING = "PRINTED_COLUMN_HEADING"
+
+
+class LeaveOfficeSource(StrEnum):
+    PRINTED_ON_ENTRY = "PRINTED_ON_ENTRY"
+    ATTENDANCE_LIST = "ATTENDANCE_LIST"
