@@ -136,6 +136,9 @@ def test_a_report_page_carries_its_title_date_speakers_and_paragraphs(
         "<h1>SUPPLY BILL</h1>",
         "<p>Second Reading</p>",
         '<p><time datetime="2020-01-01">1 January 2020</time></p>',
+        '<p>Source: <a href="https://sprs.parl.gov.sg/">'
+        "Parliament of Singapore, Official Report, 1 January 2020</a>. "
+        "Not an official Parliament site.</p>",
         "<p><strong>Mr Speaker</strong>: Order. Second Reading.</p>",
         "<p><strong>Mr Tan</strong>: Sir, I beg to move.</p>",
         "<p>And so  the *Bill* stands.</p>",

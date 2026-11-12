@@ -30,6 +30,8 @@ _RECENT_SITTINGS_HEADING = "Recent sittings"
 _RECENT_SITTING_COUNT = 5
 _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
+_SOURCE_NAME = "Parliament of Singapore, Official Report"
+_NOT_OFFICIAL_NOTE = "Not an official Parliament site."
 
 
 def _get_paragraph_html(
@@ -63,6 +65,9 @@ def _get_report_html(report: GetReportResponse) -> str:
             *subtitle_paragraphs,
             f'<p><time datetime="{escape(report.sitting_date.isoformat())}">'
             f"{escape(get_sitting_date_label(report.sitting_date))}</time></p>",
+            f'<p>Source: <a href="{escape(report.official_record_url)}">'
+            f"{_SOURCE_NAME}, {escape(get_sitting_date_label(report.sitting_date))}"
+            f"</a>. {_NOT_OFFICIAL_NOTE}</p>",
             *paragraphs,
             "</main>",
         ]
