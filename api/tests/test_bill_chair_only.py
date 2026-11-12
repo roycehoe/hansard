@@ -21,6 +21,7 @@ _MEMBERSHIP_ID = 70
 _BILL_ID = 1
 _REPORT_ID = 100
 _SPRS_REPORT_ID = "REPORT-1#"
+_PARLIAMENT_NUMBER = 14
 _CHAIR_LABEL = "Mr Speaker"
 _OWN_LABEL = "Mr Seah Kian Peng"
 _PAGE = 1
@@ -119,6 +120,7 @@ def _get_visible_bills(
                     id=_REPORT_ID,
                     report_id=_SPRS_REPORT_ID,
                     sitting_date=datetime(2020, 1, 1),
+                    parliament_number=_PARLIAMENT_NUMBER,
                 )
             ],
             sprs_report_id_to_role={_SPRS_REPORT_ID: BillReportRole.READING},
