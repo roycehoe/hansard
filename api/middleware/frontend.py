@@ -37,9 +37,12 @@ _DIRECTORY_INDEX_PATH = "."
 _PATH_KEY = "path"
 _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
-_PARLIAMENT_PARAMETER = "parliament"
 _URL_SEPARATOR = "/"
 _USER_AGENT_HEADER = "user-agent"
+_VARY_HEADER = "Vary"
+_FETCH_DESTINATION_HEADER = "Sec-Fetch-Dest"
+_DOCUMENT_DESTINATION = "document"
+_SEARCH_PATH = "/search"
 _NO_STRUCTURED_DATA = ""
 _NO_PRELOAD = ""
 
@@ -76,6 +79,16 @@ def _get_page_preload_html(scope: Scope, preview: PreviewData) -> str:
     ):
         return _NO_PRELOAD
     return get_report_data_preload_html(scope[_PATH_KEY])
+
+
+# NOTE: only the search page's text depends on Sec-Fetch-Dest, so only it tells caches to keep a separate copy per value
+def _get_index_headers(path: str) -> dict[str, str]:
+    if path == _SEARCH_PATH:
+        return {
+            _CACHE_CONTROL_HEADER: _INDEX_CACHE_CONTROL,
+            _VARY_HEADER: _FETCH_DESTINATION_HEADER,
+        }
+    return {_CACHE_CONTROL_HEADER: _INDEX_CACHE_CONTROL}
 
 
 class FrontendFiles(StaticFiles):
@@ -116,7 +129,8 @@ class FrontendFiles(StaticFiles):
         page_text_html = await run_in_threadpool(
             get_page_text_html,
             scope[_PATH_KEY],
-            query_params.get(_PARLIAMENT_PARAMETER),
+            query_params,
+            request.headers.get(_FETCH_DESTINATION_HEADER) == _DOCUMENT_DESTINATION,
             preview,
         )
         return HTMLResponse(
@@ -132,7 +146,7 @@ class FrontendFiles(StaticFiles):
             status_code=(
                 status.HTTP_200_OK if preview.is_found else status.HTTP_404_NOT_FOUND
             ),
-            headers={_CACHE_CONTROL_HEADER: _INDEX_CACHE_CONTROL},
+            headers=_get_index_headers(scope[_PATH_KEY]),
         )
 
     async def get_response(self, path: str, scope: Scope) -> Response:

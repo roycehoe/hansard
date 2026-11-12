@@ -10,13 +10,19 @@ from sqlmodel import Session
 from starlette.applications import Starlette
 from starlette.routing import Mount
 
-from enums import PreviewType
+from enums import PreviewType, ReportType, SearchSort
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
+from exceptions.search import (
+    SearchBusyException,
+    SearchConstituencyNotFoundException,
+    SearchTimedOutException,
+)
 from exceptions.sitting import SittingNotFoundException
 from middleware import frontend
 from schemas.parliament import GetAllParliamentsResponse, ParliamentData
 from schemas.preview import PreviewData
 from schemas.report import GetReportResponse, SpeechData
+from schemas.search import SearchSpeechesResponse, SpeechMatchData
 from schemas.sitting import (
     GetAllSittingsResponse,
     GetSittingResponse,
@@ -26,6 +32,7 @@ from schemas.sitting import (
 from services import parliament as parliament_service
 from services import preview as preview_service
 from services import report as report_service
+from services import search as search_service
 from services import sitting as sitting_service
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -258,6 +265,7 @@ def _get_sitting(sitting_date: date) -> SittingData:
 def test_the_home_page_links_parliaments_people_and_recent_sittings(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+
     def get_all_sittings(
         parliament_number: int, session: Session
     ) -> GetAllSittingsResponse:
@@ -478,6 +486,347 @@ def test_a_database_failure_leaves_the_sittings_root_empty(
     client = _get_client(tmp_path, monkeypatch, _get_sittings_preview())
 
     response = client.get("/sittings?parliament=15")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _EMPTY_ROOT in response.text
+
+
+_COVERAGE_LINE = (
+    "<p>This is an unofficial, English-only archive of Singapore&#x27;s "
+    "parliamentary debates since 1955.</p>"
+)
+
+
+def _get_search_preview() -> PreviewData:
+    return PreviewData(
+        title="Search",
+        description="An archive.",
+        preview_type=PreviewType.WEBSITE,
+        path="/search",
+        is_found=True,
+        report_title="",
+        sitting_date=None,
+    )
+
+
+def _get_speech_match(
+    report_slug: str, title: str, ordinal: int, speaker_label: str, snippet: str
+) -> SpeechMatchData:
+    return SpeechMatchData(
+        report_slug=report_slug,
+        title=title,
+        report_type="bill",
+        sitting_date=date(2020, 1, 1),
+        parliament_number=14,
+        ordinal=ordinal,
+        speaker_label=speaker_label,
+        kind=None,
+        person_id=None,
+        person_slug="",
+        person_name="",
+        snippet=snippet,
+        anchor="",
+        report_match_count=1,
+    )
+
+
+def _get_search_speeches_response(
+    results: list[SpeechMatchData], has_next_page: bool
+) -> SearchSpeechesResponse:
+    return SearchSpeechesResponse(
+        results=results,
+        page=1,
+        page_size=20,
+        has_next_page=has_next_page,
+        total_count=1_000,
+        is_total_capped=True,
+    )
+
+
+def _fail_if_search_runs(*arguments: object) -> SearchSpeechesResponse:
+    raise AssertionError("the search should not run")
+
+
+def test_a_search_page_lists_the_first_page_of_speech_matches(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    search_arguments: list[tuple[object, ...]] = []
+
+    def search_speeches(*arguments: object) -> SearchSpeechesResponse:
+        search_arguments.append(arguments[:-1])
+        return _get_search_speeches_response(
+            [
+                _get_speech_match(
+                    "bill-818",
+                    "SUPPLY BILL",
+                    3,
+                    "Mr Tan",
+                    "the <mark>default</mark> rate",
+                ),
+                _get_speech_match("bill-819", "LOANS BILL", 1, "", "no marks here"),
+            ],
+            True,
+        )
+
+    monkeypatch.setattr(search_service, "search_speeches", search_speeches)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    response = client.get("/search?q=+default+interest+&type=bill&page=2&tab=titles")
+
+    assert search_arguments == [
+        (
+            "default interest",
+            None,
+            None,
+            None,
+            ReportType.BILL,
+            None,
+            None,
+            None,
+            SearchSort.DATE,
+            2,
+            20,
+        )
+    ]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["vary"] == "Sec-Fetch-Dest"
+    assert _get_root_contents(response.text).split("\n") == [
+        "<main>",
+        "<h1>Search</h1>",
+        _COVERAGE_LINE,
+        "<p>more than 1,000 speech matches</p>",
+        '<p><a href="/search?q=+default+interest+&amp;type=bill&amp;tab=titles">'
+        "Title matches</a></p>",
+        "<ol>",
+        '<li><a href="/reports/bill-818?hl=default+interest#s3">SUPPLY BILL</a>, '
+        '<time datetime="2020-01-01">1 January 2020</time><br>'
+        "<strong>Mr Tan</strong>: the <mark>default</mark> rate</li>",
+        '<li><a href="/reports/bill-819?hl=default+interest#s1">LOANS BILL</a>, '
+        '<time datetime="2020-01-01">1 January 2020</time><br>no marks here</li>',
+        "</ol>",
+        '<p><a href="/search?q=+default+interest+&amp;type=bill&amp;page=3">'
+        "Next page</a></p>",
+        "</main>",
+    ]
+
+
+def test_search_text_is_escaped(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        search_service,
+        "search_speeches",
+        lambda *arguments: _get_search_speeches_response(
+            [
+                _get_speech_match(
+                    "00069110-ZZ_1#id004-budget",
+                    "<script>alert(1)</script>",
+                    2,
+                    'Mr "A" & B',
+                    "1 < 2 <mark>tax</mark> </li><script>alert(2)</script>",
+                )
+            ],
+            False,
+        ),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    root_contents = _get_root_contents(
+        client.get("/search", params={"q": 'tax "x" <b>'}).text
+    )
+
+    assert "<script" not in root_contents
+    assert "<b>" not in root_contents
+    assert (
+        '<a href="/reports/00069110-ZZ_1%23id004-budget?hl=tax+%22x%22+%3Cb%3E#s2">'
+        "&lt;script&gt;alert(1)&lt;/script&gt;</a>"
+    ) in root_contents
+    assert (
+        "<strong>Mr &quot;A&quot; &amp; B</strong>: 1 &lt; 2 <mark>tax</mark> "
+        "&lt;/li&gt;&lt;script&gt;alert(2)&lt;/script&gt;</li>"
+    ) in root_contents
+
+
+@pytest.mark.parametrize(
+    ("query", "report_link"),
+    [
+        ("?q=%22carbon+tax%22", "/reports/bill-818?hl=%22%5C%22carbon+tax%5C%22%22#s3"),
+        ("?q=2024", "/reports/bill-818?hl=%222024%22#s3"),
+        ("?person=7", "/reports/bill-818#s3"),
+    ],
+)
+def test_a_search_match_links_its_paragraph_as_the_app_does(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, query: str, report_link: str
+) -> None:
+    monkeypatch.setattr(
+        search_service,
+        "search_speeches",
+        lambda *arguments: _get_search_speeches_response(
+            [_get_speech_match("bill-818", "SUPPLY BILL", 3, "", "text")], False
+        ),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    root_contents = _get_root_contents(client.get(f"/search{query}").text)
+
+    assert f'<a href="{report_link}">SUPPLY BILL</a>' in root_contents
+
+
+@pytest.mark.parametrize(
+    "headers",
+    [{"Sec-Fetch-Dest": "document"}, {"sec-fetch-dest": "document"}],
+)
+def test_a_browser_page_load_runs_no_search_and_gets_the_same_page_otherwise(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, headers: dict[str, str]
+) -> None:
+    monkeypatch.setattr(
+        search_service,
+        "search_speeches",
+        lambda *arguments: _get_search_speeches_response(
+            [_get_speech_match("bill-818", "SUPPLY BILL", 3, "", "text")], False
+        ),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+    fetcher_response = client.get("/search?q=default")
+    monkeypatch.setattr(search_service, "search_speeches", _fail_if_search_runs)
+
+    browser_response = client.get("/search?q=default", headers=headers)
+
+    assert _get_root_contents(fetcher_response.text) != ""
+    assert _EMPTY_ROOT in browser_response.text
+    assert _ROOT_CONTENTS.sub("", browser_response.text) == _ROOT_CONTENTS.sub(
+        "", fetcher_response.text
+    )
+    assert browser_response.status_code == fetcher_response.status_code
+    assert browser_response.headers["vary"] == "Sec-Fetch-Dest"
+    assert browser_response.headers["cache-control"] == "no-cache"
+
+
+@pytest.mark.parametrize(
+    ("error", "note"),
+    [
+        (
+            SearchBusyException,
+            "Search is busy. Too many searches are running. Try again in a moment.",
+        ),
+        (
+            SearchTimedOutException,
+            "The search took too long. Choose a Parliament, report type or date "
+            "range to narrow the search, then try again.",
+        ),
+        (
+            SearchConstituencyNotFoundException,
+            "No constituency called Tampines &amp; &lt;i&gt;Changkat&lt;/i&gt;. "
+            "Check the spelling. A "
+            "constituency can be listed under another name after its boundaries "
+            "change.",
+        ),
+    ],
+)
+def test_a_search_that_fails_writes_the_line_the_app_shows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error: Exception, note: str
+) -> None:
+    def raise_error(*arguments: object) -> SearchSpeechesResponse:
+        raise error
+
+    monkeypatch.setattr(search_service, "search_speeches", raise_error)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    response = client.get(
+        "/search",
+        params={"q": "default", "constituency": " Tampines & <i>Changkat</i> "},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _get_root_contents(response.text).split("\n") == [
+        "<main>",
+        "<h1>Search</h1>",
+        _COVERAGE_LINE,
+        f"<p>{note}</p>",
+        "</main>",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("query", "note"),
+    [
+        (
+            "?q=-covid",
+            "A minus sign excludes a word. Add a word to search for, or choose a "
+            "person or constituency.",
+        ),
+        ("?q=default&page=51", "Couldn&#x27;t run the search."),
+        ("?q=default&type=no-such-type", "Couldn&#x27;t run the search."),
+        ("?q=default&from=1899-12-31", "Couldn&#x27;t run the search."),
+        (f"?q={'a' * 257}", "Couldn&#x27;t run the search."),
+    ],
+)
+def test_a_search_the_api_would_refuse_writes_a_line_and_runs_no_search(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, query: str, note: str
+) -> None:
+    monkeypatch.setattr(search_service, "search_speeches", _fail_if_search_runs)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    root_contents = _get_root_contents(client.get(f"/search{query}").text)
+
+    assert root_contents.split("\n") == [
+        "<main>",
+        "<h1>Search</h1>",
+        _COVERAGE_LINE,
+        f"<p>{note}</p>",
+        "</main>",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("query", "lines"),
+    [
+        (
+            "?q=zebrafinch",
+            [
+                '<p><a href="/search?q=zebrafinch&amp;tab=titles">Title matches</a></p>',
+                "<p>No speech matches. All search terms must appear in the same "
+                "paragraph. Try using fewer words. Common words like &quot;the&quot; "
+                "are ignored.</p>",
+            ],
+        ),
+        (
+            "?person=7",
+            ["<p>No speeches. Try a wider date range or another Parliament.</p>"],
+        ),
+    ],
+)
+def test_a_search_with_no_matches_says_so(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, query: str, lines: list[str]
+) -> None:
+    monkeypatch.setattr(
+        search_service,
+        "search_speeches",
+        lambda *arguments: _get_search_speeches_response([], False),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    root_contents = _get_root_contents(client.get(f"/search{query}").text)
+
+    assert root_contents.split("\n") == [
+        "<main>",
+        "<h1>Search</h1>",
+        _COVERAGE_LINE,
+        *lines,
+        "</main>",
+    ]
+
+
+def test_a_database_failure_leaves_the_search_root_empty(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def raise_error(*arguments: object) -> SearchSpeechesResponse:
+        raise OperationalError("SELECT 1", {}, Exception("connection refused"))
+
+    monkeypatch.setattr(search_service, "search_speeches", raise_error)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    response = client.get("/search?q=default")
 
     assert response.status_code == status.HTTP_200_OK
     assert _EMPTY_ROOT in response.text
