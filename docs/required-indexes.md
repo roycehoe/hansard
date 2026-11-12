@@ -793,6 +793,299 @@ Sort  (cost=18.87..19.00 rows=53 width=42) (actual time=0.045..0.047 rows=53 loo
 Execution Time: 0.053 ms
 ```
 
+## Indexes of bill
+
+```sql
+CREATE UNIQUE INDEX bill_pkey ON bill (id);
+```
+
+Needed by `GET /bills/{report_slug}`, `GET /acts/{sso_code}`, `GET /acts/{sso_code}/people`, `GET /people/{person_id}/bills` and the `act` filter of `GET /search/speeches` (all unreleased), through `middleware/bill.py`, which reads the bills of the reports it has found and keeps those with a `billkey` row and a visible report. The statement reads `bill` by primary key. `ix_bill_bill_number` and `ix_bill_title_key` are not read by any API statement.
+
+Rows in the copy: 2,811. Index sizes there: `bill_pkey` 80 kB.
+
+```sql
+-- bills_by_ids (middleware/bill.py; 2 bills)
+SELECT bill.id, bill.title, bill.first_sitting_date, bill.last_sitting_date, bill.is_passed FROM bill WHERE bill.id IN (1489, 2540) ORDER BY bill.id;
+```
+
+```text
+-- bills_by_ids (middleware/bill.py), hansard_positions
+Index Scan using bill_pkey on bill  (cost=0.28..12.62 rows=2 width=58) (actual time=0.009..0.012 rows=2 loops=1)
+  Index Cond: (id = ANY ('{1489,2540}'::integer[]))
+Execution Time: 0.016 ms
+```
+
+## Indexes of billkey
+
+```sql
+CREATE UNIQUE INDEX billkey_bill_id_key ON billkey (bill_id);
+```
+
+Needed by the same endpoints as `bill`: `middleware/bill.py` reads the key row of each bill through the unique index on `bill_id`. The unique index on `bill_key` is not read by the API.
+
+Rows in the copy: 2,811. Index sizes there: `billkey_bill_id_key` 80 kB.
+
+```sql
+-- bill_keys_by_bill_ids (middleware/bill.py; 2 bills)
+SELECT billkey.id, billkey.act_count, billkey.bill_key, billkey.bill_id FROM billkey WHERE billkey.bill_id IN (1489, 2540) ORDER BY billkey.bill_id;
+```
+
+```text
+-- bill_keys_by_bill_ids (middleware/bill.py), hansard_positions
+Index Scan using billkey_bill_id_key on billkey  (cost=0.28..12.66 rows=2 width=59) (actual time=0.010..0.013 rows=2 loops=1)
+  Index Cond: (bill_id = ANY ('{1489,2540}'::integer[]))
+Execution Time: 0.018 ms
+```
+
+## Indexes of billreport
+
+```sql
+CREATE INDEX ix_billreport_report_id ON billreport (report_id);
+CREATE INDEX ix_billreport_bill_id ON billreport (bill_id);
+```
+
+Three statements read this table. `GET /bills/{report_slug}` finds the bill of a report by `report_id` (`ix_billreport_report_id`) and lists a bill's reports by `bill_id` (`ix_billreport_bill_id`). `GET /people/{person_id}/bills` and `GET /acts/{sso_code}/people` go from SPRS report ids to `billreport` rows by joining `report` on its unique `report_id`, then probing `ix_billreport_report_id`. The taken-down exclusion is `report_id NOT IN (...)` over a short list, applied as a filter.
+
+Rows in the copy: 5,827. Index sizes there: `ix_billreport_report_id` 144 kB, `ix_billreport_bill_id` 128 kB.
+
+```sql
+-- bill_report_by_report_id (GET /bills/{report_slug}; report 12665)
+SELECT billreport.id, billreport.role, billreport.bill_id, billreport.report_id FROM billreport WHERE billreport.report_id = 12665 ORDER BY billreport.id;
+```
+
+```text
+-- bill_report_by_report_id (GET /bills/{report_slug}), hansard_positions
+Sort  (cost=8.31..8.32 rows=1 width=16) (actual time=0.010..0.010 rows=1 loops=1)
+  ->  Index Scan using ix_billreport_report_id on billreport  (cost=0.28..8.30 rows=1 width=16) (actual time=0.007..0.008 rows=1 loops=1)
+        Index Cond: (report_id = 12665)
+Execution Time: 0.017 ms
+```
+
+```sql
+-- bill_reports_by_bill_ids_excluding_report_ids (GET /bills/{report_slug}; 2 bills)
+SELECT billreport.id, billreport.role, billreport.bill_id, billreport.report_id FROM billreport WHERE billreport.bill_id IN (1489, 2540) AND (billreport.report_id NOT IN (7)) ORDER BY billreport.bill_id, billreport.id;
+```
+
+```text
+-- bill_reports_by_bill_ids_excluding_report_ids (GET /bills/{report_slug}), hansard_positions
+Incremental Sort  (cost=3.38..12.82 rows=4 width=16) (actual time=0.013..0.014 rows=4 loops=1)
+  ->  Index Scan using ix_billreport_bill_id on billreport  (cost=0.28..12.64 rows=4 width=16) (actual time=0.007..0.011 rows=4 loops=1)
+        Index Cond: (bill_id = ANY ('{1489,2540}'::integer[]))
+        Filter: (report_id <> 7)
+Execution Time: 0.022 ms
+```
+
+```sql
+-- bill_reports_by_sprs_report_ids_excluding_report_ids (GET /people/{person_id}/bills; report bill-366#)
+SELECT billreport.id, billreport.role, billreport.bill_id, billreport.report_id FROM billreport JOIN report ON report.id = billreport.report_id WHERE report.report_id IN ('bill-366#') AND (report.id NOT IN (7)) ORDER BY billreport.bill_id, billreport.id;
+```
+
+```text
+-- bill_reports_by_sprs_report_ids_excluding_report_ids (GET /people/{person_id}/bills), hansard_positions
+Sort  (cost=16.76..16.76 rows=1 width=16) (actual time=0.019..0.019 rows=1 loops=1)
+  ->  Nested Loop  (cost=0.70..16.75 rows=1 width=16) (actual time=0.016..0.017 rows=1 loops=1)
+        ->  Index Scan using report_report_id_key on report  (cost=0.41..8.43 rows=1 width=4) (actual time=0.010..0.011 rows=1 loops=1)
+              Index Cond: ((report_id)::text = 'bill-366#'::text)
+              Filter: (id <> 7)
+        ->  Index Scan using ix_billreport_report_id on billreport  (cost=0.28..8.30 rows=1 width=16) (actual time=0.005..0.005 rows=1 loops=1)
+              Index Cond: (report_id = report.id)
+Execution Time: 0.027 ms
+```
+
+## Indexes of billreportspeaker
+
+```sql
+CREATE INDEX ix_billreportspeaker_speaker_id ON billreportspeaker (speaker_id);
+CREATE INDEX ix_billreportspeaker_sprs_report_id ON billreportspeaker (sprs_report_id);
+```
+
+Needed by `GET /people/{person_id}/bills` (the rows of the person's Memberships, by `speaker_id`), and by `GET /bills/{report_slug}` and `GET /acts/{sso_code}/people` (the rows of given reports, by `sprs_report_id`). Both statements join `report` on its unique `report_id` for the taken-down exclusion. The per-Membership statement is the heaviest of the law reads: 1.4 ms for the busiest Member's 407 rows, most of it the 407 `report` lookups, which the planner caches with a Memoize node.
+
+Rows in the copy: 13,833. Index sizes there: `ix_billreportspeaker_speaker_id` 192 kB, `ix_billreportspeaker_sprs_report_id` 448 kB.
+
+```sql
+-- bill_report_speakers_by_membership_ids_excluding_report_ids (GET /people/{person_id}/bills; Membership 1352, 407 rows)
+SELECT billreportspeaker.id, billreportspeaker.speech_count, billreportspeaker.printed_speaker, billreportspeaker.sprs_report_id, billreportspeaker.speaker_id FROM billreportspeaker JOIN report ON report.report_id = billreportspeaker.sprs_report_id WHERE billreportspeaker.speaker_id IN (1352) AND (report.id NOT IN (7)) ORDER BY billreportspeaker.id;
+```
+
+```text
+-- bill_report_speakers_by_membership_ids_excluding_report_ids (GET /people/{person_id}/bills), hansard_positions
+Sort  (cost=2913.62..2914.64 rows=407 width=85) (actual time=1.364..1.375 rows=407 loops=1)
+  ->  Nested Loop  (cost=7.86..2895.98 rows=407 width=85) (actual time=0.028..1.313 rows=407 loops=1)
+        ->  Bitmap Heap Scan on billreportspeaker  (cost=7.44..219.02 rows=407 width=85) (actual time=0.015..0.078 rows=407 loops=1)
+              Recheck Cond: (speaker_id = 1352)
+              ->  Bitmap Index Scan on ix_billreportspeaker_speaker_id  (cost=0.00..7.34 rows=407 width=0) (actual time=0.009..0.009 rows=407 loops=1)
+                    Index Cond: (speaker_id = 1352)
+        ->  Memoize  (cost=0.42..6.88 rows=1 width=38) (actual time=0.003..0.003 rows=1 loops=407)
+              ->  Index Scan using report_report_id_key on report  (cost=0.41..6.87 rows=1 width=38) (actual time=0.002..0.002 rows=1 loops=407)
+                    Index Cond: ((report_id)::text = billreportspeaker.sprs_report_id)
+                    Filter: (id <> 7)
+Execution Time: 1.401 ms
+```
+
+```sql
+-- bill_report_speakers_by_sprs_report_ids_excluding_report_ids (GET /bills/{report_slug}; report bill-366#, 30 rows)
+SELECT billreportspeaker.id, billreportspeaker.speech_count, billreportspeaker.printed_speaker, billreportspeaker.sprs_report_id, billreportspeaker.speaker_id FROM billreportspeaker JOIN report ON report.report_id = billreportspeaker.sprs_report_id WHERE billreportspeaker.sprs_report_id IN ('bill-366#') AND (report.id NOT IN (7)) ORDER BY billreportspeaker.id;
+```
+
+```text
+-- bill_report_speakers_by_sprs_report_ids_excluding_report_ids (GET /bills/{report_slug}), hansard_positions
+Sort  (cost=70.05..70.12 rows=30 width=85) (actual time=0.032..0.033 rows=30 loops=1)
+  ->  Nested Loop  (cost=0.70..69.31 rows=30 width=85) (actual time=0.018..0.024 rows=30 loops=1)
+        ->  Index Scan using report_report_id_key on report  (cost=0.41..8.43 rows=1 width=38) (actual time=0.012..0.012 rows=1 loops=1)
+              Index Cond: ((report_id)::text = 'bill-366#'::text)
+              Filter: (id <> 7)
+        ->  Index Scan using ix_billreportspeaker_sprs_report_id on billreportspeaker  (cost=0.29..60.58 rows=30 width=85) (actual time=0.004..0.008 rows=30 loops=1)
+              Index Cond: (sprs_report_id = 'bill-366#'::text)
+Execution Time: 0.046 ms
+```
+
+## Indexes of billstageline
+
+```sql
+CREATE INDEX ix_billstageline_sprs_report_id ON billstageline (sprs_report_id);
+```
+
+Needed by `GET /bills/{report_slug}` and `GET /acts/{sso_code}`: the printed stage lines of the bill's reports, by `sprs_report_id` (`ix_billstageline_sprs_report_id`), joined to `report` for the taken-down exclusion and sorted by report, ordinal and stage.
+
+Rows in the copy: 10,673. Index sizes there: `ix_billstageline_sprs_report_id` 648 kB.
+
+```sql
+-- bill_stage_lines_by_sprs_report_ids_excluding_report_ids (GET /bills/{report_slug}; 6 lines)
+SELECT billstageline.id, billstageline.stage, billstageline.printed_text, billstageline.ordinal, billstageline.sprs_report_id FROM billstageline JOIN report ON report.report_id = billstageline.sprs_report_id WHERE billstageline.sprs_report_id IN ('00069250-ZZ.00054837-ZZ_1#id047_19711019_S0002_T00081-bill#') AND (report.id NOT IN (7)) ORDER BY billstageline.sprs_report_id, billstageline.ordinal, billstageline.stage;
+```
+
+```text
+-- bill_stage_lines_by_sprs_report_ids_excluding_report_ids (GET /bills/{report_slug}), hansard_positions
+Sort  (cost=31.94..31.96 rows=6 width=176) (actual time=0.027..0.027 rows=6 loops=1)
+  ->  Nested Loop  (cost=0.70..31.86 rows=6 width=176) (actual time=0.019..0.023 rows=6 loops=1)
+        ->  Index Scan using report_report_id_key on report  (cost=0.41..8.43 rows=1 width=38) (actual time=0.012..0.013 rows=1 loops=1)
+              Index Cond: ((report_id)::text = '00069250-ZZ.00054837-ZZ_1#id047_19711019_S0002_T00081-bill#'::text)
+              Filter: (id <> 7)
+        ->  Index Scan using ix_billstageline_sprs_report_id on billstageline  (cost=0.29..23.37 rows=6 width=176) (actual time=0.006..0.009 rows=6 loops=1)
+              Index Cond: (sprs_report_id = '00069250-ZZ.00054837-ZZ_1#id047_19711019_S0002_T00081-bill#'::text)
+Execution Time: 0.036 ms
+```
+
+## Indexes of act
+
+```sql
+CREATE UNIQUE INDEX act_sso_code_key ON act (sso_code);
+CREATE UNIQUE INDEX act_pkey ON act (id);
+```
+
+Needed by `GET /acts`, `GET /acts/{sso_code}` and the `act` filter of `GET /search/speeches` (all unreleased). The code lookups use the unique index on `sso_code`. `get_all` lists every Act with no filter, and `get_by_ids` names a few Acts of a bill. Both sequentially scan the table, and Postgres is right to: `act` holds 523 rows in 48 kB.
+
+**Finding.** `acts_by_ids` and `acts_all` run a `Seq Scan` on `act`. The table is one row per current Act of the SSO harvest, so it grows by the Acts SSO adds. `acts_all` has no filter and no index could serve it. `acts_by_ids` reads `act_pkey` once sequential scans are off.
+
+Rows in the copy: 523. Index sizes there: `act_sso_code_key` 32 kB, `act_pkey` 32 kB.
+
+```sql
+-- act_by_sso_code (GET /acts/{sso_code}; CYPA1993)
+SELECT act.id, act.sso_code, act.title FROM act WHERE act.sso_code = 'CYPA1993';
+```
+
+```text
+-- act_by_sso_code (GET /acts/{sso_code}), hansard_positions
+Index Scan using act_sso_code_key on act  (cost=0.28..8.29 rows=1 width=47) (actual time=0.006..0.006 rows=1 loops=1)
+  Index Cond: (sso_code = 'CYPA1993'::text)
+Execution Time: 0.010 ms
+```
+
+```sql
+-- acts_by_ids (GET /bills/{report_slug}; 2 Acts)
+SELECT act.id, act.sso_code, act.title FROM act WHERE act.id IN (237, 238) ORDER BY act.sso_code;
+```
+
+```text
+-- acts_by_ids (GET /bills/{report_slug}), hansard_positions
+Sort  (cost=12.55..12.55 rows=2 width=47) (actual time=0.037..0.037 rows=2 loops=1)
+  ->  Seq Scan on act  (cost=0.00..12.54 rows=2 width=47) (actual time=0.017..0.032 rows=2 loops=1)
+        Filter: (id = ANY ('{237,238}'::integer[]))
+Execution Time: 0.041 ms
+```
+
+With `SET LOCAL enable_seqscan = off`, the same statement:
+
+```text
+-- acts_by_ids (GET /bills/{report_slug}), sequential scans off
+Sort  (cost=12.60..12.60 rows=2 width=47) (actual time=0.187..0.188 rows=2 loops=1)
+  ->  Index Scan using act_pkey on act  (cost=0.28..12.59 rows=2 width=47) (actual time=0.020..0.021 rows=2 loops=1)
+        Index Cond: (id = ANY ('{237,238}'::integer[]))
+Execution Time: 0.194 ms
+```
+
+```sql
+-- acts_all (GET /acts; 523 rows)
+SELECT act.id, act.sso_code, act.title FROM act ORDER BY act.title, act.id;
+```
+
+```text
+-- acts_all (GET /acts), hansard_positions
+Sort  (cost=34.85..36.15 rows=523 width=47) (actual time=0.291..0.304 rows=523 loops=1)
+  ->  Seq Scan on act  (cost=0.00..11.23 rows=523 width=47) (actual time=0.005..0.027 rows=523 loops=1)
+Execution Time: 0.320 ms
+```
+
+## Indexes of acthistoryentry
+
+```sql
+CREATE INDEX ix_acthistoryentry_act_id ON acthistoryentry (act_id);
+CREATE INDEX ix_acthistoryentry_bill_id ON acthistoryentry (bill_id);
+```
+
+Needed by `GET /acts/{sso_code}` (the Act's entries, by `act_id`), `GET /bills/{report_slug}` (the entries that link to the bill, by `bill_id`) and the `act` filter of `GET /search/speeches`. The first reads `ix_acthistoryentry_act_id` and sorts on `ordinal`; `uq_acthistoryentry_act_id_ordinal` could return the rows in order, and at 226 rows the planner prefers the cheaper index and a sort. The second reads `ix_acthistoryentry_bill_id` and hash-joins `act` for the code sort.
+
+Rows in the copy: 9,905. Index sizes there: `ix_acthistoryentry_act_id` 96 kB, `ix_acthistoryentry_bill_id` 120 kB.
+
+```sql
+-- act_history_entries_by_act_id (GET /acts/{sso_code}; Act 237, 226 rows)
+SELECT acthistoryentry.id, acthistoryentry.ordinal, acthistoryentry.printed_law_number, acthistoryentry.printed_title, acthistoryentry.printed_bill_number, acthistoryentry.first_reading_date, acthistoryentry.second_reading_date, acthistoryentry.third_reading_date, acthistoryentry.commencement_date, acthistoryentry.kind, acthistoryentry.bill_link_source, acthistoryentry.act_id, acthistoryentry.bill_id FROM acthistoryentry WHERE acthistoryentry.act_id = 237 ORDER BY acthistoryentry.ordinal DESC;
+```
+
+```text
+-- act_history_entries_by_act_id (GET /acts/{sso_code}), hansard_positions
+Sort  (cost=77.06..77.62 rows=226 width=112) (actual time=0.106..0.112 rows=226 loops=1)
+  ->  Index Scan using ix_acthistoryentry_act_id on acthistoryentry  (cost=0.29..68.22 rows=226 width=112) (actual time=0.007..0.062 rows=226 loops=1)
+        Index Cond: (act_id = 237)
+Execution Time: 0.124 ms
+```
+
+```sql
+-- act_history_entries_by_bill_id (GET /bills/{report_slug}; bill 2540, 171 rows)
+SELECT acthistoryentry.id, acthistoryentry.ordinal, acthistoryentry.printed_law_number, acthistoryentry.printed_title, acthistoryentry.printed_bill_number, acthistoryentry.first_reading_date, acthistoryentry.second_reading_date, acthistoryentry.third_reading_date, acthistoryentry.commencement_date, acthistoryentry.kind, acthistoryentry.bill_link_source, acthistoryentry.act_id, acthistoryentry.bill_id FROM acthistoryentry JOIN act ON act.id = acthistoryentry.act_id WHERE acthistoryentry.bill_id = 2540 ORDER BY act.sso_code, acthistoryentry.ordinal;
+```
+
+```text
+-- act_history_entries_by_bill_id (GET /bills/{report_slug}), hansard_positions
+Sort  (cost=404.25..404.67 rows=171 width=120) (actual time=0.343..0.348 rows=171 loops=1)
+  ->  Hash Join  (cost=23.38..397.90 rows=171 width=120) (actual time=0.111..0.254 rows=171 loops=1)
+        ->  Bitmap Heap Scan on acthistoryentry  (cost=5.61..379.69 rows=171 width=112) (actual time=0.022..0.126 rows=171 loops=1)
+              Recheck Cond: (bill_id = 2540)
+              ->  Bitmap Index Scan on ix_acthistoryentry_bill_id  (cost=0.00..5.57 rows=171 width=0) (actual time=0.010..0.011 rows=171 loops=1)
+                    Index Cond: (bill_id = 2540)
+        ->  Hash  (cost=11.23..11.23 rows=523 width=12) (actual time=0.085..0.085 rows=523 loops=1)
+              ->  Seq Scan on act  (cost=0.00..11.23 rows=523 width=12) (actual time=0.003..0.035 rows=523 loops=1)
+Execution Time: 0.369 ms
+```
+
+With `SET LOCAL enable_seqscan = off`, the same statement:
+
+```text
+-- act_history_entries_by_bill_id (GET /bills/{report_slug}), sequential scans off
+Sort  (cost=426.14..426.56 rows=171 width=120) (actual time=0.368..0.373 rows=171 loops=1)
+  ->  Hash Join  (cost=45.27..419.79 rows=171 width=120) (actual time=0.141..0.280 rows=171 loops=1)
+        ->  Bitmap Heap Scan on acthistoryentry  (cost=5.61..379.69 rows=171 width=112) (actual time=0.021..0.122 rows=171 loops=1)
+              Recheck Cond: (bill_id = 2540)
+              ->  Bitmap Index Scan on ix_acthistoryentry_bill_id  (cost=0.00..5.57 rows=171 width=0) (actual time=0.009..0.009 rows=171 loops=1)
+                    Index Cond: (bill_id = 2540)
+        ->  Hash  (cost=33.12..33.12 rows=523 width=12) (actual time=0.116..0.116 rows=523 loops=1)
+              ->  Index Scan using act_pkey on act  (cost=0.28..33.12 rows=523 width=12) (actual time=0.005..0.051 rows=523 loops=1)
+Execution Time: 0.397 ms
+```
+
+The join in `act_history_entries_by_bill_id` reads `act` with a `Seq Scan` and hashes all 523 rows; with sequential scans off it reads `act_pkey` in 0.40 ms against 0.37 ms. Same finding as the `act` section: the table is small and bounded by the number of Acts.
+
 ## Ranking cost
 
 Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
