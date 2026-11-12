@@ -10,39 +10,50 @@ function getStageLabels(stages: BillStage[]): string[] {
 }
 
 interface ListActEntryReportsProps {
+  billTitle: string
   reports: ActEntryReportData[]
 }
 
-export function ListActEntryReports({ reports }: ListActEntryReportsProps) {
+export function ListActEntryReports({
+  billTitle,
+  reports,
+}: ListActEntryReportsProps) {
   if (reports.length === 0) return null
 
   return (
     <ol>
       {reports.map((report) => {
         const stageLabels = getStageLabels(report.stages)
+        // NOTE: the Bill's title is printed just above, so a report shows its own title only where the record prints it differently (ADR 0006)
+        const isTitlePrintedDifferently =
+          report.title.toLowerCase() !== billTitle.toLowerCase()
         return (
           <li
             key={report.report_slug}
-            className="border-separator flex flex-wrap items-center gap-x-3 gap-y-1 border-b py-3 last:border-b-0"
+            className="border-separator space-y-1 border-b py-3 last:border-b-0"
           >
-            <Link
-              to="/reports/$reportSlug"
-              params={{ reportSlug: report.report_slug }}
-              className="text-link visited:text-visited focus-visible:decoration-ring font-medium outline-hidden hover:underline focus-visible:underline"
-            >
-              {report.title}
-            </Link>
-            <span className="text-muted-foreground text-sm">
-              {formatSittingDate(report.sitting_date)}
-            </span>
-            <BadgeReportType
-              reportType={report.report_type}
-              variant="tag-quiet"
-            />
-            {stageLabels.length > 0 && (
-              <span className="text-muted-foreground text-sm">
-                {stageLabels.join(', ')}
-              </span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <Link
+                to="/reports/$reportSlug"
+                params={{ reportSlug: report.report_slug }}
+                className="text-link visited:text-visited focus-visible:decoration-ring font-medium outline-hidden hover:underline focus-visible:underline"
+              >
+                {formatSittingDate(report.sitting_date)}
+              </Link>
+              <BadgeReportType
+                reportType={report.report_type}
+                variant="tag-quiet"
+              />
+              {stageLabels.length > 0 && (
+                <span className="text-muted-foreground text-sm">
+                  {stageLabels.join(', ')}
+                </span>
+              )}
+            </div>
+            {isTitlePrintedDifferently && (
+              <p className="text-muted-foreground text-sm break-words">
+                {report.title}
+              </p>
             )}
           </li>
         )
