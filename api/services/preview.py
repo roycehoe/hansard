@@ -392,6 +392,7 @@ def _get_act_preview(sso_code: str, session: Session) -> PreviewData:
         path=f"/acts/{quote(act.sso_code, safe='')}",
         is_found=True,
         report_title=_EMPTY_LABEL,
+        person_name=_EMPTY_LABEL,
         sitting_date=None,
     )
 

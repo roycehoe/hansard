@@ -497,9 +497,13 @@ def _get_search_url(
 
 # NOTE: a report title carries no seat and no Act, so the app offers title matches only without a seat or Act filter, and without words only when no person is chosen
 def _is_title_search_offered(parameters: _SearchPageParameters) -> bool:
-    return parameters.constituency is None and parameters.act_sso_code is None and (
-        not _is_query_without_search_words(parameters.query)
-        or parameters.person_id is None
+    return (
+        parameters.constituency is None
+        and parameters.act_sso_code is None
+        and (
+            not _is_query_without_search_words(parameters.query)
+            or parameters.person_id is None
+        )
     )
 
 
