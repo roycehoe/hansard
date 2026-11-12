@@ -76,10 +76,10 @@ export const TITLE_MATCHES_HEADING = 'Title matches'
 export const REPORTS_HEADING = 'Reports'
 
 export const EMPTY_SPEECH_WORDS_DESCRIPTION =
-  'Words joined by spaces or AND must appear in the same paragraph. Try fewer required words or remove an exclusion. Common words like "the" are ignored.'
+  'All search terms must appear in the same paragraph. Try using fewer words. Common words like "the" are ignored.'
 
 export const EMPTY_TITLE_WORDS_DESCRIPTION =
-  'Words joined by spaces or AND must appear in the same report title. Try fewer required words or remove an exclusion. Common words like "the" are ignored.'
+  'All search terms must appear in the title. Try using fewer words. Common words like "the" are ignored.'
 
 export const EMPTY_FILTERS_DESCRIPTION =
   'Try a wider date range or another Parliament.'

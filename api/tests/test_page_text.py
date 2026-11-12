@@ -1046,9 +1046,9 @@ def test_a_search_the_api_would_refuse_writes_a_line_and_runs_no_search(
             "?q=zebrafinch",
             [
                 '<p><a href="/search?q=zebrafinch&amp;tab=titles">Title matches</a></p>',
-                "<p>No speech matches. Words joined by spaces or AND must appear in "
-                "the same paragraph. Try fewer required words or remove an "
-                "exclusion. Common words like &quot;the&quot; are ignored.</p>",
+                "<p>No speech matches. All search terms must appear in the same "
+                "paragraph. Try using fewer words. Common words like &quot;the&quot; "
+                "are ignored.</p>",
             ],
         ),
         (
@@ -1239,9 +1239,9 @@ def test_a_title_tab_the_app_does_not_offer_lists_speech_matches(
             "?q=zebrafinch&tab=titles",
             [
                 '<p><a href="/search?q=zebrafinch">Speech matches</a></p>',
-                "<p>No title matches. Words joined by spaces or AND must appear in "
-                "the same report title. Try fewer required words or remove an "
-                "exclusion. Common words like &quot;the&quot; are ignored.</p>",
+                "<p>No title matches. All search terms must appear in the title. "
+                "Try using fewer words. Common words like &quot;the&quot; are "
+                "ignored.</p>",
             ],
         ),
         (
