@@ -766,10 +766,13 @@ export const Route = createFileRoute('/coverage/methods')({
                   Search does not support proximity operators such as{' '}
                   <code className="font-mono">/3</code>,{' '}
                   <code className="font-mono">w/3</code>,{' '}
-                  <code className="font-mono">~3</code> or{' '}
-                  <code className="font-mono">NEAR/3</code>. In{' '}
+                  <code className="font-mono">~3</code>,{' '}
+                  <code className="font-mono">NEAR/3</code> or{' '}
+                  <code className="font-mono">NEAR</code>. In{' '}
                   <code className="font-mono">/3</code>, the digit 3 becomes a
-                  required search word.
+                  required search word.{' '}
+                  <code className="font-mono">law NEAR order</code> requires
+                  law, near and order in the same paragraph.
                 </li>
                 <li>
                   Search does not support truncation with{' '}
