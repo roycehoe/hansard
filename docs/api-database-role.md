@@ -51,6 +51,16 @@ GRANT SELECT ON bill, billreport, act, acthistoryentry, billkey, billreportspeak
 
 After it, connect as `hansard_api` and run `SELECT count(*) FROM billkey;`. It returns a row.
 
+## When the office endpoints ship
+
+The seven tables below back the endpoints under `/offices`, which answer 404 until `IS_UNRELEASED_ENDPOINTS_ENABLED` is turned on. They exist only once the scraper's migration `e7b4c2a9f1d3` has run on the remote and the three `apply_*` scripts have filled them. Run this SQL then, as the owner role, before the setting is switched on in production. Until the SQL runs, the role cannot read them and any `/offices` request would fail.
+
+```sql
+GRANT SELECT ON attendance_office, office_printed_range, report_put_to, ministry, office_title_ministry, ministry_see_also, report_participant TO hansard_api;
+```
+
+`report_participant` is not read by anything else in the API today. Confirm each name on the remote with `\d <table>` first.
+
 ## Check the role
 
 Connect as `hansard_api` and run:
