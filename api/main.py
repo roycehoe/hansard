@@ -12,6 +12,7 @@ from routers import (
     person,
     refresh,
     report,
+    report_link,
     search,
     search_count,
     sitting,
@@ -42,6 +43,7 @@ app.add_middleware(RequestLogMiddleware)
 
 app.include_router(health.router)
 app.include_router(report.router)
+app.include_router(report_link.router)
 app.include_router(sitting.router)
 app.include_router(parliament.router)
 app.include_router(person.router)
