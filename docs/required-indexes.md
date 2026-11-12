@@ -1,6 +1,6 @@
 # Required indexes
 
-The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: thirteen indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. Two more, `ix_speech_transcript_fts` and, since 21 October 2026, `ix_report_title_fts`, still exist, but no API statement uses them. The ninth, `ix_speech_transcript_tsv_sitting_date_rum`, reads the column `speech.sitting_date`. Scraper migration `c93f77e499cc` added both to production on 18 October 2026; see its section below. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026, and its date order changes again with the sitting-date index; "Ranking cost" holds its order clauses and timings. Five scraper migrations of 30 October 2026 change or add more indexes; they reached production on 31 October 2026 and are listed under "Indexes added on 31 October 2026". One more scraper migration, `52f4f7b77f1f` on the scraper's `feat/asked-by` branch, adds the table `report_asker`; production does not have it yet, and its indexes are listed under "Indexes of report_asker".
+The API is read-only (ADR 0001) and cannot create indexes. ADR 0003 gives the scraper ownership of every index the API relies on, as Alembic migrations. This file lists them: thirteen indexes and the `rum` extension, each with the exact definition, the endpoints that need it, the SQL the API sends, and the plan Postgres chooses for that SQL on the production database. Two more, `ix_speech_transcript_fts` and, since 21 October 2026, `ix_report_title_fts`, still exist, but no API statement uses them. The ninth, `ix_speech_transcript_tsv_sitting_date_rum`, reads the column `speech.sitting_date`. Scraper migration `c93f77e499cc` added both to production on 18 October 2026; see its section below. The SQL was captured by compiling each SQLModel statement from `api/crud/` with the Postgres dialect and literal parameters. The plans dated 14 October 2026 are plain `EXPLAIN`s taken read-only after the indexes were built, so no query was executed. The speech word search changed on 17 and 18 October 2026, and its date order changes again with the sitting-date index; "Ranking cost" holds its order clauses and timings. Five scraper migrations of 30 October 2026 change or add more indexes; they reached production on 31 October 2026 and are listed under "Indexes added on 31 October 2026". One more scraper migration, `52f4f7b77f1f` on the scraper's `feat/asked-by` branch, adds the table `report_asker`; production does not have it yet, and its indexes are listed under "Indexes of report_asker". The indexes of the tables behind the unreleased endpoints (report links, leave and seats, bills and Acts, offices, attached files, divisions and minutes) are in the sections from "Tables of the unreleased endpoints"; they were checked on the local copy `hansard_positions` only, not on production.
 
 Every index here except `ix_speech_transcript_tsv_sitting_date_rum` and the indexes of `report_asker` exists and is valid on production, and `alembic check` is clean against production. The scraper declares each one on its SQLModel classes. Five migrations built them:
 
@@ -643,6 +643,25 @@ HashAggregate  (cost=335.22..345.15 rows=993 width=4)
               Index Cond: (speaker_id = ANY ('{1093,1199}'::integer[]))
 ```
 
+## Tables of the unreleased endpoints
+
+Before `IS_UNRELEASED_ENDPOINTS_ENABLED` goes on, each table behind the unreleased endpoints has a section below: report links, leave and seats, bills and Acts, offices and ministries, attached files, and divisions and minutes. Each section lists the indexes the table has, the statements `api/crud/` sends to it, and the plan Postgres chose for each, so a table the API reads without an index shows up as a `Seq Scan`.
+
+How the plans were taken:
+
+- On 12 November 2026, in read-only transactions on the local copy `hansard_positions` (3.7 GB; `speech` holds 1,115,837 rows). I did not run anything against production. Each statement was compiled from its `crud/` method with the Postgres dialect and literal parameters, using ids that exist in the copy, and run twice with `EXPLAIN (ANALYZE, BUFFERS)`; the second plan is the one quoted, trimmed to its nodes, index conditions and execution time.
+- The tables are small next to `speech` (row counts are in each section; the largest, `report_participant`, holds 84,084 rows), so the planner reads a table of under a few hundred rows with a `Seq Scan` by choice. Where it did, the section also shows the plan with `SET LOCAL enable_seqscan = off`, which shows the index it would use.
+- The desktop has two cores and other work was running (load average about 2), so a time can vary by half between runs. Compare plan shapes, not milliseconds.
+
+Index definitions against the scraper: I replayed the `upgrade()` of every migration on the scraper's local master (`848b80f`) with the table and index calls recorded, and compared the result with `pg_indexes` of the copy for these 25 tables. Both hold the same 84 indexes, with the same key columns. None is missing and none is extra. `RUN/apply-feature-ddl.sh` built the Votes tables from the migrations' SQL, so they match too. The copy is behind the scraper by one column that is not an index: `minutes.file_bytes` (commit `51ad5b2`). The API's `Minutes` model does not read it.
+
+Findings:
+
+- Two statements `Seq Scan` a table that grows with every question report: `report_put_to_ministry_report_counts` on `report_put_to` and `report_participant_ministry_report_counts` on `report_participant`, both behind `GET /offices/ministries`. Each aggregates every row, so no index removes the scan. See their sections.
+- `minutes_count_filtered` and `divisions_count_filtered` scan `minutes` and `division`, and a `status` filter on `minutes` or a `parliament_number` filter on `division` has no index. `minutes` gains a row per sitting date and `division` a row per recorded vote, so both stay small; their sections say what the plan does.
+- `acts_by_ids`, `acts_all`, `ministries_by_ids`, `ministries_all` and `ministry_see_alsos_by_ministry_id` scan tables of 5 to 523 rows that do not grow with the corpus.
+- Every other statement uses an index. No migration is proposed.
+
 ## Indexes of report_link
 
 ```sql
@@ -650,9 +669,9 @@ CREATE UNIQUE INDEX uq_report_link_source_target_type ON report_link (source_rep
 CREATE INDEX ix_report_link_target_report_id ON report_link (target_report_id);
 ```
 
-Needed by `GET /reports/{report_slug}/links` (unreleased). `CRUDReportLink` reads the links the report prints by `source_report_id`, and the links that point at it by `target_report_id` with a link type. The first statement uses `uq_report_link_source_target_type`, whose first column is the source. The second uses `ix_report_link_target_report_id`. Both statements finish with a sort on `id`, over at most a few dozen rows. Both keys are the SPRS `report_id` text, not the integer `report.id`.
+Rows in the copy (planner estimate): 1,752. Index sizes there: `uq_report_link_source_target_type` 296 kB, `ix_report_link_target_report_id` 136 kB.
 
-Rows in the copy: 1,752. Index sizes there: `uq_report_link_source_target_type` 296 kB, `ix_report_link_target_report_id` 136 kB.
+Needed by `GET /reports/{report_slug}/links` (unreleased). `CRUDReportLink` reads the links the report prints by `source_report_id`, and the links that point at it by `target_report_id` with a link type. The first statement uses `uq_report_link_source_target_type`, whose first column is the source. The second uses `ix_report_link_target_report_id`. Both statements finish with a sort on `id`, over at most a few dozen rows. Both keys are the SPRS `report_id` text, not the integer `report.id`.
 
 ```sql
 -- report_links_by_source_report_id (GET /reports/{report_slug}/links; report written-answer-24513#, 5 rows)
@@ -687,9 +706,9 @@ Execution Time: 0.027 ms
 CREATE UNIQUE INDEX leave_period_pkey ON leave_period (id);
 ```
 
-Needed by `GET /people/{person_id}/leave-periods` and `GET /leave-periods/latest-sitting` (both unreleased). Each endpoint reads the periods its printings point at, by primary key. `ix_leave_period_start_date` and `uq_leave_period_period_key` are not read by any API statement; the sort on `start_date` runs over the few periods one page names.
+Rows in the copy (planner estimate): 27,866. Index sizes there: `leave_period_pkey` 1848 kB.
 
-Rows in the copy: 27,866. Index sizes there: `leave_period_pkey` 1848 kB.
+Needed by `GET /people/{person_id}/leave-periods` and `GET /leave-periods/latest-sitting` (both unreleased). Each endpoint reads the periods its printings point at, by primary key. `ix_leave_period_start_date` and `uq_leave_period_period_key` are not read by any API statement; the sort on `start_date` runs over the few periods one page names.
 
 ```sql
 -- leave_periods_by_ids (GET /people/{person_id}/leave-periods; 8 periods of person 893's Membership)
@@ -712,9 +731,9 @@ CREATE INDEX ix_leave_period_printing_leave_period_id ON leave_period_printing (
 CREATE INDEX ix_leave_period_printing_sitting_date ON leave_period_printing (sitting_date);
 ```
 
-Four statements read this table. `GET /people/{person_id}/leave-periods` lists the printings of the person's Memberships by `speaker_id` (`ix_leave_period_printing_speaker_id`), then the printings of the periods those name by `leave_period_id` (`ix_leave_period_printing_leave_period_id`). `GET /leave-periods/latest-sitting` finds the latest sitting date with `max(sitting_date)`, which is a one-row backward read of `ix_leave_period_printing_sitting_date`, then lists that date's printings that cover a sitting (`is_covering_sitting` is filtered in the heap, after the date index narrows the rows). `ix_leave_period_printing_sitting_id` and `uq_leave_period_printing_sitting_id_ordinal` are not read by any API statement.
+Rows in the copy (planner estimate): 28,773. Index sizes there: `ix_leave_period_printing_speaker_id` 552 kB, `ix_leave_period_printing_leave_period_id` 1888 kB, `ix_leave_period_printing_sitting_date` 480 kB.
 
-Rows in the copy: 28,773. Index sizes there: `ix_leave_period_printing_speaker_id` 552 kB, `ix_leave_period_printing_leave_period_id` 1888 kB, `ix_leave_period_printing_sitting_date` 480 kB.
+Four statements read this table. `GET /people/{person_id}/leave-periods` lists the printings of the person's Memberships by `speaker_id` (`ix_leave_period_printing_speaker_id`), then the printings of the periods those name by `leave_period_id` (`ix_leave_period_printing_leave_period_id`). `GET /leave-periods/latest-sitting` finds the latest sitting date with `max(sitting_date)`, which is a one-row backward read of `ix_leave_period_printing_sitting_date`, then lists that date's printings that cover a sitting (`is_covering_sitting` is filtered in the heap, after the date index narrows the rows). `ix_leave_period_printing_sitting_id` and `uq_leave_period_printing_sitting_id_ordinal` are not read by any API statement.
 
 ```sql
 -- leave_printings_by_membership_ids (GET /people/{person_id}/leave-periods; Membership 893, 175 rows)
@@ -774,9 +793,9 @@ Execution Time: 0.135 ms
 CREATE UNIQUE INDEX uq_seat_holding_division_key_speaker_id ON seat_holding (division_key, speaker_id);
 ```
 
-Needed by `GET /seats?constituency=` (unreleased). The statement folds the typed seat name with the scraper's rule (separators to one space, a trailing GRC or SMC dropped, lower case) and compares it with `division_key`, the first column of `uq_seat_holding_division_key_speaker_id`. The rows come back through a bitmap scan and a sort on `first_sitting_date` and `speaker_id`. `ix_seat_holding_speaker_id` is not read by any API statement.
+Rows in the copy (planner estimate): 1,269. Index sizes there: `uq_seat_holding_division_key_speaker_id` 88 kB.
 
-Rows in the copy: 1,269. Index sizes there: `uq_seat_holding_division_key_speaker_id` 88 kB.
+Needed by `GET /seats?constituency=` (unreleased). The statement folds the typed seat name with the scraper's rule (separators to one space, a trailing GRC or SMC dropped, lower case) and compares it with `division_key`, the first column of `uq_seat_holding_division_key_speaker_id`. The rows come back through a bitmap scan and a sort on `first_sitting_date` and `speaker_id`. `ix_seat_holding_speaker_id` is not read by any API statement.
 
 ```sql
 -- seat_holdings_by_division_key (GET /seats; constituency Sembawang, 53 rows)
@@ -799,9 +818,9 @@ Execution Time: 0.053 ms
 CREATE UNIQUE INDEX bill_pkey ON bill (id);
 ```
 
-Needed by `GET /bills/{report_slug}`, `GET /acts/{sso_code}`, `GET /acts/{sso_code}/people`, `GET /people/{person_id}/bills` and the `act` filter of `GET /search/speeches` (all unreleased), through `middleware/bill.py`, which reads the bills of the reports it has found and keeps those with a `billkey` row and a visible report. The statement reads `bill` by primary key. `ix_bill_bill_number` and `ix_bill_title_key` are not read by any API statement.
+Rows in the copy (planner estimate): 2,811. Index sizes there: `bill_pkey` 80 kB.
 
-Rows in the copy: 2,811. Index sizes there: `bill_pkey` 80 kB.
+Needed by `GET /bills/{report_slug}`, `GET /acts/{sso_code}`, `GET /acts/{sso_code}/people`, `GET /people/{person_id}/bills` and the `act` filter of `GET /search/speeches` (all unreleased), through `middleware/bill.py`, which reads the bills of the reports it has found and keeps those with a `billkey` row and a visible report. The statement reads `bill` by primary key. `ix_bill_bill_number` and `ix_bill_title_key` are not read by any API statement.
 
 ```sql
 -- bills_by_ids (middleware/bill.py; 2 bills)
@@ -821,9 +840,9 @@ Execution Time: 0.016 ms
 CREATE UNIQUE INDEX billkey_bill_id_key ON billkey (bill_id);
 ```
 
-Needed by the same endpoints as `bill`: `middleware/bill.py` reads the key row of each bill through the unique index on `bill_id`. The unique index on `bill_key` is not read by the API.
+Rows in the copy (planner estimate): 2,811. Index sizes there: `billkey_bill_id_key` 80 kB.
 
-Rows in the copy: 2,811. Index sizes there: `billkey_bill_id_key` 80 kB.
+Needed by the same endpoints as `bill`: `middleware/bill.py` reads the key row of each bill through the unique index on `bill_id`. The unique index on `bill_key` is not read by the API.
 
 ```sql
 -- bill_keys_by_bill_ids (middleware/bill.py; 2 bills)
@@ -844,9 +863,9 @@ CREATE INDEX ix_billreport_report_id ON billreport (report_id);
 CREATE INDEX ix_billreport_bill_id ON billreport (bill_id);
 ```
 
-Three statements read this table. `GET /bills/{report_slug}` finds the bill of a report by `report_id` (`ix_billreport_report_id`) and lists a bill's reports by `bill_id` (`ix_billreport_bill_id`). `GET /people/{person_id}/bills` and `GET /acts/{sso_code}/people` go from SPRS report ids to `billreport` rows by joining `report` on its unique `report_id`, then probing `ix_billreport_report_id`. The taken-down exclusion is `report_id NOT IN (...)` over a short list, applied as a filter.
+Rows in the copy (planner estimate): 5,827. Index sizes there: `ix_billreport_report_id` 144 kB, `ix_billreport_bill_id` 128 kB.
 
-Rows in the copy: 5,827. Index sizes there: `ix_billreport_report_id` 144 kB, `ix_billreport_bill_id` 128 kB.
+Three statements read this table. `GET /bills/{report_slug}` finds the bill of a report by `report_id` (`ix_billreport_report_id`) and lists a bill's reports by `bill_id` (`ix_billreport_bill_id`). `GET /people/{person_id}/bills` and `GET /acts/{sso_code}/people` go from SPRS report ids to `billreport` rows by joining `report` on its unique `report_id`, then probing `ix_billreport_report_id`. The taken-down exclusion is `report_id NOT IN (...)` over a short list, applied as a filter.
 
 ```sql
 -- bill_report_by_report_id (GET /bills/{report_slug}; report 12665)
@@ -899,9 +918,9 @@ CREATE INDEX ix_billreportspeaker_speaker_id ON billreportspeaker (speaker_id);
 CREATE INDEX ix_billreportspeaker_sprs_report_id ON billreportspeaker (sprs_report_id);
 ```
 
-Needed by `GET /people/{person_id}/bills` (the rows of the person's Memberships, by `speaker_id`), and by `GET /bills/{report_slug}` and `GET /acts/{sso_code}/people` (the rows of given reports, by `sprs_report_id`). Both statements join `report` on its unique `report_id` for the taken-down exclusion. The per-Membership statement is the heaviest of the law reads: 1.4 ms for the busiest Member's 407 rows, most of it the 407 `report` lookups, which the planner caches with a Memoize node.
+Rows in the copy (planner estimate): 13,833. Index sizes there: `ix_billreportspeaker_speaker_id` 192 kB, `ix_billreportspeaker_sprs_report_id` 448 kB.
 
-Rows in the copy: 13,833. Index sizes there: `ix_billreportspeaker_speaker_id` 192 kB, `ix_billreportspeaker_sprs_report_id` 448 kB.
+Needed by `GET /people/{person_id}/bills` (the rows of the person's Memberships, by `speaker_id`), and by `GET /bills/{report_slug}` and `GET /acts/{sso_code}/people` (the rows of given reports, by `sprs_report_id`). Both statements join `report` on its unique `report_id` for the taken-down exclusion. The per-Membership statement is the heaviest of the law reads: 1.4 ms for the busiest Member's 407 rows, most of it the 407 `report` lookups, which the planner caches with a Memoize node.
 
 ```sql
 -- bill_report_speakers_by_membership_ids_excluding_report_ids (GET /people/{person_id}/bills; Membership 1352, 407 rows)
@@ -946,9 +965,9 @@ Execution Time: 0.046 ms
 CREATE INDEX ix_billstageline_sprs_report_id ON billstageline (sprs_report_id);
 ```
 
-Needed by `GET /bills/{report_slug}` and `GET /acts/{sso_code}`: the printed stage lines of the bill's reports, by `sprs_report_id` (`ix_billstageline_sprs_report_id`), joined to `report` for the taken-down exclusion and sorted by report, ordinal and stage.
+Rows in the copy (planner estimate): 10,673. Index sizes there: `ix_billstageline_sprs_report_id` 648 kB.
 
-Rows in the copy: 10,673. Index sizes there: `ix_billstageline_sprs_report_id` 648 kB.
+Needed by `GET /bills/{report_slug}` and `GET /acts/{sso_code}`: the printed stage lines of the bill's reports, by `sprs_report_id` (`ix_billstageline_sprs_report_id`), joined to `report` for the taken-down exclusion and sorted by report, ordinal and stage.
 
 ```sql
 -- bill_stage_lines_by_sprs_report_ids_excluding_report_ids (GET /bills/{report_slug}; 6 lines)
@@ -974,11 +993,11 @@ CREATE UNIQUE INDEX act_sso_code_key ON act (sso_code);
 CREATE UNIQUE INDEX act_pkey ON act (id);
 ```
 
+Rows in the copy (planner estimate): 523. Index sizes there: `act_sso_code_key` 32 kB, `act_pkey` 32 kB.
+
 Needed by `GET /acts`, `GET /acts/{sso_code}` and the `act` filter of `GET /search/speeches` (all unreleased). The code lookups use the unique index on `sso_code`. `get_all` lists every Act with no filter, and `get_by_ids` names a few Acts of a bill. Both sequentially scan the table, and Postgres is right to: `act` holds 523 rows in 48 kB.
 
 **Finding.** `acts_by_ids` and `acts_all` run a `Seq Scan` on `act`. The table is one row per current Act of the SSO harvest, so it grows by the Acts SSO adds. `acts_all` has no filter and no index could serve it. `acts_by_ids` reads `act_pkey` once sequential scans are off.
-
-Rows in the copy: 523. Index sizes there: `act_sso_code_key` 32 kB, `act_pkey` 32 kB.
 
 ```sql
 -- act_by_sso_code (GET /acts/{sso_code}; CYPA1993)
@@ -1034,9 +1053,9 @@ CREATE INDEX ix_acthistoryentry_act_id ON acthistoryentry (act_id);
 CREATE INDEX ix_acthistoryentry_bill_id ON acthistoryentry (bill_id);
 ```
 
-Needed by `GET /acts/{sso_code}` (the Act's entries, by `act_id`), `GET /bills/{report_slug}` (the entries that link to the bill, by `bill_id`) and the `act` filter of `GET /search/speeches`. The first reads `ix_acthistoryentry_act_id` and sorts on `ordinal`; `uq_acthistoryentry_act_id_ordinal` could return the rows in order, and at 226 rows the planner prefers the cheaper index and a sort. The second reads `ix_acthistoryentry_bill_id` and hash-joins `act` for the code sort.
+Rows in the copy (planner estimate): 9,905. Index sizes there: `ix_acthistoryentry_act_id` 96 kB, `ix_acthistoryentry_bill_id` 120 kB.
 
-Rows in the copy: 9,905. Index sizes there: `ix_acthistoryentry_act_id` 96 kB, `ix_acthistoryentry_bill_id` 120 kB.
+Needed by `GET /acts/{sso_code}` (the Act's entries, by `act_id`), `GET /bills/{report_slug}` (the entries that link to the bill, by `bill_id`) and the `act` filter of `GET /search/speeches`. The first reads `ix_acthistoryentry_act_id` and sorts on `ordinal`; `uq_acthistoryentry_act_id_ordinal` could return the rows in order, and at 226 rows the planner prefers the cheaper index and a sort. The second reads `ix_acthistoryentry_bill_id` and hash-joins `act` for the code sort.
 
 ```sql
 -- act_history_entries_by_act_id (GET /acts/{sso_code}; Act 237, 226 rows)
@@ -1092,9 +1111,9 @@ The join in `act_history_entries_by_bill_id` reads `act` with a `Seq Scan` and h
 CREATE UNIQUE INDEX attendance_office_pkey ON attendance_office (id);
 ```
 
-Needed by `GET /offices/memberships/{membership_id}/printed-ranges` (unreleased), which reads the first and last attendance line of each printed range by primary key. `uq_attendance_office_attendance_id` is the scraper's key to `attendance` and no API statement reads it.
+Rows in the copy (planner estimate): 55,391. Index sizes there: `attendance_office_pkey` 2440 kB.
 
-Rows in the copy: 55,391. Index sizes there: `attendance_office_pkey` 2440 kB.
+Needed by `GET /offices/memberships/{membership_id}/printed-ranges` (unreleased), which reads the first and last attendance line of each printed range by primary key. `uq_attendance_office_attendance_id` is the scraper's key to `attendance` and no API statement reads it.
 
 ```sql
 -- attendance_offices_by_ids (GET /offices/memberships/{membership_id}/printed-ranges; 2 rows)
@@ -1114,9 +1133,9 @@ Execution Time: 0.012 ms
 CREATE INDEX ix_office_printed_range_speaker_id ON office_printed_range (speaker_id);
 ```
 
-Needed by `GET /offices/memberships/{membership_id}/printed-ranges`, which lists a Membership's ranges in date order, and by the member timeline, which reads the ranges of every Membership of a person in one statement (`royce/member-timeline`, `CRUDOfficePrintedRange.get_all_by_membership_ids`). Both filter `speaker_id` and use `ix_office_printed_range_speaker_id`, then sort the rows on `first_sitting_date` and `id`. The timeline statement is not on this branch; its SQL below is compiled from that branch's method, and person 5's six Memberships hold 34 ranges. `uq_office_printed_range_first_attendance_office_id` is the scraper's key and no API statement reads it.
+Rows in the copy (planner estimate): 1,522. Index sizes there: `ix_office_printed_range_speaker_id` 72 kB.
 
-Rows in the copy: 1,522. Index sizes there: `ix_office_printed_range_speaker_id` 72 kB.
+Needed by `GET /offices/memberships/{membership_id}/printed-ranges`, which lists a Membership's ranges in date order, and by the member timeline, which reads the ranges of every Membership of a person in one statement (`royce/member-timeline`, `CRUDOfficePrintedRange.get_all_by_membership_ids`). Both filter `speaker_id` and use `ix_office_printed_range_speaker_id`, then sort the rows on `first_sitting_date` and `id`. The timeline statement is not on this branch; its SQL below is compiled from that branch's method, and person 5's six Memberships hold 34 ranges. `uq_office_printed_range_first_attendance_office_id` is the scraper's key and no API statement reads it.
 
 ```sql
 -- office_printed_ranges_by_membership_id (GET /offices/memberships/{membership_id}/printed-ranges; Membership 330, 16 rows)
@@ -1151,11 +1170,11 @@ CREATE INDEX ix_report_put_to_sprs_report_id ON report_put_to (sprs_report_id);
 CREATE INDEX ix_report_put_to_office_printed ON report_put_to (office_printed);
 ```
 
+Rows in the copy (planner estimate): 31,884. Index sizes there: `ix_report_put_to_sprs_report_id` 2592 kB, `ix_report_put_to_office_printed` 312 kB.
+
 Three statements read this table. `GET /offices/reports/{report_slug}` and `GET /offices/ministries/{ministry_id}/questions` read the rows of one report or a page of reports by `sprs_report_id` (`ix_report_put_to_sprs_report_id`; `uq_report_put_to_sprs_report_id_ordinal` also starts with that column and the planner prefers the single-column index). `GET /offices/ministries` counts, for every ministry, the reports put to it. That count joins `report_put_to` to `office_title_ministry` on the printed office title and reads every row of `report_put_to`.
 
 **Finding.** `report_put_to_ministry_report_counts` runs a `Seq Scan` on `report_put_to`, 31,883 rows, and takes 69 ms. The table grows with each new question report, so the time grows with the corpus. No index helps an aggregate over every row: with sequential scans off the planner reads `ix_report_put_to_office_printed` and `ix_office_title_ministry_office_printed` for a merge join and takes 89 ms. The counts are what the endpoint exists to show, so the choice is to cache the answer or accept the scan; the API's response cache already holds each GET for an hour.
-
-Rows in the copy: 31,884. Index sizes there: `ix_report_put_to_sprs_report_id` 2592 kB, `ix_report_put_to_office_printed` 312 kB.
 
 ```sql
 -- report_put_to_by_sprs_report_id (GET /offices/reports/{report_slug}; oral-answer-3362#, 8 rows)
@@ -1225,11 +1244,11 @@ CREATE UNIQUE INDEX ministry_pkey ON ministry (id);
 CREATE UNIQUE INDEX uq_ministry_name ON ministry (name);
 ```
 
+Rows in the copy (planner estimate): 48. Index sizes there: `ministry_pkey` 16 kB, `uq_ministry_name` 16 kB.
+
 Needed by every `/offices` endpoint that names a ministry. `get_by_ids` and `get_all` read 48 rows; Postgres sequentially scans the table (`ministry_pkey` once sequential scans are off), which is correct for 8 kB. `get` is a primary key lookup.
 
 **Finding.** `ministries_by_ids` and `ministries_all` run a `Seq Scan` on `ministry`. The table holds the names of `data/ministry_names.json` and changes by hand, so it does not grow.
-
-Rows in the copy: 48. Index sizes there: `ministry_pkey` 16 kB, `uq_ministry_name` 16 kB.
 
 ```sql
 -- ministries_by_ids (GET /offices/ministries/{ministry_id}; 2 rows)
@@ -1280,9 +1299,9 @@ CREATE INDEX ix_office_title_ministry_ministry_id ON office_title_ministry (mini
 CREATE INDEX ix_office_title_ministry_office_printed ON office_title_ministry (office_printed);
 ```
 
-Three statements read this table. `GET /offices/ministries/{ministry_id}` lists a ministry's printed titles by `ministry_id` (`ix_office_title_ministry_ministry_id`). `GET /offices/ministries/{ministry_id}/questions` and `GET /offices/reports/{report_slug}` look up the ministries of printed titles by `office_printed` (`ix_office_title_ministry_office_printed`). `GET /offices/ministries` counts titles per ministry with an index-only scan of the `ministry_id` index.
+Rows in the copy (planner estimate): 1,754. Index sizes there: `ix_office_title_ministry_ministry_id` 56 kB, `ix_office_title_ministry_office_printed` 232 kB.
 
-Rows in the copy: 1,754. Index sizes there: `ix_office_title_ministry_ministry_id` 56 kB, `ix_office_title_ministry_office_printed` 232 kB.
+Three statements read this table. `GET /offices/ministries/{ministry_id}` lists a ministry's printed titles by `ministry_id` (`ix_office_title_ministry_ministry_id`). `GET /offices/ministries/{ministry_id}/questions` and `GET /offices/reports/{report_slug}` look up the ministries of printed titles by `office_printed` (`ix_office_title_ministry_office_printed`). `GET /offices/ministries` counts titles per ministry with an index-only scan of the `ministry_id` index.
 
 ```sql
 -- office_title_ministries_by_ministry_id (GET /offices/ministries/{ministry_id}; ministry 2, 134 rows)
@@ -1330,11 +1349,11 @@ Execution Time: 0.194 ms
 CREATE UNIQUE INDEX uq_ministry_see_also_pair ON ministry_see_also (ministry_id, see_also_ministry_id);
 ```
 
+Rows in the copy (planner estimate): 5. Index sizes there: `uq_ministry_see_also_pair` 16 kB.
+
 Needed by `GET /offices/ministries/{ministry_id}`, which lists the sourced links from one ministry. The table holds 5 rows and the leading column of `uq_ministry_see_also_pair` is `ministry_id`; Postgres scans the 8 kB table, and reads the index once sequential scans are off.
 
 **Finding.** `ministry_see_alsos_by_ministry_id` runs a `Seq Scan` on `ministry_see_also`. The table is hand-kept and does not grow.
-
-Rows in the copy: 5. Index sizes there: `uq_ministry_see_also_pair` 16 kB.
 
 ```sql
 -- ministry_see_alsos_by_ministry_id (GET /offices/ministries/{ministry_id}; ministry 24)
@@ -1364,11 +1383,11 @@ Execution Time: 0.009 ms
 CREATE INDEX ix_report_participant_report_id ON report_participant (report_id);
 ```
 
+Rows in the copy (planner estimate): 84,084. Index sizes there: `ix_report_participant_report_id` 1392 kB.
+
 Three statements read this table. `GET /offices/reports/{report_slug}` and `GET /offices/ministries/{ministry_id}/questions` read the participants of one report or a page of reports by `report_id` and `role` (`ix_report_participant_report_id`, with `role` and the sort on `ordinal` applied to the few rows the index returns). `GET /offices/ministries` counts, for every ministry, the reports an official answered, from every ANSWERER row joined to `office_title_ministry` on the printed office.
 
 **Finding.** `report_participant_ministry_report_counts` runs a `Seq Scan` on `report_participant` (84,084 rows, 31,831 of them ANSWERER), 26 ms. No index covers `role`, and one would not help: ANSWERER is 38 per cent of the table. With sequential scans off the planner scans all of `ix_report_participant_report_id` and takes 40 ms. The table grows with each new question report, so the time grows with the corpus. Same remedy as `report_put_to`: the response cache holds the answer for an hour.
-
-Rows in the copy: 84,084. Index sizes there: `ix_report_participant_report_id` 1392 kB.
 
 ```sql
 -- report_participants_by_report_id_and_role (GET /offices/reports/{report_slug}; report 50326, ASKER, 33 rows)
@@ -1436,9 +1455,9 @@ CREATE INDEX ix_attached_file_sitting_id ON attached_file (sitting_id);
 CREATE UNIQUE INDEX attached_file_pkey ON attached_file (id);
 ```
 
-Needed by `GET /sittings/{sitting_date}/attached-files` (unreleased), which lists every file a sitting lists by `sitting_id` (`ix_attached_file_sitting_id`; `uq_attached_file_sitting_id_kind_sprs_file_id` starts with the same column and also returns the rows in sort order, but the planner prefers the single-column index and a sort), and by `GET /reports/{report_slug}/attached-files`, which reads the files its pointers tie to by primary key.
+Rows in the copy (planner estimate): 2,893. Index sizes there: `ix_attached_file_sitting_id` 48 kB, `attached_file_pkey` 80 kB.
 
-Rows in the copy: 2,893. Index sizes there: `ix_attached_file_sitting_id` 48 kB, `attached_file_pkey` 80 kB.
+Needed by `GET /sittings/{sitting_date}/attached-files` (unreleased), which lists every file a sitting lists by `sitting_id` (`ix_attached_file_sitting_id`; `uq_attached_file_sitting_id_kind_sprs_file_id` starts with the same column and also returns the rows in sort order, but the planner prefers the single-column index and a sort), and by `GET /reports/{report_slug}/attached-files`, which reads the files its pointers tie to by primary key.
 
 ```sql
 -- attached_files_by_sitting_id (GET /sittings/{sitting_date}/attached-files; sitting 6475, 34 rows)
@@ -1471,9 +1490,9 @@ Execution Time: 0.012 ms
 CREATE INDEX ix_attached_file_pointer_sprs_report_id ON attached_file_pointer (sprs_report_id);
 ```
 
-Needed by both attached-file endpoints, which read the pointers of a report or of a sitting's reports by `sprs_report_id` and sort on `sprs_report_id` and `ordinal` (`ix_attached_file_pointer_sprs_report_id`; the unique index on `sprs_report_id` and `ordinal` could serve the sort, and the planner prefers the smaller single-column index and a sort over at most 30 rows). `ix_attached_file_pointer_attached_file_id` is read by the scraper's file-to-pointer tie, not by the API.
+Rows in the copy (planner estimate): 4,608. Index sizes there: `ix_attached_file_pointer_sprs_report_id` 200 kB.
 
-Rows in the copy: 4,608. Index sizes there: `ix_attached_file_pointer_sprs_report_id` 200 kB.
+Needed by both attached-file endpoints, which read the pointers of a report or of a sitting's reports by `sprs_report_id` and sort on `sprs_report_id` and `ordinal` (`ix_attached_file_pointer_sprs_report_id`; the unique index on `sprs_report_id` and `ordinal` could serve the sort, and the planner prefers the smaller single-column index and a sort over at most 30 rows). `ix_attached_file_pointer_attached_file_id` is read by the scraper's file-to-pointer tie, not by the API.
 
 ```sql
 -- attached_file_pointers_by_sprs_report_ids (GET /reports/{report_slug}/attached-files; report budget-1898#, 30 rows)
@@ -1495,11 +1514,11 @@ CREATE INDEX ix_division_sitting_date ON division (sitting_date);
 CREATE INDEX ix_division_sprs_report_id ON division (sprs_report_id);
 ```
 
+Rows in the copy (planner estimate): 303. Index sizes there: `ix_division_sitting_date` 16 kB, `ix_division_sprs_report_id` 48 kB.
+
 Needed by `GET /divisions` (a page and a total count) and `GET /divisions/{division_id}` (a primary key lookup). The list filters by any of `parliament_number`, a date range on `sitting_date` and a report (`sprs_report_id`), outer-joins `report` for the taken-down check and sorts newest first with the id as tie-break. `ix_division_sitting_date` serves the date range and the newest-first sort, `ix_division_sprs_report_id` the report filter. No index holds `parliament_number`: a list filtered by Parliament alone reads `ix_division_sitting_date` backward and discards the rows of other Parliaments (for Parliament 0 it discards 142 rows on the way to the first 20).
 
 **Finding.** `divisions_count_filtered` runs a `Seq Scan` on `division` (303 rows; 25 for Parliament 14) and `divisions_by_parliament_number` filters `parliament_number` after an index walk. Both are cheap at this size (0.15 ms and 0.21 ms), and the table gains a few rows a year. No index is added.
-
-Rows in the copy: 303. Index sizes there: `ix_division_sitting_date` 16 kB, `ix_division_sprs_report_id` 48 kB.
 
 ```sql
 -- divisions_filtered (GET /divisions; Parliament 14, 2020 to 2025, 25 rows, first 20)
@@ -1594,9 +1613,9 @@ Execution Time: 0.184 ms
 CREATE INDEX ix_division_vote_division_id ON division_vote (division_id);
 ```
 
-Needed by `GET /divisions/{division_id}`, which lists a division's vote rows by `division_id` and sorts them by list source and ordinal. The planner reads `ix_division_vote_division_id` and sorts; `uq_division_vote_division_id_list_source_ordinal` has the same leading column and the sort order, and the planner chooses the smaller index at 150 rows. `ix_division_vote_speaker_id` is read by no API statement yet.
+Rows in the copy (planner estimate): 11,062. Index sizes there: `ix_division_vote_division_id` 200 kB.
 
-Rows in the copy: 11,062. Index sizes there: `ix_division_vote_division_id` 200 kB.
+Needed by `GET /divisions/{division_id}`, which lists a division's vote rows by `division_id` and sorts them by list source and ordinal. The planner reads `ix_division_vote_division_id` and sorts; `uq_division_vote_division_id_list_source_ordinal` has the same leading column and the sort order, and the planner chooses the smaller index at 150 rows. `ix_division_vote_speaker_id` is read by no API statement yet.
 
 ```sql
 -- division_votes_by_division_id (GET /divisions/{division_id}; division 47, 150 rows)
@@ -1617,9 +1636,9 @@ Execution Time: 0.058 ms
 CREATE INDEX ix_division_party_count_division_id ON division_party_count (division_id);
 ```
 
-Needed by `GET /divisions/{division_id}`, which lists the party breakdown by `division_id`. The planner reads `ix_division_party_count_division_id` and sorts on four columns; `uq_division_party_count_division_id_vote_choice_party` (declared `NULLS NOT DISTINCT`) is the scraper's key.
+Rows in the copy (planner estimate): 1,086. Index sizes there: `ix_division_party_count_division_id` 32 kB.
 
-Rows in the copy: 1,086. Index sizes there: `ix_division_party_count_division_id` 32 kB.
+Needed by `GET /divisions/{division_id}`, which lists the party breakdown by `division_id`. The planner reads `ix_division_party_count_division_id` and sorts on four columns; `uq_division_party_count_division_id_vote_choice_party` (declared `NULLS NOT DISTINCT`) is the scraper's key.
 
 ```sql
 -- division_party_counts_by_division_id (GET /divisions/{division_id}; division 246, 16 rows)
@@ -1641,11 +1660,11 @@ CREATE UNIQUE INDEX minutes_sitting_date_key ON minutes (sitting_date);
 CREATE UNIQUE INDEX minutes_pkey ON minutes (id);
 ```
 
+Rows in the copy (planner estimate): 626. Index sizes there: `minutes_sitting_date_key` 48 kB, `minutes_pkey` 48 kB.
+
 Needed by `GET /minutes` (a page and a total count) and by `GET /divisions/{division_id}` (the paired minutes file, by primary key). The list filters on any of `status`, `date_from` and `date_to` and sorts newest sitting first. `minutes_sitting_date_key`, the unique index on `sitting_date`, serves the date filters and the sort, so the page is a backward index scan and an incremental sort. `ix_minutes_index_capture_id` is read by no API statement.
 
 **Finding.** `minutes_count_filtered` runs a `Seq Scan` on `minutes` (626 rows) for the total count, and a `status` filter in `minutes_filtered` is applied to the rows the backward index scan returns. No index holds `status`. The table gains one row per sitting date, so it stays under a few thousand rows; 0.10 ms for the count.
-
-Rows in the copy: 626. Index sizes there: `minutes_sitting_date_key` 48 kB, `minutes_pkey` 48 kB.
 
 ```sql
 -- minutes_filtered (GET /minutes; status TEXT_STORED from 2020-01-01, first 20)
@@ -1706,9 +1725,9 @@ Execution Time: 0.011 ms
 CREATE INDEX ix_minutes_division_division_id ON minutes_division (division_id);
 ```
 
-Needed by `GET /divisions/{division_id}`, which finds the minutes division paired with a division by `division_id` (`ix_minutes_division_division_id`). `ix_minutes_division_minutes_id` and `uq_minutes_division_minutes_id_ordinal` are the scraper's keys and no API statement reads them.
+Rows in the copy (planner estimate): 50. Index sizes there: `ix_minutes_division_division_id` 16 kB.
 
-Rows in the copy: 50. Index sizes there: `ix_minutes_division_division_id` 16 kB.
+Needed by `GET /divisions/{division_id}`, which finds the minutes division paired with a division by `division_id` (`ix_minutes_division_division_id`). `ix_minutes_division_minutes_id` and `uq_minutes_division_minutes_id_ordinal` are the scraper's keys and no API statement reads them.
 
 ```sql
 -- minutes_divisions_by_division_id (GET /divisions/{division_id}; division 1)
