@@ -6,7 +6,7 @@ from enums import OfficeClass
 
 
 class OfficePrintedRange(SQLModel, table=True):
-    __tablename__ = "office_printed_range"
+    __tablename__ = "office_printed_range"  # type: ignore[assignment]
 
     id: int = Field(primary_key=True)
     office_printed: str

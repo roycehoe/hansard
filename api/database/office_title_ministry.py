@@ -5,7 +5,7 @@ from enums import OfficeTitleMinistrySource
 
 
 class OfficeTitleMinistry(SQLModel, table=True):
-    __tablename__ = "office_title_ministry"
+    __tablename__ = "office_title_ministry"  # type: ignore[assignment]
 
     id: int = Field(primary_key=True)
     office_printed: str

@@ -8,7 +8,7 @@ from enums import AttendanceOfficeSource
 
 
 class AttendanceOffice(SQLModel, table=True):
-    __tablename__ = "attendance_office"
+    __tablename__ = "attendance_office"  # type: ignore[assignment]
 
     id: int = Field(primary_key=True)
     entry_line_printed: str

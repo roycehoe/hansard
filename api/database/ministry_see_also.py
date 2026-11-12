@@ -2,7 +2,7 @@ from sqlmodel import Field, SQLModel
 
 
 class MinistrySeeAlso(SQLModel, table=True):
-    __tablename__ = "ministry_see_also"
+    __tablename__ = "ministry_see_also"  # type: ignore[assignment]
 
     id: int = Field(primary_key=True)
     note: str
