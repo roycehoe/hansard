@@ -14,6 +14,6 @@ export interface LatestSittingLeaveData {
 }
 
 export interface GetLatestSittingLeavePeriodsResponse {
-  sitting_date: string
+  sitting_date: string | null
   leave_periods: LatestSittingLeaveData[]
 }

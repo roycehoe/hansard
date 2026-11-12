@@ -8,7 +8,6 @@ from crud.membership import CRUDMembership
 from crud.person import CRUDPerson
 from database.leave_period_printing import LeavePeriodPrinting
 from database.person import Person
-from exceptions.endpoint import EndpointNotFoundException
 from exceptions.person import PersonNotFoundException
 from middleware.membership import get_membership_id_to_person
 from schemas.leave_period import (
@@ -97,7 +96,7 @@ def get_latest_sitting_leave_periods(
 ) -> GetLatestSittingLeavePeriodsResponse:
     sitting_date = CRUDLeavePeriodPrinting(session).get_max_sitting_date()
     if sitting_date is None:
-        raise EndpointNotFoundException
+        return GetLatestSittingLeavePeriodsResponse(sitting_date=None, leave_periods=[])
     printings = CRUDLeavePeriodPrinting(
         session
     ).get_all_by_sitting_date_and_is_covering_sitting(sitting_date, True)

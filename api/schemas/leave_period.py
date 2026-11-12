@@ -56,5 +56,5 @@ class LatestSittingLeaveData(BaseModel):
 
 
 class GetLatestSittingLeavePeriodsResponse(BaseModel):
-    sitting_date: date
+    sitting_date: Optional[date]
     leave_periods: list[LatestSittingLeaveData]
