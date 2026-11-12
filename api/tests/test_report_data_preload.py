@@ -25,6 +25,7 @@ def _get_report_preview() -> PreviewData:
         path="/reports/bill-818",
         is_found=True,
         report_title="Bill",
+        person_name="",
         sitting_date=date(2020, 1, 1),
     )
 

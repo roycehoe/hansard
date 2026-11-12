@@ -88,6 +88,7 @@ def get_default_preview() -> PreviewData:
         path=_HOME_PATH,
         is_found=True,
         report_title=_EMPTY_LABEL,
+        person_name=_EMPTY_LABEL,
         sitting_date=None,
     )
 
@@ -100,6 +101,7 @@ def get_not_found_preview() -> PreviewData:
         path=_HOME_PATH,
         is_found=False,
         report_title=_EMPTY_LABEL,
+        person_name=_EMPTY_LABEL,
         sitting_date=None,
     )
 
@@ -132,6 +134,7 @@ def _get_fixed_preview(path: str) -> PreviewData:
             path=path,
             is_found=True,
             report_title=_EMPTY_LABEL,
+            person_name=_EMPTY_LABEL,
             sitting_date=None,
         )
     if path in _UNTITLED_PAGE_PATHS:
@@ -226,6 +229,7 @@ def _get_report_preview(report: Report, session: Session) -> PreviewData:
         path=_get_report_path(report),
         is_found=True,
         report_title=report.title,
+        person_name=_EMPTY_LABEL,
         sitting_date=report.sitting_date.date(),
     )
 
@@ -264,6 +268,7 @@ def _get_speech_preview(
         path=f"{_get_report_path(report)}?{query}",
         is_found=True,
         report_title=report.title,
+        person_name=_EMPTY_LABEL,
         sitting_date=report.sitting_date.date(),
     )
 
@@ -328,6 +333,7 @@ def _get_person_preview(person_id: int, session: Session) -> PreviewData:
         path=f"/people/{person.id}-{get_person_slug(person.canonical_name)}",
         is_found=True,
         report_title=_EMPTY_LABEL,
+        person_name=person.canonical_name,
         sitting_date=None,
     )
 
@@ -363,6 +369,7 @@ def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
         path=f"/sittings/{sitting_date.isoformat()}",
         is_found=True,
         report_title=_EMPTY_LABEL,
+        person_name=_EMPTY_LABEL,
         sitting_date=None,
     )
 

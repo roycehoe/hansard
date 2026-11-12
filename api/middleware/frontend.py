@@ -101,7 +101,11 @@ class FrontendFiles(StaticFiles):
         if self.site_url is None:
             return _NO_STRUCTURED_DATA
         return get_structured_data_html(
-            self.site_url, preview.path, preview.report_title, preview.sitting_date
+            self.site_url,
+            preview.path,
+            preview.report_title,
+            preview.sitting_date,
+            preview.person_name,
         )
 
     def _get_preview_tags_html(self, preview: PreviewData, preload_html: str) -> str:

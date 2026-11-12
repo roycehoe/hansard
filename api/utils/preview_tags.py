@@ -23,7 +23,9 @@ _ARTICLE_TYPE = "Article"
 _BREADCRUMB_LIST_TYPE = "BreadcrumbList"
 _LIST_ITEM_TYPE = "ListItem"
 _ORGANIZATION_TYPE = "Organization"
+_PERSON_TYPE = "Person"
 _WEBSITE_TYPE = "WebSite"
+_NO_PERSON_NAME = ""
 _HOME_BREADCRUMB_NAME = "Home"
 _REPORT_BREADCRUMB_NAME = "Report"
 _STRUCTURED_DATA_SCRIPT_START = '<script type="application/ld+json">'
@@ -95,7 +97,11 @@ def _get_report_structured_data(
 
 
 def get_structured_data_html(
-    site_url: str, path: str, report_title: str, sitting_date: Optional[date]
+    site_url: str,
+    path: str,
+    report_title: str,
+    sitting_date: Optional[date],
+    person_name: str,
 ) -> str:
     origin = site_url.rstrip(_URL_SEPARATOR)
     if sitting_date is not None:
@@ -109,6 +115,15 @@ def get_structured_data_html(
                 "@type": _WEBSITE_TYPE,
                 "name": _SITE_NAME,
                 "url": f"{origin}{_HOME_PATH}",
+            }
+        )
+    if person_name != _NO_PERSON_NAME:
+        return _get_structured_data_script_html(
+            {
+                "@context": _SCHEMA_CONTEXT,
+                "@type": _PERSON_TYPE,
+                "name": person_name,
+                "url": f"{origin}{path}",
             }
         )
     return _NO_STRUCTURED_DATA

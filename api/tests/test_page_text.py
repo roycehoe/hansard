@@ -1,3 +1,4 @@
+import json
 import re
 from datetime import date
 from pathlib import Path
@@ -47,6 +48,7 @@ from settings import settings
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _ROOT_CONTENTS = re.compile(r'<div id="root">(.*)</div>', re.DOTALL)
+_STRUCTURED_DATA = re.compile(r'<script type="application/ld\+json">(.*?)</script>')
 _EMPTY_ROOT = '<div id="root"></div>'
 
 
@@ -58,6 +60,7 @@ def _get_report_preview() -> PreviewData:
         path="/reports/bill-818",
         is_found=True,
         report_title="Bill",
+        person_name="",
         sitting_date=date(2020, 1, 1),
     )
 
@@ -101,8 +104,11 @@ def _get_report(title: str, speeches: list[SpeechData]) -> GetReportResponse:
     )
 
 
-def _get_client(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, preview: PreviewData
+def _get_site_client(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    preview: PreviewData,
+    site_url: Optional[str],
 ) -> TestClient:
     (tmp_path / "index.html").write_text(
         "<html><head><!--preview-tags--><title>Open Hansard</title>"
@@ -113,9 +119,17 @@ def _get_client(
     )
     return TestClient(
         Starlette(
-            routes=[Mount("/", frontend.FrontendFiles(tmp_path, None), name="frontend")]
+            routes=[
+                Mount("/", frontend.FrontendFiles(tmp_path, site_url), name="frontend")
+            ]
         )
     )
+
+
+def _get_client(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, preview: PreviewData
+) -> TestClient:
+    return _get_site_client(tmp_path, monkeypatch, preview, None)
 
 
 def _get_root_contents(page_html: str) -> str:
@@ -318,6 +332,7 @@ def test_the_home_page_links_parliaments_people_and_recent_sittings(
         path="/",
         is_found=True,
         report_title="",
+        person_name="",
         sitting_date=None,
     )
     client = _get_client(tmp_path, monkeypatch, home_preview)
@@ -379,6 +394,7 @@ def _get_sitting_preview() -> PreviewData:
         path="/sittings/2026-10-07",
         is_found=True,
         report_title="",
+        person_name="",
         sitting_date=None,
     )
 
@@ -461,6 +477,7 @@ def _get_sittings_preview() -> PreviewData:
         path="/sittings",
         is_found=True,
         report_title="",
+        person_name="",
         sitting_date=None,
     )
 
@@ -532,6 +549,7 @@ def _get_person_preview() -> PreviewData:
         path="/people/7-tan-lee",
         is_found=True,
         report_title="",
+        person_name="Tan <b>& Lee",
         sitting_date=None,
     )
 
@@ -704,6 +722,29 @@ def test_a_person_who_cannot_be_shown_leaves_the_root_empty(
     assert _EMPTY_ROOT in response.text
 
 
+def test_a_person_page_head_carries_the_name_and_canonical_url_as_a_person(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def raise_not_found(person_id: int, session: Session) -> GetPersonResponse:
+        raise PersonNotFoundException
+
+    monkeypatch.setattr(person_service, "get_person", raise_not_found)
+    client = _get_site_client(
+        tmp_path, monkeypatch, _get_person_preview(), "https://hansard.example.sg/"
+    )
+
+    structured_data_match = _STRUCTURED_DATA.search(client.get("/people/7-tan").text)
+
+    assert structured_data_match is not None
+    assert "<" not in structured_data_match.group(1)
+    assert json.loads(structured_data_match.group(1)) == {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Tan <b>& Lee",
+        "url": "https://hansard.example.sg/people/7-tan-lee",
+    }
+
+
 _COVERAGE_LINE = (
     "<p>This is an unofficial, English-only archive of Singapore&#x27;s "
     "parliamentary debates since 1955.</p>"
@@ -718,6 +759,7 @@ def _get_search_preview() -> PreviewData:
         path="/search",
         is_found=True,
         report_title="",
+        person_name="",
         sitting_date=None,
     )
 

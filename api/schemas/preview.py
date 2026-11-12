@@ -13,4 +13,5 @@ class PreviewData(BaseModel):
     path: str
     is_found: bool
     report_title: str
+    person_name: str
     sitting_date: Optional[date]
