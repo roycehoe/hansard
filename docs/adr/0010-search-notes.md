@@ -4,7 +4,7 @@ In November 2026 a reader emailed that `Constitution 1984` did not show the 1984
 
 Search may add a note only when a hidden search rule leaves out or adds records and nothing on the page says so. The note states that rule, stays true under every reading of the words, and leaves the results alone until the reader clicks.
 
-**Terms.** A result is what the matching rules return. Help is text that is the same for every search. An error means the search could not run. A suggestion is anything else shown because of what this reader typed or got back, which points them at a different search. Stemming, stop words, the hyphen split and the `lky` name match are matching rules, so this ADR does not cover them. Changing a matching rule is a separate decision.
+**Terms.** A result is what the matching rules return. Help is text that is the same for every search. An error means the search could not run. A suggestion is anything else shown because of what this reader typed or got back, which points them at a different search. Stemming, stop words, the hyphen split, the `lky` name match and the section citation are matching rules, so this ADR does not cover them. The section citation reads `s 33B` or `ss 33A` as the phrase "section 33B" or "sections 33A", because Hansard prints the word in full. Royce adopted it on 12 November 2026 after a lawyer's report. Changing a matching rule is a separate decision.
 
 **Ladder.** Take the lowest rung that ends the silence: nothing, help text, a note on a condition, or that note plus one link. Anything that changes results is off the ladder.
 

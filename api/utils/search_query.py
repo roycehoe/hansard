@@ -30,6 +30,12 @@ _STOP_WORDS = frozenset(
 )
 _APOSTROPHES = re.compile("['\u2019]")
 _EXACT_FORM_APOSTROPHE = "['\u2019]"
+_SECTION_CITATION = re.compile(
+    r'(?<![^\s"])(ss?)\.?\s+(\d+[^\W\d_]{0,3})(?![^\W_])', re.IGNORECASE
+)
+_PLURAL_SECTION_ABBREVIATION = "ss"
+_SECTION_WORD = "section"
+_PLURAL_SECTION_WORD = "sections"
 
 
 @dataclass(frozen=True)
@@ -65,10 +71,33 @@ def _is_group_searchable(terms: tuple[SearchQueryTerm, ...]) -> bool:
     return any(not term.is_excluded for term in terms)
 
 
+def _get_section_word(abbreviation: str) -> str:
+    if abbreviation.lower() == _PLURAL_SECTION_ABBREVIATION:
+        return _PLURAL_SECTION_WORD
+    return _SECTION_WORD
+
+
+def _is_inside_quotes(text: str, position: int) -> bool:
+    return text.count(_QUOTE, 0, position) % 2 == 1
+
+
+def _get_spelled_out_section_citation(citation: re.Match[str]) -> str:
+    spelled_out_citation = (
+        _get_section_word(citation.group(1)) + _WORD_SEPARATOR + citation.group(2)
+    )
+    # NOTE: Hansard prints "section 33B" where a lawyer writes "s 33B", and "s" is a stop word, so the citation is spelled out; outside quotes it becomes a phrase of its own, or it would match 33B anywhere in the paragraph
+    if _is_inside_quotes(citation.string, citation.start()):
+        return spelled_out_citation
+    return _QUOTE + spelled_out_citation + _QUOTE
+
+
 def _get_all_search_query_groups(query: str) -> tuple[SearchQueryGroup, ...]:
     groups = []
     terms = []
-    for match in _TOKEN.finditer(_CURLY_QUOTES.sub(_QUOTE, query)):
+    query_to_parse = _SECTION_CITATION.sub(
+        _get_spelled_out_section_citation, _CURLY_QUOTES.sub(_QUOTE, query)
+    )
+    for match in _TOKEN.finditer(query_to_parse):
         token = match.group(0)
         if match.group(2) is not None:
             quoted_words = _get_words(match.group(2))
