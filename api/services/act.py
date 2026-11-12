@@ -35,6 +35,7 @@ from schemas.act import (
     GetActResponse,
     GetAllActsResponse,
 )
+from utils.act_url import get_act_sso_url
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
 
@@ -147,7 +148,12 @@ def get_act(sso_code: str, session: Session) -> GetActResponse:
                 bill=bill_data,
             )
         )
-    return GetActResponse(sso_code=act.sso_code, title=act.title, entries=entry_datas)
+    return GetActResponse(
+        sso_code=act.sso_code,
+        title=act.title,
+        sso_url=get_act_sso_url(act.sso_code),
+        entries=entry_datas,
+    )
 
 
 def _get_visible_bill_sort_key(visible_bill: VisibleBill) -> tuple[datetime, str]:
