@@ -1,3 +1,12 @@
+import type { BillReportRole } from '@/constants/bills/enums'
+
+export interface PersonBillReportData {
+  report_slug: string
+  sitting_date: string
+  parliament_number: number
+  role: BillReportRole
+}
+
 export interface PersonBillData {
   bill_key: string
   title: string
@@ -10,6 +19,7 @@ export interface PersonBillData {
   budget_debate_speech_count: number
   reading_report_count: number
   budget_debate_report_count: number
+  reports: PersonBillReportData[]
 }
 
 export interface GetPersonBillsResponse {

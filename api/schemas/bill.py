@@ -50,6 +50,13 @@ class GetBillResponse(BaseModel):
     people: list[BillPersonData]
 
 
+class PersonBillReportData(BaseModel):
+    report_slug: str
+    sitting_date: date
+    parliament_number: int
+    role: BillReportRole
+
+
 class PersonBillData(BaseModel):
     bill_key: str
     title: str
@@ -62,6 +69,7 @@ class PersonBillData(BaseModel):
     budget_debate_speech_count: int
     reading_report_count: int
     budget_debate_report_count: int
+    reports: list[PersonBillReportData]
 
 
 class GetPersonBillsResponse(BaseModel):
