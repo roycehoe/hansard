@@ -202,3 +202,50 @@ class ParticipantRole(StrEnum):
 class MinistryQuestionRelation(StrEnum):
     PUT_TO = "put_to"
     ANSWERED_BY = "answered_by"
+
+
+class DivisionCountSource(StrEnum):
+    PRINTED_LINE = "PRINTED_LINE"
+    SPOKEN_TOTAL = "SPOKEN_TOTAL"
+    MINUTES = "MINUTES"
+
+
+class DivisionListStatus(StrEnum):
+    NOT_PRINTED = "NOT_PRINTED"
+    STORED = "STORED"
+    COUNTS_DISAGREE = "COUNTS_DISAGREE"
+    LAYOUT_UNREADABLE = "LAYOUT_UNREADABLE"
+
+
+class DivisionVoteListSource(StrEnum):
+    MINUTES = "MINUTES"
+    HANSARD = "HANSARD"
+
+
+class DivisionVoteChoice(StrEnum):
+    AYE = "AYE"
+    NO = "NO"
+    ABSTAIN = "ABSTAIN"
+    ABSENT = "ABSENT"
+    PAIRED = "PAIRED"
+
+
+class MinutesDivisionPairing(StrEnum):
+    PAIRED = "PAIRED"
+    NO_MATCHING_DIVISION = "NO_MATCHING_DIVISION"
+    UNEQUAL_NUMBER = "UNEQUAL_NUMBER"
+    TIED = "TIED"
+    ABSTENTIONS_DIFFER = "ABSTENTIONS_DIFFER"
+
+
+class MinutesStatus(StrEnum):
+    NOT_YET_LISTED = "NOT_YET_LISTED"
+    LISTED = "LISTED"
+    TEXT_STORED = "TEXT_STORED"
+    FILE_NOT_FOUND = "FILE_NOT_FOUND"
+    NEEDS_REVIEW = "NEEDS_REVIEW"
+
+
+class MinutesFileFormat(StrEnum):
+    PDF = "PDF"
+    WORD = "WORD"
