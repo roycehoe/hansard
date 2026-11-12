@@ -71,6 +71,11 @@ class PersonNameSpellingKind(StrEnum):
     OTHER_NAME = "OTHER_NAME"
 
 
+class AttachedFileKind(StrEnum):
+    ANNEX = "ANNEX"
+    VERNACULAR = "VERNACULAR"
+
+
 class SpeechLinkStatus(StrEnum):
     FOUND = "found"
     MOVED = "moved"
