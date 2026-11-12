@@ -1488,6 +1488,241 @@ Sort  (cost=53.83..53.91 rows=30 width=132) (actual time=0.022..0.024 rows=30 lo
 Execution Time: 0.033 ms
 ```
 
+## Indexes of division
+
+```sql
+CREATE INDEX ix_division_sitting_date ON division (sitting_date);
+CREATE INDEX ix_division_sprs_report_id ON division (sprs_report_id);
+```
+
+Needed by `GET /divisions` (a page and a total count) and `GET /divisions/{division_id}` (a primary key lookup). The list filters by any of `parliament_number`, a date range on `sitting_date` and a report (`sprs_report_id`), outer-joins `report` for the taken-down check and sorts newest first with the id as tie-break. `ix_division_sitting_date` serves the date range and the newest-first sort, `ix_division_sprs_report_id` the report filter. No index holds `parliament_number`: a list filtered by Parliament alone reads `ix_division_sitting_date` backward and discards the rows of other Parliaments (for Parliament 0 it discards 142 rows on the way to the first 20).
+
+**Finding.** `divisions_count_filtered` runs a `Seq Scan` on `division` (303 rows; 25 for Parliament 14) and `divisions_by_parliament_number` filters `parliament_number` after an index walk. Both are cheap at this size (0.15 ms and 0.21 ms), and the table gains a few rows a year. No index is added.
+
+Rows in the copy: 303. Index sizes there: `ix_division_sitting_date` 16 kB, `ix_division_sprs_report_id` 48 kB.
+
+```sql
+-- divisions_filtered (GET /divisions; Parliament 14, 2020 to 2025, 25 rows, first 20)
+SELECT division.id, division.sitting_date, division.parliament_number, division.speech_ordinal, division.count_source, division.printed_counts, division.ayes, division.noes, division.abstentions, division.absent, division.paired, division.list_status, division.printed_list, division.sprs_report_id FROM division LEFT OUTER JOIN report ON report.report_id = division.sprs_report_id WHERE division.parliament_number = 14 AND division.sitting_date >= '2020-01-01' AND division.sitting_date <= '2025-12-31' AND (report.id IS NULL OR (report.id NOT IN (7))) ORDER BY division.sitting_date DESC, division.id LIMIT 20 OFFSET 0;
+```
+
+```text
+-- divisions_filtered (GET /divisions), hansard_positions
+Limit  (cost=70.37..70.37 rows=2 width=1325) (actual time=0.137..0.140 rows=20 loops=1)
+  ->  Sort  (cost=70.37..70.37 rows=2 width=1325) (actual time=0.136..0.138 rows=20 loops=1)
+        ->  Nested Loop Left Join  (cost=4.84..70.36 rows=2 width=1325) (actual time=0.030..0.124 rows=25 loops=1)
+              Filter: ((report.id IS NULL) OR (report.id <> 7))
+              ->  Bitmap Heap Scan on division  (cost=4.43..53.47 rows=2 width=1325) (actual time=0.017..0.022 rows=25 loops=1)
+                    Recheck Cond: ((sitting_date >= '2020-01-01'::date) AND (sitting_date <= '2025-12-31'::date))
+                    Filter: (parliament_number = 14)
+                    ->  Bitmap Index Scan on ix_division_sitting_date  (cost=0.00..4.43 rows=28 width=0) (actual time=0.008..0.008 rows=27 loops=1)
+                          Index Cond: ((sitting_date >= '2020-01-01'::date) AND (sitting_date <= '2025-12-31'::date))
+              ->  Index Scan using report_report_id_key on report  (cost=0.41..8.43 rows=1 width=42) (actual time=0.004..0.004 rows=1 loops=25)
+                    Index Cond: ((report_id)::text = division.sprs_report_id)
+Execution Time: 0.171 ms
+```
+
+```sql
+-- divisions_filtered_by_report (GET /divisions; one report, 1 row)
+SELECT division.id, division.sitting_date, division.parliament_number, division.speech_ordinal, division.count_source, division.printed_counts, division.ayes, division.noes, division.abstentions, division.absent, division.paired, division.list_status, division.printed_list, division.sprs_report_id FROM division LEFT OUTER JOIN report ON report.report_id = division.sprs_report_id WHERE division.sprs_report_id IN ('00069087-ZZ.00051352-ZZ_1#id057_19630405_S0002_T00061-bill#') AND (report.id IS NULL OR (report.id NOT IN (7))) ORDER BY division.sitting_date DESC, division.id LIMIT 20 OFFSET 0;
+```
+
+```text
+-- divisions_filtered_by_report (GET /divisions), hansard_positions
+Limit  (cost=16.75..16.75 rows=1 width=1325) (actual time=0.018..0.018 rows=1 loops=1)
+  ->  Sort  (cost=16.75..16.75 rows=1 width=1325) (actual time=0.017..0.018 rows=1 loops=1)
+        ->  Nested Loop Left Join  (cost=0.69..16.73 rows=1 width=1325) (actual time=0.015..0.015 rows=1 loops=1)
+              Filter: ((report.id IS NULL) OR (report.id <> 7))
+              ->  Index Scan using ix_division_sprs_report_id on division  (cost=0.27..8.29 rows=1 width=1325) (actual time=0.007..0.007 rows=1 loops=1)
+                    Index Cond: (sprs_report_id = '00069087-ZZ.00051352-ZZ_1#id057_19630405_S0002_T00061-bill#'::text)
+              ->  Index Scan using report_report_id_key on report  (cost=0.41..8.43 rows=1 width=42) (actual time=0.006..0.006 rows=1 loops=1)
+                    Index Cond: ((report_id)::text = '00069087-ZZ.00051352-ZZ_1#id057_19630405_S0002_T00061-bill#'::text)
+Execution Time: 0.032 ms
+```
+
+```sql
+-- divisions_filtered_by_parliament_number (GET /divisions; Parliament 0, first 20)
+SELECT division.id, division.sitting_date, division.parliament_number, division.speech_ordinal, division.count_source, division.printed_counts, division.ayes, division.noes, division.abstentions, division.absent, division.paired, division.list_status, division.printed_list, division.sprs_report_id FROM division LEFT OUTER JOIN report ON report.report_id = division.sprs_report_id WHERE division.parliament_number = 0 AND (report.id IS NULL OR (report.id NOT IN (7))) ORDER BY division.sitting_date DESC, division.id LIMIT 20 OFFSET 0;
+```
+
+```text
+-- divisions_filtered_by_parliament_number (GET /divisions), hansard_positions
+Limit  (cost=11.38..188.10 rows=20 width=1325) (actual time=0.196..0.197 rows=20 loops=1)
+  ->  Incremental Sort  (cost=11.38..1433.95 rows=161 width=1325) (actual time=0.195..0.196 rows=20 loops=1)
+        ->  Nested Loop Left Join  (cost=0.56..1427.72 rows=161 width=1325) (actual time=0.096..0.185 rows=21 loops=1)
+              Filter: ((report.id IS NULL) OR (report.id <> 7))
+              ->  Index Scan Backward using ix_division_sitting_date on division  (cost=0.15..188.08 rows=161 width=1325) (actual time=0.051..0.058 rows=21 loops=1)
+                    Filter: (parliament_number = 0)
+              ->  Index Scan using report_report_id_key on report  (cost=0.41..7.69 rows=1 width=42) (actual time=0.005..0.005 rows=1 loops=21)
+Execution Time: 0.206 ms
+```
+
+```sql
+-- divisions_count_filtered (GET /divisions; Parliament 14, 25 rows)
+SELECT count(*) AS count_1 FROM division LEFT OUTER JOIN report ON report.report_id = division.sprs_report_id WHERE division.parliament_number = 14 AND (report.id IS NULL OR (report.id NOT IN (7)));
+```
+
+```text
+-- divisions_count_filtered (GET /divisions), hansard_positions
+Aggregate  (cost=272.98..272.99 rows=1 width=8) (actual time=0.142..0.143 rows=1 loops=1)
+  ->  Nested Loop Left Join  (cost=0.41..272.91 rows=25 width=0) (actual time=0.011..0.140 rows=25 loops=1)
+        Filter: ((report.id IS NULL) OR (report.id <> 7))
+        ->  Seq Scan on division  (cost=0.00..61.79 rows=25 width=52) (actual time=0.004..0.059 rows=25 loops=1)
+              Filter: (parliament_number = 14)
+        ->  Index Scan using report_report_id_key on report  (cost=0.41..8.43 rows=1 width=42) (actual time=0.003..0.003 rows=1 loops=25)
+              Index Cond: ((report_id)::text = division.sprs_report_id)
+Execution Time: 0.155 ms
+```
+
+With `SET LOCAL enable_seqscan = off`, the same statement:
+
+```text
+-- divisions_count_filtered (GET /divisions), sequential scans off
+Aggregate  (cost=425.08..425.09 rows=1 width=8) (actual time=0.166..0.167 rows=1 loops=1)
+  ->  Nested Loop Left Join  (cost=0.69..425.02 rows=25 width=0) (actual time=0.076..0.164 rows=25 loops=1)
+        Filter: ((report.id IS NULL) OR (report.id <> 7))
+        ->  Index Scan using ix_division_sprs_report_id on division  (cost=0.27..213.89 rows=25 width=52) (actual time=0.068..0.073 rows=25 loops=1)
+              Filter: (parliament_number = 14)
+        ->  Index Scan using report_report_id_key on report  (cost=0.41..8.43 rows=1 width=42) (actual time=0.003..0.003 rows=1 loops=25)
+              Index Cond: ((report_id)::text = division.sprs_report_id)
+Execution Time: 0.184 ms
+```
+
+## Indexes of division_vote
+
+```sql
+CREATE INDEX ix_division_vote_division_id ON division_vote (division_id);
+```
+
+Needed by `GET /divisions/{division_id}`, which lists a division's vote rows by `division_id` and sorts them by list source and ordinal. The planner reads `ix_division_vote_division_id` and sorts; `uq_division_vote_division_id_list_source_ordinal` has the same leading column and the sort order, and the planner chooses the smaller index at 150 rows. `ix_division_vote_speaker_id` is read by no API statement yet.
+
+Rows in the copy: 11,062. Index sizes there: `ix_division_vote_division_id` 200 kB.
+
+```sql
+-- division_votes_by_division_id (GET /divisions/{division_id}; division 47, 150 rows)
+SELECT division_vote.id, division_vote.ordinal, division_vote.printed_name, division_vote.vote_choice, division_vote.list_source, division_vote.party, division_vote.is_party_uncertain, division_vote.division_id, division_vote.speaker_id FROM division_vote WHERE division_vote.division_id = 47 ORDER BY division_vote.list_source, division_vote.ordinal;
+```
+
+```text
+-- division_votes_by_division_id (GET /divisions/{division_id}), hansard_positions
+Sort  (cost=94.24..94.61 rows=150 width=61) (actual time=0.046..0.050 rows=150 loops=1)
+  ->  Index Scan using ix_division_vote_division_id on division_vote  (cost=0.29..88.82 rows=150 width=61) (actual time=0.005..0.023 rows=150 loops=1)
+        Index Cond: (division_id = 47)
+Execution Time: 0.058 ms
+```
+
+## Indexes of division_party_count
+
+```sql
+CREATE INDEX ix_division_party_count_division_id ON division_party_count (division_id);
+```
+
+Needed by `GET /divisions/{division_id}`, which lists the party breakdown by `division_id`. The planner reads `ix_division_party_count_division_id` and sorts on four columns; `uq_division_party_count_division_id_vote_choice_party` (declared `NULLS NOT DISTINCT`) is the scraper's key.
+
+Rows in the copy: 1,086. Index sizes there: `ix_division_party_count_division_id` 32 kB.
+
+```sql
+-- division_party_counts_by_division_id (GET /divisions/{division_id}; division 246, 16 rows)
+SELECT division_party_count.id, division_party_count.member_count, division_party_count.uncertain_member_count, division_party_count.party, division_party_count.list_source, division_party_count.vote_choice, division_party_count.division_id FROM division_party_count WHERE division_party_count.division_id = 246 ORDER BY division_party_count.list_source, division_party_count.vote_choice, division_party_count.party, division_party_count.id;
+```
+
+```text
+-- division_party_counts_by_division_id (GET /divisions/{division_id}), hansard_positions
+Sort  (cost=8.88..8.92 rows=16 width=45) (actual time=0.016..0.016 rows=16 loops=1)
+  ->  Index Scan using ix_division_party_count_division_id on division_party_count  (cost=0.28..8.56 rows=16 width=45) (actual time=0.006..0.007 rows=16 loops=1)
+        Index Cond: (division_id = 246)
+Execution Time: 0.022 ms
+```
+
+## Indexes of minutes
+
+```sql
+CREATE UNIQUE INDEX minutes_sitting_date_key ON minutes (sitting_date);
+CREATE UNIQUE INDEX minutes_pkey ON minutes (id);
+```
+
+Needed by `GET /minutes` (a page and a total count) and by `GET /divisions/{division_id}` (the paired minutes file, by primary key). The list filters on any of `status`, `date_from` and `date_to` and sorts newest sitting first. `minutes_sitting_date_key`, the unique index on `sitting_date`, serves the date filters and the sort, so the page is a backward index scan and an incremental sort. `ix_minutes_index_capture_id` is read by no API statement.
+
+**Finding.** `minutes_count_filtered` runs a `Seq Scan` on `minutes` (626 rows) for the total count, and a `status` filter in `minutes_filtered` is applied to the rows the backward index scan returns. No index holds `status`. The table gains one row per sitting date, so it stays under a few thousand rows; 0.10 ms for the count.
+
+Rows in the copy: 626. Index sizes there: `minutes_sitting_date_key` 48 kB, `minutes_pkey` 48 kB.
+
+```sql
+-- minutes_filtered (GET /minutes; status TEXT_STORED from 2020-01-01, first 20)
+SELECT minutes.id, minutes.sitting_date, minutes.printed_label, minutes.printed_parliament, minutes.file_url, minutes.archive_timestamp, minutes.file_format, minutes.status FROM minutes WHERE minutes.status = 'TEXT_STORED' AND minutes.sitting_date >= '2020-01-01' ORDER BY minutes.sitting_date DESC, minutes.id LIMIT 20 OFFSET 0;
+```
+
+```text
+-- minutes_filtered (GET /minutes), hansard_positions
+Limit  (cost=0.53..6.40 rows=20 width=202) (actual time=0.016..0.018 rows=20 loops=1)
+  ->  Incremental Sort  (cost=0.53..64.45 rows=218 width=202) (actual time=0.016..0.017 rows=20 loops=1)
+        ->  Index Scan Backward using minutes_sitting_date_key on minutes  (cost=0.28..54.64 rows=218 width=202) (actual time=0.007..0.011 rows=21 loops=1)
+              Index Cond: (sitting_date >= '2020-01-01'::date)
+              Filter: (status = 'TEXT_STORED'::minutesstatus)
+Execution Time: 0.025 ms
+```
+
+```sql
+-- minutes_filtered_unfiltered (GET /minutes; no filter, first 20)
+SELECT minutes.id, minutes.sitting_date, minutes.printed_label, minutes.printed_parliament, minutes.file_url, minutes.archive_timestamp, minutes.file_format, minutes.status FROM minutes ORDER BY minutes.sitting_date DESC, minutes.id LIMIT 20 OFFSET 0;
+```
+
+```text
+-- minutes_filtered_unfiltered (GET /minutes), hansard_positions
+Limit  (cost=0.44..4.44 rows=20 width=202) (actual time=0.014..0.016 rows=20 loops=1)
+  ->  Incremental Sort  (cost=0.44..125.61 rows=626 width=202) (actual time=0.014..0.014 rows=20 loops=1)
+        ->  Index Scan Backward using minutes_sitting_date_key on minutes  (cost=0.28..97.44 rows=626 width=202) (actual time=0.004..0.009 rows=21 loops=1)
+Execution Time: 0.022 ms
+```
+
+```sql
+-- minutes_count_filtered (GET /minutes; status TEXT_STORED, 617 rows)
+SELECT count(*) AS count_1 FROM minutes WHERE minutes.status = 'TEXT_STORED';
+```
+
+```text
+-- minutes_count_filtered (GET /minutes), hansard_positions
+Aggregate  (cost=55.37..55.38 rows=1 width=8) (actual time=0.097..0.097 rows=1 loops=1)
+  ->  Seq Scan on minutes  (cost=0.00..53.83 rows=617 width=0) (actual time=0.012..0.077 rows=617 loops=1)
+        Filter: (status = 'TEXT_STORED'::minutesstatus)
+Execution Time: 0.104 ms
+```
+
+```sql
+-- minutes_by_ids (GET /divisions/{division_id}; 2 rows)
+SELECT minutes.id, minutes.sitting_date, minutes.printed_label, minutes.printed_parliament, minutes.file_url, minutes.archive_timestamp, minutes.file_format, minutes.status FROM minutes WHERE minutes.id IN (622, 623);
+```
+
+```text
+-- minutes_by_ids (GET /divisions/{division_id}), hansard_positions
+Index Scan using minutes_pkey on minutes  (cost=0.28..13.02 rows=2 width=202) (actual time=0.006..0.007 rows=2 loops=1)
+  Index Cond: (id = ANY ('{622,623}'::integer[]))
+Execution Time: 0.011 ms
+```
+
+## Indexes of minutes_division
+
+```sql
+CREATE INDEX ix_minutes_division_division_id ON minutes_division (division_id);
+```
+
+Needed by `GET /divisions/{division_id}`, which finds the minutes division paired with a division by `division_id` (`ix_minutes_division_division_id`). `ix_minutes_division_minutes_id` and `uq_minutes_division_minutes_id_ordinal` are the scraper's keys and no API statement reads them.
+
+Rows in the copy: 50. Index sizes there: `ix_minutes_division_division_id` 16 kB.
+
+```sql
+-- minutes_divisions_by_division_id (GET /divisions/{division_id}; division 1)
+SELECT minutes_division.id, minutes_division.ordinal, minutes_division.printed_counts, minutes_division.printed_list, minutes_division.list_status, minutes_division.pairing, minutes_division.minutes_id, minutes_division.division_id FROM minutes_division WHERE minutes_division.division_id = 1 ORDER BY minutes_division.minutes_id, minutes_division.ordinal;
+```
+
+```text
+-- minutes_divisions_by_division_id (GET /divisions/{division_id}), hansard_positions
+Sort  (cost=8.17..8.17 rows=1 width=1367) (actual time=0.007..0.007 rows=1 loops=1)
+  ->  Index Scan using ix_minutes_division_division_id on minutes_division  (cost=0.14..8.16 rows=1 width=1367) (actual time=0.004..0.005 rows=1 loops=1)
+        Index Cond: (division_id = 1)
+Execution Time: 0.013 ms
+```
+
 ## Ranking cost
 
 Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
