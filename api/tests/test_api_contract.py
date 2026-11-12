@@ -36,6 +36,10 @@ _LATEST_SITTING_LEAVE_PERIODS_INTERFACES_FILE = (
 )
 _SEAT_HISTORY_INTERFACES_FILE = "src/api/seats/getSeatHistory.ts"
 _PEOPLE_TYPES_FILE = "src/types/people/interfaces.ts"
+_BILL_INTERFACES_FILE = "src/api/bills/getBill.ts"
+_ACT_INTERFACES_FILE = "src/api/acts/getAct.ts"
+_ACT_PEOPLE_INTERFACES_FILE = "src/api/acts/getActPeople.ts"
+_PERSON_BILLS_INTERFACES_FILE = "src/api/people/getPersonBills.ts"
 
 _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("GetCoverageResponse", f"{_COVERAGE_INTERFACES_FILE}::GetCoverageResponse"),
@@ -137,6 +141,25 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
         f"{_ALL_SITTINGS_INTERFACES_FILE}::GetAllSittingsResponse",
     ),
     ("SittingData", f"{_ALL_SITTINGS_INTERFACES_FILE}::SittingData"),
+    ("GetBillResponse", f"{_BILL_INTERFACES_FILE}::GetBillResponse"),
+    ("BillReportData", f"{_BILL_INTERFACES_FILE}::BillReportData"),
+    ("BillStageLineData", f"{_BILL_INTERFACES_FILE}::BillStageLineData"),
+    ("BillActData", f"{_BILL_INTERFACES_FILE}::BillActData"),
+    ("BillPersonData", f"{_BILL_INTERFACES_FILE}::BillPersonData"),
+    ("GetActResponse", f"{_ACT_INTERFACES_FILE}::GetActResponse"),
+    ("ActEntryData", f"{_ACT_INTERFACES_FILE}::ActEntryData"),
+    ("ActEntryBillData", f"{_ACT_INTERFACES_FILE}::ActEntryBillData"),
+    (
+        "GetActPeopleResponse",
+        f"{_ACT_PEOPLE_INTERFACES_FILE}::GetActPeopleResponse",
+    ),
+    ("ActPersonData", f"{_ACT_PEOPLE_INTERFACES_FILE}::ActPersonData"),
+    ("ActPersonBillData", f"{_ACT_PEOPLE_INTERFACES_FILE}::ActPersonBillData"),
+    (
+        "GetPersonBillsResponse",
+        f"{_PERSON_BILLS_INTERFACES_FILE}::GetPersonBillsResponse",
+    ),
+    ("PersonBillData", f"{_PERSON_BILLS_INTERFACES_FILE}::PersonBillData"),
 )
 
 # NOTE: the frontend never calls /parties or /search-counts, so these have no interface.
