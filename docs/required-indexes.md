@@ -681,6 +681,118 @@ Sort  (cost=41.27..41.29 rows=7 width=219) (actual time=0.021..0.021 rows=13 loo
 Execution Time: 0.027 ms
 ```
 
+## Indexes of leave_period
+
+```sql
+CREATE UNIQUE INDEX leave_period_pkey ON leave_period (id);
+```
+
+Needed by `GET /people/{person_id}/leave-periods` and `GET /leave-periods/latest-sitting` (both unreleased). Each endpoint reads the periods its printings point at, by primary key. `ix_leave_period_start_date` and `uq_leave_period_period_key` are not read by any API statement; the sort on `start_date` runs over the few periods one page names.
+
+Rows in the copy: 27,866. Index sizes there: `leave_period_pkey` 1848 kB.
+
+```sql
+-- leave_periods_by_ids (GET /people/{person_id}/leave-periods; 8 periods of person 893's Membership)
+SELECT leave_period.id, leave_period.name, leave_period.start_date, leave_period.end_date, leave_period.end_text FROM leave_period WHERE leave_period.id IN (73500, 73164, 72847, 72675, 71109, 72641, 72640, 73209) ORDER BY leave_period.start_date DESC NULLS LAST, leave_period.id;
+```
+
+```text
+-- leave_periods_by_ids (GET /people/{person_id}/leave-periods), hansard_positions
+Sort  (cost=38.56..38.58 rows=8 width=50) (actual time=0.020..0.020 rows=8 loops=1)
+  ->  Index Scan using leave_period_pkey on leave_period  (cost=0.29..38.44 rows=8 width=50) (actual time=0.006..0.017 rows=8 loops=1)
+        Index Cond: (id = ANY ('{73500,73164,72847,72675,71109,72641,72640,73209}'::integer[]))
+Execution Time: 0.025 ms
+```
+
+## Indexes of leave_period_printing
+
+```sql
+CREATE INDEX ix_leave_period_printing_speaker_id ON leave_period_printing (speaker_id);
+CREATE INDEX ix_leave_period_printing_leave_period_id ON leave_period_printing (leave_period_id);
+CREATE INDEX ix_leave_period_printing_sitting_date ON leave_period_printing (sitting_date);
+```
+
+Four statements read this table. `GET /people/{person_id}/leave-periods` lists the printings of the person's Memberships by `speaker_id` (`ix_leave_period_printing_speaker_id`), then the printings of the periods those name by `leave_period_id` (`ix_leave_period_printing_leave_period_id`). `GET /leave-periods/latest-sitting` finds the latest sitting date with `max(sitting_date)`, which is a one-row backward read of `ix_leave_period_printing_sitting_date`, then lists that date's printings that cover a sitting (`is_covering_sitting` is filtered in the heap, after the date index narrows the rows). `ix_leave_period_printing_sitting_id` and `uq_leave_period_printing_sitting_id_ordinal` are not read by any API statement.
+
+Rows in the copy: 28,773. Index sizes there: `ix_leave_period_printing_speaker_id` 552 kB, `ix_leave_period_printing_leave_period_id` 1888 kB, `ix_leave_period_printing_sitting_date` 480 kB.
+
+```sql
+-- leave_printings_by_membership_ids (GET /people/{person_id}/leave-periods; Membership 893, 175 rows)
+SELECT leave_period_printing.id, leave_period_printing.ordinal, leave_period_printing.sitting_date, leave_period_printing.printed_name, leave_period_printing.carried_name, leave_period_printing.printed_from, leave_period_printing.printed_to, leave_period_printing.printed_line, leave_period_printing.printed_heading_from, leave_period_printing.printed_heading_to, leave_period_printing.office_printed, leave_period_printing.entry_format, leave_period_printing.name_source, leave_period_printing.year_source, leave_period_printing.office_source, leave_period_printing.is_covering_sitting, leave_period_printing.leave_period_id, leave_period_printing.speaker_id FROM leave_period_printing WHERE leave_period_printing.speaker_id IN (893);
+```
+
+```text
+-- leave_printings_by_membership_ids (GET /people/{person_id}/leave-periods), hansard_positions
+Index Scan using ix_leave_period_printing_speaker_id on leave_period_printing  (cost=0.29..100.69 rows=175 width=212) (actual time=0.007..0.065 rows=175 loops=1)
+  Index Cond: (speaker_id = 893)
+Execution Time: 0.074 ms
+```
+
+```sql
+-- leave_printings_by_leave_period_ids (GET /people/{person_id}/leave-periods; 8 periods)
+SELECT leave_period_printing.id, leave_period_printing.ordinal, leave_period_printing.sitting_date, leave_period_printing.printed_name, leave_period_printing.carried_name, leave_period_printing.printed_from, leave_period_printing.printed_to, leave_period_printing.printed_line, leave_period_printing.printed_heading_from, leave_period_printing.printed_heading_to, leave_period_printing.office_printed, leave_period_printing.entry_format, leave_period_printing.name_source, leave_period_printing.year_source, leave_period_printing.office_source, leave_period_printing.is_covering_sitting, leave_period_printing.leave_period_id, leave_period_printing.speaker_id FROM leave_period_printing WHERE leave_period_printing.leave_period_id IN (73500, 73164, 72847, 72675, 71109, 72641, 72640, 73209) ORDER BY leave_period_printing.sitting_date, leave_period_printing.ordinal;
+```
+
+```text
+-- leave_printings_by_leave_period_ids (GET /people/{person_id}/leave-periods), hansard_positions
+Sort  (cost=39.25..39.27 rows=8 width=212) (actual time=0.031..0.032 rows=8 loops=1)
+  ->  Index Scan using ix_leave_period_printing_leave_period_id on leave_period_printing  (cost=0.29..39.13 rows=8 width=212) (actual time=0.011..0.025 rows=8 loops=1)
+        Index Cond: (leave_period_id = ANY ('{73500,73164,72847,72675,71109,72641,72640,73209}'::integer[]))
+Execution Time: 0.042 ms
+```
+
+```sql
+-- leave_printings_max_sitting_date (GET /leave-periods/latest-sitting)
+SELECT max(leave_period_printing.sitting_date) AS max_1 FROM leave_period_printing;
+```
+
+```text
+-- leave_printings_max_sitting_date (GET /leave-periods/latest-sitting), hansard_positions
+Result  (cost=0.31..0.32 rows=1 width=4) (actual time=0.022..0.022 rows=1 loops=1)
+    ->  Limit  (cost=0.29..0.31 rows=1 width=4) (actual time=0.020..0.021 rows=1 loops=1)
+          ->  Index Only Scan Backward using ix_leave_period_printing_sitting_date on leave_period_printing  (cost=0.29..671.88 rows=28773 width=4) (actual time=0.020..0.020 rows=1 loops=1)
+Execution Time: 0.028 ms
+```
+
+```sql
+-- leave_printings_by_sitting_date_and_is_covering_sitting (GET /leave-periods/latest-sitting; 2025-01-07, 204 of 221 rows)
+SELECT leave_period_printing.id, leave_period_printing.ordinal, leave_period_printing.sitting_date, leave_period_printing.printed_name, leave_period_printing.carried_name, leave_period_printing.printed_from, leave_period_printing.printed_to, leave_period_printing.printed_line, leave_period_printing.printed_heading_from, leave_period_printing.printed_heading_to, leave_period_printing.office_printed, leave_period_printing.entry_format, leave_period_printing.name_source, leave_period_printing.year_source, leave_period_printing.office_source, leave_period_printing.is_covering_sitting, leave_period_printing.leave_period_id, leave_period_printing.speaker_id FROM leave_period_printing WHERE leave_period_printing.sitting_date = '2025-01-07' AND leave_period_printing.is_covering_sitting = false ORDER BY leave_period_printing.ordinal;
+```
+
+```text
+-- leave_printings_by_sitting_date_and_is_covering_sitting (GET /leave-periods/latest-sitting), hansard_positions
+Sort  (cost=48.80..49.25 rows=180 width=212) (actual time=0.118..0.123 rows=204 loops=1)
+  ->  Index Scan using ix_leave_period_printing_sitting_date on leave_period_printing  (cost=0.29..42.06 rows=180 width=212) (actual time=0.010..0.055 rows=204 loops=1)
+        Index Cond: (sitting_date = '2025-01-07'::date)
+        Filter: (NOT is_covering_sitting)
+Execution Time: 0.135 ms
+```
+
+## Indexes of seat_holding
+
+```sql
+CREATE UNIQUE INDEX uq_seat_holding_division_key_speaker_id ON seat_holding (division_key, speaker_id);
+```
+
+Needed by `GET /seats?constituency=` (unreleased). The statement folds the typed seat name with the scraper's rule (separators to one space, a trailing GRC or SMC dropped, lower case) and compares it with `division_key`, the first column of `uq_seat_holding_division_key_speaker_id`. The rows come back through a bitmap scan and a sort on `first_sitting_date` and `speaker_id`. `ix_seat_holding_speaker_id` is not read by any API statement.
+
+Rows in the copy: 1,269. Index sizes there: `uq_seat_holding_division_key_speaker_id` 88 kB.
+
+```sql
+-- seat_holdings_by_division_key (GET /seats; constituency Sembawang, 53 rows)
+SELECT seat_holding.id, seat_holding.division_key, seat_holding.location_name, seat_holding.first_sitting_date, seat_holding.last_sitting_date, seat_holding.sitting_count, seat_holding.speaker_id FROM seat_holding WHERE seat_holding.division_key = lower(regexp_replace(btrim(regexp_replace('Sembawang', '[[:space:]-]+', ' ', 'g')), '[[:space:]](GRC|SMC)$', '', 'i')) ORDER BY seat_holding.first_sitting_date, seat_holding.speaker_id;
+```
+
+```text
+-- seat_holdings_by_division_key (GET /seats), hansard_positions
+Sort  (cost=18.87..19.00 rows=53 width=42) (actual time=0.045..0.047 rows=53 loops=1)
+  ->  Bitmap Heap Scan on seat_holding  (cost=4.69..17.35 rows=53 width=42) (actual time=0.013..0.028 rows=53 loops=1)
+        Recheck Cond: (division_key = 'sembawang'::text)
+        ->  Bitmap Index Scan on uq_seat_holding_division_key_speaker_id  (cost=0.00..4.67 rows=53 width=0) (actual time=0.010..0.010 rows=53 loops=1)
+              Index Cond: (division_key = 'sembawang'::text)
+Execution Time: 0.053 ms
+```
+
 ## Ranking cost
 
 Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
