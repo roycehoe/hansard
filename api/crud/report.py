@@ -125,6 +125,14 @@ class CRUDReport:
         )
         return list(self.session.exec(statement).all())
 
+    def get_all_by_report_ids(self, report_ids: list[str]) -> list[Report]:
+        statement = (
+            select(Report)
+            .options(defer(Report.markdown_content))  # pyright: ignore[reportArgumentType]
+            .where(col(Report.report_id).in_(report_ids))
+        )
+        return list(self.session.exec(statement).all())
+
     def get_all_by_sitting_date(self, sitting_date: datetime) -> list[Report]:
         statement = (
             select(Report)
