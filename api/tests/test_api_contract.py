@@ -24,6 +24,7 @@ _REPORT_LINKS_INTERFACES_FILE = "src/api/reports/getReportLinks.ts"
 _SEARCH_SPEECHES_INTERFACES_FILE = "src/api/search/getSearchSpeeches.ts"
 _SEARCH_REPORTS_INTERFACES_FILE = "src/api/search/getSearchReports.ts"
 _REPORT_ATTACHED_FILES_INTERFACES_FILE = "src/api/reports/getReportAttachedFiles.ts"
+_SITTING_ATTACHED_FILES_INTERFACES_FILE = "src/api/sittings/getSittingAttachedFiles.ts"
 _SITTING_INTERFACES_FILE = "src/api/sittings/getSitting.ts"
 _ALL_SITTINGS_INTERFACES_FILE = "src/api/sittings/getAllSittings.ts"
 _COVERAGE_INTERFACES_FILE = "src/api/coverage/getCoverage.ts"
@@ -146,6 +147,18 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     (
         "AttachedFileData",
         f"{_REPORT_ATTACHED_FILES_INTERFACES_FILE}::AttachedFileData",
+    ),
+    (
+        "GetSittingAttachedFilesResponse",
+        f"{_SITTING_ATTACHED_FILES_INTERFACES_FILE}::GetSittingAttachedFilesResponse",
+    ),
+    (
+        "SittingAttachedFileData",
+        f"{_SITTING_ATTACHED_FILES_INTERFACES_FILE}::SittingAttachedFileData",
+    ),
+    (
+        "SittingAttachedFilePointerData",
+        f"{_SITTING_ATTACHED_FILES_INTERFACES_FILE}::SittingAttachedFilePointerData",
     ),
     ("GetSittingResponse", f"{_SITTING_INTERFACES_FILE}::GetSittingResponse"),
     ("SittingReportData", f"{_SITTING_INTERFACES_FILE}::SittingReportData"),
