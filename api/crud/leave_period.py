@@ -11,6 +11,8 @@ class CRUDLeavePeriod:
         statement = (
             select(LeavePeriod)
             .where(col(LeavePeriod.id).in_(leave_period_ids))
-            .order_by(col(LeavePeriod.start_date).desc().nulls_last(), LeavePeriod.id)
+            .order_by(
+                col(LeavePeriod.start_date).desc().nulls_last(), col(LeavePeriod.id)
+            )
         )
         return list(self.session.exec(statement).all())

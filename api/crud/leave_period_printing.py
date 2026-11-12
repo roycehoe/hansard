@@ -25,12 +25,14 @@ class CRUDLeavePeriodPrinting:
         statement = (
             select(LeavePeriodPrinting)
             .where(col(LeavePeriodPrinting.leave_period_id).in_(leave_period_ids))
-            .order_by(LeavePeriodPrinting.sitting_date, LeavePeriodPrinting.ordinal)
+            .order_by(
+                col(LeavePeriodPrinting.sitting_date), col(LeavePeriodPrinting.ordinal)
+            )
         )
         return list(self.session.exec(statement).all())
 
     def get_max_sitting_date(self) -> Optional[date]:
-        statement = select(func.max(LeavePeriodPrinting.sitting_date))
+        statement = select(func.max(col(LeavePeriodPrinting.sitting_date)))
         return self.session.exec(statement).one()
 
     def get_all_by_sitting_date_and_is_covering_sitting(
@@ -38,8 +40,8 @@ class CRUDLeavePeriodPrinting:
     ) -> list[LeavePeriodPrinting]:
         statement = (
             select(LeavePeriodPrinting)
-            .where(LeavePeriodPrinting.sitting_date == sitting_date)
-            .where(LeavePeriodPrinting.is_covering_sitting == is_covering_sitting)
-            .order_by(LeavePeriodPrinting.ordinal)
+            .where(col(LeavePeriodPrinting.sitting_date) == sitting_date)
+            .where(col(LeavePeriodPrinting.is_covering_sitting) == is_covering_sitting)
+            .order_by(col(LeavePeriodPrinting.ordinal))
         )
         return list(self.session.exec(statement).all())
