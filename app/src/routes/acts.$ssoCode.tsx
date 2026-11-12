@@ -14,11 +14,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
 import { ACT_COVERAGE_NOTE, ACT_TITLE_SUFFIX } from '@/constants/acts/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { isActNotFoundError } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
+
+const LINK_CLASS_NAME =
+  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
 function hasEntryWithReports(entries: ActEntryData[]): boolean {
   return entries.some(
@@ -76,11 +78,13 @@ export const Route = createFileRoute('/acts/$ssoCode')({
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <LinkExternal href={data.sso_url}>Read the Act on SSO</LinkExternal>
             {hasEntryWithReports(data.entries) && (
-              <Button asChild variant="link" size="sm">
-                <Link to="/search" search={{ act: data.sso_code }}>
-                  Search the debates on this Act
-                </Link>
-              </Button>
+              <Link
+                to="/search"
+                search={{ act: data.sso_code }}
+                className={LINK_CLASS_NAME}
+              >
+                Search the debates on this Act
+              </Link>
             )}
           </div>
           <p className="text-muted-foreground max-w-prose text-sm">
