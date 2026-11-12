@@ -45,6 +45,7 @@ _PERSON_BILLS_INTERFACES_FILE = "src/api/people/getPersonBills.ts"
 _OFFICES_INTERFACES_FILE = "src/api/offices/getOffices.ts"
 _ALL_DIVISIONS_INTERFACES_FILE = "src/api/divisions/getAllDivisions.ts"
 _DIVISION_INTERFACES_FILE = "src/api/divisions/getDivision.ts"
+_ALL_MINUTES_INTERFACES_FILE = "src/api/minutes/getAllMinutes.ts"
 
 _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("GetCoverageResponse", f"{_COVERAGE_INTERFACES_FILE}::GetCoverageResponse"),
@@ -257,6 +258,11 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
         f"{_DIVISION_INTERFACES_FILE}::DivisionPartyCountData",
     ),
     ("DivisionMinutesData", f"{_DIVISION_INTERFACES_FILE}::DivisionMinutesData"),
+    (
+        "GetAllMinutesResponse",
+        f"{_ALL_MINUTES_INTERFACES_FILE}::GetAllMinutesResponse",
+    ),
+    ("MinutesData", f"{_ALL_MINUTES_INTERFACES_FILE}::MinutesData"),
 )
 
 # NOTE: the frontend never calls /parties or /search-counts, so these have no interface.
