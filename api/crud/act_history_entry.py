@@ -12,7 +12,7 @@ class CRUDActHistoryEntry:
         statement = (
             select(ActHistoryEntry)
             .where(ActHistoryEntry.act_id == act_id)
-            .order_by(col(ActHistoryEntry.ordinal))
+            .order_by(col(ActHistoryEntry.ordinal).desc())
         )
         return list(self.session.exec(statement).all())
 
