@@ -17,6 +17,7 @@ def validate_can_search_speeches(
     report_type: Optional[ReportType],
     person_id: Optional[int],
     constituency: Optional[str],
+    act_sso_code: Optional[str],
 ) -> None:
     if (
         query.strip() == ""
@@ -26,6 +27,7 @@ def validate_can_search_speeches(
         and report_type is None
         and person_id is None
         and constituency is None
+        and act_sso_code is None
     ):
         raise SearchFilterRequiredException
     if (

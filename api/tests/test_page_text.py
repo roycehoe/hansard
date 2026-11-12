@@ -603,6 +603,7 @@ def test_a_search_page_lists_the_first_page_of_speech_matches(
             None,
             None,
             None,
+            None,
             SearchSort.DATE,
             2,
             20,

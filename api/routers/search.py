@@ -15,6 +15,7 @@ _MAX_PAGE_SIZE = 100
 _MAX_QUERY_LENGTH = 256
 _MAX_REPORT_SLUG_LENGTH = 200
 _MAX_CONSTITUENCY_LENGTH = 100
+_MAX_ACT_SSO_CODE_LENGTH = 32
 _EARLIEST_SEARCH_DATE = date(1900, 1, 1)
 _LATEST_SEARCH_DATE = date(2100, 12, 31)
 _MAX_INTEGER_COLUMN_VALUE = 2_147_483_647
@@ -54,6 +55,12 @@ def search_speeches(
         max_length=_MAX_REPORT_SLUG_LENGTH,
         pattern=_NO_NUL_BYTE_PATTERN,
     ),
+    act_sso_code: Optional[str] = Query(
+        default=None,
+        alias="act",
+        max_length=_MAX_ACT_SSO_CODE_LENGTH,
+        pattern=_NO_NUL_BYTE_PATTERN,
+    ),
     sort: SearchSort = SearchSort.RELEVANCE,
     page: int = Query(default=1, ge=1, le=search_service.MAX_SEARCH_PAGE),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
@@ -67,6 +74,7 @@ def search_speeches(
         report_type,
         person_id,
         constituency,
+        act_sso_code,
     )
     return search_service.search_speeches(
         query,
@@ -77,6 +85,7 @@ def search_speeches(
         person_id,
         constituency,
         report_slug,
+        act_sso_code,
         sort,
         page,
         page_size,
