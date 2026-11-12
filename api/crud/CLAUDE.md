@@ -102,6 +102,7 @@ Read-method names are built from the columns they filter on, never from the conc
 - Filters are `Optional`, defaulting to "no filter". A `*` separator is warranted where accidentally overriding a filter's default would silently narrow the result set, which is the danger test in `../STYLE.md`, not a blanket "multi-filter methods are always keyword-only" convention. Do not add `*` to a signature that does not meet that test.
 - An aggregate comes back as a `dict` of primitives, one value per method. A method never returns a tuple, a `Row`, or a dataclass it built (`../STYLE-RULINGS.md` R30, R35). Where a service needs three figures per key, that is three methods.
 - A list method over `report` defers `markdown_content` with `.options(defer(Report.markdown_content))` unless the caller reads it. A deferred column loads lazily on access, so a service never reads it off a list row; it asks `get_all_ids_with_text_by_ids` instead.
+- A read of rows derived from a report (`CRUDBillReport`, `CRUDBillReportSpeaker`, `CRUDBillStageLine`) takes `excluded_report_ids`, the integer `report.id` values from `get_taken_down_report_ids`, and filters them in SQL with `not_in`, so the filter runs before any paging. The name ends in `_excluding_report_ids`.
 - A join inside a statement is fine when it filters or orders the one table the method returns (`CRUDSpeech.get_all_by_query_filtered` joins `Report` for the Parliament filter and still returns `list[Speech]`). A method never returns rows of a second table.
 
 ### Mutation methods
