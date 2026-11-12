@@ -7,6 +7,7 @@ from middleware.response_cache import ResponseCacheMiddleware
 from routers import (
     coverage,
     health,
+    leave_period,
     parliament,
     party,
     person,
@@ -47,6 +48,7 @@ app.include_router(report_link.router)
 app.include_router(sitting.router)
 app.include_router(parliament.router)
 app.include_router(person.router)
+app.include_router(leave_period.router)
 app.include_router(party.router)
 app.include_router(search.router)
 app.include_router(coverage.router)

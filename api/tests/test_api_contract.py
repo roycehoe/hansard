@@ -30,6 +30,7 @@ _PARLIAMENTS_INTERFACES_FILE = "src/api/parliaments/getAllParliaments.ts"
 _ALL_PERSONS_INTERFACES_FILE = "src/api/people/getAllPersons.ts"
 _PERSON_INTERFACES_FILE = "src/api/people/getPerson.ts"
 _PERSON_REPORTS_INTERFACES_FILE = "src/api/people/getPersonReports.ts"
+_PERSON_LEAVE_PERIODS_INTERFACES_FILE = "src/api/people/getPersonLeavePeriods.ts"
 _PEOPLE_TYPES_FILE = "src/types/people/interfaces.ts"
 
 _SCHEMA_NAME_AND_INTERFACE_KEY = (
@@ -66,6 +67,18 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
         f"{_PERSON_REPORTS_INTERFACES_FILE}::GetPersonReportsResponse",
     ),
     ("PersonReportData", f"{_PERSON_REPORTS_INTERFACES_FILE}::PersonReportData"),
+    (
+        "GetPersonLeavePeriodsResponse",
+        f"{_PERSON_LEAVE_PERIODS_INTERFACES_FILE}::GetPersonLeavePeriodsResponse",
+    ),
+    (
+        "PersonLeavePeriodData",
+        f"{_PERSON_LEAVE_PERIODS_INTERFACES_FILE}::PersonLeavePeriodData",
+    ),
+    (
+        "LeavePrintingData",
+        f"{_PERSON_LEAVE_PERIODS_INTERFACES_FILE}::LeavePrintingData",
+    ),
     ("PartyAffiliationData", f"{_PEOPLE_TYPES_FILE}::PartyAffiliationData"),
     ("PersonNameSpellingData", f"{_PEOPLE_TYPES_FILE}::PersonNameSpellingData"),
     (
