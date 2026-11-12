@@ -6,6 +6,7 @@ from middleware.request_log import RequestLogMiddleware
 from middleware.response_cache import ResponseCacheMiddleware
 from routers import (
     act,
+    attached_file,
     bill,
     coverage,
     health,
@@ -64,3 +65,4 @@ app.include_router(person_bill.router)
 app.include_router(bill.router)
 app.include_router(act.router)
 app.include_router(office.router)
+app.include_router(attached_file.router)
