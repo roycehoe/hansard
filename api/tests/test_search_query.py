@@ -6,13 +6,13 @@ from utils.search_query import (
     get_exact_form_pattern,
     get_excluded_term_groups,
     get_group_websearch_query,
-    get_positive_websearch_query,
     get_quoted_websearch_query,
-    get_quoted_words,
+    get_quoted_words_to_mark,
     get_search_query_groups,
     get_split_phrase_websearch_query,
     get_stemmed_websearch_query,
     get_websearch_query,
+    get_words_to_mark_websearch_query,
     is_quote_in_query,
 )
 
@@ -146,17 +146,19 @@ def test_the_quoted_websearch_query_keeps_only_positive_quoted_terms() -> None:
     assert get_quoted_websearch_query(groups) == '"public housing" OR "flats"'
 
 
-def test_the_stemmed_and_positive_websearch_queries_split_on_quoting() -> None:
+def test_the_stemmed_and_words_to_mark_websearch_queries_split_on_quoting() -> None:
     groups = get_search_query_groups('"housing" grants OR flats -rent')
 
     assert get_stemmed_websearch_query(groups) == "grants OR flats"
-    assert get_positive_websearch_query(groups) == '"housing" OR grants OR flats'
+    assert (
+        get_words_to_mark_websearch_query(groups) == '"housing" OR "grants" OR "flats"'
+    )
 
 
 def test_quoted_words_are_lowercased_and_exclude_negated_terms() -> None:
     groups = get_search_query_groups('"Public Housing" grants -"House"')
 
-    assert get_quoted_words(groups) == ["public", "housing"]
+    assert get_quoted_words_to_mark(groups) == ["public", "housing"]
 
 
 @pytest.mark.parametrize("query", ['"housing"', "“housing”", '"'])

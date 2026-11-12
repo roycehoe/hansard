@@ -37,7 +37,7 @@ from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.report_title import get_whitespace_collapsed_title
 from utils.search_query import (
-    get_quoted_words,
+    get_quoted_words_to_mark,
     get_search_query_groups,
     get_stemmed_websearch_query,
 )
@@ -390,7 +390,7 @@ def get_report_matched_words(
     with hold_search_slot(SearchEndpoint.MATCHED_WORDS):
         report = _get_validated_report(report_slug, session)
         groups = get_search_query_groups(words)
-        quoted_words = set(get_quoted_words(groups))
+        quoted_words = set(get_quoted_words_to_mark(groups))
         stemmed_websearch_query = get_stemmed_websearch_query(groups)
         if stemmed_websearch_query == "":
             return GetReportMatchedWordsResponse(words=sorted(quoted_words))

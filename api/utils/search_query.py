@@ -210,12 +210,23 @@ def get_quoted_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
     )
 
 
-def get_positive_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
+def _get_words_to_mark(term: SearchQueryTerm) -> tuple[str, ...]:
+    content_words = tuple(
+        word for word in term.words if word.lower() not in _STOP_WORDS
+    )
+    # NOTE: Postgres marks every word of a quoted phrase wherever it appears, so a stop word in the phrase would mark each "of" in the text; a phrase of stop words alone keeps them, or nothing would be marked
+    if content_words == () and term.is_quoted:
+        return term.words
+    return content_words
+
+
+def get_words_to_mark_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
     return _WEBSEARCH_OR.join(
-        _get_websearch_term(term)
+        _QUOTE + word + _QUOTE
         for group in groups
         for term in group.terms
         if not term.is_excluded
+        for word in _get_words_to_mark(term)
     )
 
 
@@ -228,11 +239,11 @@ def get_stemmed_websearch_query(groups: tuple[SearchQueryGroup, ...]) -> str:
     )
 
 
-def get_quoted_words(groups: tuple[SearchQueryGroup, ...]) -> list[str]:
+def get_quoted_words_to_mark(groups: tuple[SearchQueryGroup, ...]) -> list[str]:
     return [
         word.lower()
         for group in groups
         for term in group.terms
         if term.is_quoted and not term.is_excluded
-        for word in term.words
+        for word in _get_words_to_mark(term)
     ]

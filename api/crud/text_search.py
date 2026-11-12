@@ -8,13 +8,13 @@ from utils.search_query import (
     get_exact_form_pattern,
     get_excluded_term_groups,
     get_group_websearch_query,
-    get_positive_websearch_query,
     get_quoted_websearch_query,
     get_search_query_groups,
     get_split_phrase_websearch_query,
     get_stemmed_websearch_query,
     get_unquoted_websearch_query,
     get_websearch_query,
+    get_words_to_mark_websearch_query,
     is_quote_in_query,
 )
 
@@ -183,7 +183,7 @@ def get_headline(query: str, text_column: ColumnElement, options: str) -> Column
         text_column,
         func.websearch_to_tsquery(
             EXACT_TEXT_SEARCH_CONFIGURATION,
-            get_positive_websearch_query(groups),
+            get_words_to_mark_websearch_query(groups),
         ),
         options,
     )
