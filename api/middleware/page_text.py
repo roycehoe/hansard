@@ -30,7 +30,12 @@ from schemas.person import (
 )
 from schemas.preview import PreviewData
 from schemas.report import GetReportResponse, SpeechData
-from schemas.search import SearchSpeechesResponse, SpeechMatchData
+from schemas.search import (
+    ReportMatchData,
+    SearchReportsResponse,
+    SearchSpeechesResponse,
+    SpeechMatchData,
+)
 from schemas.sitting import GetSittingResponse, SittingData, SittingReportData
 from services import parliament as parliament_service
 from services import person as person_service
@@ -40,7 +45,7 @@ from services import sitting as sitting_service
 from settings import settings
 from utils.search_query import is_query_only_excluded_words
 from utils.sitting_date import get_sitting_date_label
-from validators.search import validate_can_search_speeches
+from validators.search import validate_can_search_reports, validate_can_search_speeches
 
 _NO_PAGE_TEXT = ""
 _NO_ROOT_ELEMENT = ""
@@ -108,14 +113,25 @@ _SPEECH_MATCH_NOUN = "speech match"
 _SPEECH_MATCHES_NOUN = "speech matches"
 _SPEECH_NOUN = "speech"
 _SPEECHES_NOUN = "speeches"
+_TITLE_MATCH_NOUN = "title match"
+_TITLE_MATCHES_NOUN = "title matches"
+_REPORT_NOUN = "report"
+_REPORTS_NOUN = "reports"
 _MORE_THAN_PREFIX = "more than"
 _NO_SPEECH_MATCHES_NOTE = (
     "No speech matches. All search terms must appear in the same paragraph. "
     'Try using fewer words. Common words like "the" are ignored.'
 )
 _NO_SPEECHES_NOTE = "No speeches. Try a wider date range or another Parliament."
+_NO_TITLE_MATCHES_NOTE = (
+    "No title matches. All search terms must appear in the title. "
+    'Try using fewer words. Common words like "the" are ignored.'
+)
+_NO_REPORTS_NOTE = "No reports. Try a wider date range or another Parliament."
 _TITLE_MATCHES_LINK_TEXT = "Title matches"
 _REPORTS_LINK_TEXT = "Reports"
+_SPEECH_MATCHES_LINK_TEXT = "Speech matches"
+_SPEECHES_LINK_TEXT = "Speeches"
 _NEXT_PAGE_LINK_TEXT = "Next page"
 _SEARCH_BUSY_NOTE = (
     "Search is busy. Too many searches are running. Try again in a moment."
@@ -401,13 +417,19 @@ def _get_app_search_value(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
-def _get_speech_match_url(speech_match: SpeechMatchData, query: str) -> str:
-    report_path = f"/reports/{quote(speech_match.report_slug, safe='')}"
-    speech_anchor = f"#s{speech_match.ordinal}"
+def _get_highlighted_report_url(report_slug: str, query: str) -> str:
+    report_path = f"/reports/{quote(report_slug, safe='')}"
     if _is_query_without_search_words(query):
-        return f"{report_path}{speech_anchor}"
+        return report_path
     highlight_query = urlencode({_HIGHLIGHT_PARAMETER: _get_app_search_value(query)})
-    return f"{report_path}?{highlight_query}{speech_anchor}"
+    return f"{report_path}?{highlight_query}"
+
+
+def _get_speech_match_url(speech_match: SpeechMatchData, query: str) -> str:
+    return (
+        f"{_get_highlighted_report_url(speech_match.report_slug, query)}"
+        f"#s{speech_match.ordinal}"
+    )
 
 
 def _get_speech_match_item_html(speech_match: SpeechMatchData, query: str) -> str:
@@ -430,60 +452,86 @@ def _get_speech_match_item_html(speech_match: SpeechMatchData, query: str) -> st
     )
 
 
-def _get_match_noun(is_one_match: bool, is_query_without_search_words: bool) -> str:
-    if is_query_without_search_words:
-        return _SPEECH_NOUN if is_one_match else _SPEECHES_NOUN
-    return _SPEECH_MATCH_NOUN if is_one_match else _SPEECH_MATCHES_NOUN
+def _get_report_match_item_html(report_match: ReportMatchData, query: str) -> str:
+    report_url = _get_highlighted_report_url(report_match.report_slug, query)
+    return (
+        f'<li><a href="{escape(report_url)}">{escape(report_match.title)}</a>, '
+        f'<time datetime="{escape(report_match.sitting_date.isoformat())}">'
+        f"{escape(get_sitting_date_label(report_match.sitting_date))}</time></li>"
+    )
 
 
 def _get_match_count_html(
-    total_count: int, is_total_capped: bool, is_query_without_search_words: bool
+    total_count: int, is_total_capped: bool, singular_noun: str, plural_noun: str
 ) -> str:
-    noun = _get_match_noun(
-        total_count == 1 and not is_total_capped, is_query_without_search_words
-    )
+    noun = singular_noun if total_count == 1 and not is_total_capped else plural_noun
     if is_total_capped:
         return f"<p>{_MORE_THAN_PREFIX} {total_count:,} {noun}</p>"
     return f"<p>{total_count:,} {noun}</p>"
 
 
 def _get_search_url(
-    query_params: Mapping[str, str], parameter_name: str, parameter_value: str
+    query_params: Mapping[str, str], tab: Optional[str], page: Optional[int]
 ) -> str:
     kept_parameters = [
         (name, value)
         for name, value in query_params.items()
         if name != _PAGE_PARAMETER and name != _TAB_PARAMETER
     ]
-    search_query = urlencode([*kept_parameters, (parameter_name, parameter_value)])
+    tab_parameters = [] if tab is None else [(_TAB_PARAMETER, tab)]
+    page_parameters = [] if page is None else [(_PAGE_PARAMETER, str(page))]
+    search_query = urlencode([*kept_parameters, *tab_parameters, *page_parameters])
     return f"{_SEARCH_PATH}?{search_query}"
 
 
 # NOTE: a report title carries no seat, so the app offers title matches only without a seat filter, and without words only when no person is chosen
+def _is_title_search_offered(parameters: _SearchPageParameters) -> bool:
+    return parameters.constituency is None and (
+        not _is_query_without_search_words(parameters.query)
+        or parameters.person_id is None
+    )
+
+
+def _should_search_titles(
+    tab: Optional[str], parameters: _SearchPageParameters
+) -> bool:
+    return tab == _TITLES_TAB and _is_title_search_offered(parameters)
+
+
 def _get_title_search_lines(
     query_params: Mapping[str, str],
     parameters: _SearchPageParameters,
     is_query_without_search_words: bool,
 ) -> list[str]:
-    if parameters.constituency is not None:
-        return []
-    if is_query_without_search_words and parameters.person_id is not None:
+    if not _is_title_search_offered(parameters):
         return []
     link_text = (
         _REPORTS_LINK_TEXT
         if is_query_without_search_words
         else _TITLE_MATCHES_LINK_TEXT
     )
-    title_search_url = _get_search_url(query_params, _TAB_PARAMETER, _TITLES_TAB)
+    title_search_url = _get_search_url(query_params, _TITLES_TAB, None)
     return [f'<p><a href="{escape(title_search_url)}">{link_text}</a></p>']
 
 
+def _get_speech_search_line(
+    query_params: Mapping[str, str], is_query_without_search_words: bool
+) -> str:
+    link_text = (
+        _SPEECHES_LINK_TEXT
+        if is_query_without_search_words
+        else _SPEECH_MATCHES_LINK_TEXT
+    )
+    speech_search_url = _get_search_url(query_params, None, None)
+    return f'<p><a href="{escape(speech_search_url)}">{link_text}</a></p>'
+
+
 def _get_next_page_lines(
-    query_params: Mapping[str, str], page: int, has_next_page: bool
+    query_params: Mapping[str, str], tab: Optional[str], page: int, has_next_page: bool
 ) -> list[str]:
     if not has_next_page:
         return []
-    next_page_url = _get_search_url(query_params, _PAGE_PARAMETER, str(page + 1))
+    next_page_url = _get_search_url(query_params, tab, page + 1)
     return [f'<p><a href="{escape(next_page_url)}">{_NEXT_PAGE_LINK_TEXT}</a></p>']
 
 
@@ -528,7 +576,12 @@ def _get_search_results_html(
             _get_match_count_html(
                 search_speeches_response.total_count,
                 search_speeches_response.is_total_capped,
-                is_query_without_search_words,
+                _SPEECH_NOUN if is_query_without_search_words else _SPEECH_MATCH_NOUN,
+                (
+                    _SPEECHES_NOUN
+                    if is_query_without_search_words
+                    else _SPEECH_MATCHES_NOUN
+                ),
             ),
             *title_search_lines,
             "<ol>",
@@ -539,8 +592,58 @@ def _get_search_results_html(
             "</ol>",
             *_get_next_page_lines(
                 query_params,
+                None,
                 parameters.page,
                 search_speeches_response.has_next_page,
+            ),
+        ],
+    )
+
+
+def _get_title_search_results_html(
+    title: str,
+    query_params: Mapping[str, str],
+    parameters: _SearchPageParameters,
+    search_reports_response: SearchReportsResponse,
+) -> str:
+    is_query_without_search_words = _is_query_without_search_words(parameters.query)
+    speech_search_line = _get_speech_search_line(
+        query_params, is_query_without_search_words
+    )
+    if search_reports_response.results == []:
+        no_results_note = (
+            _NO_REPORTS_NOTE
+            if is_query_without_search_words
+            else _NO_TITLE_MATCHES_NOTE
+        )
+        return _get_search_html(
+            title, [speech_search_line, f"<p>{escape(no_results_note)}</p>"]
+        )
+    return _get_search_html(
+        title,
+        [
+            _get_match_count_html(
+                search_reports_response.total_count,
+                search_reports_response.is_total_capped,
+                _REPORT_NOUN if is_query_without_search_words else _TITLE_MATCH_NOUN,
+                (
+                    _REPORTS_NOUN
+                    if is_query_without_search_words
+                    else _TITLE_MATCHES_NOUN
+                ),
+            ),
+            speech_search_line,
+            "<ol>",
+            *[
+                _get_report_match_item_html(report_match, parameters.query)
+                for report_match in search_reports_response.results
+            ],
+            "</ol>",
+            *_get_next_page_lines(
+                query_params,
+                _TITLES_TAB,
+                parameters.page,
+                search_reports_response.has_next_page,
             ),
         ],
     )
@@ -634,9 +737,50 @@ def _get_person_page_text_html(person_id: int) -> str:
         return _NO_PAGE_TEXT
 
 
+# NOTE: the app asks only for title matches without text while a person is chosen, so the page text asks for the same
+def _get_is_text_available_filter(person_id: Optional[int]) -> Optional[bool]:
+    if person_id is None:
+        return None
+    return False
+
+
+def _get_title_search_html(
+    title: str, query_params: Mapping[str, str], parameters: _SearchPageParameters
+) -> str:
+    is_text_available = _get_is_text_available_filter(parameters.person_id)
+    validate_can_search_reports(
+        parameters.query,
+        parameters.parliament_number,
+        parameters.date_from,
+        parameters.date_to,
+        parameters.report_type,
+        is_text_available,
+    )
+    with Session(search_engine) as session:
+        return _get_title_search_results_html(
+            title,
+            query_params,
+            parameters,
+            search_service.search_reports(
+                parameters.query,
+                parameters.parliament_number,
+                parameters.date_from,
+                parameters.date_to,
+                parameters.report_type,
+                is_text_available,
+                _get_search_sort(parameters.query, parameters.sort),
+                parameters.page,
+                _SEARCH_PAGE_SIZE,
+                session,
+            ),
+        )
+
+
 def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> str:
     try:
         parameters = _SearchPageParameters.model_validate(dict(query_params))
+        if _should_search_titles(query_params.get(_TAB_PARAMETER), parameters):
+            return _get_title_search_html(title, query_params, parameters)
         validate_can_search_speeches(
             parameters.query,
             parameters.parliament_number,

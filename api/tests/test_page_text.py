@@ -31,7 +31,12 @@ from schemas.person import (
 )
 from schemas.preview import PreviewData
 from schemas.report import GetReportResponse, SpeechData
-from schemas.search import SearchSpeechesResponse, SpeechMatchData
+from schemas.search import (
+    ReportMatchData,
+    SearchReportsResponse,
+    SearchSpeechesResponse,
+    SpeechMatchData,
+)
 from schemas.sitting import (
     GetAllSittingsResponse,
     GetSittingResponse,
@@ -826,7 +831,7 @@ def test_a_search_page_lists_the_first_page_of_speech_matches(
     monkeypatch.setattr(search_service, "search_speeches", search_speeches)
     client = _get_client(tmp_path, monkeypatch, _get_search_preview())
 
-    response = client.get("/search?q=+default+interest+&type=bill&page=2&tab=titles")
+    response = client.get("/search?q=+default+interest+&type=bill&page=2&tab=speeches")
 
     assert search_arguments == [
         (
@@ -1085,3 +1090,297 @@ def test_a_database_failure_leaves_the_search_root_empty(
 
     assert response.status_code == status.HTTP_200_OK
     assert _EMPTY_ROOT in response.text
+
+
+def _get_report_match(report_slug: str, title: str) -> ReportMatchData:
+    return ReportMatchData(
+        report_slug=report_slug,
+        title=title,
+        report_type="bill",
+        sitting_date=date(2020, 1, 1),
+        parliament_number=14,
+        is_text_available=True,
+        snippet="",
+    )
+
+
+def _get_search_reports_response(
+    results: list[ReportMatchData], has_next_page: bool
+) -> SearchReportsResponse:
+    return SearchReportsResponse(
+        results=results,
+        page=1,
+        page_size=20,
+        has_next_page=has_next_page,
+        total_count=1_000,
+        is_total_capped=True,
+    )
+
+
+def _fail_if_title_search_runs(*arguments: object) -> SearchReportsResponse:
+    raise AssertionError("the title search should not run")
+
+
+def test_a_title_search_lists_the_first_page_of_title_matches(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    search_arguments: list[tuple[object, ...]] = []
+
+    def search_reports(*arguments: object) -> SearchReportsResponse:
+        search_arguments.append(arguments[:-1])
+        return _get_search_reports_response(
+            [
+                _get_report_match("bill-818", "SUPPLY BILL"),
+                _get_report_match(
+                    "00069110-ZZ_1#id004-budget", "<script>alert(1)</script>"
+                ),
+            ],
+            True,
+        )
+
+    monkeypatch.setattr(search_service, "search_reports", search_reports)
+    monkeypatch.setattr(search_service, "search_speeches", _fail_if_search_runs)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    response = client.get("/search?q=+default+interest+&type=bill&page=2&tab=titles")
+
+    assert search_arguments == [
+        (
+            "default interest",
+            None,
+            None,
+            None,
+            ReportType.BILL,
+            None,
+            SearchSort.DATE,
+            2,
+            20,
+        )
+    ]
+    assert response.status_code == status.HTTP_200_OK
+    assert response.headers["vary"] == "Sec-Fetch-Dest"
+    assert _get_root_contents(response.text).split("\n") == [
+        "<main>",
+        "<h1>Search</h1>",
+        _COVERAGE_LINE,
+        "<p>more than 1,000 title matches</p>",
+        '<p><a href="/search?q=+default+interest+&amp;type=bill">Speech matches</a></p>',
+        "<ol>",
+        '<li><a href="/reports/bill-818?hl=default+interest">SUPPLY BILL</a>, '
+        '<time datetime="2020-01-01">1 January 2020</time></li>',
+        '<li><a href="/reports/00069110-ZZ_1%23id004-budget?hl=default+interest">'
+        "&lt;script&gt;alert(1)&lt;/script&gt;</a>, "
+        '<time datetime="2020-01-01">1 January 2020</time></li>',
+        "</ol>",
+        '<p><a href="/search?q=+default+interest+&amp;type=bill&amp;tab=titles'
+        '&amp;page=3">Next page</a></p>',
+        "</main>",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("query", "is_text_available"),
+    [("?q=tax&person=7&tab=titles", False), ("?q=tax&tab=titles", None)],
+)
+def test_a_title_search_asks_for_reports_without_text_while_a_person_is_chosen(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    query: str,
+    is_text_available: Optional[bool],
+) -> None:
+    search_arguments: list[tuple[object, ...]] = []
+
+    def search_reports(*arguments: object) -> SearchReportsResponse:
+        search_arguments.append(arguments[:-1])
+        return _get_search_reports_response([], False)
+
+    monkeypatch.setattr(search_service, "search_reports", search_reports)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    client.get(f"/search{query}")
+
+    assert search_arguments == [
+        ("tax", None, None, None, None, is_text_available, SearchSort.DATE, 1, 20)
+    ]
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "?q=tax&constituency=Tampines&tab=titles",
+        "?person=7&tab=titles",
+        "?q=-covid&person=7&tab=titles",
+    ],
+)
+def test_a_title_tab_the_app_does_not_offer_lists_speech_matches(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, query: str
+) -> None:
+    monkeypatch.setattr(search_service, "search_reports", _fail_if_title_search_runs)
+    monkeypatch.setattr(
+        search_service,
+        "search_speeches",
+        lambda *arguments: _get_search_speeches_response(
+            [_get_speech_match("bill-818", "SUPPLY BILL", 3, "", "text")], False
+        ),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    root_contents = _get_root_contents(client.get(f"/search{query}").text)
+
+    assert '#s3">SUPPLY BILL</a>' in root_contents
+    assert "tab=titles" not in root_contents
+
+
+@pytest.mark.parametrize(
+    ("query", "lines"),
+    [
+        (
+            "?q=zebrafinch&tab=titles",
+            [
+                '<p><a href="/search?q=zebrafinch">Speech matches</a></p>',
+                "<p>No title matches. All search terms must appear in the title. "
+                "Try using fewer words. Common words like &quot;the&quot; are "
+                "ignored.</p>",
+            ],
+        ),
+        (
+            "?type=bill&tab=titles",
+            [
+                '<p><a href="/search?type=bill">Speeches</a></p>',
+                "<p>No reports. Try a wider date range or another Parliament.</p>",
+            ],
+        ),
+    ],
+)
+def test_a_title_search_with_no_matches_says_so(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, query: str, lines: list[str]
+) -> None:
+    monkeypatch.setattr(
+        search_service,
+        "search_reports",
+        lambda *arguments: _get_search_reports_response([], False),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    root_contents = _get_root_contents(client.get(f"/search{query}").text)
+
+    assert root_contents.split("\n") == [
+        "<main>",
+        "<h1>Search</h1>",
+        _COVERAGE_LINE,
+        *lines,
+        "</main>",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("error", "note"),
+    [
+        (
+            SearchBusyException,
+            "Search is busy. Too many searches are running. Try again in a moment.",
+        ),
+        (
+            SearchTimedOutException,
+            "The search took too long. Choose a Parliament, report type or date "
+            "range to narrow the search, then try again.",
+        ),
+    ],
+)
+def test_a_title_search_that_fails_writes_the_line_the_app_shows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error: Exception, note: str
+) -> None:
+    def raise_error(*arguments: object) -> SearchReportsResponse:
+        raise error
+
+    monkeypatch.setattr(search_service, "search_reports", raise_error)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    root_contents = _get_root_contents(client.get("/search?q=tax&tab=titles").text)
+
+    assert root_contents.split("\n") == [
+        "<main>",
+        "<h1>Search</h1>",
+        _COVERAGE_LINE,
+        f"<p>{note}</p>",
+        "</main>",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("query", "root_contents"),
+    [
+        (
+            "?q=-covid&tab=titles",
+            "\n".join(
+                [
+                    "<main>",
+                    "<h1>Search</h1>",
+                    _COVERAGE_LINE,
+                    "<p>A minus sign excludes a word. Add a word to search for, or "
+                    "choose a person or constituency.</p>",
+                    "</main>",
+                ]
+            ),
+        ),
+        ("?tab=titles", ""),
+    ],
+)
+def test_a_title_search_the_api_would_refuse_runs_no_search(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, query: str, root_contents: str
+) -> None:
+    monkeypatch.setattr(search_service, "search_reports", _fail_if_title_search_runs)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    assert _get_root_contents(client.get(f"/search{query}").text) == root_contents
+
+
+def test_a_database_failure_leaves_the_title_search_root_empty(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def raise_error(*arguments: object) -> SearchReportsResponse:
+        raise OperationalError("SELECT 1", {}, Exception("connection refused"))
+
+    monkeypatch.setattr(search_service, "search_reports", raise_error)
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    response = client.get("/search?q=tax&tab=titles")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _EMPTY_ROOT in response.text
+
+
+@pytest.mark.parametrize(
+    ("query", "total_count", "is_total_capped", "count_line"),
+    [
+        ("?q=tax&tab=titles", 1, False, "<p>1 title match</p>"),
+        ("?q=tax&tab=titles", 2, False, "<p>2 title matches</p>"),
+        ("?type=bill&tab=titles", 1, False, "<p>1 report</p>"),
+        ("?type=bill&tab=titles", 1_000, True, "<p>more than 1,000 reports</p>"),
+    ],
+)
+def test_a_title_search_counts_title_matches_or_reports(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    query: str,
+    total_count: int,
+    is_total_capped: bool,
+    count_line: str,
+) -> None:
+    monkeypatch.setattr(
+        search_service,
+        "search_reports",
+        lambda *arguments: SearchReportsResponse(
+            results=[_get_report_match("bill-818", "SUPPLY BILL")],
+            page=1,
+            page_size=20,
+            has_next_page=False,
+            total_count=total_count,
+            is_total_capped=is_total_capped,
+        ),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_search_preview())
+
+    root_lines = _get_root_contents(client.get(f"/search{query}").text).split("\n")
+
+    assert root_lines[3] == count_line
