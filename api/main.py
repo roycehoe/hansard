@@ -18,6 +18,7 @@ from routers import (
     party,
     person,
     person_bill,
+    person_office,
     refresh,
     report,
     report_link,
@@ -64,6 +65,7 @@ app.include_router(coverage.router)
 app.include_router(refresh.router)
 app.include_router(search_count.router)
 app.include_router(person_bill.router)
+app.include_router(person_office.router)
 app.include_router(bill.router)
 app.include_router(act.router)
 app.include_router(office.router)

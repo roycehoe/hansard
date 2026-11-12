@@ -10,8 +10,9 @@ from validators.unreleased_endpoint import validate_can_read_unreleased_endpoint
 _UNRELEASED_PATH = "/unreleased"
 _OK_STATUS_CODE = 200
 _GATE_SETTING_NAME = "is_unreleased_endpoints_enabled"
-_LEAVE_AND_SEAT_PATHS = (
+_PERSON_LEAVE_SEAT_AND_OFFICE_PATHS = (
     "/people/1/leave-periods",
+    "/people/1/printed-ranges",
     "/leave-periods/latest-sitting",
     "/seats?constituency=Aljunied",
 )
@@ -67,8 +68,8 @@ def test_an_unreleased_endpoint_answers_while_the_setting_is_on(
     assert response.status_code == _OK_STATUS_CODE
 
 
-@pytest.mark.parametrize("path", _LEAVE_AND_SEAT_PATHS)
-def test_a_leave_or_seat_endpoint_answers_404_while_the_setting_is_off(
+@pytest.mark.parametrize("path", _PERSON_LEAVE_SEAT_AND_OFFICE_PATHS)
+def test_a_leave_seat_or_person_office_endpoint_answers_404_while_the_setting_is_off(
     path: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(settings, _GATE_SETTING_NAME, False)

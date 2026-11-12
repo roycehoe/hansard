@@ -43,6 +43,7 @@ _ACT_INTERFACES_FILE = "src/api/acts/getAct.ts"
 _ACT_PEOPLE_INTERFACES_FILE = "src/api/acts/getActPeople.ts"
 _ALL_ACTS_INTERFACES_FILE = "src/api/acts/getAllActs.ts"
 _PERSON_BILLS_INTERFACES_FILE = "src/api/people/getPersonBills.ts"
+_PERSON_PRINTED_RANGES_INTERFACES_FILE = "src/api/people/getPersonPrintedRanges.ts"
 _OFFICES_INTERFACES_FILE = "src/api/offices/getOffices.ts"
 _ALL_DIVISIONS_INTERFACES_FILE = "src/api/divisions/getAllDivisions.ts"
 _DIVISION_INTERFACES_FILE = "src/api/divisions/getDivision.ts"
@@ -245,6 +246,14 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     (
         "PrintEvidenceData",
         f"{_OFFICES_INTERFACES_FILE}::PrintEvidenceData",
+    ),
+    (
+        "GetPersonPrintedRangesResponse",
+        f"{_PERSON_PRINTED_RANGES_INTERFACES_FILE}::GetPersonPrintedRangesResponse",
+    ),
+    (
+        "PersonPrintedRangesMembershipData",
+        f"{_PERSON_PRINTED_RANGES_INTERFACES_FILE}::PersonPrintedRangesMembershipData",
     ),
     (
         "GetReportOfficesResponse",
