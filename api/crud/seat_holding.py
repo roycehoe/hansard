@@ -1,5 +1,5 @@
 from sqlalchemy import literal
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from crud.location_name import get_folded_location_name
 from database.seat_holding import SeatHolding
@@ -16,6 +16,6 @@ class CRUDSeatHolding:
                 SeatHolding.division_key
                 == get_folded_location_name(literal(location_name))
             )
-            .order_by(SeatHolding.first_sitting_date, SeatHolding.speaker_id)
+            .order_by(col(SeatHolding.first_sitting_date), col(SeatHolding.speaker_id))
         )
         return list(self.session.exec(statement).all())
