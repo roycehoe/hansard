@@ -26,6 +26,8 @@ export const HTTP_SERVICE_UNAVAILABLE = 503
 
 export const HTTP_GATEWAY_TIMEOUT = 504
 
+export const ENDPOINT_NOT_FOUND_ERROR_CODE = 'endpoint.not_found'
+
 export const NUMBER_LOCALE = 'en-SG'
 
 export const FILTER_ALL = 'all'
