@@ -71,6 +71,19 @@ GRANT SELECT ON attached_file, attached_file_pointer TO hansard_api;
 
 Check it as `hansard_api` with `SELECT count(*) FROM attached_file_pointer;`.
 
+## Votes and minutes
+
+The unreleased endpoints `GET /divisions`, `GET /divisions/{division_id}` and `GET /minutes` read five tables the scraper adds in migrations `7b1f3c9a2e40`, `3e8a6d15c2f7`, `c41b7e2f9a06` and `5fa92d0e8b13` (re-parented when they land). Run this as the owner role once the migrations are applied and the five `apply_*` scripts have filled the tables, and before `IS_UNRELEASED_ENDPOINTS_ENABLED` is switched on. Until it runs, the role cannot read the tables and a request to any of the three endpoints fails while the setting is on. It is not a grant already in place.
+
+```sql
+GRANT SELECT ON division, division_vote, division_party_count, minutes_division TO hansard_api;
+GRANT SELECT (id, sitting_date, printed_label, printed_parliament, file_url, archive_timestamp, file_format, status) ON minutes TO hansard_api;
+```
+
+`minutes` holds the extracted text of every Votes and Proceedings file, about 4 MB today, plus the file hash and a review note. The API reads none of them, so `minutes` takes a column grant, as `report_link` does, and a query that selects `extracted_text` fails with "permission denied for table minutes". The other four tables hold only values a response shows or harmless counts, so they take a whole-table grant. The API has no model for `minutes_index_capture` and needs no grant on it.
+
+Check it as `hansard_api` with `SELECT count(*) FROM division_vote;` and `SELECT id, status FROM minutes LIMIT 1;`, which return rows, and `SELECT extracted_text FROM minutes LIMIT 1;`, which fails. The scraper's refresh role has its own grants on the same tables; they are in the scraper's `docs/refresh.md`.
+
 ## Check the role
 
 Connect as `hansard_api` and run:

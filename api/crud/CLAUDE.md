@@ -152,6 +152,8 @@ Use `selectinload` for **one-to-many** relationships (collections) and `joinedlo
 
 The offices classes (`CRUDMinistry`, `CRUDMinistrySeeAlso`, `CRUDOfficeTitleMinistry`, `CRUDReportPutTo`, `CRUDReportParticipant`, `CRUDOfficePrintedRange`, `CRUDAttendanceOffice`) follow the same shape. A ministry's reports come from `CRUDReport.get_all_ids_by_report_put_to_ministry_id_excluding_report_ids` and its participant twin, which filter `report` through a subselect on `office_title_ministry`, return ids, and leave the rows to `get_by_ids`, which defers `markdown_content`.
 
+The division classes (`CRUDDivision`, `CRUDDivisionVote`, `CRUDDivisionPartyCount`, `CRUDMinutesDivision`, `CRUDMinutes`) follow the same shape. `CRUDDivision` takes `excluded_report_ids` and filters them through a `LEFT OUTER JOIN` on `report`, written as `report.id IS NULL OR report.id NOT IN (...)`: a division with no report has no `report` row, and a bare `NOT IN` would drop it. The clause is left out while the list is empty. The date filters of `CRUDDivision` and `CRUDMinutes` include both ends, because their columns are dates and not timestamps. `CRUDMinutes` reads one file by `get_by_ids`, as the report lookups do, so a row that cannot be missing is looked up by key and fails loudly if it is.
+
 The models in `database/` declare no relationships today. Services join by ids with `get_by_ids` on the related table, or ask `middleware/membership.py` to resolve Memberships to Persons.
 
 ---
