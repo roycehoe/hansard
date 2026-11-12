@@ -11,6 +11,8 @@ from sqlmodel import Session
 
 from database.engine import engine, search_engine
 from enums import ReportType, SearchSort
+from exceptions.act import ActNotFoundException
+from exceptions.endpoint import EndpointNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from exceptions.search import (
     SearchBusyException,
@@ -66,6 +68,7 @@ _SEARCH_FORM_HTML = (
 _SEARCH_PAGE_SIZE = 20
 _MAX_SEARCH_QUERY_LENGTH = 256
 _MAX_CONSTITUENCY_LENGTH = 100
+_MAX_ACT_SSO_CODE_LENGTH = 32
 _EARLIEST_SEARCH_DATE = date(1900, 1, 1)
 _LATEST_SEARCH_DATE = date(2100, 12, 31)
 _MAX_INTEGER_COLUMN_VALUE = 2_147_483_647
@@ -74,6 +77,7 @@ _PAGE_PARAMETER = "page"
 _TAB_PARAMETER = "tab"
 _TITLES_TAB = "titles"
 _CONSTITUENCY_PARAMETER = "constituency"
+_ACT_PARAMETER = "act"
 _HIGHLIGHT_PARAMETER = "hl"
 _SNIPPET_MARK_START = "<mark>"
 _SNIPPET_MARK_END = "</mark>"
@@ -111,6 +115,7 @@ _SEARCH_CONSTITUENCY_NOT_FOUND_NOTE = (
     "Check the spelling. A constituency can be listed under another name "
     "after its boundaries change."
 )
+_SEARCH_ACT_NOT_FOUND_NOTE_PREFIX = "No Act has the code"
 _SEARCH_FAILED_NOTE = "Couldn't run the search."
 
 
@@ -141,6 +146,12 @@ class _SearchPageParameters(BaseModel):
         default=None,
         min_length=1,
         max_length=_MAX_CONSTITUENCY_LENGTH,
+        pattern=_NO_NUL_BYTE_PATTERN,
+    )
+    act_sso_code: Optional[str] = Field(
+        default=None,
+        alias="act",
+        max_length=_MAX_ACT_SSO_CODE_LENGTH,
         pattern=_NO_NUL_BYTE_PATTERN,
     )
     sort: Optional[SearchSort] = None
@@ -364,13 +375,15 @@ def _get_search_url(
     return f"{_SEARCH_PATH}?{search_query}"
 
 
-# NOTE: a report title carries no seat, so the app offers title matches only without a seat filter, and without words only when no person is chosen
+# NOTE: a report title carries no seat and no Act, so the app offers title matches only without a seat or Act filter, and without words only when no person is chosen
 def _get_title_search_lines(
     query_params: Mapping[str, str],
     parameters: _SearchPageParameters,
     is_query_without_search_words: bool,
 ) -> list[str]:
     if parameters.constituency is not None:
+        return []
+    if parameters.act_sso_code is not None:
         return []
     if is_query_without_search_words and parameters.person_id is not None:
         return []
@@ -535,7 +548,7 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
             parameters.report_type,
             parameters.person_id,
             parameters.constituency,
-            None,
+            parameters.act_sso_code,
         )
         with Session(search_engine) as session:
             return _get_search_results_html(
@@ -551,7 +564,7 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
                     parameters.person_id,
                     parameters.constituency,
                     None,
-                    None,
+                    parameters.act_sso_code,
                     _get_search_sort(parameters.query, parameters.sort),
                     parameters.page,
                     _SEARCH_PAGE_SIZE,
@@ -571,6 +584,13 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
             f"No constituency called {constituency}. "
             f"{_SEARCH_CONSTITUENCY_NOT_FOUND_NOTE}",
         )
+    except ActNotFoundException:
+        act_sso_code = query_params.get(_ACT_PARAMETER, "").strip()
+        return _get_search_note_html(
+            title, f"{_SEARCH_ACT_NOT_FOUND_NOTE_PREFIX} {act_sso_code}."
+        )
+    except EndpointNotFoundException:
+        return _get_search_note_html(title, _SEARCH_FAILED_NOTE)
     except SearchBusyException:
         return _get_search_note_html(title, _SEARCH_BUSY_NOTE)
     except SearchTimedOutException:
