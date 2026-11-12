@@ -17,7 +17,7 @@ from database.speaker import Speaker
 from database.speech import Speech
 from enums import PreviewType
 from middleware.membership import get_membership_id_to_person
-from middleware.takedown import get_taken_down_report_ids
+from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
 from schemas.preview import PreviewData
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
@@ -341,6 +341,15 @@ def _get_reports_sentence(reports: list[Report]) -> str:
     return f"{listed_titles}."
 
 
+def _get_sitting_description(reports: list[Report]) -> str:
+    shown_reports = [
+        report for report in reports if not is_report_id_taken_down(report.report_id)
+    ]
+    if not shown_reports:
+        return _DEFAULT_DESCRIPTION
+    return _get_reports_sentence(shown_reports)
+
+
 def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
     reports = CRUDReport(session).get_all_by_sitting_date(
         datetime.combine(sitting_date, time.min)
@@ -349,7 +358,7 @@ def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
         return get_not_found_preview()
     return PreviewData(
         title=f"Sitting of {get_sitting_date_label(sitting_date)}",
-        description=_get_reports_sentence(reports),
+        description=_get_sitting_description(reports),
         preview_type=PreviewType.WEBSITE,
         path=f"/sittings/{sitting_date.isoformat()}",
         is_found=True,
