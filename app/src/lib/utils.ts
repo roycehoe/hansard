@@ -4,6 +4,7 @@ import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
 import { ACT_NOT_FOUND_ERROR_CODE } from '@/constants/acts/constants'
 import {
   CONTACT_EMAIL,
+  ENDPOINT_NOT_FOUND_ERROR_CODE,
   FILTER_ALL,
   HTTP_GATEWAY_TIMEOUT,
   HTTP_SERVICE_UNAVAILABLE,
@@ -212,6 +213,11 @@ export function isSearchConstituencyNotFoundError(
 export function isActNotFoundError(error: Error | null): boolean {
   if (!(error instanceof ApiError)) return false
   return hasApiErrorCode(error.body, ACT_NOT_FOUND_ERROR_CODE)
+}
+
+export function isEndpointNotFoundError(error: Error | null): boolean {
+  if (!(error instanceof ApiError)) return false
+  return hasApiErrorCode(error.body, ENDPOINT_NOT_FOUND_ERROR_CODE)
 }
 
 export function getActTitle(
