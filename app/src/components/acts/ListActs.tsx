@@ -1,6 +1,7 @@
 import type { ActSummaryData } from '@/api/acts/getAllActs'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { NUMBER_LOCALE } from '@/constants/constants'
+import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 
 interface ListActsProps {
@@ -30,7 +31,13 @@ export function ListActs({ acts }: ListActsProps) {
             key={act.sso_code}
             className="border-separator border-b py-3 last:border-b-0"
           >
-            <span className="font-semibold">{act.title}</span>
+            <Link
+              to="/acts/$ssoCode"
+              params={{ ssoCode: act.sso_code }}
+              className="text-link focus-visible:decoration-ring font-semibold outline-hidden hover:underline focus-visible:underline"
+            >
+              {act.title}
+            </Link>
           </li>
         ))}
       </ul>
