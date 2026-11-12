@@ -1532,16 +1532,6 @@
                 }
             }
         ],
-        "./services/sitemap.py": [
-            {
-                "code": "reportArgumentType",
-                "range": {
-                    "startColumn": 21,
-                    "endColumn": 87,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./settings.py": [
             {
                 "code": "reportCallIssue",

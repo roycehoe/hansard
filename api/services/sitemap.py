@@ -16,7 +16,21 @@ SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
 _MAX_URLS_PER_FILE = 20_000
 _URL_SEPARATOR = "/"
 _PAGE_PATHS = ("/", "/people", "/sittings", "/coverage")
-_ROBOTS_TXT_LINES = ("User-agent: *", "Disallow: /search", "Allow: /")
+# NOTE: a crawler obeys only the most specific group that names it, so the fetchers a person sends, which these groups name, may open /search while other crawlers may not
+_ROBOTS_TXT_LINES = (
+    "User-agent: *",
+    "Disallow: /search",
+    "Allow: /",
+    "",
+    "User-agent: ChatGPT-User",
+    "Allow: /",
+    "",
+    "User-agent: Claude-User",
+    "Allow: /",
+    "",
+    "User-agent: Perplexity-User",
+    "Allow: /",
+)
 
 # NOTE: replaced whole and never mutated, so a request thread never reads a half-written answer
 _cached_file_name_to_xml: Optional[dict[str, str]] = None
@@ -104,7 +118,9 @@ def get_sitemap_xml(file_name: str, session: Session) -> str:
 
 
 def get_robots_txt() -> str:
-    lines = list(_ROBOTS_TXT_LINES)
+    lines: list[str] = list(_ROBOTS_TXT_LINES)
     if settings.site_url is not None:
-        lines.append(f"Sitemap: {settings.site_url.rstrip(_URL_SEPARATOR)}/sitemap.xml")
+        lines.extend(
+            ["", f"Sitemap: {settings.site_url.rstrip(_URL_SEPARATOR)}/sitemap.xml"]
+        )
     return "\n".join(lines) + "\n"
