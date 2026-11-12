@@ -12,6 +12,7 @@ from starlette.requests import Request
 from starlette.types import Scope
 
 from database.engine import engine
+from middleware.page_text import get_index_html_with_page_text, get_page_text_html
 from schemas.preview import PreviewData
 from services import preview as preview_service
 from services import preview_fetch as preview_fetch_service
@@ -111,12 +112,18 @@ class FrontendFiles(StaticFiles):
             query_params.get(_SPEECH_ORDINAL_PARAMETER),
             query_params.get(_SPEECH_ANCHOR_PARAMETER),
         )
+        page_text_html = await run_in_threadpool(
+            get_page_text_html, scope[_PATH_KEY], preview
+        )
         return HTMLResponse(
-            get_index_html_with_preview_tags(
-                self.index_html,
-                self._get_preview_tags_html(
-                    preview, _get_page_preload_html(scope, preview)
+            get_index_html_with_page_text(
+                get_index_html_with_preview_tags(
+                    self.index_html,
+                    self._get_preview_tags_html(
+                        preview, _get_page_preload_html(scope, preview)
+                    ),
                 ),
+                page_text_html,
             ),
             status_code=(
                 status.HTTP_200_OK if preview.is_found else status.HTTP_404_NOT_FOUND
