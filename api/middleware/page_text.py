@@ -103,7 +103,7 @@ _CONSTITUENCY_PARAMETER = "constituency"
 _HIGHLIGHT_PARAMETER = "hl"
 _SNIPPET_MARK_START = "<mark>"
 _SNIPPET_MARK_END = "</mark>"
-# NOTE: the app's router writes any search value that JSON can parse as a quoted JSON string, and reads such a value back with JSON.parse, so a highlight such as "carbon tax" or 2024 reaches the report page as typed only when written that way
+# NOTE: parseSearchParams in app/src/lib/searchParams.ts reads a quoted JSON string back as the text inside it when that text is itself JSON, so wrapping any value JSON can parse keeps it as typed; the app's own links wrap fewer values, and both forms open the same highlight
 _APP_JSON_VALUE_START = re.compile(r"^(?:\s|[\"\[{\d-]|fa|nu|tr)")
 _COVERAGE_NOTE = (
     "This is an unofficial, English-only archive of Singapore's "
