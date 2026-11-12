@@ -21,6 +21,8 @@ class ErrorCode(StrEnum):
     SEARCH_CONSTITUENCY_NOT_FOUND = "search.constituency_not_found"
     SEAT_CONSTITUENCY_NOT_FOUND = "seat.constituency_not_found"
     ENDPOINT_NOT_FOUND = "endpoint.not_found"
+    OFFICE_MINISTRY_NOT_FOUND = "office.ministry_not_found"
+    OFFICE_MEMBERSHIP_NOT_FOUND = "office.membership_not_found"
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,6 +76,12 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ),
     ErrorCode.ENDPOINT_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Endpoint not found."
+    ),
+    ErrorCode.OFFICE_MINISTRY_NOT_FOUND: ErrorSpec(
+        status.HTTP_404_NOT_FOUND, "Ministry not found."
+    ),
+    ErrorCode.OFFICE_MEMBERSHIP_NOT_FOUND: ErrorSpec(
+        status.HTTP_404_NOT_FOUND, "Membership not found."
     ),
 }
 
