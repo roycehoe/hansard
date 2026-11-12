@@ -150,6 +150,8 @@ Use `selectinload` for **one-to-many** relationships (collections) and `joinedlo
 - Do not access a relationship attribute on an object returned by a method without `with_<relations>` in its name, the session may be closed by that point, and lazy loading will either fail or issue N+1 queries.
 - Do not add `.options()` to a method that doesn't advertise the relationships in its name. If the service needs a relation, add a new method (or a new variant) and name it accordingly.
 
+The offices classes (`CRUDMinistry`, `CRUDMinistrySeeAlso`, `CRUDOfficeTitleMinistry`, `CRUDReportPutTo`, `CRUDReportParticipant`, `CRUDOfficePrintedRange`, `CRUDAttendanceOffice`) follow the same shape. A ministry's reports come from `CRUDReport.get_all_ids_by_report_put_to_ministry_id_excluding_report_ids` and its participant twin, which filter `report` through a subselect on `office_title_ministry`, return ids, and leave the rows to `get_by_ids`, which defers `markdown_content`.
+
 The models in `database/` declare no relationships today. Services join by ids with `get_by_ids` on the related table, or ask `middleware/membership.py` to resolve Memberships to Persons.
 
 ---
