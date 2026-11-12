@@ -22,7 +22,7 @@ from exceptions.search import (
 from exceptions.sitting import SittingNotFoundException
 from schemas.parliament import ParliamentData
 from schemas.preview import PreviewData
-from schemas.report import GetReportResponse
+from schemas.report import GetReportResponse, SpeechData
 from schemas.search import SearchSpeechesResponse, SpeechMatchData
 from schemas.sitting import GetSittingResponse, SittingData, SittingReportData
 from services import parliament as parliament_service
@@ -147,12 +147,17 @@ class _SearchPageParameters(BaseModel):
     page: int = Field(default=1, ge=1, le=search_service.MAX_SEARCH_PAGE)
 
 
-def _get_paragraph_html(
-    speaker_label: str, previous_speaker_label: str, transcript: str
-) -> str:
-    if speaker_label == _NO_SPEAKER_LABEL or speaker_label == previous_speaker_label:
-        return f"<p>{escape(transcript)}</p>"
-    return f"<p><strong>{escape(speaker_label)}</strong>: {escape(transcript)}</p>"
+def _get_paragraph_html(speech: SpeechData, previous_speaker_label: str) -> str:
+    paragraph_start = f'<p id="s{speech.ordinal}">'
+    if (
+        speech.speaker_label == _NO_SPEAKER_LABEL
+        or speech.speaker_label == previous_speaker_label
+    ):
+        return f"{paragraph_start}{escape(speech.transcript)}</p>"
+    return (
+        f"{paragraph_start}<strong>{escape(speech.speaker_label)}</strong>: "
+        f"{escape(speech.transcript)}</p>"
+    )
 
 
 def _get_report_html(report: GetReportResponse) -> str:
@@ -161,9 +166,7 @@ def _get_report_html(report: GetReportResponse) -> str:
         *[speech.speaker_label for speech in report.speeches],
     ]
     paragraphs = [
-        _get_paragraph_html(
-            speech.speaker_label, previous_speaker_label, speech.transcript
-        )
+        _get_paragraph_html(speech, previous_speaker_label)
         for speech, previous_speaker_label in zip(
             report.speeches, previous_speaker_labels
         )

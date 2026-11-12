@@ -141,7 +141,7 @@ def test_a_report_page_carries_its_title_date_speakers_and_paragraphs(
             _get_speech(1, "Mr Speaker", "Order. Second Reading."),
             _get_speech(2, "Mr Tan", "Sir, I beg to move."),
             _get_speech(3, "Mr Tan", "And so  the *Bill* stands."),
-            _get_speech(4, "", "(Applause)"),
+            _get_speech(5, "", "(Applause)"),
         ],
     )
     monkeypatch.setattr(
@@ -160,10 +160,10 @@ def test_a_report_page_carries_its_title_date_speakers_and_paragraphs(
         '<p>Source: <a href="https://sprs.parl.gov.sg/">'
         "Parliament of Singapore, Official Report, 1 January 2020</a>. "
         "Not an official Parliament site.</p>",
-        "<p><strong>Mr Speaker</strong>: Order. Second Reading.</p>",
-        "<p><strong>Mr Tan</strong>: Sir, I beg to move.</p>",
-        "<p>And so  the *Bill* stands.</p>",
-        "<p>(Applause)</p>",
+        '<p id="s1"><strong>Mr Speaker</strong>: Order. Second Reading.</p>',
+        '<p id="s2"><strong>Mr Tan</strong>: Sir, I beg to move.</p>',
+        '<p id="s3">And so  the *Bill* stands.</p>',
+        '<p id="s5">(Applause)</p>',
         "</main>",
     ]
 
