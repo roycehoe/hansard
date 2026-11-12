@@ -196,6 +196,10 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ),
     ("PersonBillData", f"{_PERSON_BILLS_INTERFACES_FILE}::PersonBillData"),
     (
+        "PersonBillReportData",
+        f"{_PERSON_BILLS_INTERFACES_FILE}::PersonBillReportData",
+    ),
+    (
         "GetAllMinistriesResponse",
         f"{_OFFICES_INTERFACES_FILE}::GetAllMinistriesResponse",
     ),

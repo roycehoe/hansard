@@ -8,6 +8,7 @@ from crud.bill_stage_line import CRUDBillStageLine
 from crud.membership import CRUDMembership
 from crud.person import CRUDPerson
 from crud.report import CRUDReport
+from database.bill_report_speaker import BillReportSpeaker
 from database.bill_stage_line import BillStageLine
 from database.person import Person
 from database.report import Report
@@ -33,6 +34,7 @@ from schemas.bill import (
     GetBillResponse,
     GetPersonBillsResponse,
     PersonBillData,
+    PersonBillReportData,
 )
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
@@ -222,6 +224,34 @@ def get_bill(report_slug: str, session: Session) -> GetBillResponse:
     )
 
 
+def _get_person_bill_report_sort_key(
+    person_bill_report: PersonBillReportData,
+) -> tuple[str, str]:
+    return (
+        person_bill_report.sitting_date.isoformat(),
+        person_bill_report.report_slug,
+    )
+
+
+def _get_person_bill_reports(
+    speaker_rows: list[BillReportSpeaker], visible_bill: VisibleBill
+) -> list[PersonBillReportData]:
+    sprs_report_ids = {speaker_row.sprs_report_id for speaker_row in speaker_rows}
+    return sorted(
+        [
+            PersonBillReportData(
+                report_slug=get_report_slug(report.report_id),
+                sitting_date=report.sitting_date.date(),
+                parliament_number=report.parliament_number,
+                role=visible_bill.sprs_report_id_to_role[report.report_id],
+            )
+            for report in visible_bill.reports
+            if report.report_id in sprs_report_ids
+        ],
+        key=_get_person_bill_report_sort_key,
+    )
+
+
 def _get_person_bill_sort_key(person_bill: PersonBillData) -> tuple[int, str]:
     return (-person_bill.last_sitting_date.toordinal(), person_bill.bill_key)
 
@@ -310,6 +340,9 @@ def get_person_bills(
                 ),
                 budget_debate_report_count=len(
                     {speaker_row.sprs_report_id for speaker_row in budget_debate_rows}
+                ),
+                reports=_get_person_bill_reports(
+                    reading_rows + budget_debate_rows, visible_bill
                 ),
             )
         )
