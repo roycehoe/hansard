@@ -40,6 +40,7 @@ _BILL_INTERFACES_FILE = "src/api/bills/getBill.ts"
 _ACT_INTERFACES_FILE = "src/api/acts/getAct.ts"
 _ACT_PEOPLE_INTERFACES_FILE = "src/api/acts/getActPeople.ts"
 _PERSON_BILLS_INTERFACES_FILE = "src/api/people/getPersonBills.ts"
+_OFFICES_INTERFACES_FILE = "src/api/offices/getOffices.ts"
 
 _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("GetCoverageResponse", f"{_COVERAGE_INTERFACES_FILE}::GetCoverageResponse"),
@@ -160,6 +161,62 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
         f"{_PERSON_BILLS_INTERFACES_FILE}::GetPersonBillsResponse",
     ),
     ("PersonBillData", f"{_PERSON_BILLS_INTERFACES_FILE}::PersonBillData"),
+    (
+        "GetAllMinistriesResponse",
+        f"{_OFFICES_INTERFACES_FILE}::GetAllMinistriesResponse",
+    ),
+    (
+        "MinistrySummaryData",
+        f"{_OFFICES_INTERFACES_FILE}::MinistrySummaryData",
+    ),
+    (
+        "GetMinistryResponse",
+        f"{_OFFICES_INTERFACES_FILE}::GetMinistryResponse",
+    ),
+    (
+        "MinistryTitleData",
+        f"{_OFFICES_INTERFACES_FILE}::MinistryTitleData",
+    ),
+    (
+        "MinistrySeeAlsoData",
+        f"{_OFFICES_INTERFACES_FILE}::MinistrySeeAlsoData",
+    ),
+    (
+        "GetMinistryQuestionsResponse",
+        f"{_OFFICES_INTERFACES_FILE}::GetMinistryQuestionsResponse",
+    ),
+    (
+        "MinistryQuestionData",
+        f"{_OFFICES_INTERFACES_FILE}::MinistryQuestionData",
+    ),
+    (
+        "PutToData",
+        f"{_OFFICES_INTERFACES_FILE}::PutToData",
+    ),
+    (
+        "AnsweredByData",
+        f"{_OFFICES_INTERFACES_FILE}::AnsweredByData",
+    ),
+    (
+        "MinistryReferenceData",
+        f"{_OFFICES_INTERFACES_FILE}::MinistryReferenceData",
+    ),
+    (
+        "GetMembershipPrintedRangesResponse",
+        f"{_OFFICES_INTERFACES_FILE}::GetMembershipPrintedRangesResponse",
+    ),
+    (
+        "PrintedRangeData",
+        f"{_OFFICES_INTERFACES_FILE}::PrintedRangeData",
+    ),
+    (
+        "PrintEvidenceData",
+        f"{_OFFICES_INTERFACES_FILE}::PrintEvidenceData",
+    ),
+    (
+        "GetReportOfficesResponse",
+        f"{_OFFICES_INTERFACES_FILE}::GetReportOfficesResponse",
+    ),
 )
 
 # NOTE: the frontend never calls /parties or /search-counts, so these have no interface.
