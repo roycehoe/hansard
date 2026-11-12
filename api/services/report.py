@@ -4,12 +4,20 @@ from sqlmodel import Session
 
 from crud.report import CRUDReport
 from crud.report_asker import CRUDReportAsker
+from crud.report_link import CRUDReportLink
 from crud.speech import CRUDSpeech
 from database.person import Person
 from database.report import Report
 from database.report_asker import ReportAsker
+from database.report_link import ReportLink
 from database.speech import Speech
-from enums import ReportType, SearchEndpoint, SpeechLinkStatus
+from enums import (
+    ReportLinkRelation,
+    ReportLinkType,
+    ReportType,
+    SearchEndpoint,
+    SpeechLinkStatus,
+)
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
@@ -22,6 +30,7 @@ from schemas.report import (
     SpeechData,
     SpeechLinkData,
 )
+from schemas.report_link import GetReportLinksResponse, ReportLinkData
 from utils.marked_words import get_marked_words
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
@@ -187,6 +196,109 @@ def _get_sitting_reports(report: Report, session: Session) -> list[Report]:
         )
         if not is_report_id_taken_down(sitting_report.report_id)
     ]
+
+
+def _is_correction_report(report_type: str) -> bool:
+    return (
+        report_type == ReportType.CLARIFICATION
+        or report_type == ReportType.WRITTEN_STATEMENT
+    )
+
+
+def _get_other_report_id(report_link: ReportLink, viewed_report_id: str) -> str:
+    if report_link.source_report_id == viewed_report_id:
+        return report_link.target_report_id
+    return report_link.source_report_id
+
+
+def _get_viewed_report_links(report_id: str, session: Session) -> list[ReportLink]:
+    printed_report_links = CRUDReportLink(session).get_all_by_source_report_id(
+        report_id
+    )
+    corrected_report_ids = {
+        report_link.target_report_id
+        for report_link in printed_report_links
+        if report_link.link_type == ReportLinkType.CORRECTION
+    }
+    return printed_report_links + [
+        report_link
+        for report_link in CRUDReportLink(
+            session
+        ).get_all_by_target_report_id_and_link_type(
+            report_id, ReportLinkType.CORRECTION
+        )
+        if report_link.source_report_id not in corrected_report_ids
+    ]
+
+
+def _get_report_link_relation(
+    report_link: ReportLink, is_viewed_report_the_source: bool, source_report_type: str
+) -> ReportLinkRelation:
+    if report_link.link_type == ReportLinkType.REPLY:
+        return ReportLinkRelation.REFERS_TO
+    if report_link.link_type == ReportLinkType.CONTINUATION:
+        return ReportLinkRelation.CONTINUES
+    if _is_correction_report(source_report_type) == is_viewed_report_the_source:
+        return ReportLinkRelation.CORRECTS
+    return ReportLinkRelation.CORRECTED_BY
+
+
+def _get_report_link_data(
+    report_link: ReportLink,
+    report: Report,
+    report_id_to_other_report: dict[str, Report],
+) -> ReportLinkData:
+    other_report = report_id_to_other_report[
+        _get_other_report_id(report_link, report.report_id)
+    ]
+    is_viewed_report_the_source = report_link.source_report_id == report.report_id
+    return ReportLinkData(
+        relation=_get_report_link_relation(
+            report_link,
+            is_viewed_report_the_source,
+            report.report_type
+            if is_viewed_report_the_source
+            else other_report.report_type,
+        ),
+        report_slug=get_report_slug(other_report.report_id),
+        title=other_report.title,
+        subtitle=other_report.subtitle or "",
+        report_type=other_report.report_type,
+        sitting_date=other_report.sitting_date.date(),
+        printed_citation=report_link.printed_citation,
+    )
+
+
+def get_report_links(report_slug: str, session: Session) -> GetReportLinksResponse:
+    report = _get_validated_report(report_slug, session)
+    report_links = [
+        report_link
+        for report_link in _get_viewed_report_links(report.report_id, session)
+        if not is_report_id_taken_down(
+            _get_other_report_id(report_link, report.report_id)
+        )
+    ]
+    report_id_to_other_report = {
+        other_report.report_id: other_report
+        for other_report in CRUDReport(session).get_all_by_report_ids(
+            [
+                _get_other_report_id(report_link, report.report_id)
+                for report_link in report_links
+            ]
+        )
+    }
+    return GetReportLinksResponse(
+        links=sorted(
+            (
+                _get_report_link_data(report_link, report, report_id_to_other_report)
+                for report_link in report_links
+            ),
+            key=lambda report_link_data: (
+                report_link_data.sitting_date,
+                report_link_data.report_slug,
+            ),
+        )
+    )
 
 
 def get_report(
