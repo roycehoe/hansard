@@ -12,6 +12,7 @@ from starlette.applications import Starlette
 from starlette.routing import Mount
 
 from enums import PreviewType, ReportType, SearchSort
+from exceptions.person import PersonNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from exceptions.search import (
     SearchBusyException,
@@ -21,6 +22,12 @@ from exceptions.search import (
 from exceptions.sitting import SittingNotFoundException
 from middleware import frontend
 from schemas.parliament import GetAllParliamentsResponse, ParliamentData
+from schemas.person import (
+    GetPersonReportsResponse,
+    GetPersonResponse,
+    PersonMembershipData,
+    PersonReportData,
+)
 from schemas.preview import PreviewData
 from schemas.report import GetReportResponse, SpeechData
 from schemas.search import SearchSpeechesResponse, SpeechMatchData
@@ -31,6 +38,7 @@ from schemas.sitting import (
     SittingReportData,
 )
 from services import parliament as parliament_service
+from services import person as person_service
 from services import preview as preview_service
 from services import report as report_service
 from services import search as search_service
@@ -131,6 +139,10 @@ def _fail_if_sitting_is_read(
     raise AssertionError("the sitting should not be read")
 
 
+def _fail_if_person_is_read(person_id: int, session: Session) -> GetPersonResponse:
+    raise AssertionError("the person should not be read")
+
+
 @pytest.mark.parametrize("query", ["", "?s=2&q=and+so"])
 def test_a_report_page_carries_its_title_date_speakers_and_paragraphs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, query: str
@@ -224,7 +236,7 @@ def test_a_report_that_cannot_be_shown_leaves_the_root_empty(
     [
         ("/reports/bill-1", preview_service.get_not_found_preview()),
         ("/reports/bill-1", preview_service.get_default_preview()),
-        ("/people/1-tan", preview_service.get_default_preview()),
+        ("/people/1-tan", preview_service.get_not_found_preview()),
         ("/sittings/2020-01-01", preview_service.get_not_found_preview()),
         ("/search", preview_service.get_default_preview()),
         ("/coverage", preview_service.get_default_preview()),
@@ -235,6 +247,7 @@ def test_a_page_that_is_not_a_found_report_or_home_gets_no_text(
 ) -> None:
     monkeypatch.setattr(report_service, "get_report", _fail_if_report_is_read)
     monkeypatch.setattr(sitting_service, "get_sitting", _fail_if_sitting_is_read)
+    monkeypatch.setattr(person_service, "get_person", _fail_if_person_is_read)
     client = _get_client(tmp_path, monkeypatch, preview)
 
     response = client.get(path)
@@ -506,6 +519,186 @@ def test_a_database_failure_leaves_the_sittings_root_empty(
     client = _get_client(tmp_path, monkeypatch, _get_sittings_preview())
 
     response = client.get("/sittings?parliament=15")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _EMPTY_ROOT in response.text
+
+
+def _get_person_preview() -> PreviewData:
+    return PreviewData(
+        title="Tan & Lee, speeches in Parliament",
+        description="Every speech by Tan & Lee.",
+        preview_type=PreviewType.WEBSITE,
+        path="/people/7-tan-lee",
+        is_found=True,
+        report_title="",
+        sitting_date=None,
+    )
+
+
+def _get_person_membership(
+    parliament_number: int, party: str, is_member: bool, constituencies: list[str]
+) -> PersonMembershipData:
+    return PersonMembershipData(
+        parliament_number=parliament_number,
+        party=party,
+        party_affiliations=[],
+        is_legislative_assembly=parliament_number == 0,
+        is_member=is_member,
+        constituencies=constituencies,
+    )
+
+
+def _get_person(memberships: list[PersonMembershipData]) -> GetPersonResponse:
+    return GetPersonResponse(
+        person_id=7,
+        person_slug="tan-lee",
+        canonical_name="Tan <b>& Lee",
+        name_variants=[],
+        name_spellings=[],
+        memberships=memberships,
+        parliament_counts=[],
+    )
+
+
+def _get_person_report(
+    report_slug: str, title: str, sitting_date: date
+) -> PersonReportData:
+    return PersonReportData(
+        report_slug=report_slug,
+        title=title,
+        subtitle="",
+        report_type="bill",
+        sitting_date=sitting_date,
+        parliament_number=14,
+        speech_count=3,
+    )
+
+
+def _get_person_reports_response(
+    reports: list[PersonReportData], has_next_page: bool
+) -> GetPersonReportsResponse:
+    return GetPersonReportsResponse(
+        reports=reports,
+        page=1,
+        page_size=20,
+        has_next_page=has_next_page,
+        total_count=1_234,
+        questions_asked_count=0,
+    )
+
+
+@pytest.mark.parametrize(
+    ("has_next_page", "shown_count_lines"),
+    [(True, ["<p>Showing 2 of 1,234.</p>"]), (False, [])],
+)
+def test_a_person_page_lists_memberships_and_recent_reports(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    has_next_page: bool,
+    shown_count_lines: list[str],
+) -> None:
+    person_report_arguments: list[tuple[object, ...]] = []
+
+    def get_person_reports(*arguments: object) -> GetPersonReportsResponse:
+        person_report_arguments.append(arguments[:-1])
+        return _get_person_reports_response(
+            [
+                _get_person_report("bill-818", "SUPPLY BILL", date(2020, 1, 1)),
+                _get_person_report(
+                    "00069110-ZZ_1#id004-budget", "BUDGET <i>", date(2019, 3, 1)
+                ),
+            ],
+            has_next_page,
+        )
+
+    monkeypatch.setattr(
+        person_service,
+        "get_person",
+        lambda person_id, session: _get_person(
+            [
+                _get_person_membership(0, "Labour Front", True, ["Cairnhill"]),
+                _get_person_membership(
+                    14, "People's Action Party", True, ["Tampines", "Tampines East"]
+                ),
+                _get_person_membership(15, "", False, []),
+            ]
+        ),
+    )
+    monkeypatch.setattr(person_service, "get_person_reports", get_person_reports)
+    client = _get_client(tmp_path, monkeypatch, _get_person_preview())
+
+    response = client.get("/people/7-tan")
+
+    assert person_report_arguments == [(7, 1, 20, None)]
+    assert response.status_code == status.HTTP_200_OK
+    assert _get_root_contents(response.text).split("\n") == [
+        "<main>",
+        "<h1>Tan &lt;b&gt;&amp; Lee</h1>",
+        "<h2>Memberships</h2>",
+        "<table>",
+        "<tr><th>Parliament</th><th>Party</th><th>Constituencies</th></tr>",
+        "<tr><td>Legislative Assembly</td><td>Labour Front</td><td>Cairnhill</td></tr>",
+        "<tr><td>Parliament 14</td><td>People&#x27;s Action Party</td>"
+        "<td>Tampines, Tampines East</td></tr>",
+        "<tr><td>Parliament 15 (not a member)</td><td></td><td></td></tr>",
+        "</table>",
+        "<h2>Reports</h2>",
+        '<p><a href="/search?person=7">Search this person&#x27;s speeches</a></p>',
+        "<ol>",
+        '<li><a href="/reports/bill-818">SUPPLY BILL</a>, '
+        '<time datetime="2020-01-01">1 January 2020</time></li>',
+        '<li><a href="/reports/00069110-ZZ_1%23id004-budget">BUDGET &lt;i&gt;</a>, '
+        '<time datetime="2019-03-01">1 March 2019</time></li>',
+        "</ol>",
+        *shown_count_lines,
+        "</main>",
+    ]
+
+
+def test_a_person_with_no_reports_says_so(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        person_service,
+        "get_person",
+        lambda person_id, session: _get_person(
+            [_get_person_membership(14, "Workers' Party", True, ["Aljunied"])]
+        ),
+    )
+    monkeypatch.setattr(
+        person_service,
+        "get_person_reports",
+        lambda *arguments: _get_person_reports_response([], False),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_person_preview())
+
+    root_lines = _get_root_contents(client.get("/people/7-tan").text).split("\n")
+
+    assert root_lines[-3:] == [
+        '<p><a href="/search?person=7">Search this person&#x27;s speeches</a></p>',
+        "<p>No paragraphs by this person are in the archive yet.</p>",
+        "</main>",
+    ]
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        PersonNotFoundException,
+        OperationalError("SELECT 1", {}, Exception("connection refused")),
+    ],
+)
+def test_a_person_who_cannot_be_shown_leaves_the_root_empty(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error: Exception
+) -> None:
+    def raise_error(person_id: int, session: Session) -> GetPersonResponse:
+        raise error
+
+    monkeypatch.setattr(person_service, "get_person", raise_error)
+    client = _get_client(tmp_path, monkeypatch, _get_person_preview())
+
+    response = client.get("/people/7-tan")
 
     assert response.status_code == status.HTTP_200_OK
     assert _EMPTY_ROOT in response.text

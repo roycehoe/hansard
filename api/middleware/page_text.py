@@ -11,6 +11,7 @@ from sqlmodel import Session
 
 from database.engine import engine, search_engine
 from enums import ReportType, SearchSort
+from exceptions.person import PersonNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from exceptions.search import (
     SearchBusyException,
@@ -21,11 +22,18 @@ from exceptions.search import (
 )
 from exceptions.sitting import SittingNotFoundException
 from schemas.parliament import ParliamentData
+from schemas.person import (
+    GetPersonReportsResponse,
+    GetPersonResponse,
+    PersonMembershipData,
+    PersonReportData,
+)
 from schemas.preview import PreviewData
 from schemas.report import GetReportResponse, SpeechData
 from schemas.search import SearchSpeechesResponse, SpeechMatchData
 from schemas.sitting import GetSittingResponse, SittingData, SittingReportData
 from services import parliament as parliament_service
+from services import person as person_service
 from services import report as report_service
 from services import search as search_service
 from services import sitting as sitting_service
@@ -47,6 +55,19 @@ _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
 _SITTING_TITLE_PREFIX = "Sitting of"
 _PEOPLE_PATH = "/people"
 _PEOPLE_LINK_TEXT = "Members of Parliament"
+_PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
+_MEMBERSHIPS_HEADING = "Memberships"
+_MEMBERSHIPS_HEADER_ROW_HTML = (
+    "<tr><th>Parliament</th><th>Party</th><th>Constituencies</th></tr>"
+)
+_NOT_A_MEMBER_SUFFIX = " (not a member)"
+_CONSTITUENCY_SEPARATOR = ", "
+_PERSON_REPORTS_HEADING = "Reports"
+_PERSON_SPEECHES_LINK_TEXT = "Search this person's speeches"
+_NO_PERSON_REPORTS_NOTE = "No paragraphs by this person are in the archive yet."
+_FIRST_PAGE = 1
+_PERSON_REPORT_PAGE_SIZE = 20
+_PERSON_PARAMETER = "person"
 _PARLIAMENTS_HEADING = "Parliaments"
 _RECENT_SITTINGS_HEADING = "Recent sittings"
 _RECENT_SITTING_COUNT = 5
@@ -279,6 +300,77 @@ def _get_sitting_html(sitting: GetSittingResponse) -> str:
             "<ul>",
             *[_get_sitting_report_item_html(report) for report in sitting.reports],
             "</ul>",
+            "</main>",
+        ]
+    )
+
+
+def _get_membership_row_html(membership: PersonMembershipData) -> str:
+    parliament_label = _get_parliament_label(membership.parliament_number)
+    member_label = (
+        parliament_label
+        if membership.is_member
+        else f"{parliament_label}{_NOT_A_MEMBER_SUFFIX}"
+    )
+    constituencies = _CONSTITUENCY_SEPARATOR.join(membership.constituencies)
+    return (
+        f"<tr><td>{escape(member_label)}</td><td>{escape(membership.party)}</td>"
+        f"<td>{escape(constituencies)}</td></tr>"
+    )
+
+
+def _get_person_report_item_html(report: PersonReportData) -> str:
+    return (
+        f'<li><a href="/reports/{escape(quote(report.report_slug, safe=""))}">'
+        f"{escape(report.title)}</a>, "
+        f'<time datetime="{escape(report.sitting_date.isoformat())}">'
+        f"{escape(get_sitting_date_label(report.sitting_date))}</time></li>"
+    )
+
+
+def _get_shown_report_count_lines(
+    shown_count: int, total_count: int, has_next_page: bool
+) -> list[str]:
+    if not has_next_page:
+        return []
+    return [f"<p>Showing {shown_count:,} of {total_count:,}.</p>"]
+
+
+def _get_person_report_lines(person_reports: GetPersonReportsResponse) -> list[str]:
+    if person_reports.reports == []:
+        return [f"<p>{escape(_NO_PERSON_REPORTS_NOTE)}</p>"]
+    return [
+        "<ol>",
+        *[_get_person_report_item_html(report) for report in person_reports.reports],
+        "</ol>",
+        *_get_shown_report_count_lines(
+            len(person_reports.reports),
+            person_reports.total_count,
+            person_reports.has_next_page,
+        ),
+    ]
+
+
+def _get_person_html(
+    person: GetPersonResponse, person_reports: GetPersonReportsResponse
+) -> str:
+    person_search_query = urlencode({_PERSON_PARAMETER: person.person_id})
+    return _LINE_SEPARATOR.join(
+        [
+            "<main>",
+            f"<h1>{escape(person.canonical_name)}</h1>",
+            f"<h2>{_MEMBERSHIPS_HEADING}</h2>",
+            "<table>",
+            _MEMBERSHIPS_HEADER_ROW_HTML,
+            *[
+                _get_membership_row_html(membership)
+                for membership in person.memberships
+            ],
+            "</table>",
+            f"<h2>{_PERSON_REPORTS_HEADING}</h2>",
+            f'<p><a href="{_SEARCH_PATH}?{escape(person_search_query)}">'
+            f"{escape(_PERSON_SPEECHES_LINK_TEXT)}</a></p>",
+            *_get_person_report_lines(person_reports),
             "</main>",
         ]
     )
@@ -527,6 +619,21 @@ def _get_sitting_page_text_html(sitting_date_text: str) -> str:
         return _NO_PAGE_TEXT
 
 
+def _get_person_page_text_html(person_id: int) -> str:
+    try:
+        with Session(engine) as session:
+            return _get_person_html(
+                person_service.get_person(person_id, session),
+                person_service.get_person_reports(
+                    person_id, _FIRST_PAGE, _PERSON_REPORT_PAGE_SIZE, None, session
+                ),
+            )
+    except PersonNotFoundException:
+        return _NO_PAGE_TEXT
+    except SQLAlchemyError:
+        return _NO_PAGE_TEXT
+
+
 def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> str:
     try:
         parameters = _SearchPageParameters.model_validate(dict(query_params))
@@ -602,6 +709,9 @@ def get_page_text_html(
     sitting_match = _SITTING_PATH.match(path)
     if sitting_match is not None and preview.is_found:
         return _get_sitting_page_text_html(sitting_match.group(1))
+    person_match = _PERSON_PATH.match(path)
+    if person_match is not None and preview.is_found:
+        return _get_person_page_text_html(int(person_match.group(1)))
     return _NO_PAGE_TEXT
 
 
