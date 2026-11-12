@@ -9,6 +9,7 @@ import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
 import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
 import { NoticeNotFoundPerson } from '@/components/people/NoticeNotFoundPerson'
+import { SectionMemberTimeline } from '@/components/people/SectionMemberTimeline'
 import { SkeletonPerson } from '@/components/people/SkeletonPerson'
 import { TableMemberships } from '@/components/people/TableMemberships'
 import { TableParliamentCounts } from '@/components/people/TableParliamentCounts'
@@ -292,6 +293,7 @@ export const Route = createFileRoute('/people/$personSlug')({
             />
           </section>
         )}
+        <SectionMemberTimeline personId={data.person_id} />
         <TextSource sittingDate={null} officialRecordUrl={null} />
       </div>
     )
