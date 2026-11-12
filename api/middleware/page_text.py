@@ -12,7 +12,6 @@ from sqlmodel import Session
 from database.engine import engine, search_engine
 from enums import ReportType, SearchSort
 from exceptions.act import ActNotFoundException
-from exceptions.endpoint import EndpointNotFoundException
 from exceptions.person import PersonNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from exceptions.search import (
@@ -845,8 +844,6 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
         return _get_search_note_html(
             title, f"{_SEARCH_ACT_NOT_FOUND_NOTE_PREFIX} {act_sso_code}."
         )
-    except EndpointNotFoundException:
-        return _get_search_note_html(title, _SEARCH_FAILED_NOTE)
     except SearchBusyException:
         return _get_search_note_html(title, _SEARCH_BUSY_NOTE)
     except SearchTimedOutException:

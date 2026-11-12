@@ -820,7 +820,7 @@ CREATE UNIQUE INDEX bill_pkey ON bill (id);
 
 Rows in the copy (planner estimate): 2,811. Index sizes there: `bill_pkey` 80 kB.
 
-Needed by `GET /bills/{report_slug}`, `GET /acts/{sso_code}`, `GET /acts/{sso_code}/people`, `GET /people/{person_id}/bills` and the `act` filter of `GET /search/speeches` (all unreleased), through `middleware/bill.py`, which reads the bills of the reports it has found and keeps those with a `billkey` row and a visible report. The statement reads `bill` by primary key. `ix_bill_bill_number` and `ix_bill_title_key` are not read by any API statement.
+Needed by `GET /bills/{report_slug}`, `GET /acts/{sso_code}`, `GET /acts/{sso_code}/people`, `GET /people/{person_id}/bills` and the `act` filter of `GET /search/speeches` (the bill routes and `GET /acts/{sso_code}/people` are unreleased), through `middleware/bill.py`, which reads the bills of the reports it has found and keeps those with a `billkey` row and a visible report. The statement reads `bill` by primary key. `ix_bill_bill_number` and `ix_bill_title_key` are not read by any API statement.
 
 ```sql
 -- bills_by_ids (middleware/bill.py; 2 bills)
@@ -995,7 +995,7 @@ CREATE UNIQUE INDEX act_pkey ON act (id);
 
 Rows in the copy (planner estimate): 523. Index sizes there: `act_sso_code_key` 32 kB, `act_pkey` 32 kB.
 
-Needed by `GET /acts`, `GET /acts/{sso_code}` and the `act` filter of `GET /search/speeches` (all unreleased). The code lookups use the unique index on `sso_code`. `get_all` lists every Act with no filter, and `get_by_ids` names a few Acts of a bill. Both sequentially scan the table, and Postgres is right to: `act` holds 523 rows in 48 kB.
+Needed by `GET /acts`, `GET /acts/{sso_code}` and the `act` filter of `GET /search/speeches`, which the hidden Act pages read without the release setting. The code lookups use the unique index on `sso_code`. `get_all` lists every Act with no filter, and `get_by_ids` names a few Acts of a bill. Both sequentially scan the table, and Postgres is right to: `act` holds 523 rows in 48 kB.
 
 **Finding.** `acts_by_ids` and `acts_all` run a `Seq Scan` on `act`. The table is one row per current Act of the SSO harvest, so it grows by the Acts SSO adds. `acts_all` has no filter and no index could serve it. `acts_by_ids` reads `act_pkey` once sequential scans are off.
 

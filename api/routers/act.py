@@ -11,11 +11,7 @@ _MAX_PAGE_SIZE = 100
 _MAX_INTEGER_COLUMN_VALUE = 2_147_483_647
 _NO_NUL_BYTE_PATTERN = r"^[^\x00]*$"
 
-router = APIRouter(
-    prefix="/acts",
-    tags=["acts"],
-    dependencies=[Depends(validate_can_read_unreleased_endpoint)],
-)
+router = APIRouter(prefix="/acts", tags=["acts"])
 
 
 @router.get("", status_code=200)
@@ -33,7 +29,11 @@ def get_act(
     return act_service.get_act(sso_code, session)
 
 
-@router.get("/{sso_code}/people", status_code=200)
+@router.get(
+    "/{sso_code}/people",
+    status_code=200,
+    dependencies=[Depends(validate_can_read_unreleased_endpoint)],
+)
 def get_act_people(
     sso_code: str = Path(pattern=_NO_NUL_BYTE_PATTERN),
     page: int = Query(default=1, ge=1, le=_MAX_INTEGER_COLUMN_VALUE),

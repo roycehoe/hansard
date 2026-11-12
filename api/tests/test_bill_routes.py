@@ -8,7 +8,6 @@ from settings import settings
 _GATE_SETTING_NAME = "is_unreleased_endpoints_enabled"
 _UNRELEASED_PATHS = (
     "/bills/some-report-slug",
-    "/acts/FSA1965",
     "/acts/FSA1965/people",
     "/people/1/bills",
 )

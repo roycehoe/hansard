@@ -33,7 +33,6 @@ from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.search_query import is_query_only_excluded_words
 from utils.speech_link import get_speech_anchor
 from utils.transcript_snippet import get_transcript_snippet
-from validators.unreleased_endpoint import validate_can_read_unreleased_endpoint
 
 _MAX_COUNTED_MATCHES = 1_000
 _ONE_DAY = timedelta(days=1)
@@ -507,8 +506,6 @@ def search_speeches(
     page_size: int,
     session: Session,
 ) -> SearchSpeechesResponse:
-    if act_sso_code is not None:
-        validate_can_read_unreleased_endpoint()
     with hold_search_slot(SearchEndpoint.SPEECHES):
         membership_ids = _get_membership_ids(person_id, constituency, session)
         excluded_report_ids = get_taken_down_report_ids(session)
