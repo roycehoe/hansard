@@ -1,0 +1,21 @@
+export interface PersonBillData {
+  bill_key: string
+  title: string
+  first_sitting_date: string
+  last_sitting_date: string
+  is_passed: boolean
+  act_count: number
+  printed_speakers: string[]
+  reading_speech_count: number
+  budget_debate_speech_count: number
+  reading_report_count: number
+  budget_debate_report_count: number
+}
+
+export interface GetPersonBillsResponse {
+  bills: PersonBillData[]
+  page: number
+  page_size: number
+  has_next_page: boolean
+  total_count: number
+}
