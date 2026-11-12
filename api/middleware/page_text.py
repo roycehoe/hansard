@@ -29,6 +29,7 @@ from services import parliament as parliament_service
 from services import report as report_service
 from services import search as search_service
 from services import sitting as sitting_service
+from settings import settings
 from utils.search_query import is_query_only_excluded_words
 from utils.sitting_date import get_sitting_date_label
 from validators.search import validate_can_search_speeches
@@ -53,8 +54,15 @@ _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
 _SOURCE_NAME = "Parliament of Singapore, Official Report"
 _NOT_OFFICIAL_NOTE = "Not an official Parliament site."
+_URL_SEPARATOR = "/"
 _PARLIAMENT_PARAMETER = "parliament"
 _SEARCH_PATH = "/search"
+_SEARCH_EXAMPLE_PATH = "/search?q=your+words"
+_SEARCH_FORM_HTML = (
+    '<form method="get" action="/search"><label>Search words '
+    '<input type="search" name="q"></label> <button type="submit">Search</button>'
+    "</form>"
+)
 _SEARCH_PAGE_SIZE = 20
 _MAX_SEARCH_QUERY_LENGTH = 256
 _MAX_CONSTITUENCY_LENGTH = 100
@@ -192,9 +200,16 @@ def _get_sitting_item_html(sitting: SittingData) -> str:
     )
 
 
+def _get_search_example_url(site_url: Optional[str]) -> str:
+    if site_url is None:
+        return _SEARCH_EXAMPLE_PATH
+    return f"{site_url.rstrip(_URL_SEPARATOR)}{_SEARCH_EXAMPLE_PATH}"
+
+
 def _get_home_html(
     title: str,
     description: str,
+    search_example_url: str,
     parliaments: list[ParliamentData],
     recent_sittings: list[SittingData],
 ) -> str:
@@ -209,6 +224,8 @@ def _get_home_html(
             "<main>",
             f"<h1>{escape(title)}</h1>",
             f"<p>{escape(description)}</p>",
+            f"<p>Search: {escape(search_example_url)}</p>",
+            _SEARCH_FORM_HTML,
             f'<p><a href="{_PEOPLE_PATH}">{_PEOPLE_LINK_TEXT}</a></p>',
             f"<h2>{_PARLIAMENTS_HEADING}</h2>",
             "<ul>",
@@ -463,7 +480,13 @@ def _get_home_page_text_html(title: str, description: str) -> str:
             recent_sittings = sorted(
                 sittings, key=lambda sitting: sitting.sitting_date, reverse=True
             )[:_RECENT_SITTING_COUNT]
-            return _get_home_html(title, description, parliaments, recent_sittings)
+            return _get_home_html(
+                title,
+                description,
+                _get_search_example_url(settings.site_url),
+                parliaments,
+                recent_sittings,
+            )
     except SQLAlchemyError:
         return _NO_PAGE_TEXT
 

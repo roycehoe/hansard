@@ -1,6 +1,7 @@
 import re
 from datetime import date
 from pathlib import Path
+from typing import Optional
 
 import pytest
 from fastapi import status
@@ -34,6 +35,7 @@ from services import preview as preview_service
 from services import report as report_service
 from services import search as search_service
 from services import sitting as sitting_service
+from settings import settings
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _ROOT_CONTENTS = re.compile(r'<div id="root">(.*)</div>', re.DOTALL)
@@ -262,9 +264,23 @@ def _get_sitting(sitting_date: date) -> SittingData:
     )
 
 
+@pytest.mark.parametrize(
+    ("site_url", "search_example_url"),
+    [
+        (
+            "https://hansard.example.sg/",
+            "https://hansard.example.sg/search?q=your+words",
+        ),
+        (None, "/search?q=your+words"),
+    ],
+)
 def test_the_home_page_links_parliaments_people_and_recent_sittings(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    site_url: Optional[str],
+    search_example_url: str,
 ) -> None:
+    monkeypatch.setattr(settings, "site_url", site_url)
 
     def get_all_sittings(
         parliament_number: int, session: Session
@@ -299,6 +315,10 @@ def test_the_home_page_links_parliaments_people_and_recent_sittings(
         "<main>",
         "<h1>Open Hansard</h1>",
         "<p>Singapore&#x27;s Hansard &amp; more.</p>",
+        f"<p>Search: {search_example_url}</p>",
+        '<form method="get" action="/search"><label>Search words '
+        '<input type="search" name="q"></label> <button type="submit">Search</button>'
+        "</form>",
         '<p><a href="/people">Members of Parliament</a></p>',
         "<h2>Parliaments</h2>",
         "<ul>",
