@@ -18,3 +18,7 @@ class CRUDAct:
             select(Act).where(col(Act.id).in_(act_ids)).order_by(col(Act.sso_code))
         )
         return list(self.session.exec(statement).all())
+
+    def get_all(self) -> list[Act]:
+        statement = select(Act).order_by(col(Act.title), col(Act.id))
+        return list(self.session.exec(statement).all())

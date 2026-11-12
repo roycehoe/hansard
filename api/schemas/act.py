@@ -6,6 +6,15 @@ from pydantic import BaseModel
 from enums import ActHistoryEntryKind, BillLinkSource
 
 
+class ActSummaryData(BaseModel):
+    sso_code: str
+    title: str
+
+
+class GetAllActsResponse(BaseModel):
+    acts: list[ActSummaryData]
+
+
 class ActEntryBillData(BaseModel):
     bill_key: str
     title: str

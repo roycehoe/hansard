@@ -26,8 +26,10 @@ from schemas.act import (
     ActEntryData,
     ActPersonBillData,
     ActPersonData,
+    ActSummaryData,
     GetActPeopleResponse,
     GetActResponse,
+    GetAllActsResponse,
 )
 from utils.person_slug import get_person_slug
 
@@ -37,6 +39,15 @@ def _get_validated_act(sso_code: str, session: Session) -> Act:
     if act is None:
         raise ActNotFoundException
     return act
+
+
+def get_all_acts(session: Session) -> GetAllActsResponse:
+    return GetAllActsResponse(
+        acts=[
+            ActSummaryData(sso_code=act.sso_code, title=act.title)
+            for act in CRUDAct(session).get_all()
+        ]
+    )
 
 
 def _get_entry_bill_data(

@@ -41,6 +41,7 @@ _PEOPLE_TYPES_FILE = "src/types/people/interfaces.ts"
 _BILL_INTERFACES_FILE = "src/api/bills/getBill.ts"
 _ACT_INTERFACES_FILE = "src/api/acts/getAct.ts"
 _ACT_PEOPLE_INTERFACES_FILE = "src/api/acts/getActPeople.ts"
+_ALL_ACTS_INTERFACES_FILE = "src/api/acts/getAllActs.ts"
 _PERSON_BILLS_INTERFACES_FILE = "src/api/people/getPersonBills.ts"
 _OFFICES_INTERFACES_FILE = "src/api/offices/getOffices.ts"
 _ALL_DIVISIONS_INTERFACES_FILE = "src/api/divisions/getAllDivisions.ts"
@@ -176,6 +177,8 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("BillStageLineData", f"{_BILL_INTERFACES_FILE}::BillStageLineData"),
     ("BillActData", f"{_BILL_INTERFACES_FILE}::BillActData"),
     ("BillPersonData", f"{_BILL_INTERFACES_FILE}::BillPersonData"),
+    ("GetAllActsResponse", f"{_ALL_ACTS_INTERFACES_FILE}::GetAllActsResponse"),
+    ("ActSummaryData", f"{_ALL_ACTS_INTERFACES_FILE}::ActSummaryData"),
     ("GetActResponse", f"{_ACT_INTERFACES_FILE}::GetActResponse"),
     ("ActEntryData", f"{_ACT_INTERFACES_FILE}::ActEntryData"),
     ("ActEntryBillData", f"{_ACT_INTERFACES_FILE}::ActEntryBillData"),
