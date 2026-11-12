@@ -3,11 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  INFERRED_CREDIT_CAVEAT_TEXT,
-  INFERRED_CREDIT_CLOSE_DELAY_MS,
-  INFERRED_CREDIT_METHOD_TEXT,
-} from '@/constants/reports/constants'
+import { INFERRED_CREDIT_CLOSE_DELAY_MS } from '@/constants/reports/constants'
 import type { FocusEvent, MouseEvent, PointerEvent } from 'react'
 import { useEffect, useId, useRef, useState } from 'react'
 
@@ -15,25 +11,16 @@ const TRIGGER_CLASS_NAME =
   'relative after:absolute after:-inset-y-2 after:-right-4 after:-left-1 text-link cursor-pointer outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 interface PopoverInferredCreditProps {
-  speakerLabel: string
-}
-
-function buildInferredCreditSentences(speakerLabel: string): string[] {
-  return [
-    `The record prints only "${speakerLabel}" here, not a name.`,
-    INFERRED_CREDIT_METHOD_TEXT,
-    INFERRED_CREDIT_CAVEAT_TEXT,
-  ]
+  sentences: string[]
 }
 
 export function PopoverInferredCredit({
-  speakerLabel,
+  sentences,
 }: PopoverInferredCreditProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const closeTimeoutRef = useRef<number | undefined>(undefined)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const creditId = useId()
-  const sentences = buildInferredCreditSentences(speakerLabel)
 
   function cancelClose() {
     window.clearTimeout(closeTimeoutRef.current)

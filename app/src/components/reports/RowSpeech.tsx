@@ -6,9 +6,20 @@ import { PopoverSpeechActions } from '@/components/reports/PopoverSpeechActions'
 import { TextTranscript } from '@/components/reports/TextTranscript'
 import { TooltipColumnNote } from '@/components/reports/TooltipColumnNote'
 import { COLUMN_MARKER_APPEARANCE_CLASS_NAME } from '@/constants/appearance/constants'
-import { SPEAKER_NOT_RECORDED_LABEL } from '@/constants/reports/constants'
-import { SpeechKind, TranscriptStyle } from '@/constants/reports/enums'
+import {
+  SPEAKER_NOT_RECORDED_LABEL,
+  UNLABELLED_CREDIT_SENTENCES,
+} from '@/constants/reports/constants'
+import {
+  SpeakerLabelSource,
+  SpeechKind,
+  TranscriptStyle,
+} from '@/constants/reports/enums'
 import { buildSpeechCitation } from '@/lib/citation'
+import {
+  buildInferredCreditSentences,
+  getSpeakerLabelSource,
+} from '@/lib/speakerLabel'
 import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
@@ -77,18 +88,25 @@ export function RowSpeech({
   hasColumnMarkers,
   highlightPattern,
 }: RowSpeechProps) {
-  const hasSpeakerLabel = speech.speaker_label !== ''
+  const speakerLabelSource = getSpeakerLabelSource(
+    speech.speaker_label,
+    speech.kind,
+    speech.person_id
+  )
+  const isCreditedWithoutLabel =
+    speakerLabelSource === SpeakerLabelSource.CREDITED_WITHOUT_LABEL
 
-  const citation = hasSpeakerLabel
-    ? buildSpeechCitation(
-        sittingDate,
-        volumeNumber,
-        parliamentNumber,
-        speech.column_start,
-        speech.speaker_label,
-        speech.person_name
-      )
-    : undefined
+  const citation =
+    speakerLabelSource === SpeakerLabelSource.PRINTED
+      ? buildSpeechCitation(
+          sittingDate,
+          volumeNumber,
+          parliamentNumber,
+          speech.column_start,
+          speech.speaker_label,
+          speech.person_name
+        )
+      : undefined
 
   const speechActionContext = {
     reportSlug,
@@ -100,7 +118,7 @@ export function RowSpeech({
   }
 
   function renderSpeakerLabel() {
-    if (!hasSpeakerLabel && speech.kind === SpeechKind.SPEECH) {
+    if (speakerLabelSource === SpeakerLabelSource.NOT_RECORDED) {
       return (
         <>
           <span className="text-muted-foreground font-semibold">
@@ -110,7 +128,7 @@ export function RowSpeech({
         </>
       )
     }
-    if (!hasSpeakerLabel) return undefined
+    if (speakerLabelSource === SpeakerLabelSource.NONE) return undefined
     if (isContinuation) {
       return (
         <span className={isLinkedTarget ? 'font-semibold' : 'sr-only'}>
@@ -139,11 +157,16 @@ export function RowSpeech({
             }}
             className="text-link focus-visible:decoration-ring font-semibold outline-hidden hover:underline focus-visible:underline"
           >
-            {speech.speaker_label}
+            {isCreditedWithoutLabel ? speech.person_name : speech.speaker_label}
           </Link>
         </HoverCardPerson>
+        {isCreditedWithoutLabel && (
+          <PopoverInferredCredit sentences={UNLABELLED_CREDIT_SENTENCES} />
+        )}
         {speech.is_shared_role_credit && (
-          <PopoverInferredCredit speakerLabel={speech.speaker_label} />
+          <PopoverInferredCredit
+            sentences={buildInferredCreditSentences(speech.speaker_label)}
+          />
         )}
         {': '}
       </>

@@ -153,7 +153,10 @@ export const Route = createFileRoute('/coverage/methods')({
             Credits to a Deputy Speaker or a Chairman carry a small{' '}
             <sup className="text-link text-xs">i</sup> beside the person&apos;s
             name. Several people hold those roles at once, so a change in the
-            chair can make the credit wrong if the record does not mention it.
+            chair can make the credit wrong if the record does not mention it. A
+            few speeches print no label at all. Where the paragraphs around one
+            show who is speaking, as when the chair calls on a Member, the
+            archive credits that Member and marks the name with the same i.
           </p>
           <p>
             Names of elected members follow the Elections Department&apos;s
