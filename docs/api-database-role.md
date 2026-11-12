@@ -31,6 +31,16 @@ GRANT SELECT (id, link_type, printed_citation, source_report_id, target_report_i
 
 The scraper's refresh role needs its own grants on the same table; they are under "Write role SQL" in the scraper's `docs/refresh.md`. Check the grant as `hansard_api`: `SELECT id, link_type FROM report_link LIMIT 1;` returns a row, and `SELECT rule FROM report_link LIMIT 1;` fails with "permission denied for table report_link".
 
+## Grants for leave periods and seat history
+
+The unreleased endpoints `GET /people/{person_id}/leave-periods`, `GET /leave-periods/latest-sitting` and `GET /seats` read three tables from scraper migration `e3b7c1d94a62`. Royce runs this as the owner role when the endpoints ship, after the migration is applied and the tables are filled. Until then no grant exists, and the endpoints answer 404 while `IS_UNRELEASED_ENDPOINTS_ENABLED` is off.
+
+```sql
+GRANT SELECT ON leave_period, leave_period_printing, seat_holding TO hansard_api;
+```
+
+Check it as `hansard_api` with `SELECT count(*) FROM leave_period_printing;`, which returns a row, and `UPDATE seat_holding SET sitting_count = sitting_count WHERE false;`, which fails with "cannot execute UPDATE in a read-only transaction".
+
 ## Check the role
 
 Connect as `hansard_api` and run:
