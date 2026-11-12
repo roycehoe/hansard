@@ -7,6 +7,7 @@ from urllib.parse import quote, urlencode
 
 from sqlmodel import Session
 
+from crud.act import CRUDAct
 from crud.attendance import CRUDAttendance
 from crud.membership import CRUDMembership
 from crud.person import CRUDPerson
@@ -40,6 +41,7 @@ _DEFAULT_DESCRIPTION = (
 _HOME_TITLE = "Open Hansard: search Singapore Parliament debates since 1955"
 _REPORT_RECORD_NAME = "Singapore Hansard"
 _PERSON_TITLE_SUFFIX = "speeches in Parliament"
+_ACT_TITLE_SUFFIX = "Bills and debates in Parliament"
 _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
 _SEAT_SEPARATOR = ", "
@@ -48,6 +50,7 @@ _LISTED_SPEAKER_COUNT = 3
 _LISTED_REPORT_COUNT = 3
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
 _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
+_ACT_PATH = re.compile(r"^/acts/([^/]+)$")
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
 _HOME_PATH = "/"
 _URL_SEPARATOR = "/"
@@ -58,12 +61,14 @@ _ABOUT_PATH = "/about"
 _SEARCH_PATH = "/search"
 _PEOPLE_PATH = "/people"
 _SITTINGS_PATH = "/sittings"
+_ACTS_PATH = "/acts"
 _COVERAGE_TITLE = "What the archive covers"
 _METHODS_TITLE = "Data quality and methods"
 _ABOUT_TITLE = "About Open Hansard"
 _SEARCH_TITLE = "Search"
 _PEOPLE_TITLE = "People"
 _SITTINGS_TITLE = "Sittings"
+_ACTS_TITLE = "Acts"
 _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
 _REPORT_WORD = "report"
@@ -119,6 +124,8 @@ def _get_fixed_page_title(path: str) -> Optional[str]:
         return _PEOPLE_TITLE
     if path == _SITTINGS_PATH:
         return _SITTINGS_TITLE
+    if path == _ACTS_PATH:
+        return _ACTS_TITLE
     return None
 
 
@@ -367,6 +374,21 @@ def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
     )
 
 
+def _get_act_preview(sso_code: str, session: Session) -> PreviewData:
+    act = CRUDAct(session).get_by_sso_code(sso_code)
+    if act is None:
+        return get_not_found_preview()
+    return PreviewData(
+        title=f"{act.title}, {_ACT_TITLE_SUFFIX}",
+        description=_DEFAULT_DESCRIPTION,
+        preview_type=PreviewType.WEBSITE,
+        path=f"/acts/{quote(act.sso_code, safe='')}",
+        is_found=True,
+        report_title=_EMPTY_LABEL,
+        sitting_date=None,
+    )
+
+
 def _get_uncached_preview(
     path: str, speech_ordinal: Optional[int], speech_anchor: str, session: Session
 ) -> PreviewData:
@@ -384,6 +406,9 @@ def _get_uncached_preview(
     sitting_match = _SITTING_PATH.match(path)
     if sitting_match is not None:
         return _get_sitting_preview(date.fromisoformat(sitting_match.group(1)), session)
+    act_match = _ACT_PATH.match(path)
+    if act_match is not None:
+        return _get_act_preview(act_match.group(1), session)
     return get_not_found_preview()
 
 
@@ -392,6 +417,7 @@ def _is_database_path(path: str) -> bool:
         _REPORT_PATH.match(path) is not None
         or _PERSON_PATH.match(path) is not None
         or _SITTING_PATH.match(path) is not None
+        or _ACT_PATH.match(path) is not None
     )
 
 
