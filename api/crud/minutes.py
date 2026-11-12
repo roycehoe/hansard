@@ -27,8 +27,9 @@ class CRUDMinutes:
     def __init__(self, session: Session):
         self.session = session
 
-    def get(self, minutes_id: int) -> Optional[Minutes]:
-        return self.session.get(Minutes, minutes_id)
+    def get_by_ids(self, minutes_ids: list[int]) -> list[Minutes]:
+        statement = select(Minutes).where(col(Minutes.id).in_(minutes_ids))
+        return list(self.session.exec(statement).all())
 
     def get_all_filtered(
         self,

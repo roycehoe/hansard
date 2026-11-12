@@ -238,9 +238,8 @@ class _World:
             def __init__(self, session: Session):
                 pass
 
-            def get(self, minutes_id: int) -> Minutes:
-                assert minutes_id == world.minutes.id
-                return world.minutes
+            def get_by_ids(self, minutes_ids: list[int]) -> list[Minutes]:
+                return [world.minutes] if world.minutes.id in minutes_ids else []
 
         for name, fake in (
             ("CRUDDivision", _FakeDivision),
