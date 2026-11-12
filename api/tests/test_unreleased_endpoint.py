@@ -3,12 +3,18 @@ from fastapi import APIRouter, Depends, FastAPI
 from fastapi.testclient import TestClient
 
 from exceptions.base import ERRORS, ErrorCode
+from main import app
 from settings import AppSettings, settings
 from validators.unreleased_endpoint import validate_can_read_unreleased_endpoint
 
 _UNRELEASED_PATH = "/unreleased"
 _OK_STATUS_CODE = 200
 _GATE_SETTING_NAME = "is_unreleased_endpoints_enabled"
+_LEAVE_AND_SEAT_PATHS = (
+    "/people/1/leave-periods",
+    "/leave-periods/latest-sitting",
+    "/seats?constituency=Aljunied",
+)
 
 
 def _get_unreleased_answer() -> dict[str, str]:
@@ -59,3 +65,15 @@ def test_an_unreleased_endpoint_answers_while_the_setting_is_on(
     response = unreleased_client.get(_UNRELEASED_PATH)
 
     assert response.status_code == _OK_STATUS_CODE
+
+
+@pytest.mark.parametrize("path", _LEAVE_AND_SEAT_PATHS)
+def test_a_leave_or_seat_endpoint_answers_404_while_the_setting_is_off(
+    path: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(settings, _GATE_SETTING_NAME, False)
+
+    response = TestClient(app).get(path)
+
+    assert response.status_code == ERRORS[ErrorCode.ENDPOINT_NOT_FOUND].status_code
+    assert response.json()["detail"]["error_code"] == ErrorCode.ENDPOINT_NOT_FOUND
