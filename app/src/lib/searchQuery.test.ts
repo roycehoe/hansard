@@ -1,10 +1,18 @@
 import {
   getSearchDateError,
+  getSearchQueryTerms,
   getSingleUnquotedWord,
   getTrailingYear,
   isQueryOnlyExcludedWords,
 } from '@/lib/searchQuery'
 import { describe, expect, it } from 'vitest'
+
+function describeTerms(query: string): string[] {
+  return getSearchQueryTerms(query).map(
+    (term) =>
+      `${term.isExcluded ? '-' : ''}${term.isQuoted ? '"' : ''}${term.words.join(' ')}${term.isQuoted ? '"' : ''}`
+  )
+}
 
 describe('isQueryOnlyExcludedWords', () => {
   it('is true when every term has a minus sign', () => {
@@ -118,5 +126,68 @@ describe('getTrailingYear', () => {
     ).toBeUndefined()
     expect(getTrailingYear('tax OR budget 1984', CURRENT_YEAR)).toBeUndefined()
     expect(getTrailingYear('tax -budget 1984', CURRENT_YEAR)).toBeUndefined()
+  })
+})
+
+describe('getSearchQueryTerms', () => {
+  it.each([
+    ['hawker rent OR lease', ['hawker', 'rent', 'lease']],
+    ['tax or budget', ['tax', 'budget']],
+    ['not guilty', ['not', 'guilty']],
+    ['CPF OR HDB', ['CPF', 'HDB']],
+    [
+      'SINGAPOREANS NOT COVERED BY MEDISHIELD',
+      ['SINGAPOREANS', 'NOT', 'COVERED', 'BY', 'MEDISHIELD'],
+    ],
+    [
+      '"substantive assistance" NOT courier',
+      ['"substantive assistance"', '-courier'],
+    ],
+    [
+      '"substantive assistance" AND NOT courier',
+      ['"substantive assistance"', '-courier'],
+    ],
+    [
+      '"substantive assistance" BUT NOT courier',
+      ['"substantive assistance"', '-courier'],
+    ],
+    [
+      '"substantive assistance" % courier',
+      ['"substantive assistance"', '-courier'],
+    ],
+    [
+      '"substantive assistance" NOT (courier OR trafficker)',
+      ['"substantive assistance"', '-courier', '-trafficker'],
+    ],
+    [
+      '"substantive assistance" AND (courier OR trafficker)',
+      ['"substantive assistance"', 'courier', 'trafficker'],
+    ],
+    ['vaping (sale OR import)', ['vaping', 'sale', 'import']],
+    ['rent /s lease', ['rent', 'lease']],
+    ['rent w/s lease', ['rent', 'lease']],
+    ['rent /p lease', ['rent', 'lease']],
+    ['rent w/p lease', ['rent', 'lease']],
+    ['rent & lease', ['rent', 'lease']],
+    ['Art 12', ['"article 12"']],
+    ['cl 5', ['"clause 5"']],
+    ['s 33B', ['"section 33B"']],
+  ])('reads %s as %j', (query, expectedTerms) => {
+    expect(describeTerms(query)).toEqual(expectedTerms)
+  })
+
+  it('reads a bracket inside a bracket as one flat bracket', () => {
+    expect(describeTerms('a (b OR (c OR d))')).toEqual(['a', 'b', 'c', 'd'])
+  })
+})
+
+describe('isQueryOnlyExcludedWords with NOT and %', () => {
+  it('is true when NOT or % leaves out every term', () => {
+    expect(isQueryOnlyExcludedWords('NOT courier')).toBe(true)
+    expect(isQueryOnlyExcludedWords('% courier')).toBe(true)
+  })
+
+  it('is false when a term comes before the NOT', () => {
+    expect(isQueryOnlyExcludedWords('courier NOT trafficker')).toBe(false)
   })
 })

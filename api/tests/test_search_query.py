@@ -1,5 +1,6 @@
 import pytest
 
+from exceptions.search import SearchTooManyAlternativesException
 from utils.search_query import (
     SearchQueryGroup,
     SearchQueryTerm,
@@ -8,12 +9,18 @@ from utils.search_query import (
     get_group_websearch_query,
     get_quoted_websearch_query,
     get_quoted_words_to_mark,
+    get_search_query_group_count,
     get_search_query_groups,
     get_split_phrase_websearch_query,
     get_stemmed_websearch_query,
     get_websearch_query,
     get_words_to_mark_websearch_query,
+    is_query_only_excluded_words,
     is_quote_in_query,
+)
+from validators.search import (
+    MAX_SEARCH_QUERY_GROUP_COUNT,
+    validate_can_get_report_matched_words,
 )
 
 
@@ -209,3 +216,97 @@ def test_a_group_of_only_excluded_words_is_left_out_of_the_websearch_query() -> 
 
     assert len(groups) == 1
     assert get_websearch_query(groups) == "housing"
+
+
+@pytest.mark.parametrize(
+    ("query", "expected_websearch_query"),
+    [
+        ("hawker rent OR lease", "hawker rent OR hawker lease"),
+        ("tax or budget", "tax budget"),
+        ("not guilty", "not guilty"),
+        ("CPF OR HDB", "CPF HDB"),
+        (
+            "SINGAPOREANS NOT COVERED BY MEDISHIELD",
+            "SINGAPOREANS NOT COVERED BY MEDISHIELD",
+        ),
+        ('"substantive assistance" NOT courier', '"substantive assistance" -courier'),
+        (
+            '"substantive assistance" AND NOT courier',
+            '"substantive assistance" -courier',
+        ),
+        (
+            '"substantive assistance" BUT NOT courier',
+            '"substantive assistance" -courier',
+        ),
+        ('"substantive assistance" % courier', '"substantive assistance" -courier'),
+        (
+            '"substantive assistance" NOT (courier OR trafficker)',
+            '"substantive assistance" -courier -trafficker',
+        ),
+        (
+            '"substantive assistance" AND (courier OR trafficker)',
+            '"substantive assistance" courier OR "substantive assistance" trafficker',
+        ),
+        ("vaping (sale OR import)", "vaping sale OR vaping import"),
+        ("rent /s lease", "rent lease"),
+        ("rent w/s lease", "rent lease"),
+        ("rent /p lease", "rent lease"),
+        ("rent w/p lease", "rent lease"),
+        ("rent & lease", "rent lease"),
+        ("Art 12", '"article 12"'),
+        ("cl 5", '"clause 5"'),
+        ("s 33B", '"section 33B"'),
+    ],
+)
+def test_the_legal_database_operators_are_read_as_the_adr_describes(
+    query: str, expected_websearch_query: str
+) -> None:
+    assert (
+        get_websearch_query(get_search_query_groups(query)) == expected_websearch_query
+    )
+
+
+def test_or_binds_before_and() -> None:
+    assert len(get_search_query_groups("hawker rent OR lease")) == 2
+
+
+@pytest.mark.parametrize("query", ["a (b (c OR d) OR e)", "a (b OR (c OR d))"])
+def test_a_bracket_inside_a_bracket_is_not_read_as_a_second_level(
+    query: str,
+) -> None:
+    assert get_search_query_group_count(query) == 3
+
+
+def test_a_bracket_inside_a_bracket_is_flattened_into_the_outer_one() -> None:
+    assert get_websearch_query(get_search_query_groups("a (b OR (c OR d))")) == (
+        "a b OR a c OR a d"
+    )
+
+
+@pytest.mark.parametrize(
+    ("query", "expected_is_only_excluded_words"),
+    [
+        ("NOT courier", True),
+        ("% courier", True),
+        ("courier NOT trafficker", False),
+    ],
+)
+def test_a_query_of_only_excluded_words_is_detected_with_not_and_percent(
+    query: str, expected_is_only_excluded_words: bool
+) -> None:
+    assert is_query_only_excluded_words(query) == expected_is_only_excluded_words
+
+
+def test_four_bracket_pairs_of_two_alternatives_are_at_the_group_limit() -> None:
+    query = "(a OR b) (c OR d) (e OR f) (g OR h)"
+
+    assert get_search_query_group_count(query) == MAX_SEARCH_QUERY_GROUP_COUNT == 16
+    validate_can_get_report_matched_words(query)
+
+
+def test_five_bracket_pairs_of_two_alternatives_are_over_the_group_limit() -> None:
+    query = "(a OR b) (c OR d) (e OR f) (g OR h) (i OR j)"
+
+    assert get_search_query_group_count(query) == 32
+    with pytest.raises(SearchTooManyAlternativesException):
+        validate_can_get_report_matched_words(query)
