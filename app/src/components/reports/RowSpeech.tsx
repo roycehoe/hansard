@@ -95,6 +95,9 @@ export function RowSpeech({
   )
   const isCreditedWithoutLabel =
     speakerLabelSource === SpeakerLabelSource.CREDITED_WITHOUT_LABEL
+  const shownSpeakerName = isCreditedWithoutLabel
+    ? speech.person_name
+    : speech.speaker_label
 
   const citation =
     speakerLabelSource === SpeakerLabelSource.PRINTED
@@ -132,7 +135,7 @@ export function RowSpeech({
     if (isContinuation) {
       return (
         <span className={isLinkedTarget ? 'font-semibold' : 'sr-only'}>
-          {speech.speaker_label}, continued:{' '}
+          {shownSpeakerName}, continued:{' '}
         </span>
       )
     }
@@ -157,7 +160,7 @@ export function RowSpeech({
             }}
             className="text-link focus-visible:decoration-ring font-semibold outline-hidden hover:underline focus-visible:underline"
           >
-            {isCreditedWithoutLabel ? speech.person_name : speech.speaker_label}
+            {shownSpeakerName}
           </Link>
         </HoverCardPerson>
         {isCreditedWithoutLabel && (

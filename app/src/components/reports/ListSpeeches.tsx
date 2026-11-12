@@ -15,6 +15,7 @@ import { SpeechKind, SpeechLinkStatus } from '@/constants/reports/enums'
 import { buildHighlightPattern } from '@/lib/highlight'
 import { isLinkedSpeech } from '@/lib/linkedSpeech'
 import { scrollAgainWhenFontsLoad } from '@/lib/scrollAgain'
+import { isSameSpeakerAsPrevious } from '@/lib/speakerLabel'
 import { Fragment, useEffect } from 'react'
 
 interface ListSpeechesProps {
@@ -48,17 +49,17 @@ function scrollToLinkedSpeech(
   })
 }
 
-function getPreviousSpeakerLabel(
+function getPreviousSpeech(
   speeches: SpeechData[],
   index: number
-): string | undefined {
+): SpeechData | undefined {
   for (let previousIndex = index - 1; previousIndex >= 0; previousIndex--) {
     const previousSpeech = speeches[previousIndex]
     if (
       previousSpeech.kind !== SpeechKind.CHAMBER_EVENT &&
       previousSpeech.kind !== SpeechKind.EDITORIAL_NOTE
     ) {
-      return previousSpeech.speaker_label
+      return previousSpeech
     }
   }
   return undefined
@@ -107,11 +108,10 @@ export function ListSpeeches({
           )}
           <RowSpeech
             speech={speech}
-            isContinuation={
-              speech.speaker_label !== '' &&
-              getPreviousSpeakerLabel(report.speeches, index) ===
-                speech.speaker_label
-            }
+            isContinuation={isSameSpeakerAsPrevious(
+              speech,
+              getPreviousSpeech(report.speeches, index)
+            )}
             isLinkedTarget={isLinkedSpeech(
               speech.ordinal,
               report.speech_link,
