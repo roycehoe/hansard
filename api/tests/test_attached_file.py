@@ -8,7 +8,10 @@ from settings import settings
 from utils.attached_file_url import get_attached_file_url
 
 _GATE_SETTING_NAME = "is_unreleased_endpoints_enabled"
-_ATTACHED_FILE_PATHS = ("/reports/a/attached-files",)
+_ATTACHED_FILE_PATHS = (
+    "/reports/a/attached-files",
+    "/sittings/2020-01-01/attached-files",
+)
 _DOWNLOAD_URL_PREFIX = "https://sprs.parl.gov.sg/search/search/download?value="
 
 
