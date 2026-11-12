@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from sqlmodel import Session
 
 from database.engine import get_session
-from schemas.act import GetActPeopleResponse, GetActResponse
+from schemas.act import GetActPeopleResponse, GetActResponse, GetAllActsResponse
 from services import act as act_service
 from validators.unreleased_endpoint import validate_can_read_unreleased_endpoint
 
@@ -16,6 +16,13 @@ router = APIRouter(
     tags=["acts"],
     dependencies=[Depends(validate_can_read_unreleased_endpoint)],
 )
+
+
+@router.get("", status_code=200)
+def get_all_acts(
+    session: Session = Depends(get_session),
+) -> GetAllActsResponse:
+    return act_service.get_all_acts(session)
 
 
 @router.get("/{sso_code}", status_code=200)
