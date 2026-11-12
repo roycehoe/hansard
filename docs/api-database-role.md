@@ -41,6 +41,16 @@ GRANT SELECT ON leave_period, leave_period_printing, seat_holding TO hansard_api
 
 Check it as `hansard_api` with `SELECT count(*) FROM leave_period_printing;`, which returns a row, and `UPDATE seat_holding SET sitting_count = sitting_count WHERE false;`, which fails with "cannot execute UPDATE in a read-only transaction".
 
+## When the bill and act endpoints ship
+
+The bill and act endpoints read seven tables that the scraper's law links migration creates or rewrites. Royce runs this line with the owner role after that migration is applied, or `GRANT` fails on a missing table. Until then the role cannot read them, and the endpoints stay off behind `IS_UNRELEASED_ENDPOINTS_ENABLED`. The build never runs it.
+
+```sql
+GRANT SELECT ON bill, billreport, act, acthistoryentry, billkey, billreportspeaker, billstageline TO hansard_api;
+```
+
+After it, connect as `hansard_api` and run `SELECT count(*) FROM billkey;`. It returns a row.
+
 ## Check the role
 
 Connect as `hansard_api` and run:
