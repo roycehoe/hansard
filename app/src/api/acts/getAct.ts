@@ -40,5 +40,6 @@ export interface ActEntryData {
 export interface GetActResponse {
   sso_code: string
   title: string
+  sso_url: string
   entries: ActEntryData[]
 }

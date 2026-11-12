@@ -50,6 +50,7 @@ class ActEntryData(BaseModel):
 class GetActResponse(BaseModel):
     sso_code: str
     title: str
+    sso_url: str
     entries: list[ActEntryData]
 
 
