@@ -12,11 +12,16 @@ from database.bill_key import BillKey
 from database.bill_report import BillReport
 from database.bill_report_speaker import BillReportSpeaker
 from database.bill_stage_line import BillStageLine
+from database.division import Division
+from database.division_party_count import DivisionPartyCount
+from database.division_vote import DivisionVote
 from database.engine import engine
 from database.leave_period import LeavePeriod
 from database.leave_period_printing import LeavePeriodPrinting
 from database.ministry import Ministry
 from database.ministry_see_also import MinistrySeeAlso
+from database.minutes import Minutes
+from database.minutes_division import MinutesDivision
 from database.office_printed_range import OfficePrintedRange
 from database.office_title_ministry import OfficeTitleMinistry
 from database.party_affiliation import PartyAffiliation
@@ -50,10 +55,15 @@ pytestmark = [pytest.mark.database, pytest.mark.schema_drift]
         BillReport,
         BillReportSpeaker,
         BillStageLine,
+        Division,
+        DivisionPartyCount,
+        DivisionVote,
         LeavePeriod,
         LeavePeriodPrinting,
         Ministry,
         MinistrySeeAlso,
+        Minutes,
+        MinutesDivision,
         OfficePrintedRange,
         OfficeTitleMinistry,
         PartyAffiliation,
