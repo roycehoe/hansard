@@ -1086,6 +1086,349 @@ Execution Time: 0.397 ms
 
 The join in `act_history_entries_by_bill_id` reads `act` with a `Seq Scan` and hashes all 523 rows; with sequential scans off it reads `act_pkey` in 0.40 ms against 0.37 ms. Same finding as the `act` section: the table is small and bounded by the number of Acts.
 
+## Indexes of attendance_office
+
+```sql
+CREATE UNIQUE INDEX attendance_office_pkey ON attendance_office (id);
+```
+
+Needed by `GET /offices/memberships/{membership_id}/printed-ranges` (unreleased), which reads the first and last attendance line of each printed range by primary key. `uq_attendance_office_attendance_id` is the scraper's key to `attendance` and no API statement reads it.
+
+Rows in the copy: 55,391. Index sizes there: `attendance_office_pkey` 2440 kB.
+
+```sql
+-- attendance_offices_by_ids (GET /offices/memberships/{membership_id}/printed-ranges; 2 rows)
+SELECT attendance_office.id, attendance_office.entry_line_printed, attendance_office.source, attendance_office.extracted_at FROM attendance_office WHERE attendance_office.id IN (75395, 75396);
+```
+
+```text
+-- attendance_offices_by_ids (GET /offices/memberships/{membership_id}/printed-ranges), hansard_positions
+Index Scan using attendance_office_pkey on attendance_office  (cost=0.29..12.63 rows=2 width=105) (actual time=0.007..0.008 rows=2 loops=1)
+  Index Cond: (id = ANY ('{75395,75396}'::integer[]))
+Execution Time: 0.012 ms
+```
+
+## Indexes of office_printed_range
+
+```sql
+CREATE INDEX ix_office_printed_range_speaker_id ON office_printed_range (speaker_id);
+```
+
+Needed by `GET /offices/memberships/{membership_id}/printed-ranges`, which lists a Membership's ranges in date order, and by the member timeline, which reads the ranges of every Membership of a person in one statement (`royce/member-timeline`, `CRUDOfficePrintedRange.get_all_by_membership_ids`). Both filter `speaker_id` and use `ix_office_printed_range_speaker_id`, then sort the rows on `first_sitting_date` and `id`. The timeline statement is not on this branch; its SQL below is compiled from that branch's method, and person 5's six Memberships hold 34 ranges. `uq_office_printed_range_first_attendance_office_id` is the scraper's key and no API statement reads it.
+
+Rows in the copy: 1,522. Index sizes there: `ix_office_printed_range_speaker_id` 72 kB.
+
+```sql
+-- office_printed_ranges_by_membership_id (GET /offices/memberships/{membership_id}/printed-ranges; Membership 330, 16 rows)
+SELECT office_printed_range.id, office_printed_range.office_printed, office_printed_range.office_class, office_printed_range.sitting_count, office_printed_range.first_sitting_date, office_printed_range.last_sitting_date, office_printed_range.speaker_id, office_printed_range.first_attendance_office_id, office_printed_range.last_attendance_office_id FROM office_printed_range WHERE office_printed_range.speaker_id = 330 ORDER BY office_printed_range.first_sitting_date, office_printed_range.id;
+```
+
+```text
+-- office_printed_ranges_by_membership_id (GET /offices/memberships/{membership_id}/printed-ranges), hansard_positions
+Sort  (cost=8.96..9.00 rows=16 width=96) (actual time=0.012..0.012 rows=16 loops=1)
+  ->  Index Scan using ix_office_printed_range_speaker_id on office_printed_range  (cost=0.28..8.64 rows=16 width=96) (actual time=0.005..0.008 rows=16 loops=1)
+        Index Cond: (speaker_id = 330)
+Execution Time: 0.018 ms
+```
+
+```sql
+-- office_printed_ranges_by_membership_ids (member timeline; person 5, Memberships 135, 200, 276, 352, 5 and 68, 34 rows)
+SELECT office_printed_range.id, office_printed_range.office_printed, office_printed_range.office_class, office_printed_range.sitting_count, office_printed_range.first_sitting_date, office_printed_range.last_sitting_date, office_printed_range.speaker_id, office_printed_range.first_attendance_office_id, office_printed_range.last_attendance_office_id FROM office_printed_range WHERE office_printed_range.speaker_id IN (135, 200, 276, 352, 5, 68) ORDER BY office_printed_range.first_sitting_date, office_printed_range.id;
+```
+
+```text
+-- office_printed_ranges_by_membership_ids (member timeline), hansard_positions
+Sort  (cost=19.44..19.52 rows=34 width=96) (actual time=0.027..0.028 rows=34 loops=1)
+  ->  Index Scan using ix_office_printed_range_speaker_id on office_printed_range  (cost=0.28..18.57 rows=34 width=96) (actual time=0.009..0.019 rows=34 loops=1)
+        Index Cond: (speaker_id = ANY ('{135,200,276,352,5,68}'::integer[]))
+Execution Time: 0.035 ms
+```
+
+## Indexes of report_put_to
+
+```sql
+CREATE INDEX ix_report_put_to_sprs_report_id ON report_put_to (sprs_report_id);
+CREATE INDEX ix_report_put_to_office_printed ON report_put_to (office_printed);
+```
+
+Three statements read this table. `GET /offices/reports/{report_slug}` and `GET /offices/ministries/{ministry_id}/questions` read the rows of one report or a page of reports by `sprs_report_id` (`ix_report_put_to_sprs_report_id`; `uq_report_put_to_sprs_report_id_ordinal` also starts with that column and the planner prefers the single-column index). `GET /offices/ministries` counts, for every ministry, the reports put to it. That count joins `report_put_to` to `office_title_ministry` on the printed office title and reads every row of `report_put_to`.
+
+**Finding.** `report_put_to_ministry_report_counts` runs a `Seq Scan` on `report_put_to`, 31,883 rows, and takes 69 ms. The table grows with each new question report, so the time grows with the corpus. No index helps an aggregate over every row: with sequential scans off the planner reads `ix_report_put_to_office_printed` and `ix_office_title_ministry_office_printed` for a merge join and takes 89 ms. The counts are what the endpoint exists to show, so the choice is to cache the answer or accept the scan; the API's response cache already holds each GET for an hour.
+
+Rows in the copy: 31,884. Index sizes there: `ix_report_put_to_sprs_report_id` 2592 kB, `ix_report_put_to_office_printed` 312 kB.
+
+```sql
+-- report_put_to_by_sprs_report_id (GET /offices/reports/{report_slug}; oral-answer-3362#, 8 rows)
+SELECT report_put_to.id, report_put_to.ordinal, report_put_to.office_printed, report_put_to.printed_text, report_put_to.sprs_report_id FROM report_put_to WHERE report_put_to.sprs_report_id = 'oral-answer-3362#' ORDER BY report_put_to.ordinal;
+```
+
+```text
+-- report_put_to_by_sprs_report_id (GET /offices/reports/{report_slug}), hansard_positions
+Sort  (cost=37.49..37.51 rows=9 width=116) (actual time=0.016..0.017 rows=8 loops=1)
+  ->  Bitmap Heap Scan on report_put_to  (cost=4.48..37.35 rows=9 width=116) (actual time=0.011..0.012 rows=8 loops=1)
+        Recheck Cond: ((sprs_report_id)::text = 'oral-answer-3362#'::text)
+        ->  Bitmap Index Scan on ix_report_put_to_sprs_report_id  (cost=0.00..4.48 rows=9 width=0) (actual time=0.008..0.008 rows=8 loops=1)
+              Index Cond: ((sprs_report_id)::text = 'oral-answer-3362#'::text)
+Execution Time: 0.023 ms
+```
+
+```sql
+-- report_put_to_by_sprs_report_ids (GET /offices/ministries/{ministry_id}/questions)
+SELECT report_put_to.id, report_put_to.ordinal, report_put_to.office_printed, report_put_to.printed_text, report_put_to.sprs_report_id FROM report_put_to WHERE report_put_to.sprs_report_id IN ('oral-answer-3362#') ORDER BY report_put_to.sprs_report_id, report_put_to.ordinal;
+```
+
+```text
+-- report_put_to_by_sprs_report_ids (GET /offices/ministries/{ministry_id}/questions), hansard_positions
+Sort  (cost=37.49..37.51 rows=9 width=116) (actual time=0.022..0.022 rows=8 loops=1)
+  ->  Bitmap Heap Scan on report_put_to  (cost=4.48..37.35 rows=9 width=116) (actual time=0.015..0.016 rows=8 loops=1)
+        Recheck Cond: ((sprs_report_id)::text = 'oral-answer-3362#'::text)
+        ->  Bitmap Index Scan on ix_report_put_to_sprs_report_id  (cost=0.00..4.48 rows=9 width=0) (actual time=0.010..0.010 rows=8 loops=1)
+              Index Cond: ((sprs_report_id)::text = 'oral-answer-3362#'::text)
+Execution Time: 0.029 ms
+```
+
+```sql
+-- report_put_to_ministry_report_counts (GET /offices/ministries)
+SELECT office_title_ministry.ministry_id, count(distinct(report_put_to.sprs_report_id)) AS count_1 FROM report_put_to JOIN office_title_ministry ON office_title_ministry.office_printed = report_put_to.office_printed WHERE (report_put_to.sprs_report_id NOT IN ('oral-answer-1#')) GROUP BY office_title_ministry.ministry_id;
+```
+
+```text
+-- report_put_to_ministry_report_counts (GET /offices/ministries), hansard_positions
+GroupAggregate  (cost=5445.66..5797.00 rows=48 width=12) (actual time=65.221..68.505 rows=41 loops=1)
+  ->  Sort  (cost=5445.66..5562.62 rows=46781 width=38) (actual time=64.668..65.707 rows=34089 loops=1)
+        ->  Hash Join  (cost=89.46..1816.95 rows=46781 width=38) (actual time=0.323..6.790 rows=34089 loops=1)
+              ->  Seq Scan on report_put_to  (cost=0.00..1020.55 rows=31883 width=66) (actual time=0.004..2.296 rows=31883 loops=1)
+                    Filter: ((sprs_report_id)::text <> 'oral-answer-1#'::text)
+              ->  Hash  (cost=67.54..67.54 rows=1754 width=74) (actual time=0.316..0.316 rows=1754 loops=1)
+                    ->  Seq Scan on office_title_ministry  (cost=0.00..67.54 rows=1754 width=74) (actual time=0.002..0.135 rows=1754 loops=1)
+Execution Time: 68.726 ms
+```
+
+With `SET LOCAL enable_seqscan = off`, the same statement:
+
+```text
+-- report_put_to_ministry_report_counts (GET /offices/ministries), sequential scans off
+GroupAggregate  (cost=7624.92..7976.26 rows=48 width=12) (actual time=85.464..88.860 rows=41 loops=1)
+  ->  Sort  (cost=7624.92..7741.87 rows=46781 width=38) (actual time=84.903..85.924 rows=34089 loops=1)
+        ->  Merge Join  (cost=0.56..3996.20 rows=46781 width=38) (actual time=0.010..13.386 rows=34089 loops=1)
+              ->  Index Scan using ix_office_title_ministry_office_printed on office_title_ministry  (cost=0.28..196.26 rows=1754 width=74) (actual time=0.003..0.188 rows=1062 loops=1)
+              ->  Materialize  (cost=0.29..3252.60 rows=31883 width=66) (actual time=0.005..9.056 rows=34490 loops=1)
+                    ->  Index Scan using ix_report_put_to_office_printed on report_put_to  (cost=0.29..3172.90 rows=31883 width=66) (actual time=0.005..6.324 rows=31883 loops=1)
+                          Filter: ((sprs_report_id)::text <> 'oral-answer-1#'::text)
+Execution Time: 89.129 ms
+```
+
+## Indexes of ministry
+
+```sql
+CREATE UNIQUE INDEX ministry_pkey ON ministry (id);
+CREATE UNIQUE INDEX uq_ministry_name ON ministry (name);
+```
+
+Needed by every `/offices` endpoint that names a ministry. `get_by_ids` and `get_all` read 48 rows; Postgres sequentially scans the table (`ministry_pkey` once sequential scans are off), which is correct for 8 kB. `get` is a primary key lookup.
+
+**Finding.** `ministries_by_ids` and `ministries_all` run a `Seq Scan` on `ministry`. The table holds the names of `data/ministry_names.json` and changes by hand, so it does not grow.
+
+Rows in the copy: 48. Index sizes there: `ministry_pkey` 16 kB, `uq_ministry_name` 16 kB.
+
+```sql
+-- ministries_by_ids (GET /offices/ministries/{ministry_id}; 2 rows)
+SELECT ministry.id, ministry.name FROM ministry WHERE ministry.id IN (2, 24);
+```
+
+```text
+-- ministries_by_ids (GET /offices/ministries/{ministry_id}), hansard_positions
+Seq Scan on ministry  (cost=0.00..1.60 rows=2 width=25) (actual time=0.003..0.005 rows=2 loops=1)
+  Filter: (id = ANY ('{2,24}'::integer[]))
+Execution Time: 0.008 ms
+```
+
+With `SET LOCAL enable_seqscan = off`, the same statement:
+
+```text
+-- ministries_by_ids (GET /offices/ministries/{ministry_id}), sequential scans off
+Index Scan using ministry_pkey on ministry  (cost=0.14..8.18 rows=2 width=25) (actual time=0.005..0.006 rows=2 loops=1)
+  Index Cond: (id = ANY ('{2,24}'::integer[]))
+Execution Time: 0.009 ms
+```
+
+```sql
+-- ministries_all (GET /offices/ministries; 48 rows)
+SELECT ministry.id, ministry.name FROM ministry ORDER BY ministry.name, ministry.id;
+```
+
+```text
+-- ministries_all (GET /offices/ministries), hansard_positions
+Sort  (cost=2.82..2.94 rows=48 width=25) (actual time=0.025..0.027 rows=48 loops=1)
+  ->  Seq Scan on ministry  (cost=0.00..1.48 rows=48 width=25) (actual time=0.002..0.004 rows=48 loops=1)
+Execution Time: 0.031 ms
+```
+
+With `SET LOCAL enable_seqscan = off`, the same statement:
+
+```text
+-- ministries_all (GET /offices/ministries), sequential scans off
+Incremental Sort  (cost=0.42..15.02 rows=48 width=25) (actual time=0.021..0.029 rows=48 loops=1)
+  ->  Index Scan using uq_ministry_name on ministry  (cost=0.14..12.86 rows=48 width=25) (actual time=0.005..0.011 rows=48 loops=1)
+Execution Time: 0.037 ms
+```
+
+## Indexes of office_title_ministry
+
+```sql
+CREATE INDEX ix_office_title_ministry_ministry_id ON office_title_ministry (ministry_id);
+CREATE INDEX ix_office_title_ministry_office_printed ON office_title_ministry (office_printed);
+```
+
+Three statements read this table. `GET /offices/ministries/{ministry_id}` lists a ministry's printed titles by `ministry_id` (`ix_office_title_ministry_ministry_id`). `GET /offices/ministries/{ministry_id}/questions` and `GET /offices/reports/{report_slug}` look up the ministries of printed titles by `office_printed` (`ix_office_title_ministry_office_printed`). `GET /offices/ministries` counts titles per ministry with an index-only scan of the `ministry_id` index.
+
+Rows in the copy: 1,754. Index sizes there: `ix_office_title_ministry_ministry_id` 56 kB, `ix_office_title_ministry_office_printed` 232 kB.
+
+```sql
+-- office_title_ministries_by_ministry_id (GET /offices/ministries/{ministry_id}; ministry 2, 134 rows)
+SELECT office_title_ministry.id, office_title_ministry.office_printed, office_title_ministry.ordinal, office_title_ministry.source, office_title_ministry.ministry_id FROM office_title_ministry WHERE office_title_ministry.ministry_id = 2 ORDER BY office_title_ministry.office_printed;
+```
+
+```text
+-- office_title_ministries_by_ministry_id (GET /offices/ministries/{ministry_id}), hansard_positions
+Sort  (cost=61.73..62.06 rows=134 width=86) (actual time=0.205..0.209 rows=134 loops=1)
+  ->  Bitmap Heap Scan on office_title_ministry  (cost=5.32..56.99 rows=134 width=86) (actual time=0.011..0.040 rows=134 loops=1)
+        Recheck Cond: (ministry_id = 2)
+        ->  Bitmap Index Scan on ix_office_title_ministry_ministry_id  (cost=0.00..5.28 rows=134 width=0) (actual time=0.008..0.008 rows=134 loops=1)
+              Index Cond: (ministry_id = 2)
+Execution Time: 0.218 ms
+```
+
+```sql
+-- office_title_ministries_by_office_printeds (GET /offices/ministries/{ministry_id}/questions)
+SELECT office_title_ministry.id, office_title_ministry.office_printed, office_title_ministry.ordinal, office_title_ministry.source, office_title_ministry.ministry_id FROM office_title_ministry WHERE office_title_ministry.office_printed IN ('Acting Minister for Communications') ORDER BY office_title_ministry.office_printed, office_title_ministry.ordinal;
+```
+
+```text
+-- office_title_ministries_by_office_printeds (GET /offices/ministries/{ministry_id}/questions), hansard_positions
+Sort  (cost=8.30..8.31 rows=1 width=86) (actual time=0.012..0.013 rows=1 loops=1)
+  ->  Index Scan using ix_office_title_ministry_office_printed on office_title_ministry  (cost=0.28..8.29 rows=1 width=86) (actual time=0.009..0.009 rows=1 loops=1)
+        Index Cond: ((office_printed)::text = 'Acting Minister for Communications'::text)
+Execution Time: 0.018 ms
+```
+
+```sql
+-- office_title_counts_by_ministry_id (GET /offices/ministries; 1,754 rows)
+SELECT office_title_ministry.ministry_id, count(*) AS count_1 FROM office_title_ministry GROUP BY office_title_ministry.ministry_id;
+```
+
+```text
+-- office_title_counts_by_ministry_id (GET /offices/ministries), hansard_positions
+GroupAggregate  (cost=0.28..63.84 rows=48 width=12) (actual time=0.034..0.185 rows=48 loops=1)
+  ->  Index Only Scan using ix_office_title_ministry_ministry_id on office_title_ministry  (cost=0.28..54.59 rows=1754 width=4) (actual time=0.021..0.091 rows=1754 loops=1)
+Execution Time: 0.194 ms
+```
+
+## Indexes of ministry_see_also
+
+```sql
+CREATE UNIQUE INDEX uq_ministry_see_also_pair ON ministry_see_also (ministry_id, see_also_ministry_id);
+```
+
+Needed by `GET /offices/ministries/{ministry_id}`, which lists the sourced links from one ministry. The table holds 5 rows and the leading column of `uq_ministry_see_also_pair` is `ministry_id`; Postgres scans the 8 kB table, and reads the index once sequential scans are off.
+
+**Finding.** `ministry_see_alsos_by_ministry_id` runs a `Seq Scan` on `ministry_see_also`. The table is hand-kept and does not grow.
+
+Rows in the copy: 5. Index sizes there: `uq_ministry_see_also_pair` 16 kB.
+
+```sql
+-- ministry_see_alsos_by_ministry_id (GET /offices/ministries/{ministry_id}; ministry 24)
+SELECT ministry_see_also.id, ministry_see_also.note, ministry_see_also.source_url, ministry_see_also.ministry_id, ministry_see_also.see_also_ministry_id FROM ministry_see_also WHERE ministry_see_also.ministry_id = 24 ORDER BY ministry_see_also.see_also_ministry_id;
+```
+
+```text
+-- ministry_see_alsos_by_ministry_id (GET /offices/ministries/{ministry_id}), hansard_positions
+Sort  (cost=1.07..1.08 rows=2 width=208) (actual time=0.006..0.007 rows=2 loops=1)
+  ->  Seq Scan on ministry_see_also  (cost=0.00..1.06 rows=2 width=208) (actual time=0.003..0.004 rows=2 loops=1)
+        Filter: (ministry_id = 24)
+Execution Time: 0.012 ms
+```
+
+With `SET LOCAL enable_seqscan = off`, the same statement:
+
+```text
+-- ministry_see_alsos_by_ministry_id (GET /offices/ministries/{ministry_id}), sequential scans off
+Index Scan using uq_ministry_see_also_pair on ministry_see_also  (cost=0.13..8.17 rows=2 width=208) (actual time=0.004..0.005 rows=2 loops=1)
+  Index Cond: (ministry_id = 24)
+Execution Time: 0.009 ms
+```
+
+## Indexes of report_participant
+
+```sql
+CREATE INDEX ix_report_participant_report_id ON report_participant (report_id);
+```
+
+Three statements read this table. `GET /offices/reports/{report_slug}` and `GET /offices/ministries/{ministry_id}/questions` read the participants of one report or a page of reports by `report_id` and `role` (`ix_report_participant_report_id`, with `role` and the sort on `ordinal` applied to the few rows the index returns). `GET /offices/ministries` counts, for every ministry, the reports an official answered, from every ANSWERER row joined to `office_title_ministry` on the printed office.
+
+**Finding.** `report_participant_ministry_report_counts` runs a `Seq Scan` on `report_participant` (84,084 rows, 31,831 of them ANSWERER), 26 ms. No index covers `role`, and one would not help: ANSWERER is 38 per cent of the table. With sequential scans off the planner scans all of `ix_report_participant_report_id` and takes 40 ms. The table grows with each new question report, so the time grows with the corpus. Same remedy as `report_put_to`: the response cache holds the answer for an hour.
+
+Rows in the copy: 84,084. Index sizes there: `ix_report_participant_report_id` 1392 kB.
+
+```sql
+-- report_participants_by_report_id_and_role (GET /offices/reports/{report_slug}; report 50326, ASKER, 33 rows)
+SELECT report_participant.id, report_participant.ordinal, report_participant.role, report_participant.printed_name, report_participant.answering_for_printed, report_participant.office_printed, report_participant.office_class, report_participant.report_id, report_participant.speaker_id FROM report_participant WHERE report_participant.report_id = 50326 AND report_participant.role = 'ASKER' ORDER BY report_participant.ordinal;
+```
+
+```text
+-- report_participants_by_report_id_and_role (GET /offices/reports/{report_slug}), hansard_positions
+Sort  (cost=9.39..9.43 rows=16 width=130) (actual time=0.019..0.020 rows=33 loops=1)
+  ->  Index Scan using ix_report_participant_report_id on report_participant  (cost=0.29..9.07 rows=16 width=130) (actual time=0.009..0.014 rows=33 loops=1)
+        Index Cond: (report_id = 50326)
+        Filter: (role = 'ASKER'::participantrole)
+Execution Time: 0.028 ms
+```
+
+```sql
+-- report_participants_by_report_ids_and_role (GET /offices/ministries/{ministry_id}/questions; ANSWERER)
+SELECT report_participant.id, report_participant.ordinal, report_participant.role, report_participant.printed_name, report_participant.answering_for_printed, report_participant.office_printed, report_participant.office_class, report_participant.report_id, report_participant.speaker_id FROM report_participant WHERE report_participant.report_id IN (50326, 50327) AND report_participant.role = 'ANSWERER' ORDER BY report_participant.report_id, report_participant.ordinal;
+```
+
+```text
+-- report_participants_by_report_ids_and_role (GET /offices/ministries/{ministry_id}/questions), hansard_positions
+Incremental Sort  (cost=1.12..14.15 rows=16 width=130) (actual time=0.018..0.019 rows=2 loops=1)
+  ->  Index Scan using ix_report_participant_report_id on report_participant  (cost=0.29..13.43 rows=16 width=130) (actual time=0.013..0.016 rows=2 loops=1)
+        Index Cond: (report_id = ANY ('{50326,50327}'::integer[]))
+        Filter: (role = 'ANSWERER'::participantrole)
+Execution Time: 0.025 ms
+```
+
+```sql
+-- report_participant_ministry_report_counts (GET /offices/ministries; ANSWERER)
+SELECT office_title_ministry.ministry_id, count(distinct(report_participant.report_id)) AS count_1 FROM report_participant JOIN office_title_ministry ON office_title_ministry.office_printed = report_participant.office_printed WHERE report_participant.role = 'ANSWERER' AND (report_participant.report_id NOT IN (7)) GROUP BY office_title_ministry.ministry_id;
+```
+
+```text
+-- report_participant_ministry_report_counts (GET /offices/ministries), hansard_positions
+GroupAggregate  (cost=4640.35..4802.07 rows=48 width=12) (actual time=22.197..25.802 rows=46 loops=1)
+  ->  Sort  (cost=4640.35..4694.09 rows=21499 width=8) (actual time=21.706..22.914 rows=43256 loops=1)
+        ->  Hash Join  (cost=89.46..3093.28 rows=21499 width=8) (actual time=0.320..11.513 rows=43256 loops=1)
+              ->  Seq Scan on report_participant  (cost=0.00..2549.26 rows=31942 width=47) (actual time=0.005..6.113 rows=31831 loops=1)
+                    Filter: ((report_id <> 7) AND (role = 'ANSWERER'::participantrole))
+              ->  Hash  (cost=67.54..67.54 rows=1754 width=74) (actual time=0.312..0.312 rows=1754 loops=1)
+                    ->  Seq Scan on office_title_ministry  (cost=0.00..67.54 rows=1754 width=74) (actual time=0.002..0.125 rows=1754 loops=1)
+Execution Time: 25.966 ms
+```
+
+With `SET LOCAL enable_seqscan = off`, the same statement:
+
+```text
+-- report_participant_ministry_report_counts (GET /offices/ministries), sequential scans off
+GroupAggregate  (cost=5888.78..6050.50 rows=48 width=12) (actual time=32.428..39.411 rows=46 loops=1)
+  ->  Sort  (cost=5888.78..5942.53 rows=21499 width=8) (actual time=31.778..33.426 rows=43256 loops=1)
+        ->  Hash Join  (cost=218.48..4341.71 rows=21499 width=8) (actual time=0.423..17.199 rows=43256 loops=1)
+              ->  Index Scan using ix_report_participant_report_id on report_participant  (cost=0.29..3668.97 rows=31942 width=47) (actual time=0.008..10.523 rows=31831 loops=1)
+                    Filter: ((report_id <> 7) AND (role = 'ANSWERER'::participantrole))
+              ->  Hash  (cost=196.26..196.26 rows=1754 width=74) (actual time=0.409..0.410 rows=1754 loops=1)
+                    ->  Index Scan using ix_office_title_ministry_office_printed on office_title_ministry  (cost=0.28..196.26 rows=1754 width=74) (actual time=0.003..0.224 rows=1754 loops=1)
+Execution Time: 39.615 ms
+```
+
 ## Ranking cost
 
 Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
