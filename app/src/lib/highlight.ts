@@ -1,12 +1,10 @@
 import { HIGHLIGHT_STOP_WORDS } from '@/constants/reports/constants'
+import { getSearchQueryTerms } from '@/lib/searchQuery'
 
 const MIN_HIGHLIGHT_TERM_LENGTH = 2
-const HIGHLIGHT_TERM_PATTERN = /(-?)["“”]([^"“”]*)["“”]?|[^\s"“”]+/g
 const QUOTE = '"'
 const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/g
 const WORD_CHARACTER = '[\\p{L}\\p{N}_]'
-const OR_OPERATOR = 'OR'
-const EXCLUDED_WORD_PREFIX = '-'
 
 interface HighlightSegment {
   text: string
@@ -15,27 +13,20 @@ interface HighlightSegment {
 
 function isHighlightableWord(word: string): boolean {
   return (
-    word !== OR_OPERATOR &&
-    !word.startsWith(EXCLUDED_WORD_PREFIX) &&
     word.length >= MIN_HIGHLIGHT_TERM_LENGTH &&
     !HIGHLIGHT_STOP_WORDS.has(word.toLowerCase())
   )
 }
 
 export function parseHighlightTerms(query: string): string[] {
-  const terms = Array.from(query.matchAll(HIGHLIGHT_TERM_PATTERN)).flatMap(
-    ([token, excludedPrefix, quotedWords]) => {
-      // A hyphen alone is punctuation, as in api/utils/search_query.py; only a hyphen attached to the next word excludes it
-      if (quotedWords === undefined) {
-        return isHighlightableWord(token) ? [token] : []
-      }
-      if (excludedPrefix === EXCLUDED_WORD_PREFIX) return []
-      return quotedWords
-        .split(/\s+/)
-        .filter(isHighlightableWord)
-        .map((word) => `${QUOTE}${word}${QUOTE}`)
-    }
-  )
+  const terms = getSearchQueryTerms(query)
+    .filter((term) => !term.isExcluded)
+    .flatMap((term) => {
+      const words = term.words.filter(isHighlightableWord)
+      return term.isQuoted
+        ? words.map((word) => `${QUOTE}${word}${QUOTE}`)
+        : words
+    })
   const seenTerms = new Set<string>()
   return terms.filter((term) => {
     const lowerCaseTerm = term.toLowerCase()

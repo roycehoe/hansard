@@ -116,7 +116,7 @@ describe('getTrailingYear', () => {
     expect(
       getTrailingYear('“public housing” 1984', CURRENT_YEAR)
     ).toBeUndefined()
-    expect(getTrailingYear('tax or budget 1984', CURRENT_YEAR)).toBeUndefined()
+    expect(getTrailingYear('tax OR budget 1984', CURRENT_YEAR)).toBeUndefined()
     expect(getTrailingYear('tax -budget 1984', CURRENT_YEAR)).toBeUndefined()
   })
 })
