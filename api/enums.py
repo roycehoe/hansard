@@ -192,3 +192,8 @@ class ParticipantRole(StrEnum):
     ANSWERER = "ANSWERER"
     CHAIR = "CHAIR"
     UNLABELLED = "UNLABELLED"
+
+
+class MinistryQuestionRelation(StrEnum):
+    PUT_TO = "put_to"
+    ANSWERED_BY = "answered_by"
