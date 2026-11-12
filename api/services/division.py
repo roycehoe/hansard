@@ -83,7 +83,11 @@ def _get_division_minutes_data(
     if not minutes_divisions:
         return None
     minutes_division = minutes_divisions[0]
-    minutes = CRUDMinutes(session).get(minutes_division.minutes_id)
+    minutes_id_to_minutes = {
+        minutes.id: minutes
+        for minutes in CRUDMinutes(session).get_by_ids([minutes_division.minutes_id])
+    }
+    minutes = minutes_id_to_minutes[minutes_division.minutes_id]
     return DivisionMinutesData(
         sitting_date=minutes.sitting_date,
         printed_counts=minutes_division.printed_counts,
