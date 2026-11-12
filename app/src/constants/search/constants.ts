@@ -35,10 +35,12 @@ export const SEARCH_HELP_EXAMPLES = [
     meaning: 'Vaping with either sale or import',
   },
   { query: 's 33B', meaning: 'Finds "section 33B"' },
+  {
+    query: 'hawker rent or lease',
+    meaning: 'Hawker with both rent and lease',
+  },
+  { query: 'CPF OR HDB', meaning: 'Both CPF and HDB in the same paragraph' },
 ]
-
-export const SEARCH_HELP_OPERATORS_TEXT =
-  'AND, OR and NOT count as operators only in capitals, except when the whole search is in capitals.'
 
 export const SEARCH_HELP_FILTERS_TEXT =
   'To search by person or date, use the filters.'
