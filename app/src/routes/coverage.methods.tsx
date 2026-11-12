@@ -155,8 +155,8 @@ export const Route = createFileRoute('/coverage/methods')({
             <sup className="text-link text-xs">i</sup> beside the person&apos;s
             name. Several people hold those roles at once, so a change in the
             chair can make the credit wrong if the record does not mention it. A
-            few speeches print no label at all. Where the paragraphs around one
-            show who is speaking, as when the chair calls on a Member, the
+            few speeches have no label at all. Where the rest of the report
+            shows who is speaking, as when the chair calls on a Member, the
             archive credits that Member and marks the name with the same i.
           </p>
           <p>
