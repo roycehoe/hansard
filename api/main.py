@@ -5,12 +5,15 @@ from fastapi.middleware.gzip import GZipMiddleware
 from middleware.request_log import RequestLogMiddleware
 from middleware.response_cache import ResponseCacheMiddleware
 from routers import (
+    act,
+    bill,
     coverage,
     health,
     leave_period,
     parliament,
     party,
     person,
+    person_bill,
     refresh,
     report,
     report_link,
@@ -56,3 +59,6 @@ app.include_router(search.router)
 app.include_router(coverage.router)
 app.include_router(refresh.router)
 app.include_router(search_count.router)
+app.include_router(person_bill.router)
+app.include_router(bill.router)
+app.include_router(act.router)
