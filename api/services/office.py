@@ -142,23 +142,23 @@ def _get_answered_by_data(
     ]
 
 
-def _get_ministry_reports(
+def _get_ministry_report_ids(
     ministry_id: int,
     relation: MinistryQuestionRelation,
     excluded_report_ids: list[int],
     limit: int,
     offset: int,
     session: Session,
-) -> list[Report]:
+) -> list[int]:
     if relation == MinistryQuestionRelation.PUT_TO:
         return CRUDReport(
             session
-        ).get_all_by_report_put_to_ministry_id_excluding_report_ids(
+        ).get_all_ids_by_report_put_to_ministry_id_excluding_report_ids(
             ministry_id, excluded_report_ids, limit, offset
         )
     return CRUDReport(
         session
-    ).get_all_by_report_participant_role_and_ministry_id_excluding_report_ids(
+    ).get_all_ids_by_report_participant_role_and_ministry_id_excluding_report_ids(
         ParticipantRole.ANSWERER, ministry_id, excluded_report_ids, limit, offset
     )
 
@@ -274,7 +274,7 @@ def get_ministry_questions(
 ) -> GetMinistryQuestionsResponse:
     ministry = _get_validated_ministry(ministry_id, session)
     excluded_report_ids = get_taken_down_report_ids(session)
-    reports = _get_ministry_reports(
+    report_ids = _get_ministry_report_ids(
         ministry.id,
         relation,
         excluded_report_ids,
@@ -282,11 +282,15 @@ def get_ministry_questions(
         (page - 1) * page_size,
         session,
     )
+    report_id_to_report = {
+        report.id: report for report in CRUDReport(session).get_by_ids(report_ids)
+    }
+    reports = [report_id_to_report[report_id] for report_id in report_ids]
     put_tos = CRUDReportPutTo(session).get_all_by_sprs_report_ids(
         [report.report_id for report in reports]
     )
     participants = CRUDReportParticipant(session).get_all_by_report_ids_and_role(
-        [report.id for report in reports], ParticipantRole.ANSWERER
+        report_ids, ParticipantRole.ANSWERER
     )
     office_printed_to_ministries = _get_office_printed_to_ministries(
         put_tos, participants, session

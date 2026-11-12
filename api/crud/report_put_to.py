@@ -1,5 +1,5 @@
 from sqlalchemy import func
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from database.office_title_ministry import OfficeTitleMinistry
 from database.report_put_to import ReportPutTo
@@ -13,7 +13,7 @@ class CRUDReportPutTo:
         statement = (
             select(ReportPutTo)
             .where(ReportPutTo.sprs_report_id == sprs_report_id)
-            .order_by(ReportPutTo.ordinal)
+            .order_by(col(ReportPutTo.ordinal))
         )
         return list(self.session.exec(statement).all())
 
@@ -22,8 +22,8 @@ class CRUDReportPutTo:
     ) -> list[ReportPutTo]:
         statement = (
             select(ReportPutTo)
-            .where(ReportPutTo.sprs_report_id.in_(sprs_report_ids))
-            .order_by(ReportPutTo.sprs_report_id, ReportPutTo.ordinal)
+            .where(col(ReportPutTo.sprs_report_id).in_(sprs_report_ids))
+            .order_by(col(ReportPutTo.sprs_report_id), col(ReportPutTo.ordinal))
         )
         return list(self.session.exec(statement).all())
 
@@ -32,16 +32,17 @@ class CRUDReportPutTo:
     ) -> dict[int, int]:
         statement = (
             select(
-                OfficeTitleMinistry.ministry_id,
+                col(OfficeTitleMinistry.ministry_id),
                 func.count(func.distinct(ReportPutTo.sprs_report_id)),
             )
             .select_from(ReportPutTo)
             .join(
                 OfficeTitleMinistry,
-                OfficeTitleMinistry.office_printed == ReportPutTo.office_printed,
+                col(OfficeTitleMinistry.office_printed)
+                == col(ReportPutTo.office_printed),
             )
-            .where(ReportPutTo.sprs_report_id.not_in(excluded_sprs_report_ids))
-            .group_by(OfficeTitleMinistry.ministry_id)
+            .where(col(ReportPutTo.sprs_report_id).not_in(excluded_sprs_report_ids))
+            .group_by(col(OfficeTitleMinistry.ministry_id))
         )
         rows = self.session.exec(statement).all()
         return {ministry_id: report_count for ministry_id, report_count in rows}

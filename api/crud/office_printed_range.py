@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from database.office_printed_range import OfficePrintedRange
 
@@ -11,6 +11,8 @@ class CRUDOfficePrintedRange:
         statement = (
             select(OfficePrintedRange)
             .where(OfficePrintedRange.speaker_id == membership_id)
-            .order_by(OfficePrintedRange.first_sitting_date, OfficePrintedRange.id)
+            .order_by(
+                col(OfficePrintedRange.first_sitting_date), col(OfficePrintedRange.id)
+            )
         )
         return list(self.session.exec(statement).all())

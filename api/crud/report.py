@@ -87,11 +87,11 @@ def _get_report_filters(
 
 
 def _get_is_put_to_ministry(ministry_id: int) -> ColumnElement:
-    return Report.report_id.in_(
+    return col(Report.report_id).in_(
         select(ReportPutTo.sprs_report_id)
         .join(
             OfficeTitleMinistry,
-            OfficeTitleMinistry.office_printed == ReportPutTo.office_printed,
+            col(OfficeTitleMinistry.office_printed) == col(ReportPutTo.office_printed),
         )
         .where(OfficeTitleMinistry.ministry_id == ministry_id)
     )
@@ -100,11 +100,12 @@ def _get_is_put_to_ministry(ministry_id: int) -> ColumnElement:
 def _get_is_participant_role_ministry(
     role: ParticipantRole, ministry_id: int
 ) -> ColumnElement:
-    return Report.id.in_(
+    return col(Report.id).in_(
         select(ReportParticipant.report_id)
         .join(
             OfficeTitleMinistry,
-            OfficeTitleMinistry.office_printed == ReportParticipant.office_printed,
+            col(OfficeTitleMinistry.office_printed)
+            == col(ReportParticipant.office_printed),
         )
         .where(ReportParticipant.role == role)
         .where(OfficeTitleMinistry.ministry_id == ministry_id)
@@ -186,15 +187,14 @@ class CRUDReport:
         )
         return list(self.session.exec(statement).all())
 
-    def get_all_by_report_put_to_ministry_id_excluding_report_ids(
+    def get_all_ids_by_report_put_to_ministry_id_excluding_report_ids(
         self, ministry_id: int, excluded_report_ids: list[int], limit: int, offset: int
-    ) -> list[Report]:
+    ) -> list[int]:
         statement = (
-            select(Report)
-            .options(defer(Report.markdown_content))
+            select(Report.id)
             .where(_get_is_put_to_ministry(ministry_id))
-            .where(Report.id.not_in(excluded_report_ids))
-            .order_by(Report.sitting_date.desc(), Report.id)
+            .where(col(Report.id).not_in(excluded_report_ids))
+            .order_by(col(Report.sitting_date).desc(), col(Report.id))
             .limit(limit)
             .offset(offset)
         )
@@ -207,24 +207,23 @@ class CRUDReport:
             select(func.count())
             .select_from(Report)
             .where(_get_is_put_to_ministry(ministry_id))
-            .where(Report.id.not_in(excluded_report_ids))
+            .where(col(Report.id).not_in(excluded_report_ids))
         )
         return self.session.exec(statement).one()
 
-    def get_all_by_report_participant_role_and_ministry_id_excluding_report_ids(
+    def get_all_ids_by_report_participant_role_and_ministry_id_excluding_report_ids(
         self,
         role: ParticipantRole,
         ministry_id: int,
         excluded_report_ids: list[int],
         limit: int,
         offset: int,
-    ) -> list[Report]:
+    ) -> list[int]:
         statement = (
-            select(Report)
-            .options(defer(Report.markdown_content))
+            select(Report.id)
             .where(_get_is_participant_role_ministry(role, ministry_id))
-            .where(Report.id.not_in(excluded_report_ids))
-            .order_by(Report.sitting_date.desc(), Report.id)
+            .where(col(Report.id).not_in(excluded_report_ids))
+            .order_by(col(Report.sitting_date).desc(), col(Report.id))
             .limit(limit)
             .offset(offset)
         )
@@ -237,7 +236,7 @@ class CRUDReport:
             select(func.count())
             .select_from(Report)
             .where(_get_is_participant_role_ministry(role, ministry_id))
-            .where(Report.id.not_in(excluded_report_ids))
+            .where(col(Report.id).not_in(excluded_report_ids))
         )
         return self.session.exec(statement).one()
 
