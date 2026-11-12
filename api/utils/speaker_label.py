@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 # NOTE: the scraper stores no record of how a speech was linked, so this repeats the label rules of its stage 8 (populate/speaker_links.py and services/role_context.py in hansard-scraper) for the two roles several people hold at once: a Deputy Speaker or Chairman label is linked to whoever the rules place in the chair, never by a printed name, and a swap the record does not mention can make that wrong. Single-holder roles such as Speaker or Prime Minister are left out on purpose, because their holder on a date is a matter of record. A change to those rules has to be made here too
 _DEPUTY_SPEAKER_LABELS = (
@@ -82,3 +83,10 @@ def is_shared_role_speaker_label(speaker_label: str) -> bool:
 
 def is_chair_speaker_label(speaker_label: str) -> bool:
     return _CHAIR_LABEL.search(speaker_label) is not None
+
+
+def is_every_speaker_label_chair(speaker_labels: list[Optional[str]]) -> bool:
+    return len(speaker_labels) > 0 and all(
+        speaker_label is not None and is_chair_speaker_label(speaker_label)
+        for speaker_label in speaker_labels
+    )
