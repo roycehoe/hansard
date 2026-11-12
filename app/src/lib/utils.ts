@@ -1,5 +1,7 @@
+import type { GetAllActsResponse } from '@/api/acts/getAllActs'
 import { ApiError } from '@/api/client'
 import type { MembershipData, PersonData } from '@/api/people/getAllPersons'
+import { ACT_NOT_FOUND_ERROR_CODE } from '@/constants/acts/constants'
 import {
   CONTACT_EMAIL,
   FILTER_ALL,
@@ -205,4 +207,16 @@ export function isSearchConstituencyNotFoundError(
 ): boolean {
   if (!(error instanceof ApiError)) return false
   return hasApiErrorCode(error.body, SEARCH_CONSTITUENCY_NOT_FOUND_ERROR_CODE)
+}
+
+export function isActNotFoundError(error: Error | null): boolean {
+  if (!(error instanceof ApiError)) return false
+  return hasApiErrorCode(error.body, ACT_NOT_FOUND_ERROR_CODE)
+}
+
+export function getActTitle(
+  actList: GetAllActsResponse | undefined,
+  ssoCode: string
+): string | undefined {
+  return actList?.acts.find((act) => act.sso_code === ssoCode)?.title
 }

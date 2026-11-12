@@ -1,3 +1,4 @@
+import { useGetAllActs } from '@/api/acts/getAllActs'
 import { useGetPerson } from '@/api/people/getPerson'
 import { BadgeActiveFilter } from '@/components/search/BadgeActiveFilter'
 import { Button } from '@/components/ui/button'
@@ -7,13 +8,16 @@ import {
   SEARCH_WORDS_INPUT_ID,
 } from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
+import { getActTitle } from '@/lib/utils'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useRef } from 'react'
 
 const PERSON_NAME_FALLBACK = 'this person'
 
+const ACT_TITLE_FALLBACK = 'this Act'
+
 type FilterKey =
-  'parliament' | 'type' | 'from' | 'to' | 'person' | 'constituency'
+  'parliament' | 'type' | 'from' | 'to' | 'person' | 'constituency' | 'act'
 
 interface ActiveFilter {
   key: FilterKey
@@ -26,10 +30,11 @@ interface ListActiveFiltersProps {
 
 export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
   const navigate = useNavigate()
-  const { parliament, type, from, to, person, constituency } = useSearch({
+  const { parliament, type, from, to, person, constituency, act } = useSearch({
     from: '/search',
   })
   const { data: personDetail } = useGetPerson({ person_id: person ?? 0 })
+  const { data: actList } = useGetAllActs(act === undefined ? undefined : {})
   const removeButtons = useRef<Map<FilterKey, HTMLButtonElement>>(new Map())
 
   const filters: ActiveFilter[] = []
@@ -55,6 +60,12 @@ export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
     filters.push({
       key: 'constituency',
       label: `Constituency: ${constituency}`,
+    })
+  }
+  if (act !== undefined) {
+    filters.push({
+      key: 'act',
+      label: `Act: ${getActTitle(actList, act) ?? ACT_TITLE_FALLBACK}`,
     })
   }
 
