@@ -12,11 +12,17 @@ from starlette.routing import Mount
 
 from enums import PreviewType
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
+from exceptions.sitting import SittingNotFoundException
 from middleware import frontend
 from schemas.parliament import GetAllParliamentsResponse, ParliamentData
 from schemas.preview import PreviewData
 from schemas.report import GetReportResponse, SpeechData
-from schemas.sitting import GetAllSittingsResponse, SittingData
+from schemas.sitting import (
+    GetAllSittingsResponse,
+    GetSittingResponse,
+    SittingData,
+    SittingReportData,
+)
 from services import parliament as parliament_service
 from services import preview as preview_service
 from services import report as report_service
@@ -108,6 +114,12 @@ def _fail_if_report_is_read(
     session: Session,
 ) -> GetReportResponse:
     raise AssertionError("the report should not be read")
+
+
+def _fail_if_sitting_is_read(
+    sitting_date: date, session: Session
+) -> GetSittingResponse:
+    raise AssertionError("the sitting should not be read")
 
 
 @pytest.mark.parametrize("query", ["", "?s=2&q=and+so"])
@@ -204,7 +216,7 @@ def test_a_report_that_cannot_be_shown_leaves_the_root_empty(
         ("/reports/bill-1", preview_service.get_not_found_preview()),
         ("/reports/bill-1", preview_service.get_default_preview()),
         ("/people/1-tan", preview_service.get_default_preview()),
-        ("/sittings/2020-01-01", preview_service.get_default_preview()),
+        ("/sittings/2020-01-01", preview_service.get_not_found_preview()),
         ("/search", preview_service.get_default_preview()),
         ("/coverage", preview_service.get_default_preview()),
     ],
@@ -213,6 +225,7 @@ def test_a_page_that_is_not_a_found_report_or_home_gets_no_text(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, path: str, preview: PreviewData
 ) -> None:
     monkeypatch.setattr(report_service, "get_report", _fail_if_report_is_read)
+    monkeypatch.setattr(sitting_service, "get_sitting", _fail_if_sitting_is_read)
     client = _get_client(tmp_path, monkeypatch, preview)
 
     response = client.get(path)
@@ -315,3 +328,156 @@ def test_the_app_page_has_the_empty_root_the_server_fills() -> None:
     index_html = (_REPO_ROOT / "app" / "index.html").read_text()
 
     assert index_html.count(_EMPTY_ROOT) == 1
+
+
+def _get_sitting_preview() -> PreviewData:
+    return PreviewData(
+        title="Sitting of 7 October 2026",
+        description="2 reports.",
+        preview_type=PreviewType.WEBSITE,
+        path="/sittings/2026-10-07",
+        is_found=True,
+        report_title="",
+        sitting_date=None,
+    )
+
+
+def _get_sitting_report(
+    report_slug: str, title: str, subtitle: str
+) -> SittingReportData:
+    return SittingReportData(
+        report_slug=report_slug,
+        title=title,
+        subtitle=subtitle,
+        report_type="bill",
+        speech_number=1,
+        is_text_available=True,
+    )
+
+
+def test_a_sitting_page_links_each_report_of_the_sitting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def get_sitting(sitting_date: date, session: Session) -> GetSittingResponse:
+        assert sitting_date == date(2026, 10, 7)
+        return GetSittingResponse(
+            sitting_date=sitting_date,
+            parliament_number=15,
+            volume_number=96,
+            sitting_number=39,
+            session_number=1,
+            reports=[
+                _get_sitting_report("bill-1", "SUPPLY <BILL>", "Second Reading"),
+                _get_sitting_report("00069110-ZZ_1#id004-budget", "BUDGET", ""),
+            ],
+            is_attendance_available=False,
+            attendance=[],
+        )
+
+    monkeypatch.setattr(sitting_service, "get_sitting", get_sitting)
+    client = _get_client(tmp_path, monkeypatch, _get_sitting_preview())
+
+    root_contents = _get_root_contents(client.get("/sittings/2026-10-07").text)
+
+    assert root_contents.split("\n") == [
+        "<main>",
+        '<h1>Sitting of <time datetime="2026-10-07">7 October 2026</time></h1>',
+        "<ul>",
+        '<li><a href="/reports/bill-1">SUPPLY &lt;BILL&gt;</a><br>Second Reading</li>',
+        '<li><a href="/reports/00069110-ZZ_1%23id004-budget">BUDGET</a></li>',
+        "</ul>",
+        "</main>",
+    ]
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        SittingNotFoundException,
+        OperationalError("SELECT 1", {}, Exception("connection refused")),
+    ],
+)
+def test_a_sitting_that_cannot_be_shown_leaves_the_root_empty(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error: Exception
+) -> None:
+    def raise_error(sitting_date: date, session: Session) -> GetSittingResponse:
+        raise error
+
+    monkeypatch.setattr(sitting_service, "get_sitting", raise_error)
+    client = _get_client(tmp_path, monkeypatch, _get_sitting_preview())
+
+    response = client.get("/sittings/2026-10-07")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _EMPTY_ROOT in response.text
+
+
+def _get_sittings_preview() -> PreviewData:
+    return PreviewData(
+        title="Sittings",
+        description="An archive.",
+        preview_type=PreviewType.WEBSITE,
+        path="/sittings",
+        is_found=True,
+        report_title="",
+        sitting_date=None,
+    )
+
+
+def test_the_sittings_page_of_a_parliament_links_each_sitting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def get_all_sittings(
+        parliament_number: int, session: Session
+    ) -> GetAllSittingsResponse:
+        assert parliament_number == 0
+        return GetAllSittingsResponse(
+            sittings=[_get_sitting(date(1955, 4, 22)), _get_sitting(date(1955, 4, 23))]
+        )
+
+    monkeypatch.setattr(sitting_service, "get_all_sittings", get_all_sittings)
+    client = _get_client(tmp_path, monkeypatch, _get_sittings_preview())
+
+    root_contents = _get_root_contents(client.get("/sittings?parliament=0").text)
+
+    assert root_contents.split("\n") == [
+        "<main>",
+        "<h1>Sittings</h1>",
+        "<h2>Legislative Assembly</h2>",
+        "<ul>",
+        '<li><a href="/sittings/1955-04-22">22 April 1955</a></li>',
+        '<li><a href="/sittings/1955-04-23">23 April 1955</a></li>',
+        "</ul>",
+        "</main>",
+    ]
+
+
+@pytest.mark.parametrize("query", ["", "?parliament=fifteen", "?parliament=99"])
+def test_a_sittings_page_with_no_parliament_or_no_sittings_gets_no_text(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, query: str
+) -> None:
+    monkeypatch.setattr(
+        sitting_service,
+        "get_all_sittings",
+        lambda parliament_number, session: GetAllSittingsResponse(sittings=[]),
+    )
+    client = _get_client(tmp_path, monkeypatch, _get_sittings_preview())
+
+    response = client.get(f"/sittings{query}")
+
+    assert _EMPTY_ROOT in response.text
+
+
+def test_a_database_failure_leaves_the_sittings_root_empty(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def raise_error(parliament_number: int, session: Session) -> GetAllSittingsResponse:
+        raise OperationalError("SELECT 1", {}, Exception("connection refused"))
+
+    monkeypatch.setattr(sitting_service, "get_all_sittings", raise_error)
+    client = _get_client(tmp_path, monkeypatch, _get_sittings_preview())
+
+    response = client.get("/sittings?parliament=15")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _EMPTY_ROOT in response.text

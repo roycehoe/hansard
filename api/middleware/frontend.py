@@ -37,6 +37,7 @@ _DIRECTORY_INDEX_PATH = "."
 _PATH_KEY = "path"
 _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
+_PARLIAMENT_PARAMETER = "parliament"
 _URL_SEPARATOR = "/"
 _USER_AGENT_HEADER = "user-agent"
 _NO_STRUCTURED_DATA = ""
@@ -113,7 +114,10 @@ class FrontendFiles(StaticFiles):
             query_params.get(_SPEECH_ANCHOR_PARAMETER),
         )
         page_text_html = await run_in_threadpool(
-            get_page_text_html, scope[_PATH_KEY], preview
+            get_page_text_html,
+            scope[_PATH_KEY],
+            query_params.get(_PARLIAMENT_PARAMETER),
+            preview,
         )
         return HTMLResponse(
             get_index_html_with_page_text(

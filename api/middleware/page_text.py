@@ -1,15 +1,19 @@
 import re
+from datetime import date
 from html import escape
+from typing import Optional
+from urllib.parse import quote
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session
 
 from database.engine import engine
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
+from exceptions.sitting import SittingNotFoundException
 from schemas.parliament import ParliamentData
 from schemas.preview import PreviewData
 from schemas.report import GetReportResponse
-from schemas.sitting import SittingData
+from schemas.sitting import GetSittingResponse, SittingData, SittingReportData
 from services import parliament as parliament_service
 from services import report as report_service
 from services import sitting as sitting_service
@@ -23,6 +27,9 @@ _ROOT_ELEMENT = '<div id="root"></div>'
 _LINE_SEPARATOR = "\n"
 _HOME_PATH = "/"
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
+_SITTINGS_PATH = "/sittings"
+_SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
+_SITTING_TITLE_PREFIX = "Sitting of"
 _PEOPLE_PATH = "/people"
 _PEOPLE_LINK_TEXT = "Members of Parliament"
 _PARLIAMENTS_HEADING = "Parliaments"
@@ -80,6 +87,13 @@ def _get_parliament_label(parliament_number: int) -> str:
     return f"Parliament {parliament_number}"
 
 
+def _get_sitting_item_html(sitting: SittingData) -> str:
+    return (
+        f'<li><a href="/sittings/{escape(sitting.sitting_date.isoformat())}">'
+        f"{escape(get_sitting_date_label(sitting.sitting_date))}</a></li>"
+    )
+
+
 def _get_home_html(
     title: str,
     description: str,
@@ -91,11 +105,7 @@ def _get_home_html(
         f"{escape(_get_parliament_label(parliament.parliament_number))}</a></li>"
         for parliament in parliaments
     ]
-    sitting_items = [
-        f'<li><a href="/sittings/{escape(sitting.sitting_date.isoformat())}">'
-        f"{escape(get_sitting_date_label(sitting.sitting_date))}</a></li>"
-        for sitting in recent_sittings
-    ]
+    sitting_items = [_get_sitting_item_html(sitting) for sitting in recent_sittings]
     return _LINE_SEPARATOR.join(
         [
             "<main>",
@@ -109,6 +119,47 @@ def _get_home_html(
             f"<h2>{_RECENT_SITTINGS_HEADING}</h2>",
             "<ul>",
             *sitting_items,
+            "</ul>",
+            "</main>",
+        ]
+    )
+
+
+def _get_parliament_sittings_html(
+    title: str, parliament_number: int, sittings: list[SittingData]
+) -> str:
+    return _LINE_SEPARATOR.join(
+        [
+            "<main>",
+            f"<h1>{escape(title)}</h1>",
+            f"<h2>{escape(_get_parliament_label(parliament_number))}</h2>",
+            "<ul>",
+            *[_get_sitting_item_html(sitting) for sitting in sittings],
+            "</ul>",
+            "</main>",
+        ]
+    )
+
+
+def _get_sitting_report_item_html(report: SittingReportData) -> str:
+    report_link = (
+        f'<a href="/reports/{escape(quote(report.report_slug, safe=""))}">'
+        f"{escape(report.title)}</a>"
+    )
+    if report.subtitle == _NO_SUBTITLE:
+        return f"<li>{report_link}</li>"
+    return f"<li>{report_link}<br>{escape(report.subtitle)}</li>"
+
+
+def _get_sitting_html(sitting: GetSittingResponse) -> str:
+    return _LINE_SEPARATOR.join(
+        [
+            "<main>",
+            f"<h1>{_SITTING_TITLE_PREFIX} "
+            f'<time datetime="{escape(sitting.sitting_date.isoformat())}">'
+            f"{escape(get_sitting_date_label(sitting.sitting_date))}</time></h1>",
+            "<ul>",
+            *[_get_sitting_report_item_html(report) for report in sitting.reports],
             "</ul>",
             "</main>",
         ]
@@ -149,16 +200,54 @@ def _get_home_page_text_html(title: str, description: str) -> str:
         return _NO_PAGE_TEXT
 
 
+def _get_parliament_sittings_page_text_html(
+    title: str, parliament_text: Optional[str]
+) -> str:
+    if parliament_text is None:
+        return _NO_PAGE_TEXT
+    try:
+        parliament_number = int(parliament_text)
+        with Session(engine) as session:
+            sittings = sitting_service.get_all_sittings(
+                parliament_number, session
+            ).sittings
+            if not sittings:
+                return _NO_PAGE_TEXT
+            return _get_parliament_sittings_html(title, parliament_number, sittings)
+    except ValueError:
+        return _NO_PAGE_TEXT
+    except SQLAlchemyError:
+        return _NO_PAGE_TEXT
+
+
+def _get_sitting_page_text_html(sitting_date_text: str) -> str:
+    try:
+        sitting_date = date.fromisoformat(sitting_date_text)
+        with Session(engine) as session:
+            return _get_sitting_html(sitting_service.get_sitting(sitting_date, session))
+    except ValueError:
+        return _NO_PAGE_TEXT
+    except SittingNotFoundException:
+        return _NO_PAGE_TEXT
+    except SQLAlchemyError:
+        return _NO_PAGE_TEXT
+
+
 # NOTE: a report is the only page whose preview carries a sitting date, so a report that was not found costs no second lookup
-def get_page_text_html(path: str, preview: PreviewData) -> str:
+def get_page_text_html(
+    path: str, parliament_text: Optional[str], preview: PreviewData
+) -> str:
     if path == _HOME_PATH:
         return _get_home_page_text_html(preview.title, preview.description)
+    if path == _SITTINGS_PATH:
+        return _get_parliament_sittings_page_text_html(preview.title, parliament_text)
     report_match = _REPORT_PATH.match(path)
-    if report_match is None:
-        return _NO_PAGE_TEXT
-    if preview.sitting_date is None:
-        return _NO_PAGE_TEXT
-    return _get_report_page_text_html(report_match.group(1))
+    if report_match is not None and preview.sitting_date is not None:
+        return _get_report_page_text_html(report_match.group(1))
+    sitting_match = _SITTING_PATH.match(path)
+    if sitting_match is not None and preview.is_found:
+        return _get_sitting_page_text_html(sitting_match.group(1))
+    return _NO_PAGE_TEXT
 
 
 # NOTE: createRoot in app/src/main.tsx empties #root on its first render, so React replaces this text rather than hydrating it, and the text need not match the React markup
