@@ -1,3 +1,4 @@
+import { useGetAllActs } from '@/api/acts/getAllActs'
 import { useGetAllParliaments } from '@/api/parliaments/getAllParliaments'
 import { useGetAllPersons } from '@/api/people/getAllPersons'
 import { useGetPerson } from '@/api/people/getPerson'
@@ -21,6 +22,7 @@ import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
 import { NoticeErrorSearchBusy } from '@/components/search/NoticeErrorSearchBusy'
 import { NoticeErrorSearchExcludedWordsOnly } from '@/components/search/NoticeErrorSearchExcludedWordsOnly'
 import { NoticeErrorSearchTimedOut } from '@/components/search/NoticeErrorSearchTimedOut'
+import { NoticeSearchActNotFound } from '@/components/search/NoticeSearchActNotFound'
 import { NoticeSearchConstituencyNotFound } from '@/components/search/NoticeSearchConstituencyNotFound'
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
 import { SkeletonFormSearch } from '@/components/search/SkeletonFormSearch'
@@ -61,7 +63,9 @@ import {
   isQueryOnlyExcludedWords,
 } from '@/lib/searchQuery'
 import {
+  getActTitle,
   getSortWithoutWords,
+  isActNotFoundError,
   isSearchBusyError,
   isSearchConstituencyNotFoundError,
   isSearchExcludedWordsOnlyError,
@@ -75,12 +79,16 @@ import { z } from 'zod'
 function getSpeechesHeading(
   hasWords: boolean,
   personName: string | undefined,
-  constituency: string | undefined
+  constituency: string | undefined,
+  actTitle: string | undefined
 ): string {
   if (hasWords) return SPEECH_MATCHES_HEADING
   if (personName !== undefined) return `${SPEECHES_HEADING} by ${personName}`
   if (constituency !== undefined) {
     return `${SPEECHES_HEADING} by members for ${constituency}`
+  }
+  if (actTitle !== undefined) {
+    return `${SPEECHES_HEADING} in debates on ${actTitle}`
   }
   return SPEECHES_HEADING
 }
@@ -93,6 +101,7 @@ const searchSearchSchema = z.object({
   type: z.enum(ReportType).optional(),
   person: z.coerce.number().int().min(1).optional(),
   constituency: z.string().trim().min(1).optional().catch(undefined),
+  act: z.string().trim().min(1).optional().catch(undefined),
   sort: z.enum(SearchSort).optional(),
   tab: z.enum(SearchTab).optional().catch(undefined),
 })
@@ -104,8 +113,18 @@ const NEXT_PAGE_SKELETON_ROW_COUNT = 3
 export const Route = createFileRoute('/search')({
   validateSearch: searchSearchSchema,
   component: function PageSearch() {
-    const { q, parliament, from, to, type, person, constituency, sort, tab } =
-      Route.useSearch()
+    const {
+      q,
+      parliament,
+      from,
+      to,
+      type,
+      person,
+      constituency,
+      act,
+      sort,
+      tab,
+    } = Route.useSearch()
     const navigate = useNavigate()
     const { isMatching: isPhone } = useMediaQuery(PHONE_MEDIA_QUERY)
     const parliaments = useGetAllParliaments()
@@ -113,6 +132,7 @@ export const Route = createFileRoute('/search')({
     const words = q?.trim() ?? ''
     const hasPerson = person !== undefined
     const hasConstituency = constituency !== undefined
+    const hasAct = act !== undefined
     const hasWords =
       words !== '' &&
       !(isQueryOnlyExcludedWords(words) && (hasPerson || hasConstituency))
@@ -134,27 +154,31 @@ export const Route = createFileRoute('/search')({
       !!to ||
       type !== undefined ||
       hasPerson ||
-      hasConstituency
+      hasConstituency ||
+      hasAct
     const isWordsTooLong = words.length > SEARCH_WORDS_MAX_LENGTH
     const canSearch = (hasWords || hasFilter) && !isWordsTooLong
-    // NOTE: a report title carries no seat, so a seat filter leaves only the speeches
+    // NOTE: a report title carries no seat, and the Act page already lists an Act's reports by title, so a seat or Act filter leaves only the speeches
     const canSearchReports =
-      canSearch && !hasConstituency && (hasWords || !hasPerson)
+      canSearch && !hasConstituency && !hasAct && (hasWords || !hasPerson)
     const defaultSort = SearchSort.DATE
     const resultSort = hasWords
       ? (sort ?? defaultSort)
       : getSortWithoutWords(sort)
     const personName = personDetail.data?.canonical_name
+    const acts = useGetAllActs(hasAct ? {} : undefined)
+    const actTitle = act === undefined ? undefined : getActTitle(acts.data, act)
     const speechesHeading = getSpeechesHeading(
       hasWords,
       personName,
-      constituency
+      constituency,
+      actTitle
     )
     const reportsHeading = hasWords ? TITLE_MATCHES_HEADING : REPORTS_HEADING
     useDocumentTitle(
       ...(hasWords
         ? [words, 'Search']
-        : hasPerson || hasConstituency
+        : hasPerson || hasConstituency || hasAct
           ? [speechesHeading, 'Search']
           : ['Search'])
     )
@@ -169,6 +193,7 @@ export const Route = createFileRoute('/search')({
         constituency === undefined
           ? undefined
           : removeConstituencySuffix(constituency),
+      act,
       sort: resultSort,
     }
     const speeches = useGetSearchSpeeches(
@@ -213,6 +238,7 @@ export const Route = createFileRoute('/search')({
           type: values.type === FILTER_ALL ? undefined : values.type,
           person: values.person ?? undefined,
           constituency: mapFilterToSearchValue(values.constituency.trim()),
+          act,
           sort: values.sort === (sort ?? defaultSort) ? sort : values.sort,
           tab,
         },
@@ -336,6 +362,8 @@ export const Route = createFileRoute('/search')({
       if (speeches.isLoading)
         return <SkeletonSearchResults rowCount={SEARCH_SKELETON_ROW_COUNT} />
       if (speeches.isLoadingError || !speeches.data) {
+        if (isActNotFoundError(speeches.error))
+          return <NoticeSearchActNotFound act={act ?? ''} />
         if (isSearchConstituencyNotFoundError(speeches.error))
           return (
             <NoticeSearchConstituencyNotFound
