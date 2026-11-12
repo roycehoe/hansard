@@ -87,3 +87,16 @@ class RefreshRunStatus(StrEnum):
     SUCCEEDED = "SUCCEEDED"
     HALTED = "HALTED"
     FAILED = "FAILED"
+
+
+class ReportLinkType(StrEnum):
+    CORRECTION = "CORRECTION"
+    REPLY = "REPLY"
+    CONTINUATION = "CONTINUATION"
+
+
+class ReportLinkRelation(StrEnum):
+    CORRECTS = "corrects"
+    CORRECTED_BY = "corrected_by"
+    REFERS_TO = "refers_to"
+    CONTINUES = "continues"

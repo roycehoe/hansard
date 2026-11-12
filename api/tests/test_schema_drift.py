@@ -9,6 +9,7 @@ from database.person_name_spelling import PersonNameSpelling
 from database.refresh_run import RefreshRun
 from database.report import Report
 from database.report_asker import ReportAsker
+from database.report_link import ReportLink
 from database.sitting import Sitting
 from database.speaker import Speaker
 from database.speech import Speech
@@ -26,6 +27,7 @@ pytestmark = [pytest.mark.database, pytest.mark.schema_drift]
         RefreshRun,
         Report,
         ReportAsker,
+        ReportLink,
         Sitting,
         Speaker,
         Speech,
