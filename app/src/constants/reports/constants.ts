@@ -264,6 +264,10 @@ export const INFERRED_CREDIT_METHOD_TEXT =
   'The archive credits the person who held the role at the time, using the dates they held office or the names given in the sitting record.'
 export const INFERRED_CREDIT_CAVEAT_TEXT =
   'If the role changed hands and the record does not say so, this credit can be wrong.'
+export const UNLABELLED_CREDIT_SENTENCES = [
+  'The record prints no name here.',
+  "The credit is the archive's reading of the paragraphs around it.",
+]
 
 export const COLUMN_NOTE_TOOLTIP_DELAY_MS = 500
 export const COLUMN_NOTE_LABELS: Record<ColumnNote, string> = {

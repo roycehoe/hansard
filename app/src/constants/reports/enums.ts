@@ -52,6 +52,13 @@ export enum SpeechLinkStatus {
   MISSING = 'missing',
 }
 
+export enum SpeakerLabelSource {
+  PRINTED = 'printed',
+  CREDITED_WITHOUT_LABEL = 'credited-without-label',
+  NOT_RECORDED = 'not-recorded',
+  NONE = 'none',
+}
+
 export enum TranscriptStyle {
   BODY = 'body',
   MUTED = 'muted',
