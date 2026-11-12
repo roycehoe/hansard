@@ -21,8 +21,8 @@ from utils.search_query import (
     ("query", "expected_websearch_query"),
     [
         ("housing", "housing"),
-        ("housing OR flats grants", "housing OR flats grants"),
-        ("housing or flats", "housing OR flats"),
+        ("housing OR flats grants", "housing grants OR flats grants"),
+        ("housing or flats", "housing flats"),
         ("housing - flats", "housing flats"),
         ("housing -flats", "housing -flats"),
         ("HEAD S - MINISTRY OF MANPOWER", "HEAD S MINISTRY OF MANPOWER"),
@@ -99,6 +99,7 @@ def test_a_query_is_split_into_or_groups_of_terms() -> None:
         ),
         SearchQueryGroup(
             terms=(
+                SearchQueryTerm(words=("housing",), is_quoted=False, is_excluded=False),
                 SearchQueryTerm(
                     words=("public", "housing"), is_quoted=True, is_excluded=False
                 ),
@@ -184,10 +185,12 @@ def test_excluded_term_groups_keep_only_the_excluded_terms_of_each_group() -> No
                 SearchQueryTerm(
                     words=("public", "flats"), is_quoted=True, is_excluded=True
                 ),
+                SearchQueryTerm(words=("grants",), is_quoted=False, is_excluded=True),
             )
         ),
         SearchQueryGroup(
             terms=(
+                SearchQueryTerm(words=("housing",), is_quoted=False, is_excluded=True),
                 SearchQueryTerm(words=("grants",), is_quoted=False, is_excluded=True),
             )
         ),
@@ -202,7 +205,7 @@ def test_a_query_with_no_excluded_word_has_no_excluded_term_groups(
 
 
 def test_a_group_of_only_excluded_words_is_left_out_of_the_websearch_query() -> None:
-    groups = get_search_query_groups("housing or -other")
+    groups = get_search_query_groups("housing OR -other")
 
     assert len(groups) == 1
     assert get_websearch_query(groups) == "housing"

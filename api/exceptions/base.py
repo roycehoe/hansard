@@ -18,6 +18,7 @@ class ErrorCode(StrEnum):
     SEARCH_FILTER_REQUIRED = "search.filter_required"
     SEARCH_BUSY = "search.busy"
     SEARCH_EXCLUDED_WORDS_ONLY = "search.excluded_words_only"
+    SEARCH_TOO_MANY_ALTERNATIVES = "search.too_many_alternatives"
     SEARCH_CONSTITUENCY_NOT_FOUND = "search.constituency_not_found"
     SEAT_CONSTITUENCY_NOT_FOUND = "seat.constituency_not_found"
     ENDPOINT_NOT_FOUND = "endpoint.not_found"
@@ -68,6 +69,10 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ErrorCode.SEARCH_EXCLUDED_WORDS_ONLY: ErrorSpec(
         status.HTTP_422_UNPROCESSABLE_CONTENT,
         "The search has only excluded words.",
+    ),
+    ErrorCode.SEARCH_TOO_MANY_ALTERNATIVES: ErrorSpec(
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "The search has too many alternatives.",
     ),
     ErrorCode.SEARCH_CONSTITUENCY_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Constituency not found."

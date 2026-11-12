@@ -21,6 +21,11 @@ class SearchExcludedWordsOnlyException(AppHttpExceptionBase):
         super().__init__(ErrorCode.SEARCH_EXCLUDED_WORDS_ONLY)
 
 
+class SearchTooManyAlternativesException(AppHttpExceptionBase):
+    def __init__(self):
+        super().__init__(ErrorCode.SEARCH_TOO_MANY_ALTERNATIVES)
+
+
 class SearchConstituencyNotFoundException(AppHttpExceptionBase):
     def __init__(self):
         super().__init__(ErrorCode.SEARCH_CONSTITUENCY_NOT_FOUND)

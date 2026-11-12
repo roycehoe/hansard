@@ -5,8 +5,15 @@ from enums import ReportType
 from exceptions.search import (
     SearchExcludedWordsOnlyException,
     SearchFilterRequiredException,
+    SearchTooManyAlternativesException,
 )
-from utils.search_query import is_query_only_excluded_words
+from utils.search_query import (
+    get_search_query_group_count,
+    is_query_only_excluded_words,
+)
+
+# NOTE: brackets multiply OR groups, and a query with quotes checks each group row by row; on the replica, quoted phrases in 16 groups took 4 seconds and in 32 groups 12 to 16, past the 10-second limit
+MAX_SEARCH_QUERY_GROUP_COUNT = 16
 
 
 def validate_can_search_speeches(
@@ -30,6 +37,8 @@ def validate_can_search_speeches(
         and act_sso_code is None
     ):
         raise SearchFilterRequiredException
+    if get_search_query_group_count(query) > MAX_SEARCH_QUERY_GROUP_COUNT:
+        raise SearchTooManyAlternativesException
     if (
         is_query_only_excluded_words(query)
         and person_id is None
@@ -55,5 +64,12 @@ def validate_can_search_reports(
         and is_text_available is None
     ):
         raise SearchFilterRequiredException
+    if get_search_query_group_count(query) > MAX_SEARCH_QUERY_GROUP_COUNT:
+        raise SearchTooManyAlternativesException
     if is_query_only_excluded_words(query):
         raise SearchExcludedWordsOnlyException
+
+
+def validate_can_get_report_matched_words(words: str) -> None:
+    if get_search_query_group_count(words) > MAX_SEARCH_QUERY_GROUP_COUNT:
+        raise SearchTooManyAlternativesException

@@ -20,6 +20,7 @@ from exceptions.search import (
     SearchExcludedWordsOnlyException,
     SearchFilterRequiredException,
     SearchTimedOutException,
+    SearchTooManyAlternativesException,
 )
 from exceptions.sitting import SittingNotFoundException
 from schemas.parliament import ParliamentData
@@ -46,7 +47,11 @@ from services import sitting as sitting_service
 from settings import settings
 from utils.search_query import is_query_only_excluded_words
 from utils.sitting_date import get_sitting_date_label
-from validators.search import validate_can_search_reports, validate_can_search_speeches
+from validators.search import (
+    MAX_SEARCH_QUERY_GROUP_COUNT,
+    validate_can_search_reports,
+    validate_can_search_speeches,
+)
 
 _NO_PAGE_TEXT = ""
 _NO_ROOT_ELEMENT = ""
@@ -142,6 +147,10 @@ _SEARCH_BUSY_NOTE = (
 _SEARCH_TIMED_OUT_NOTE = (
     "The search took too long. Choose a Parliament, report type or date range "
     "to narrow the search, then try again."
+)
+_SEARCH_TOO_MANY_ALTERNATIVES_NOTE = (
+    "Remove some alternatives joined by OR to bring this search within the "
+    f"limit of {MAX_SEARCH_QUERY_GROUP_COUNT} combinations."
 )
 _SEARCH_EXCLUDED_WORDS_ONLY_NOTE = (
     "A minus sign excludes a word. Add a word to search for, "
@@ -832,6 +841,8 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
         return _NO_PAGE_TEXT
     except SearchExcludedWordsOnlyException:
         return _get_search_note_html(title, _SEARCH_EXCLUDED_WORDS_ONLY_NOTE)
+    except SearchTooManyAlternativesException:
+        return _get_search_note_html(title, _SEARCH_TOO_MANY_ALTERNATIVES_NOTE)
     except SearchConstituencyNotFoundException:
         constituency = query_params.get(_CONSTITUENCY_PARAMETER, "").strip()
         return _get_search_note_html(

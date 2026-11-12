@@ -6,6 +6,7 @@ from sqlmodel import Session
 from database.engine import get_search_session, get_session
 from schemas.report import GetReportMatchedWordsResponse, GetReportResponse
 from services import report as report_service
+from validators.search import validate_can_get_report_matched_words
 
 _MAX_SPEECH_ANCHOR_LENGTH = 200
 _MAX_WORDS_LENGTH = 512
@@ -36,4 +37,5 @@ def get_report_matched_words(
     ),
     session: Session = Depends(get_search_session),
 ) -> GetReportMatchedWordsResponse:
+    validate_can_get_report_matched_words(words)
     return report_service.get_report_matched_words(report_slug, words, session)
