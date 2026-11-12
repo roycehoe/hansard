@@ -6,9 +6,12 @@ from sqlmodel import Session
 from crud.act import CRUDAct
 from crud.act_history_entry import CRUDActHistoryEntry
 from crud.bill_report_speaker import CRUDBillReportSpeaker
+from crud.bill_stage_line import CRUDBillStageLine
 from database.act import Act
 from database.bill_report_speaker import BillReportSpeaker
+from database.bill_stage_line import BillStageLine
 from database.person import Person
+from database.report import Report
 from enums import BillReportRole
 from exceptions.act import ActNotFoundException
 from middleware.bill import (
@@ -24,6 +27,7 @@ from middleware.takedown import get_taken_down_report_ids
 from schemas.act import (
     ActEntryBillData,
     ActEntryData,
+    ActEntryReportData,
     ActPersonBillData,
     ActPersonData,
     ActSummaryData,
@@ -32,6 +36,7 @@ from schemas.act import (
     GetAllActsResponse,
 )
 from utils.person_slug import get_person_slug
+from utils.report_slug import get_report_slug
 
 
 def _get_validated_act(sso_code: str, session: Session) -> Act:
@@ -50,8 +55,32 @@ def get_all_acts(session: Session) -> GetAllActsResponse:
     )
 
 
+def _get_act_entry_report_sort_key(
+    act_entry_report: ActEntryReportData,
+) -> tuple[str, str, str]:
+    return (
+        act_entry_report.sitting_date.isoformat(),
+        act_entry_report.report_type,
+        act_entry_report.report_slug,
+    )
+
+
+def _get_act_entry_report_data(
+    report: Report, stage_lines: list[BillStageLine]
+) -> ActEntryReportData:
+    return ActEntryReportData(
+        report_slug=get_report_slug(report.report_id),
+        title=report.title,
+        report_type=report.report_type,
+        sitting_date=report.sitting_date.date(),
+        stages=list(dict.fromkeys(stage_line.stage for stage_line in stage_lines)),
+    )
+
+
 def _get_entry_bill_data(
-    bill_id: Optional[int], bill_id_to_visible_bill: dict[int, VisibleBill]
+    bill_id: Optional[int],
+    bill_id_to_visible_bill: dict[int, VisibleBill],
+    sprs_report_id_to_stage_lines: dict[str, list[BillStageLine]],
 ) -> Optional[ActEntryBillData]:
     if bill_id is None:
         return None
@@ -65,20 +94,42 @@ def _get_entry_bill_data(
         last_sitting_date=visible_bill.bill.last_sitting_date.date(),
         is_passed=visible_bill.bill.is_passed,
         act_count=visible_bill.act_count,
+        reports=sorted(
+            [
+                _get_act_entry_report_data(
+                    report, sprs_report_id_to_stage_lines.get(report.report_id, [])
+                )
+                for report in visible_bill.reports
+            ],
+            key=_get_act_entry_report_sort_key,
+        ),
     )
 
 
 def get_act(sso_code: str, session: Session) -> GetActResponse:
     act = _get_validated_act(sso_code, session)
     entries = CRUDActHistoryEntry(session).get_all_by_act_id(act.id)
+    taken_down_report_ids = get_taken_down_report_ids(session)
     bill_id_to_visible_bill = get_bill_id_to_visible_bill(
         sorted({entry.bill_id for entry in entries if entry.bill_id is not None}),
-        get_taken_down_report_ids(session),
+        taken_down_report_ids,
         session,
     )
+    sprs_report_ids = sorted(get_sprs_report_id_to_bill_id(bill_id_to_visible_bill))
+    sprs_report_id_to_stage_lines: dict[str, list[BillStageLine]] = {}
+    for stage_line in CRUDBillStageLine(
+        session
+    ).get_all_by_sprs_report_ids_excluding_report_ids(
+        sprs_report_ids, taken_down_report_ids
+    ):
+        sprs_report_id_to_stage_lines.setdefault(stage_line.sprs_report_id, []).append(
+            stage_line
+        )
     entry_datas = []
     for entry in entries:
-        bill_data = _get_entry_bill_data(entry.bill_id, bill_id_to_visible_bill)
+        bill_data = _get_entry_bill_data(
+            entry.bill_id, bill_id_to_visible_bill, sprs_report_id_to_stage_lines
+        )
         entry_datas.append(
             ActEntryData(
                 ordinal=entry.ordinal,
