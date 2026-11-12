@@ -7,7 +7,7 @@ from enums import OfficeClass, ParticipantRole
 
 
 class ReportParticipant(SQLModel, table=True):
-    __tablename__ = "report_participant"
+    __tablename__ = "report_participant"  # type: ignore[assignment]
 
     id: int = Field(primary_key=True)
     ordinal: int
