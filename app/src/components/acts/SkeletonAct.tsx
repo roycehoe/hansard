@@ -10,7 +10,7 @@ export function SkeletonAct() {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-8 w-56" />
+          <Skeleton className="h-5 w-56" />
         </div>
         <Skeleton className="h-4 w-full max-w-prose" />
       </div>
