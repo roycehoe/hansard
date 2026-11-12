@@ -2,8 +2,8 @@ from datetime import date, datetime, time, timedelta
 from typing import Optional
 
 from sqlalchemy import ColumnElement, Date, Float, Select, func, literal, or_
-from sqlalchemy.orm import aliased
-from sqlmodel import Session, select
+from sqlalchemy.orm import aliased, defer
+from sqlmodel import Session, col, select
 
 from crud.location_name import get_folded_location_name
 from crud.text_search import (
@@ -19,7 +19,7 @@ from database.attendance import Attendance
 from database.report import Report
 from database.sitting import Sitting
 from database.speech import Speech
-from enums import ReportType, SearchSort
+from enums import ReportType, SearchSort, SpeechKind
 from utils.search_query import is_hyphenated_word_in_query, is_quoted_or_query
 
 _ONE_DAY = timedelta(days=1)
@@ -233,6 +233,19 @@ class CRUDSpeech:
     def get_all_by_report_id(self, report_id: int) -> list[Speech]:
         statement = (
             select(Speech).where(Speech.report_id == report_id).order_by(Speech.ordinal)
+        )
+        return list(self.session.exec(statement).all())
+
+    def get_all_by_report_ids_and_membership_ids_and_kind(
+        self, report_ids: list[int], membership_ids: list[int], kind: SpeechKind
+    ) -> list[Speech]:
+        statement = (
+            select(Speech)
+            .options(defer(col(Speech.transcript)))  # type: ignore[arg-type]
+            .where(col(Speech.report_id).in_(report_ids))
+            .where(col(Speech.speaker_id).in_(membership_ids))
+            .where(Speech.kind == kind)
+            .order_by(col(Speech.report_id), col(Speech.ordinal))
         )
         return list(self.session.exec(statement).all())
 
