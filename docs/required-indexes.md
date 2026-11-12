@@ -1429,6 +1429,65 @@ GroupAggregate  (cost=5888.78..6050.50 rows=48 width=12) (actual time=32.428..39
 Execution Time: 39.615 ms
 ```
 
+## Indexes of attached_file
+
+```sql
+CREATE INDEX ix_attached_file_sitting_id ON attached_file (sitting_id);
+CREATE UNIQUE INDEX attached_file_pkey ON attached_file (id);
+```
+
+Needed by `GET /sittings/{sitting_date}/attached-files` (unreleased), which lists every file a sitting lists by `sitting_id` (`ix_attached_file_sitting_id`; `uq_attached_file_sitting_id_kind_sprs_file_id` starts with the same column and also returns the rows in sort order, but the planner prefers the single-column index and a sort), and by `GET /reports/{report_slug}/attached-files`, which reads the files its pointers tie to by primary key.
+
+Rows in the copy: 2,893. Index sizes there: `ix_attached_file_sitting_id` 48 kB, `attached_file_pkey` 80 kB.
+
+```sql
+-- attached_files_by_sitting_id (GET /sittings/{sitting_date}/attached-files; sitting 6475, 34 rows)
+SELECT attached_file.id, attached_file.kind, attached_file.sprs_file_id, attached_file.printed_title, attached_file.file_name, attached_file.section_type, attached_file.download_value, attached_file.sitting_id FROM attached_file WHERE attached_file.sitting_id = 6475 ORDER BY attached_file.kind, attached_file.sprs_file_id;
+```
+
+```text
+-- attached_files_by_sitting_id (GET /sittings/{sitting_date}/attached-files), hansard_positions
+Sort  (cost=10.79..10.88 rows=34 width=159) (actual time=0.024..0.025 rows=34 loops=1)
+  ->  Index Scan using ix_attached_file_sitting_id on attached_file  (cost=0.28..9.93 rows=34 width=159) (actual time=0.007..0.014 rows=34 loops=1)
+        Index Cond: (sitting_id = 6475)
+Execution Time: 0.032 ms
+```
+
+```sql
+-- attached_files_by_ids (GET /reports/{report_slug}/attached-files; 3 rows)
+SELECT attached_file.id, attached_file.kind, attached_file.sprs_file_id, attached_file.printed_title, attached_file.file_name, attached_file.section_type, attached_file.download_value, attached_file.sitting_id FROM attached_file WHERE attached_file.id IN (1, 2, 3);
+```
+
+```text
+-- attached_files_by_ids (GET /reports/{report_slug}/attached-files), hansard_positions
+Index Scan using attached_file_pkey on attached_file  (cost=0.28..16.90 rows=3 width=159) (actual time=0.006..0.007 rows=3 loops=1)
+  Index Cond: (id = ANY ('{1,2,3}'::integer[]))
+Execution Time: 0.012 ms
+```
+
+## Indexes of attached_file_pointer
+
+```sql
+CREATE INDEX ix_attached_file_pointer_sprs_report_id ON attached_file_pointer (sprs_report_id);
+```
+
+Needed by both attached-file endpoints, which read the pointers of a report or of a sitting's reports by `sprs_report_id` and sort on `sprs_report_id` and `ordinal` (`ix_attached_file_pointer_sprs_report_id`; the unique index on `sprs_report_id` and `ordinal` could serve the sort, and the planner prefers the smaller single-column index and a sort over at most 30 rows). `ix_attached_file_pointer_attached_file_id` is read by the scraper's file-to-pointer tie, not by the API.
+
+Rows in the copy: 4,608. Index sizes there: `ix_attached_file_pointer_sprs_report_id` 200 kB.
+
+```sql
+-- attached_file_pointers_by_sprs_report_ids (GET /reports/{report_slug}/attached-files; report budget-1898#, 30 rows)
+SELECT attached_file_pointer.id, attached_file_pointer.ordinal, attached_file_pointer.printed_text, attached_file_pointer.download_value, attached_file_pointer.speech_ordinal, attached_file_pointer.sprs_report_id, attached_file_pointer.attached_file_id FROM attached_file_pointer WHERE attached_file_pointer.sprs_report_id IN ('budget-1898#') ORDER BY attached_file_pointer.sprs_report_id, attached_file_pointer.ordinal;
+```
+
+```text
+-- attached_file_pointers_by_sprs_report_ids (GET /reports/{report_slug}/attached-files), hansard_positions
+Sort  (cost=53.83..53.91 rows=30 width=132) (actual time=0.022..0.024 rows=30 loops=1)
+  ->  Index Scan using ix_attached_file_pointer_sprs_report_id on attached_file_pointer  (cost=0.28..53.10 rows=30 width=132) (actual time=0.010..0.015 rows=30 loops=1)
+        Index Cond: ((sprs_report_id)::text = 'budget-1898#'::text)
+Execution Time: 0.033 ms
+```
+
 ## Ranking cost
 
 Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
