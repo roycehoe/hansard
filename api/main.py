@@ -16,6 +16,7 @@ from routers import (
     report_link,
     search,
     search_count,
+    seat,
     sitting,
 )
 from settings import settings
@@ -49,6 +50,7 @@ app.include_router(sitting.router)
 app.include_router(parliament.router)
 app.include_router(person.router)
 app.include_router(leave_period.router)
+app.include_router(seat.router)
 app.include_router(party.router)
 app.include_router(search.router)
 app.include_router(coverage.router)

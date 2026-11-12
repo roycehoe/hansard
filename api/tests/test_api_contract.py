@@ -34,6 +34,7 @@ _PERSON_LEAVE_PERIODS_INTERFACES_FILE = "src/api/people/getPersonLeavePeriods.ts
 _LATEST_SITTING_LEAVE_PERIODS_INTERFACES_FILE = (
     "src/api/leave/getLatestSittingLeavePeriods.ts"
 )
+_SEAT_HISTORY_INTERFACES_FILE = "src/api/seats/getSeatHistory.ts"
 _PEOPLE_TYPES_FILE = "src/types/people/interfaces.ts"
 
 _SCHEMA_NAME_AND_INTERFACE_KEY = (
@@ -90,6 +91,11 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
         "LatestSittingLeaveData",
         f"{_LATEST_SITTING_LEAVE_PERIODS_INTERFACES_FILE}::LatestSittingLeaveData",
     ),
+    (
+        "GetSeatHistoryResponse",
+        f"{_SEAT_HISTORY_INTERFACES_FILE}::GetSeatHistoryResponse",
+    ),
+    ("SeatHolderData", f"{_SEAT_HISTORY_INTERFACES_FILE}::SeatHolderData"),
     ("PartyAffiliationData", f"{_PEOPLE_TYPES_FILE}::PartyAffiliationData"),
     ("PersonNameSpellingData", f"{_PEOPLE_TYPES_FILE}::PersonNameSpellingData"),
     (
