@@ -21,6 +21,16 @@ The table grants cover every table the API declares a model for (`api/database/`
 
 The role gets no grant on the raw tables `hansardwebsiteresponse` and `hansardsittingdateresponse`, and no `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE` or `CREATE` anywhere. A table the scraper adds later is not readable until it gets its own `GRANT SELECT`.
 
+## When report links ship
+
+`report_link` is not in the grant above. It exists only after the scraper's migration `e7b2c4d9f1a6` has run on the remote database, so run this once that migration is in place and not before. The API's `ReportLink` model reads five columns and leaves out `rule`, so the grant names them:
+
+```sql
+GRANT SELECT (id, link_type, printed_citation, source_report_id, target_report_id) ON report_link TO hansard_api;
+```
+
+The scraper's refresh role needs its own grants on the same table; they are under "Write role SQL" in the scraper's `docs/refresh.md`. Check the grant as `hansard_api`: `SELECT id, link_type FROM report_link LIMIT 1;` returns a row, and `SELECT rule FROM report_link LIMIT 1;` fails with "permission denied for table report_link".
+
 ## Check the role
 
 Connect as `hansard_api` and run:
