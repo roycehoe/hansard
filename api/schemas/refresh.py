@@ -11,6 +11,9 @@ class RefreshRunGroupData(BaseModel):
     row_count: int
     linked_character_count: int
     body_character_count: int
+    # NOTE: figures stored before the scraper counted credited rows have neither key
+    credited_row_count: Optional[int] = None
+    credited_character_count: Optional[int] = None
 
 
 class RefreshRunFiguresData(BaseModel):

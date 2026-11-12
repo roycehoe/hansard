@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 
 import pytest
 
@@ -12,8 +13,10 @@ def _get_stored_group(
     row_count: int = 200,
     linked_character_count: int = 300,
     body_character_count: int = 400,
+    credited_row_count: Optional[int] = None,
+    credited_character_count: Optional[int] = None,
 ) -> dict[str, object]:
-    return {
+    stored_group: dict[str, object] = {
         "group": group,
         "linked_row_count": linked_row_count,
         "named_unlinked_row_count": named_unlinked_row_count,
@@ -21,6 +24,11 @@ def _get_stored_group(
         "linked_character_count": linked_character_count,
         "body_character_count": body_character_count,
     }
+    if credited_row_count is not None:
+        stored_group["credited_row_count"] = credited_row_count
+    if credited_character_count is not None:
+        stored_group["credited_character_count"] = credited_character_count
+    return stored_group
 
 
 def _get_figures(*groups: dict[str, object]) -> dict[str, object]:
@@ -55,6 +63,37 @@ def test_shares_and_counts_follow_the_formulas() -> None:
     assert group.named_linked_share == pytest.approx(0.9)
     assert group.all_linked_share == pytest.approx(0.45)
     assert group.text_share == pytest.approx(0.75)
+
+
+def test_credited_rows_count_in_the_all_rows_rate_and_text_share_only() -> None:
+    data = coverage_service._get_attribution_data(
+        _get_figures(
+            _get_stored_group(
+                "Parliament 12",
+                credited_row_count=20,
+                credited_character_count=50,
+            )
+        )
+    )
+
+    assert data is not None
+    group = data.groups[0]
+    assert group.linked_row_count == 90
+    assert group.speaker_label_row_count == 100
+    assert group.named_linked_share == pytest.approx(0.9)
+    assert group.all_linked_share == pytest.approx(0.55)
+    assert group.text_share == pytest.approx(0.875)
+
+
+def test_figures_stored_before_credited_rows_give_the_linked_only_numbers() -> None:
+    stored_group = _get_stored_group("Parliament 12")
+    assert "credited_row_count" not in stored_group
+
+    data = coverage_service._get_attribution_data(_get_figures(stored_group))
+
+    assert data is not None
+    assert data.groups[0].all_linked_share == pytest.approx(0.45)
+    assert data.groups[0].text_share == pytest.approx(0.75)
 
 
 @pytest.mark.parametrize(

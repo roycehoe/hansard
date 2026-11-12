@@ -42,6 +42,12 @@ def _get_measured_on(measured_at: datetime) -> date:
     return get_singapore_date(measured_at)
 
 
+def _get_attributed_count(linked_count: int, credited_count: Optional[int]) -> int:
+    if credited_count is None:
+        return linked_count
+    return linked_count + credited_count
+
+
 def _get_group_data(
     stored_group: RefreshRunGroupData,
 ) -> Optional[ParliamentGroupFiguresData]:
@@ -51,6 +57,12 @@ def _get_group_data(
     speaker_label_row_count = (
         stored_group.linked_row_count + stored_group.named_unlinked_row_count
     )
+    attributed_row_count = _get_attributed_count(
+        stored_group.linked_row_count, stored_group.credited_row_count
+    )
+    attributed_character_count = _get_attributed_count(
+        stored_group.linked_character_count, stored_group.credited_character_count
+    )
     try:
         return ParliamentGroupFiguresData(
             first_parliament_number=first_parliament_number,
@@ -59,9 +71,8 @@ def _get_group_data(
             speaker_label_row_count=speaker_label_row_count,
             row_count=stored_group.row_count,
             named_linked_share=stored_group.linked_row_count / speaker_label_row_count,
-            all_linked_share=stored_group.linked_row_count / stored_group.row_count,
-            text_share=stored_group.linked_character_count
-            / stored_group.body_character_count,
+            all_linked_share=attributed_row_count / stored_group.row_count,
+            text_share=attributed_character_count / stored_group.body_character_count,
         )
     except ZeroDivisionError:
         return None
