@@ -1,5 +1,5 @@
 from sqlalchemy import func
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from database.office_title_ministry import OfficeTitleMinistry
 from database.report_participant import ReportParticipant
@@ -17,7 +17,7 @@ class CRUDReportParticipant:
             select(ReportParticipant)
             .where(ReportParticipant.report_id == report_id)
             .where(ReportParticipant.role == role)
-            .order_by(ReportParticipant.ordinal)
+            .order_by(col(ReportParticipant.ordinal))
         )
         return list(self.session.exec(statement).all())
 
@@ -26,9 +26,9 @@ class CRUDReportParticipant:
     ) -> list[ReportParticipant]:
         statement = (
             select(ReportParticipant)
-            .where(ReportParticipant.report_id.in_(report_ids))
+            .where(col(ReportParticipant.report_id).in_(report_ids))
             .where(ReportParticipant.role == role)
-            .order_by(ReportParticipant.report_id, ReportParticipant.ordinal)
+            .order_by(col(ReportParticipant.report_id), col(ReportParticipant.ordinal))
         )
         return list(self.session.exec(statement).all())
 
@@ -37,17 +37,18 @@ class CRUDReportParticipant:
     ) -> dict[int, int]:
         statement = (
             select(
-                OfficeTitleMinistry.ministry_id,
+                col(OfficeTitleMinistry.ministry_id),
                 func.count(func.distinct(ReportParticipant.report_id)),
             )
             .select_from(ReportParticipant)
             .join(
                 OfficeTitleMinistry,
-                OfficeTitleMinistry.office_printed == ReportParticipant.office_printed,
+                col(OfficeTitleMinistry.office_printed)
+                == col(ReportParticipant.office_printed),
             )
             .where(ReportParticipant.role == role)
-            .where(ReportParticipant.report_id.not_in(excluded_report_ids))
-            .group_by(OfficeTitleMinistry.ministry_id)
+            .where(col(ReportParticipant.report_id).not_in(excluded_report_ids))
+            .group_by(col(OfficeTitleMinistry.ministry_id))
         )
         rows = self.session.exec(statement).all()
         return {ministry_id: report_count for ministry_id, report_count in rows}

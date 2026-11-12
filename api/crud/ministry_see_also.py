@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from database.ministry_see_also import MinistrySeeAlso
 
@@ -11,6 +11,6 @@ class CRUDMinistrySeeAlso:
         statement = (
             select(MinistrySeeAlso)
             .where(MinistrySeeAlso.ministry_id == ministry_id)
-            .order_by(MinistrySeeAlso.see_also_ministry_id)
+            .order_by(col(MinistrySeeAlso.see_also_ministry_id))
         )
         return list(self.session.exec(statement).all())
