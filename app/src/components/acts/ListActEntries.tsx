@@ -62,7 +62,10 @@ export function ListActEntries({ entries }: ListActEntriesProps) {
                     </span>
                   )}
                 </div>
-                <ListActEntryReports reports={entry.bill.reports} />
+                <ListActEntryReports
+                  billTitle={entry.bill.title}
+                  reports={entry.bill.reports}
+                />
               </div>
             )}
           </li>
