@@ -10,6 +10,7 @@ from routers import (
     coverage,
     health,
     leave_period,
+    office,
     parliament,
     party,
     person,
@@ -62,3 +63,4 @@ app.include_router(search_count.router)
 app.include_router(person_bill.router)
 app.include_router(bill.router)
 app.include_router(act.router)
+app.include_router(office.router)
