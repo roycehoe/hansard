@@ -93,6 +93,17 @@ class GetMembershipPrintedRangesResponse(BaseModel):
     ranges: list[PrintedRangeData]
 
 
+class PersonPrintedRangesMembershipData(BaseModel):
+    membership_id: int
+    parliament_number: int
+    ranges: list[PrintedRangeData]
+
+
+class GetPersonPrintedRangesResponse(BaseModel):
+    person_id: int
+    memberships: list[PersonPrintedRangesMembershipData]
+
+
 class GetReportOfficesResponse(BaseModel):
     put_to: list[PutToData]
     answered_by: list[AnsweredByData]
