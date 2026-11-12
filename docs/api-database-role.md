@@ -61,6 +61,16 @@ GRANT SELECT ON attendance_office, office_printed_range, report_put_to, ministry
 
 `report_participant` is not read by anything else in the API today. Confirm each name on the remote with `\d <table>` first.
 
+## Attached files
+
+The attached file endpoints read two tables the scraper adds in migration `81ba3804b972` (re-parented when it lands). Run this once the migration has been applied and before `IS_UNRELEASED_ENDPOINTS_ENABLED` is switched on. Without the grant, the role cannot read the tables, so a request to either endpoint fails while the setting is on.
+
+```sql
+GRANT SELECT ON attached_file, attached_file_pointer TO hansard_api;
+```
+
+Check it as `hansard_api` with `SELECT count(*) FROM attached_file_pointer;`.
+
 ## Check the role
 
 Connect as `hansard_api` and run:
