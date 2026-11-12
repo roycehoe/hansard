@@ -182,6 +182,7 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("GetActResponse", f"{_ACT_INTERFACES_FILE}::GetActResponse"),
     ("ActEntryData", f"{_ACT_INTERFACES_FILE}::ActEntryData"),
     ("ActEntryBillData", f"{_ACT_INTERFACES_FILE}::ActEntryBillData"),
+    ("ActEntryReportData", f"{_ACT_INTERFACES_FILE}::ActEntryReportData"),
     (
         "GetActPeopleResponse",
         f"{_ACT_PEOPLE_INTERFACES_FILE}::GetActPeopleResponse",

@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from enums import ActHistoryEntryKind, BillLinkSource
+from enums import ActHistoryEntryKind, BillLinkSource, BillStage
 
 
 class ActSummaryData(BaseModel):
@@ -15,6 +15,14 @@ class GetAllActsResponse(BaseModel):
     acts: list[ActSummaryData]
 
 
+class ActEntryReportData(BaseModel):
+    report_slug: str
+    title: str
+    report_type: str
+    sitting_date: date
+    stages: list[BillStage]
+
+
 class ActEntryBillData(BaseModel):
     bill_key: str
     title: str
@@ -22,6 +30,7 @@ class ActEntryBillData(BaseModel):
     last_sitting_date: date
     is_passed: bool
     act_count: int
+    reports: list[ActEntryReportData]
 
 
 class ActEntryData(BaseModel):

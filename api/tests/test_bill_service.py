@@ -370,6 +370,7 @@ class _World:
             act_service, "CRUDBillReportSpeaker", _FakeBillReportSpeaker
         )
         monkeypatch.setattr(bill_service, "CRUDBillStageLine", _FakeBillStageLine)
+        monkeypatch.setattr(act_service, "CRUDBillStageLine", _FakeBillStageLine)
         monkeypatch.setattr(bill_service, "CRUDActHistoryEntry", _FakeActHistoryEntry)
         monkeypatch.setattr(act_service, "CRUDActHistoryEntry", _FakeActHistoryEntry)
         monkeypatch.setattr(bill_service, "CRUDAct", _FakeAct)

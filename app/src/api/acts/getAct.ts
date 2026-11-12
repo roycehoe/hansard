@@ -1,7 +1,17 @@
 import type {
   ActHistoryEntryKind,
   BillLinkSource,
+  BillStage,
 } from '@/constants/bills/enums'
+import type { ReportType } from '@/constants/reports/enums'
+
+export interface ActEntryReportData {
+  report_slug: string
+  title: string
+  report_type: ReportType
+  sitting_date: string
+  stages: BillStage[]
+}
 
 export interface ActEntryBillData {
   bill_key: string
@@ -10,6 +20,7 @@ export interface ActEntryBillData {
   last_sitting_date: string
   is_passed: boolean
   act_count: number
+  reports: ActEntryReportData[]
 }
 
 export interface ActEntryData {
