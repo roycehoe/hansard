@@ -1,7 +1,14 @@
 import pytest
 from sqlmodel import Session, SQLModel, select
 
+from database.act import Act
+from database.act_history_entry import ActHistoryEntry
 from database.attendance import Attendance
+from database.bill import Bill
+from database.bill_key import BillKey
+from database.bill_report import BillReport
+from database.bill_report_speaker import BillReportSpeaker
+from database.bill_stage_line import BillStageLine
 from database.engine import engine
 from database.leave_period import LeavePeriod
 from database.leave_period_printing import LeavePeriodPrinting
@@ -23,7 +30,14 @@ pytestmark = [pytest.mark.database, pytest.mark.schema_drift]
 @pytest.mark.parametrize(
     "model",
     [
+        Act,
+        ActHistoryEntry,
         Attendance,
+        Bill,
+        BillKey,
+        BillReport,
+        BillReportSpeaker,
+        BillStageLine,
         LeavePeriod,
         LeavePeriodPrinting,
         PartyAffiliation,
