@@ -33,6 +33,10 @@ _STRUCTURED_DATA_SCRIPT_END = "</script>"
 _SCRIPT_TAG_OPENER = "<"
 _ESCAPED_SCRIPT_TAG_OPENER = "\\u003c"
 _NO_PRELOAD = ""
+_NO_ROBOTS = ""
+_NOINDEX_ROBOTS_TAG = '<meta name="robots" content="noindex" />'
+_ACTS_PATH = "/acts"
+_ACTS_PATH_PREFIX = "/acts/"
 _REPORT_PAGE_PATH = re.compile(r"^/reports/([^/]+)$")
 # NOTE: the site serves the API under /api (website.py), and the Dockerfile builds the frontend with VITE_API_URL=/api, so this is the base that app/src/api/client.ts puts in front of every path
 _API_PATH_PREFIX = "/api"
@@ -139,6 +143,13 @@ def get_report_data_preload_html(page_path: str) -> str:
     return f'<link rel="preload" href="{escape(href)}" as="fetch" crossorigin="anonymous" />'
 
 
+# NOTE: chosen by the address and not by the preview, so the tag stays when the preview's database read fails
+def get_noindex_robots_html(page_path: str) -> str:
+    if page_path == _ACTS_PATH or page_path.startswith(_ACTS_PATH_PREFIX):
+        return _NOINDEX_ROBOTS_TAG
+    return _NO_ROBOTS
+
+
 def get_preview_tags_html(
     title: str,
     description: str,
@@ -146,6 +157,7 @@ def get_preview_tags_html(
     url: Optional[str],
     structured_data_html: str,
     report_data_preload_html: str,
+    noindex_robots_html: str,
 ) -> str:
     tags = [
         f"<title>{escape(_get_page_title(title))}</title>",
@@ -170,7 +182,10 @@ def get_preview_tags_html(
     preload_tags = (
         [] if report_data_preload_html == _NO_PRELOAD else [report_data_preload_html]
     )
-    return _TAG_SEPARATOR.join([*tags, *url_tags, *structured_data_tags, *preload_tags])
+    robots_tags = [] if noindex_robots_html == _NO_ROBOTS else [noindex_robots_html]
+    return _TAG_SEPARATOR.join(
+        [*tags, *url_tags, *structured_data_tags, *preload_tags, *robots_tags]
+    )
 
 
 def get_index_html_with_preview_tags(index_html: str, preview_tags_html: str) -> str:

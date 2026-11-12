@@ -7,7 +7,7 @@ _HOME_TITLE = "Open Hansard: search Singapore Parliament debates since 1955"
 
 
 def _get_title_tag(title: str) -> str:
-    return get_preview_tags_html(title, "", "website", None, "", "").split("\n")[0]
+    return get_preview_tags_html(title, "", "website", None, "", "", "").split("\n")[0]
 
 
 def test_the_home_page_gets_its_search_title() -> None:

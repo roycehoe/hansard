@@ -19,6 +19,7 @@ from services import preview_fetch as preview_fetch_service
 from utils.preview_bot import get_preview_bot_name
 from utils.preview_tags import (
     get_index_html_with_preview_tags,
+    get_noindex_robots_html,
     get_preview_tags_html,
     get_report_data_preload_html,
     get_structured_data_html,
@@ -108,7 +109,9 @@ class FrontendFiles(StaticFiles):
             preview.person_name,
         )
 
-    def _get_preview_tags_html(self, preview: PreviewData, preload_html: str) -> str:
+    def _get_preview_tags_html(
+        self, preview: PreviewData, preload_html: str, noindex_robots_html: str
+    ) -> str:
         return get_preview_tags_html(
             preview.title,
             preview.description,
@@ -116,6 +119,7 @@ class FrontendFiles(StaticFiles):
             _get_preview_url(self.site_url, preview.path),
             self._get_structured_data_html(preview),
             preload_html,
+            noindex_robots_html,
         )
 
     async def _get_index_response(self, scope: Scope) -> HTMLResponse:
@@ -142,7 +146,9 @@ class FrontendFiles(StaticFiles):
                 get_index_html_with_preview_tags(
                     self.index_html,
                     self._get_preview_tags_html(
-                        preview, _get_page_preload_html(scope, preview)
+                        preview,
+                        _get_page_preload_html(scope, preview),
+                        get_noindex_robots_html(scope[_PATH_KEY]),
                     ),
                 ),
                 page_text_html,
