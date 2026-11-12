@@ -3,6 +3,8 @@ from sqlmodel import Session, SQLModel, select
 
 from database.act import Act
 from database.act_history_entry import ActHistoryEntry
+from database.attached_file import AttachedFile
+from database.attached_file_pointer import AttachedFilePointer
 from database.attendance import Attendance
 from database.attendance_office import AttendanceOffice
 from database.bill import Bill
@@ -39,6 +41,8 @@ pytestmark = [pytest.mark.database, pytest.mark.schema_drift]
     [
         Act,
         ActHistoryEntry,
+        AttachedFile,
+        AttachedFilePointer,
         Attendance,
         AttendanceOffice,
         Bill,
