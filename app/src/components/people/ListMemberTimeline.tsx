@@ -2,7 +2,10 @@ import {
   DEFINED_TERM_CLASS_NAME,
   PopoverDefinition,
 } from '@/components/layout/PopoverDefinition'
-import { OFFICE_DATES_DEFINITION } from '@/constants/people/constants'
+import {
+  MEMBERSHIP_CONTINUED_NOTE,
+  OFFICE_DATES_DEFINITION,
+} from '@/constants/people/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import type { MemberTimelineGroup } from '@/lib/memberTimeline'
 import {
@@ -38,6 +41,9 @@ export function ListMemberTimeline({ groups }: ListMemberTimelineProps) {
           <h3 className="font-serif text-lg lg:text-xl">
             {formatParliament(group.parliamentNumber)}
           </h3>
+          {group.isContinuedIntoParliament1 && (
+            <p className={PART_LABEL_CLASS_NAME}>{MEMBERSHIP_CONTINUED_NOTE}</p>
+          )}
           {group.printedRanges.length > 0 && (
             <div>
               <PopoverDefinition definition={OFFICE_DATES_DEFINITION}>

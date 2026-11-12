@@ -96,6 +96,7 @@ class GetMembershipPrintedRangesResponse(BaseModel):
 class PersonPrintedRangesMembershipData(BaseModel):
     membership_id: int
     parliament_number: int
+    is_continued_into_parliament_1: bool
     ranges: list[PrintedRangeData]
 
 

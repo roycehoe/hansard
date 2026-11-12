@@ -1113,7 +1113,22 @@ CREATE UNIQUE INDEX attendance_office_pkey ON attendance_office (id);
 
 Rows in the copy (planner estimate): 55,391. Index sizes there: `attendance_office_pkey` 2440 kB.
 
-Needed by `GET /offices/memberships/{membership_id}/printed-ranges` (unreleased), which reads the first and last attendance line of each printed range by primary key. `uq_attendance_office_attendance_id` is the scraper's key to `attendance` and no API statement reads it.
+Needed by `GET /offices/memberships/{membership_id}/printed-ranges` (unreleased), which reads the first and last attendance line of each printed range by primary key. `GET /people/{person_id}/printed-ranges` (unreleased) also reads the attendance lines of a Parliament 1 range that starts before 8 December 1965, to split it at that date. That read reaches `attendance_office` through `uq_attendance_office_attendance_id`, the scraper's key to `attendance`, and `attendance` through `uq_attendance_sitting_id_speaker_id`. It scans `sitting` (1,758 rows) because the sitting date is stored as text, and no index covers `to_date`. It runs once for each such range, and for a Member there are at most a few.
+
+```sql
+-- attendance_offices_of_a_range (GET /people/{person_id}/printed-ranges; the longest range, 186 rows)
+SELECT to_date(sitting.sitting_date, 'DD-MM-YYYY'), attendance_office.* FROM attendance_office JOIN attendance ON attendance.id = attendance_office.attendance_id JOIN sitting ON sitting.id = attendance.sitting_id WHERE attendance.speaker_id = 30 AND attendance_office.office_printed = 'Prime Minister' AND to_date(sitting.sitting_date, 'DD-MM-YYYY') >= '1959-07-01' AND to_date(sitting.sitting_date, 'DD-MM-YYYY') <= '1965-12-31';
+```
+
+```text
+-- attendance_offices_of_a_range (GET /people/{person_id}/printed-ranges), hansard_positions
+Nested Loop  (cost=0.71..228.74 rows=1 width=168) (actual time=0.161..4.369 rows=186 loops=1)
+  ->  Nested Loop  (cost=0.42..215.17 rows=2 width=13) (actual time=0.144..2.848 rows=186 loops=1)
+        ->  Seq Scan on sitting  (cost=0.00..139.16 rows=9 width=13) (actual time=0.121..1.352 rows=187 loops=1)
+        ->  Index Scan using uq_attendance_sitting_id_speaker_id on attendance  (actual time=0.007..0.007 rows=1 loops=187)
+  ->  Index Scan using uq_attendance_office_attendance_id on attendance_office  (actual time=0.007..0.007 rows=1 loops=186)
+Execution Time: 4.486 ms
+```
 
 ```sql
 -- attendance_offices_by_ids (GET /offices/memberships/{membership_id}/printed-ranges; 2 rows)

@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import date
+from typing import Optional
 
 from sqlmodel import Session
 
@@ -51,6 +52,10 @@ from schemas.office import (
     PutToData,
 )
 from utils.report_slug import get_report_id_candidates, get_report_slug
+
+_LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
+_FIRST_PARLIAMENT_NUMBER = 1
+_FIRST_PARLIAMENT_FIRST_SITTING_DATE = date(1965, 12, 8)
 
 
 def _get_validated_report(report_slug: str, session: Session) -> Report:
@@ -196,10 +201,10 @@ def _get_ministry_report_count(
 
 
 def _get_print_evidence_data(
-    sitting_date: datetime, attendance_office: AttendanceOffice
+    sitting_date: date, attendance_office: AttendanceOffice
 ) -> PrintEvidenceData:
     return PrintEvidenceData(
-        sitting_date=sitting_date.date(),
+        sitting_date=sitting_date,
         entry_line_printed=attendance_office.entry_line_printed,
         source=attendance_office.source,
         extracted_at=attendance_office.extracted_at,
@@ -233,13 +238,13 @@ def _get_printed_range_data(
         office_class=printed_range.office_class,
         sitting_count=printed_range.sitting_count,
         first_print=_get_print_evidence_data(
-            printed_range.first_sitting_date,
+            printed_range.first_sitting_date.date(),
             attendance_office_id_to_attendance_office[
                 printed_range.first_attendance_office_id
             ],
         ),
         last_print=_get_print_evidence_data(
-            printed_range.last_sitting_date,
+            printed_range.last_sitting_date.date(),
             attendance_office_id_to_attendance_office[
                 printed_range.last_attendance_office_id
             ],
@@ -402,6 +407,111 @@ def get_membership_printed_ranges(
     )
 
 
+def _get_assembly_printed_range_data(
+    printed_range_data: PrintedRangeData,
+    sitting_date_to_attendance_office: dict[date, AttendanceOffice],
+) -> PrintedRangeData:
+    sitting_dates = sorted(
+        sitting_date
+        for sitting_date in sitting_date_to_attendance_office
+        if sitting_date < _FIRST_PARLIAMENT_FIRST_SITTING_DATE
+    )
+    return PrintedRangeData(
+        office_printed=printed_range_data.office_printed,
+        office_class=printed_range_data.office_class,
+        sitting_count=len(sitting_dates),
+        first_print=printed_range_data.first_print,
+        last_print=_get_print_evidence_data(
+            sitting_dates[-1], sitting_date_to_attendance_office[sitting_dates[-1]]
+        ),
+    )
+
+
+def _get_first_parliament_printed_range_data(
+    printed_range_data: PrintedRangeData,
+    sitting_date_to_attendance_office: dict[date, AttendanceOffice],
+) -> Optional[PrintedRangeData]:
+    sitting_dates = sorted(
+        sitting_date
+        for sitting_date in sitting_date_to_attendance_office
+        if sitting_date >= _FIRST_PARLIAMENT_FIRST_SITTING_DATE
+    )
+    if not sitting_dates:
+        return None
+    return PrintedRangeData(
+        office_printed=printed_range_data.office_printed,
+        office_class=printed_range_data.office_class,
+        sitting_count=len(sitting_dates),
+        first_print=_get_print_evidence_data(
+            sitting_dates[0], sitting_date_to_attendance_office[sitting_dates[0]]
+        ),
+        last_print=printed_range_data.last_print,
+    )
+
+
+def _get_person_printed_ranges_membership_datas(
+    membership: Speaker,
+    printed_range_datas: list[PrintedRangeData],
+    session: Session,
+) -> list[PersonPrintedRangesMembershipData]:
+    if membership.parliament_number != _FIRST_PARLIAMENT_NUMBER:
+        return [
+            PersonPrintedRangesMembershipData(
+                membership_id=membership.id,
+                parliament_number=membership.parliament_number,
+                is_continued_into_parliament_1=False,
+                ranges=printed_range_datas,
+            )
+        ]
+    assembly_printed_range_datas = []
+    first_parliament_printed_range_datas = []
+    for printed_range_data in printed_range_datas:
+        if (
+            printed_range_data.first_print.sitting_date
+            >= _FIRST_PARLIAMENT_FIRST_SITTING_DATE
+        ):
+            first_parliament_printed_range_datas.append(printed_range_data)
+            continue
+        sitting_date_to_attendance_office = CRUDAttendanceOffice(
+            session
+        ).get_sitting_date_to_attendance_office_by_membership_id_and_office_printed_and_sitting_date_from_and_sitting_date_to(
+            membership.id,
+            printed_range_data.office_printed,
+            printed_range_data.first_print.sitting_date,
+            printed_range_data.last_print.sitting_date,
+        )
+        assembly_printed_range_datas.append(
+            _get_assembly_printed_range_data(
+                printed_range_data, sitting_date_to_attendance_office
+            )
+        )
+        first_parliament_printed_range_data = _get_first_parliament_printed_range_data(
+            printed_range_data, sitting_date_to_attendance_office
+        )
+        if first_parliament_printed_range_data is not None:
+            first_parliament_printed_range_datas.append(
+                first_parliament_printed_range_data
+            )
+    membership_datas = [
+        PersonPrintedRangesMembershipData(
+            membership_id=membership.id,
+            parliament_number=membership.parliament_number,
+            is_continued_into_parliament_1=False,
+            ranges=first_parliament_printed_range_datas,
+        )
+    ]
+    if assembly_printed_range_datas:
+        membership_datas.append(
+            PersonPrintedRangesMembershipData(
+                membership_id=membership.id,
+                parliament_number=_LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+                is_continued_into_parliament_1=True,
+                ranges=assembly_printed_range_datas,
+            )
+        )
+    return membership_datas
+
+
 def get_person_printed_ranges(
     person_id: int, session: Session
 ) -> GetPersonPrintedRangesResponse:
@@ -421,10 +531,11 @@ def get_person_printed_ranges(
     return GetPersonPrintedRangesResponse(
         person_id=person.id,
         memberships=[
-            PersonPrintedRangesMembershipData(
-                membership_id=membership.id,
-                parliament_number=membership.parliament_number,
-                ranges=[
+            membership_data
+            for membership in memberships
+            for membership_data in _get_person_printed_ranges_membership_datas(
+                membership,
+                [
                     _get_printed_range_data(
                         printed_range, attendance_office_id_to_attendance_office
                     )
@@ -432,8 +543,8 @@ def get_person_printed_ranges(
                         membership.id, []
                     )
                 ],
+                session,
             )
-            for membership in memberships
         ],
     )
 

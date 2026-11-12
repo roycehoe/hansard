@@ -43,11 +43,13 @@ function buildPrintedRange(
 
 function buildMembership(
   parliamentNumber: number,
-  ranges: PrintedRangeData[]
+  ranges: PrintedRangeData[],
+  isContinuedIntoParliament1 = false
 ): PersonPrintedRangesMembershipData {
   return {
     membership_id: parliamentNumber + 1000,
     parliament_number: parliamentNumber,
+    is_continued_into_parliament_1: isContinuedIntoParliament1,
     ranges,
   }
 }
@@ -124,6 +126,7 @@ describe('buildMemberTimelineGroups', () => {
     expect(groups).toEqual([
       {
         parliamentNumber: 10,
+        isContinuedIntoParliament1: false,
         printedRanges: [DEPUTY_PRIME_MINISTER_RANGE, PRIME_MINISTER_RANGE],
         bills: [],
       },
@@ -163,6 +166,70 @@ describe('buildMemberTimelineGroups', () => {
     ])
   })
 
+  it("heads Lee Kuan Yew's Assembly years Legislative Assembly and marks the continued Membership", () => {
+    const assemblyRange = buildPrintedRange(
+      'Prime Minister',
+      '1959-07-01',
+      '1963-10-22',
+      148
+    )
+    const firstParliamentRange = buildPrintedRange(
+      'Prime Minister',
+      '1965-12-08',
+      '1968-01-24',
+      52
+    )
+
+    const groups = buildMemberTimelineGroups(
+      [
+        buildMembership(1, [firstParliamentRange]),
+        buildMembership(0, [assemblyRange], true),
+      ],
+      []
+    )
+
+    expect(groups).toEqual([
+      {
+        parliamentNumber: 0,
+        isContinuedIntoParliament1: true,
+        printedRanges: [assemblyRange],
+        bills: [],
+      },
+      {
+        parliamentNumber: 1,
+        isContinuedIntoParliament1: false,
+        printedRanges: [firstParliamentRange],
+        bills: [],
+      },
+    ])
+  })
+
+  it("puts Barker's Assembly Bill with his Assembly office part", () => {
+    const assemblyRange = buildPrintedRange(
+      'Minister for Law',
+      '1964-11-02',
+      '1965-06-16',
+      10
+    )
+    const assemblyBill = buildBill('assembly', [
+      buildBillReport('a', '1964-03-04', 0),
+    ])
+
+    const groups = buildMemberTimelineGroups(
+      [buildMembership(0, [assemblyRange], true), buildMembership(1, [])],
+      [assemblyBill]
+    )
+
+    expect(groups).toEqual([
+      {
+        parliamentNumber: 0,
+        isContinuedIntoParliament1: true,
+        printedRanges: [assemblyRange],
+        bills: [{ bill: assemblyBill, firstReport: assemblyBill.reports[0] }],
+      },
+    ])
+  })
+
   it('keeps a Parliament that has Bills and no printed office', () => {
     const bill = buildBill('budget', [buildBillReport('a', '1992-03-10', 8)])
 
@@ -171,6 +238,7 @@ describe('buildMemberTimelineGroups', () => {
     expect(groups).toEqual([
       {
         parliamentNumber: 8,
+        isContinuedIntoParliament1: false,
         printedRanges: [],
         bills: [{ bill, firstReport: bill.reports[0] }],
       },

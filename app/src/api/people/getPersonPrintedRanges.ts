@@ -9,6 +9,7 @@ export interface GetPersonPrintedRangesRequest {
 export interface PersonPrintedRangesMembershipData {
   membership_id: number
   parliament_number: number
+  is_continued_into_parliament_1: boolean
   ranges: PrintedRangeData[]
 }
 

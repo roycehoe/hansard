@@ -15,6 +15,7 @@ export interface MemberTimelineBill {
 
 export interface MemberTimelineGroup {
   parliamentNumber: number
+  isContinuedIntoParliament1: boolean
   printedRanges: PrintedRangeData[]
   bills: MemberTimelineBill[]
 }
@@ -59,6 +60,11 @@ export function buildMemberTimelineGroups(
     .sort((first, second) => first - second)
     .map((parliamentNumber) => ({
       parliamentNumber,
+      isContinuedIntoParliament1: memberships.some(
+        (membership) =>
+          membership.parliament_number === parliamentNumber &&
+          membership.is_continued_into_parliament_1
+      ),
       printedRanges: memberships
         .filter(
           (membership) => membership.parliament_number === parliamentNumber
