@@ -8,11 +8,14 @@ from crud.ministry import CRUDMinistry
 from crud.ministry_see_also import CRUDMinistrySeeAlso
 from crud.office_printed_range import CRUDOfficePrintedRange
 from crud.office_title_ministry import CRUDOfficeTitleMinistry
+from crud.person import CRUDPerson
 from crud.report import CRUDReport
 from crud.report_participant import CRUDReportParticipant
 from crud.report_put_to import CRUDReportPutTo
 from database.attendance_office import AttendanceOffice
 from database.ministry import Ministry
+from database.office_printed_range import OfficePrintedRange
+from database.person import Person
 from database.report import Report
 from database.report_participant import ReportParticipant
 from database.report_put_to import ReportPutTo
@@ -22,6 +25,7 @@ from exceptions.office import (
     OfficeMembershipNotFoundException,
     OfficeMinistryNotFoundException,
 )
+from exceptions.person import PersonNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from middleware.takedown import (
     get_taken_down_report_id_candidates,
@@ -34,12 +38,14 @@ from schemas.office import (
     GetMembershipPrintedRangesResponse,
     GetMinistryQuestionsResponse,
     GetMinistryResponse,
+    GetPersonPrintedRangesResponse,
     GetReportOfficesResponse,
     MinistryQuestionData,
     MinistryReferenceData,
     MinistrySeeAlsoData,
     MinistrySummaryData,
     MinistryTitleData,
+    PersonPrintedRangesMembershipData,
     PrintedRangeData,
     PrintEvidenceData,
     PutToData,
@@ -63,6 +69,13 @@ def _get_validated_ministry(ministry_id: int, session: Session) -> Ministry:
     if ministry is None:
         raise OfficeMinistryNotFoundException
     return ministry
+
+
+def _get_validated_person(person_id: int, session: Session) -> Person:
+    person = CRUDPerson(session).get(person_id)
+    if person is None:
+        raise PersonNotFoundException
+    return person
 
 
 def _get_validated_membership(membership_id: int, session: Session) -> Speaker:
@@ -190,6 +203,47 @@ def _get_print_evidence_data(
         entry_line_printed=attendance_office.entry_line_printed,
         source=attendance_office.source,
         extracted_at=attendance_office.extracted_at,
+    )
+
+
+def _get_attendance_office_id_to_attendance_office(
+    printed_ranges: list[OfficePrintedRange], session: Session
+) -> dict[int, AttendanceOffice]:
+    return {
+        attendance_office.id: attendance_office
+        for attendance_office in CRUDAttendanceOffice(session).get_by_ids(
+            [
+                attendance_office_id
+                for printed_range in printed_ranges
+                for attendance_office_id in (
+                    printed_range.first_attendance_office_id,
+                    printed_range.last_attendance_office_id,
+                )
+            ]
+        )
+    }
+
+
+def _get_printed_range_data(
+    printed_range: OfficePrintedRange,
+    attendance_office_id_to_attendance_office: dict[int, AttendanceOffice],
+) -> PrintedRangeData:
+    return PrintedRangeData(
+        office_printed=printed_range.office_printed,
+        office_class=printed_range.office_class,
+        sitting_count=printed_range.sitting_count,
+        first_print=_get_print_evidence_data(
+            printed_range.first_sitting_date,
+            attendance_office_id_to_attendance_office[
+                printed_range.first_attendance_office_id
+            ],
+        ),
+        last_print=_get_print_evidence_data(
+            printed_range.last_sitting_date,
+            attendance_office_id_to_attendance_office[
+                printed_range.last_attendance_office_id
+            ],
+        ),
     )
 
 
@@ -334,40 +388,52 @@ def get_membership_printed_ranges(
     printed_ranges = CRUDOfficePrintedRange(session).get_all_by_membership_id(
         membership.id
     )
-    attendance_office_id_to_attendance_office = {
-        attendance_office.id: attendance_office
-        for attendance_office in CRUDAttendanceOffice(session).get_by_ids(
-            [
-                attendance_office_id
-                for printed_range in printed_ranges
-                for attendance_office_id in (
-                    printed_range.first_attendance_office_id,
-                    printed_range.last_attendance_office_id,
-                )
-            ]
-        )
-    }
+    attendance_office_id_to_attendance_office = (
+        _get_attendance_office_id_to_attendance_office(printed_ranges, session)
+    )
     return GetMembershipPrintedRangesResponse(
         membership_id=membership.id,
         ranges=[
-            PrintedRangeData(
-                office_printed=printed_range.office_printed,
-                office_class=printed_range.office_class,
-                sitting_count=printed_range.sitting_count,
-                first_print=_get_print_evidence_data(
-                    printed_range.first_sitting_date,
-                    attendance_office_id_to_attendance_office[
-                        printed_range.first_attendance_office_id
-                    ],
-                ),
-                last_print=_get_print_evidence_data(
-                    printed_range.last_sitting_date,
-                    attendance_office_id_to_attendance_office[
-                        printed_range.last_attendance_office_id
-                    ],
-                ),
+            _get_printed_range_data(
+                printed_range, attendance_office_id_to_attendance_office
             )
             for printed_range in printed_ranges
+        ],
+    )
+
+
+def get_person_printed_ranges(
+    person_id: int, session: Session
+) -> GetPersonPrintedRangesResponse:
+    person = _get_validated_person(person_id, session)
+    memberships = CRUDMembership(session).get_all_by_person_id(person.id)
+    printed_ranges = CRUDOfficePrintedRange(session).get_all_by_membership_ids(
+        [membership.id for membership in memberships]
+    )
+    attendance_office_id_to_attendance_office = (
+        _get_attendance_office_id_to_attendance_office(printed_ranges, session)
+    )
+    membership_id_to_printed_ranges: dict[int, list[OfficePrintedRange]] = {}
+    for printed_range in printed_ranges:
+        membership_id_to_printed_ranges.setdefault(printed_range.speaker_id, []).append(
+            printed_range
+        )
+    return GetPersonPrintedRangesResponse(
+        person_id=person.id,
+        memberships=[
+            PersonPrintedRangesMembershipData(
+                membership_id=membership.id,
+                parliament_number=membership.parliament_number,
+                ranges=[
+                    _get_printed_range_data(
+                        printed_range, attendance_office_id_to_attendance_office
+                    )
+                    for printed_range in membership_id_to_printed_ranges.get(
+                        membership.id, []
+                    )
+                ],
+            )
+            for membership in memberships
         ],
     )
 
