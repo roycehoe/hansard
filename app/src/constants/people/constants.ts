@@ -10,6 +10,11 @@ export const SPELLING_NOTE_NUMBER = 1
 
 export const PERSON_REPORT_PREVIEW_ROW_COUNT = 5
 
+export const MEMBER_TIMELINE_HEADING = 'Offices and Bills'
+
+export const OFFICE_DATES_DEFINITION =
+  'The first and last sittings whose attendance list prints this office beside the name. They are not the dates of appointment or of leaving office.'
+
 export const MEMBERSHIP_PARLIAMENT_NUMBERS = Array.from(
   { length: LATEST_MEMBERSHIP_PARLIAMENT_NUMBER + 1 },
   (_, parliamentNumber) => parliamentNumber

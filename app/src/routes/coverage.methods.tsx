@@ -70,6 +70,7 @@ import {
   SCRAPER_REPORTS_URL,
   TAKEDOWN_DEADLINE_WORKING_DAYS,
 } from '@/constants/coverage/constants'
+import { OFFICE_DATES_DEFINITION } from '@/constants/people/constants'
 import {
   LOST_CHARACTER,
   REPORT_TYPE_DESCRIPTIONS,
@@ -618,6 +619,10 @@ export const Route = createFileRoute('/coverage/methods')({
                 </dd>
                 <dt className={TERM_CLASS_NAME}>Questions asked</dt>
                 <dd className={DEFINITION_CLASS_NAME}>{QUESTION_DEFINITION}</dd>
+                <dt className={TERM_CLASS_NAME}>Office dates</dt>
+                <dd className={DEFINITION_CLASS_NAME}>
+                  {OFFICE_DATES_DEFINITION}
+                </dd>
               </dl>
             </div>
             {REPORT_TYPE_GROUPS.map((group) => (
