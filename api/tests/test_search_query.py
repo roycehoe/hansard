@@ -110,14 +110,26 @@ def test_a_query_is_split_into_or_groups_of_terms() -> None:
 @pytest.mark.parametrize(
     ("query", "expected_pattern"),
     [
-        ('"co-payment"', r"(?<![[:alnum:]])co\-payment(?![[:alnum:]])"),
-        ('"House\'s"', "(?<![[:alnum:]])House['\u2019]s(?![[:alnum:]])"),
-        ('"House\u2019s"', "(?<![[:alnum:]])House['\u2019]s(?![[:alnum:]])"),
+        (
+            '"co-payment"',
+            r"(?<![[:alnum:]])(?<![[:alnum:]]-)co\-payment(?![[:alnum:]])(?!-[[:alnum:]])",
+        ),
+        (
+            '"House\'s"',
+            "(?<![[:alnum:]])(?<![[:alnum:]]-)House['\u2019]s(?![[:alnum:]])(?!-[[:alnum:]])",
+        ),
+        (
+            '"House\u2019s"',
+            "(?<![[:alnum:]])(?<![[:alnum:]]-)House['\u2019]s(?![[:alnum:]])(?!-[[:alnum:]])",
+        ),
         (
             '"public housing"',
-            "(?<![[:alnum:]])public[^[:alnum:]]+housing(?![[:alnum:]])",
+            "(?<![[:alnum:]])(?<![[:alnum:]]-)public[^[:alnum:]]+housing(?![[:alnum:]])(?!-[[:alnum:]])",
         ),
-        ('"a.b*c"', r"(?<![[:alnum:]])a\.b\*c(?![[:alnum:]])"),
+        (
+            '"a.b*c"',
+            r"(?<![[:alnum:]])(?<![[:alnum:]]-)a\.b\*c(?![[:alnum:]])(?!-[[:alnum:]])",
+        ),
     ],
 )
 def test_a_quoted_term_becomes_an_exact_form_pattern(

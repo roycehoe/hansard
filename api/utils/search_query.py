@@ -12,8 +12,9 @@ _WORD_SEPARATOR = " "
 _TOKEN = re.compile(r'(-?)"([^"]*)"?|[^\s"]+')
 _HYPHEN_BETWEEN_LETTERS = re.compile(r"(?<=[^\W\d_])-(?=[^\W\d_])")
 _WORD_EDGE = re.compile(r"^[\W_]+|[\W_]+$")
-_EXACT_FORM_START = "(?<![[:alnum:]])"
-_EXACT_FORM_END = "(?![[:alnum:]])"
+# NOTE: a quoted word is the whole word, so a hyphen joined to a letter is not a word edge; "employment" does not match "Re-employment"
+_EXACT_FORM_START = "(?<![[:alnum:]])(?<![[:alnum:]]-)"
+_EXACT_FORM_END = "(?![[:alnum:]])(?!-[[:alnum:]])"
 _EXACT_FORM_WORD_SEPARATOR = "[^[:alnum:]]+"
 # NOTE: Postgres's english stop words (tsearch_data/english.stop); a hyphenated word with one of these as a part is not split, because the part would vanish from the query ("well-being" would become "well") or the query would match nothing ("to-do")
 _STOP_WORDS = frozenset(

@@ -163,7 +163,7 @@ def test_a_quoted_search_returns_the_newest_matches() -> None:
                 """
             ).bindparams(
                 phrase='"mr speaker"',
-                exact_form=r"(?<![[:alnum:]])mr[^[:alnum:]]+speaker(?![[:alnum:]])",
+                exact_form=r"(?<![[:alnum:]])(?<![[:alnum:]]-)mr[^[:alnum:]]+speaker(?![[:alnum:]])(?!-[[:alnum:]])",
                 page_size=_SEARCH_PAGE_SIZE,
             )
         ).all()
