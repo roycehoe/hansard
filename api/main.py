@@ -12,6 +12,7 @@ from routers import (
     division,
     health,
     leave_period,
+    minutes,
     office,
     parliament,
     party,
@@ -68,3 +69,4 @@ app.include_router(act.router)
 app.include_router(office.router)
 app.include_router(attached_file.router)
 app.include_router(division.router)
+app.include_router(minutes.router)
