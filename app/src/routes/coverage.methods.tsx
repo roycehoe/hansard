@@ -77,7 +77,10 @@ import {
   REPORT_TYPE_LABELS,
 } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
-import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
+import {
+  SEARCH_MAX_ALTERNATIVE_COMBINATIONS,
+  SEARCH_WORDS_MAX_LENGTH,
+} from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buildAttributionFigures } from '@/lib/attribution'
 import { formatSittingDate } from '@/lib/format'
@@ -746,6 +749,46 @@ export const Route = createFileRoute('/coverage/methods')({
                 <li>
                   A minus sign must touch the word it leaves out. With a space
                   after it, the word is searched like any other.
+                </li>
+                <li>
+                  <code className="font-mono">/s</code> and{' '}
+                  <code className="font-mono">w/s</code> require words in the
+                  same paragraph. Search cannot narrow a match to the same
+                  sentence.
+                </li>
+                <li>
+                  A search typed entirely in capitals treats operator words as
+                  ordinary words, because older report titles are printed in
+                  capitals. <code className="font-mono">CPF OR HDB</code>{' '}
+                  therefore requires both CPF and HDB in the same paragraph.
+                </li>
+                <li>
+                  Search does not support proximity operators such as{' '}
+                  <code className="font-mono">/3</code>,{' '}
+                  <code className="font-mono">w/3</code>,{' '}
+                  <code className="font-mono">~3</code> or{' '}
+                  <code className="font-mono">NEAR/3</code>. In{' '}
+                  <code className="font-mono">/3</code>, the digit 3 becomes a
+                  required search word.
+                </li>
+                <li>
+                  Search does not support truncation with{' '}
+                  <code className="font-mono">!</code> or{' '}
+                  <code className="font-mono">*</code>.{' '}
+                  <code className="font-mono">crim!</code> searches for the word
+                  &quot;crim&quot;; it does not find words beginning with those
+                  letters.
+                </li>
+                <li>
+                  Brackets group alternatives one level deep. A bracket inside
+                  another bracket does not create a second level.
+                </li>
+                <li>
+                  A search can contain up to{' '}
+                  {SEARCH_MAX_ALTERNATIVE_COMBINATIONS} combinations of
+                  alternatives. Four groups with two alternatives each produce
+                  16 combinations. Adding a fifth group produces 32, so that
+                  search cannot run.
                 </li>
                 <li>
                   Search reads the text of each paragraph and the title of each

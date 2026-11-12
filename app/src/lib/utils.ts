@@ -21,6 +21,7 @@ import {
   SEARCH_CONSTITUENCY_NOT_FOUND_ERROR_CODE,
   SEARCH_EXCLUDED_WORDS_ONLY_ERROR_CODE,
   SEARCH_TIMED_OUT_ERROR_CODE,
+  SEARCH_TOO_MANY_ALTERNATIVES_ERROR_CODE,
 } from '@/constants/search/constants'
 import { SearchSort } from '@/constants/search/enums'
 import { formatParliament } from '@/lib/format'
@@ -201,6 +202,11 @@ export function isSearchBusyError(error: Error | null): boolean {
 export function isSearchExcludedWordsOnlyError(error: Error | null): boolean {
   if (!(error instanceof ApiError)) return false
   return hasApiErrorCode(error.body, SEARCH_EXCLUDED_WORDS_ONLY_ERROR_CODE)
+}
+
+export function isSearchTooManyAlternativesError(error: Error | null): boolean {
+  if (!(error instanceof ApiError)) return false
+  return hasApiErrorCode(error.body, SEARCH_TOO_MANY_ALTERNATIVES_ERROR_CODE)
 }
 
 export function isSearchConstituencyNotFoundError(

@@ -1,6 +1,7 @@
 import {
   SEARCH_HELP_EXAMPLES,
   SEARCH_HELP_FILTERS_TEXT,
+  SEARCH_HELP_OPERATORS_TEXT,
 } from '@/constants/search/constants'
 
 export function TextSearchHelp() {
@@ -16,6 +17,7 @@ export function TextSearchHelp() {
           </div>
         ))}
       </dl>
+      <p className="text-muted-foreground mt-3">{SEARCH_HELP_OPERATORS_TEXT}</p>
       <p className="text-muted-foreground border-separator mt-3 border-t pt-3">
         {SEARCH_HELP_FILTERS_TEXT}
       </p>

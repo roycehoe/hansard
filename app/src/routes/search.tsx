@@ -22,6 +22,7 @@ import { NoticeErrorSearch } from '@/components/search/NoticeErrorSearch'
 import { NoticeErrorSearchBusy } from '@/components/search/NoticeErrorSearchBusy'
 import { NoticeErrorSearchExcludedWordsOnly } from '@/components/search/NoticeErrorSearchExcludedWordsOnly'
 import { NoticeErrorSearchTimedOut } from '@/components/search/NoticeErrorSearchTimedOut'
+import { NoticeErrorSearchTooManyAlternatives } from '@/components/search/NoticeErrorSearchTooManyAlternatives'
 import { NoticeSearchActNotFound } from '@/components/search/NoticeSearchActNotFound'
 import { NoticeSearchConstituencyNotFound } from '@/components/search/NoticeSearchConstituencyNotFound'
 import { NoticeSearchWordsTooLong } from '@/components/search/NoticeSearchWordsTooLong'
@@ -70,6 +71,7 @@ import {
   isSearchConstituencyNotFoundError,
   isSearchExcludedWordsOnlyError,
   isSearchTimedOutError,
+  isSearchTooManyAlternativesError,
   mapFilterToSearchValue,
   removeConstituencySuffix,
 } from '@/lib/utils'
@@ -374,6 +376,8 @@ export const Route = createFileRoute('/search')({
           return <NoticeErrorSearchTimedOut />
         if (isSearchExcludedWordsOnlyError(speeches.error))
           return <NoticeErrorSearchExcludedWordsOnly />
+        if (isSearchTooManyAlternativesError(speeches.error))
+          return <NoticeErrorSearchTooManyAlternatives />
         if (isSearchBusyError(speeches.error)) {
           return (
             <NoticeErrorSearchBusy
@@ -427,6 +431,8 @@ export const Route = createFileRoute('/search')({
           return <NoticeErrorSearchTimedOut />
         if (isSearchExcludedWordsOnlyError(reports.error))
           return <NoticeErrorSearchExcludedWordsOnly />
+        if (isSearchTooManyAlternativesError(reports.error))
+          return <NoticeErrorSearchTooManyAlternatives />
         if (isSearchBusyError(reports.error)) {
           return (
             <NoticeErrorSearchBusy
