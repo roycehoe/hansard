@@ -4,6 +4,8 @@ from typing import Optional
 
 from sqlmodel import Session
 
+from crud.act import CRUDAct
+from crud.act_history_entry import CRUDActHistoryEntry
 from crud.membership import CRUDMembership
 from crud.report import CRUDReport
 from crud.speech import CRUDSpeech
@@ -11,8 +13,10 @@ from database.person import Person
 from database.report import Report
 from database.speech import Speech
 from enums import ReportType, SearchEndpoint, SearchSort
+from exceptions.act import ActNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from exceptions.search import SearchConstituencyNotFoundException
+from middleware.bill import get_bill_id_to_visible_bill
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
 from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
@@ -29,6 +33,7 @@ from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.search_query import is_query_only_excluded_words
 from utils.speech_link import get_speech_anchor
 from utils.transcript_snippet import get_transcript_snippet
+from validators.unreleased_endpoint import validate_can_read_unreleased_endpoint
 
 _MAX_COUNTED_MATCHES = 1_000
 _ONE_DAY = timedelta(days=1)
@@ -93,12 +98,43 @@ def _get_validated_report(report_slug: str, session: Session) -> Report:
     raise ReportNotFoundException
 
 
+def _get_act_report_ids(
+    act_sso_code: str, excluded_report_ids: list[int], session: Session
+) -> list[int]:
+    act = CRUDAct(session).get_by_sso_code(act_sso_code)
+    if act is None:
+        raise ActNotFoundException
+    entries = CRUDActHistoryEntry(session).get_all_by_act_id(act.id)
+    bill_id_to_visible_bill = get_bill_id_to_visible_bill(
+        sorted({entry.bill_id for entry in entries if entry.bill_id is not None}),
+        excluded_report_ids,
+        session,
+    )
+    return sorted(
+        {
+            report.id
+            for visible_bill in bill_id_to_visible_bill.values()
+            for report in visible_bill.reports
+        }
+    )
+
+
 def _get_report_ids(
-    report_slug: Optional[str], session: Session
+    report_slug: Optional[str],
+    act_sso_code: Optional[str],
+    excluded_report_ids: list[int],
+    session: Session,
 ) -> Optional[list[int]]:
     if report_slug is None:
-        return None
-    return [_get_validated_report(report_slug, session).id]
+        if act_sso_code is None:
+            return None
+        return _get_act_report_ids(act_sso_code, excluded_report_ids, session)
+    report = _get_validated_report(report_slug, session)
+    if act_sso_code is None:
+        return [report.id]
+    if report.id in _get_act_report_ids(act_sso_code, excluded_report_ids, session):
+        return [report.id]
+    return []
 
 
 def _get_latest_parliament_first_sitting_date(
@@ -465,15 +501,20 @@ def search_speeches(
     person_id: Optional[int],
     constituency: Optional[str],
     report_slug: Optional[str],
+    act_sso_code: Optional[str],
     sort: SearchSort,
     page: int,
     page_size: int,
     session: Session,
 ) -> SearchSpeechesResponse:
+    if act_sso_code is not None:
+        validate_can_read_unreleased_endpoint()
     with hold_search_slot(SearchEndpoint.SPEECHES):
         membership_ids = _get_membership_ids(person_id, constituency, session)
         excluded_report_ids = get_taken_down_report_ids(session)
-        report_ids = _get_report_ids(report_slug, session)
+        report_ids = _get_report_ids(
+            report_slug, act_sso_code, excluded_report_ids, session
+        )
         if sort == SearchSort.DATE and not _is_query_without_search_words(query):
             newest_first_speech_matches = _get_newest_first_speech_matches(
                 query,

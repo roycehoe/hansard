@@ -789,6 +789,7 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
             parameters.report_type,
             parameters.person_id,
             parameters.constituency,
+            None,
         )
         with Session(search_engine) as session:
             return _get_search_results_html(
@@ -803,6 +804,7 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
                     parameters.report_type,
                     parameters.person_id,
                     parameters.constituency,
+                    None,
                     None,
                     _get_search_sort(parameters.query, parameters.sort),
                     parameters.page,
