@@ -643,6 +643,44 @@ HashAggregate  (cost=335.22..345.15 rows=993 width=4)
               Index Cond: (speaker_id = ANY ('{1093,1199}'::integer[]))
 ```
 
+## Indexes of report_link
+
+```sql
+CREATE UNIQUE INDEX uq_report_link_source_target_type ON report_link (source_report_id, target_report_id, link_type);
+CREATE INDEX ix_report_link_target_report_id ON report_link (target_report_id);
+```
+
+Needed by `GET /reports/{report_slug}/links` (unreleased). `CRUDReportLink` reads the links the report prints by `source_report_id`, and the links that point at it by `target_report_id` with a link type. The first statement uses `uq_report_link_source_target_type`, whose first column is the source. The second uses `ix_report_link_target_report_id`. Both statements finish with a sort on `id`, over at most a few dozen rows. Both keys are the SPRS `report_id` text, not the integer `report.id`.
+
+Rows in the copy: 1,752. Index sizes there: `uq_report_link_source_target_type` 296 kB, `ix_report_link_target_report_id` 136 kB.
+
+```sql
+-- report_links_by_source_report_id (GET /reports/{report_slug}/links; report written-answer-24513#, 5 rows)
+SELECT report_link.id, report_link.link_type, report_link.printed_citation, report_link.source_report_id, report_link.target_report_id FROM report_link WHERE report_link.source_report_id = 'written-answer-24513#' ORDER BY report_link.id;
+```
+
+```text
+-- report_links_by_source_report_id (GET /reports/{report_slug}/links), hansard_positions
+Sort  (cost=15.57..15.59 rows=5 width=219) (actual time=0.018..0.018 rows=5 loops=1)
+  ->  Index Scan using uq_report_link_source_target_type on report_link  (cost=0.28..15.52 rows=5 width=219) (actual time=0.012..0.013 rows=5 loops=1)
+        Index Cond: ((source_report_id)::text = 'written-answer-24513#'::text)
+Execution Time: 0.024 ms
+```
+
+```sql
+-- report_links_by_target_report_id_and_link_type (GET /reports/{report_slug}/links; report oral-answer-3323#, REPLY, 13 rows)
+SELECT report_link.id, report_link.link_type, report_link.printed_citation, report_link.source_report_id, report_link.target_report_id FROM report_link WHERE report_link.target_report_id = 'oral-answer-3323#' AND report_link.link_type = 'REPLY' ORDER BY report_link.id;
+```
+
+```text
+-- report_links_by_target_report_id_and_link_type (GET /reports/{report_slug}/links), hansard_positions
+Sort  (cost=41.27..41.29 rows=7 width=219) (actual time=0.021..0.021 rows=13 loops=1)
+  ->  Index Scan using ix_report_link_target_report_id on report_link  (cost=0.28..41.17 rows=7 width=219) (actual time=0.012..0.015 rows=13 loops=1)
+        Index Cond: ((target_report_id)::text = 'oral-answer-3323#'::text)
+        Filter: (link_type = 'REPLY'::reportlinktype)
+Execution Time: 0.027 ms
+```
+
 ## Ranking cost
 
 Speech word search used to rank every match. `ts_rank` recomputed `to_tsvector('english', transcript)` for each matched row. On 14 October 2026, timed through a local API against production, "housing estate" (4,822 matches) took 1.5 to 1.8 s, "housing" with a person filter took 2.1 to 2.4 s, and "government" (137,785 matches) answered `503 search.timed_out`. The 17 October audit found "government" by relevance over 30 s in three of three runs, and by date at 12.9 s and 26.8 s.
