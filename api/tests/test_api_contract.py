@@ -20,6 +20,7 @@ _NULL_TYPE = "null"
 _PROPERTIES_KEY = "properties"
 
 _REPORT_INTERFACES_FILE = "src/api/reports/getReport.ts"
+_REPORT_LINKS_INTERFACES_FILE = "src/api/reports/getReportLinks.ts"
 _SEARCH_SPEECHES_INTERFACES_FILE = "src/api/search/getSearchSpeeches.ts"
 _SEARCH_REPORTS_INTERFACES_FILE = "src/api/search/getSearchReports.ts"
 _SITTING_INTERFACES_FILE = "src/api/sittings/getSitting.ts"
@@ -76,6 +77,11 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("AskerData", f"{_REPORT_INTERFACES_FILE}::AskerData"),
     ("SpeechData", f"{_REPORT_INTERFACES_FILE}::SpeechData"),
     ("SpeechLinkData", f"{_REPORT_INTERFACES_FILE}::SpeechLinkData"),
+    (
+        "GetReportLinksResponse",
+        f"{_REPORT_LINKS_INTERFACES_FILE}::GetReportLinksResponse",
+    ),
+    ("ReportLinkData", f"{_REPORT_LINKS_INTERFACES_FILE}::ReportLinkData"),
     (
         "GetReportMatchedWordsResponse",
         "src/api/reports/getReportMatchedWords.ts::GetReportMatchedWordsResponse",
