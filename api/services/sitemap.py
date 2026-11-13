@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 from urllib.parse import quote
 
@@ -17,6 +18,8 @@ SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
 _MAX_URLS_PER_FILE = 20_000
 _URL_SEPARATOR = "/"
 _PAGE_PATHS = ("/", "/people", "/sittings", "/acts", "/coverage")
+# NOTE: the day the server began writing each report's text into its page, which changed every report page; a later change that rewrites every report page moves this date on
+_REPORT_PAGES_LAST_REWRITTEN_DATE = date(2026, 11, 12)
 # NOTE: a crawler obeys only the most specific group that names it, so the fetchers a person sends, which these groups name, may open /search while other crawlers may not
 _ROBOTS_TXT_LINES = (
     "User-agent: *",
@@ -75,7 +78,7 @@ def _get_kind_to_sitemap_urls(
         "reports": [
             SitemapUrl(
                 f"{site_origin}/reports/{quote(get_report_slug(report.report_id), safe='')}",
-                report.sitting_date.date(),
+                max(report.sitting_date.date(), _REPORT_PAGES_LAST_REWRITTEN_DATE),
             )
             for report in reports
         ],
