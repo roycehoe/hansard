@@ -37,8 +37,12 @@ export function TableMemberships({
         <TableHeader>
           <TableRow>
             <TableHead scope="col">Parliament</TableHead>
-            <TableHead scope="col">Party</TableHead>
-            <TableHead scope="col">Constituencies</TableHead>
+            <TableHead scope="col" className="sm:pl-8">
+              Party
+            </TableHead>
+            <TableHead scope="col" className="sm:pl-8">
+              Constituencies
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -50,13 +54,13 @@ export function TableMemberships({
                 {formatParliament(membership.parliament_number)}
                 {!membership.is_member && ' (not a member)'}
               </TableCell>
-              <TableCell className="whitespace-normal">
+              <TableCell className="whitespace-normal sm:pl-8">
                 {membership.party}
                 <TextPartyNoteMarker
                   partyNote={membershipToPartyNote.get(membership)}
                 />
               </TableCell>
-              <TableCell className="whitespace-normal">
+              <TableCell className="whitespace-normal sm:pl-8">
                 {membership.constituencies.map((constituency, index) => (
                   <Fragment key={constituency}>
                     {index > 0 && ', '}
