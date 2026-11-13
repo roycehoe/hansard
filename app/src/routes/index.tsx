@@ -13,7 +13,7 @@ export const Route = createFileRoute('/')({
     useDocumentTitle()
     return (
       <div className="space-y-8">
-        <PageHeader title="Search Singapore's parliamentary debates since 1955" />
+        <PageHeader title="Singapore's parliamentary archive since 1955" />
         <ul>
           {HOME_LINKS.map((item) => (
             <li
