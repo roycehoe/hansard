@@ -4,7 +4,6 @@ import { useGetPersonReports } from '@/api/people/getPersonReports'
 import { ButtonCopyLink } from '@/components/layout/ButtonCopyLink'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
-import { TextSource } from '@/components/layout/TextSource'
 import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
@@ -308,7 +307,6 @@ export const Route = createFileRoute('/people/$personSlug')({
             </TabsContent>
           </Tabs>
         </section>
-        <TextSource sittingDate={null} officialRecordUrl={null} />
       </div>
     )
   },
