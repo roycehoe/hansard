@@ -10,6 +10,7 @@ from routers import (
     bill,
     coverage,
     division,
+    embed,
     health,
     leave_period,
     minutes,
@@ -52,6 +53,7 @@ app.add_middleware(
 app.add_middleware(RequestLogMiddleware)
 
 app.include_router(health.router)
+app.include_router(embed.router)
 app.include_router(report.router)
 app.include_router(report_link.router)
 app.include_router(sitting.router)

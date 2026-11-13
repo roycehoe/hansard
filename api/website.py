@@ -14,7 +14,7 @@ from middleware.cache_fill import (
 from middleware.frontend import FrontendFiles
 from middleware.security_headers import SecurityHeadersMiddleware
 from middleware.takedown import TakedownMiddleware
-from routers import sitemap
+from routers import embed, sitemap
 from settings import WebsiteSettings
 
 _GZIP_COMPRESSION_LEVEL = 4
@@ -58,6 +58,7 @@ app.add_middleware(GZipMiddleware, compresslevel=_GZIP_COMPRESSION_LEVEL)
 app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(sitemap.router)
+app.include_router(embed.router)
 app.mount("/api", api_app)
 app.mount(
     "/",
