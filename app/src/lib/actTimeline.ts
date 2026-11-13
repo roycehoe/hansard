@@ -1,5 +1,6 @@
 import type { ActEntryData, ActEntryReportData } from '@/api/acts/getAct'
-import { ActEntryRowKind } from '@/constants/acts/enums'
+import { ACT_EVENT_KIND_SEPARATOR } from '@/constants/acts/constants'
+import { ActEventKind } from '@/constants/acts/enums'
 import {
   DEBATE_LABEL,
   FIRST_READING_LABEL,
@@ -16,6 +17,7 @@ const WHITESPACE_PATTERN = /\s+/g
 const TRAILING_YEAR_PATTERN = /\s+(of\s+)?\d{4}$/i
 const LEADING_THE_PATTERN = /^the\s+/i
 const ORDINANCE_PATTERN = /\bordinance\b/gi
+const REPRINT_PATTERN = /reprint/i
 
 const ORIGINAL_KINDS = new Set<ActHistoryEntryKind>([
   ActHistoryEntryKind.ACT,
@@ -23,14 +25,19 @@ const ORIGINAL_KINDS = new Set<ActHistoryEntryKind>([
   ActHistoryEntryKind.OTHER,
 ])
 
-const ONE_LINE_KINDS = new Set<ActHistoryEntryKind>([
-  ActHistoryEntryKind.REVISED_EDITION,
-  ActHistoryEntryKind.SUBSIDIARY_LEGISLATION,
-])
+const ACT_EVENT_KINDS = new Set<string>(Object.values(ActEventKind))
 
-export type ActEntryRow =
-  | { kind: ActEntryRowKind.REPORT; report: ActEntryReportData; label: string }
-  | { kind: ActEntryRowKind.IN_FORCE; date: string; isBackdated: boolean }
+type ActEntryEventKind = Exclude<ActEventKind, ActEventKind.READING>
+
+export type ActEvent =
+  | {
+      kind: ActEventKind.READING
+      entry: ActEntryData
+      report: ActEntryReportData
+      label: string
+      isNewestReading: boolean
+    }
+  | { kind: ActEntryEventKind; entry: ActEntryData }
 
 function getReports(entry: ActEntryData): ActEntryReportData[] {
   return entry.bill?.reports ?? []
@@ -58,6 +65,10 @@ function normaliseLawName(title: string): string {
     .replace(LEADING_THE_PATTERN, '')
     .replace(ORDINANCE_PATTERN, 'act')
     .toLowerCase()
+}
+
+function isActEventKind(value: string): value is ActEventKind {
+  return ACT_EVENT_KINDS.has(value)
 }
 
 // NOTE: one label per report, worked out in date order. A report the record names no reading for reads "Debate", or "Second reading continued" once a second reading has opened and not yet been agreed.
@@ -98,29 +109,96 @@ export function isEntryBackdated(entry: ActEntryData): boolean {
   )
 }
 
-export function isOneLineEntry(entry: ActEntryData): boolean {
-  return ONE_LINE_KINDS.has(entry.kind)
+// NOTE: the record kinds an old reprint of the Act as Other, with Reprint in its law number. Every other Other entry is a law that came into force, such as the Malaysia Acts of 1964 and 1965.
+export function getEntryEventKind(entry: ActEntryData): ActEntryEventKind {
+  switch (entry.kind) {
+    case ActHistoryEntryKind.REVISED_EDITION:
+      return ActEventKind.REPRINT
+    case ActHistoryEntryKind.SUBSIDIARY_LEGISLATION:
+      return ActEventKind.ORDER
+    case ActHistoryEntryKind.OTHER:
+      return REPRINT_PATTERN.test(entry.printed_law_number)
+        ? ActEventKind.REPRINT
+        : ActEventKind.IN_FORCE
+    default:
+      return ActEventKind.IN_FORCE
+  }
 }
 
-// NOTE: newest first by each entry's first debate, or its In force date where no debate is on record. An entry with neither keeps its place after the entry before it in the record, and ties keep the record's order.
-export function sortActEntriesNewestFirst(
-  entries: ActEntryData[]
-): ActEntryData[] {
-  let previousDate = ''
-  const datedEntries = [...entries]
+function getEntryEventsOldestFirst(entry: ActEntryData): ActEvent[] {
+  const reports = sortReportsOldestFirst(getReports(entry))
+  const labels = getReportLabels(reports)
+  const readings = reports.map((report, index): ActEvent => ({
+    kind: ActEventKind.READING,
+    entry,
+    report,
+    label: labels[index],
+    isNewestReading: index === reports.length - 1,
+  }))
+  return [...readings, { kind: getEntryEventKind(entry), entry }]
+}
+
+// NOTE: every reading and every entry is one event, newest first by its own date, so a backdated In force falls below its readings. An entry the record gives no date sits just above the entry before it in the record. On one date, a later entry comes first, and an entry's own event comes above its readings.
+export function getActEventsNewestFirst(entries: ActEntryData[]): ActEvent[] {
+  let previousEntryDate = ''
+  const datedEvents = [...entries]
     .sort((a, b) => a.ordinal - b.ordinal)
-    .map((entry) => {
-      const date =
-        getFirstReportDate(entry) ?? entry.commencement_date ?? previousDate
-      previousDate = date
-      return { entry, date }
+    .flatMap((entry) => {
+      const entryDate = entry.commencement_date ?? previousEntryDate
+      previousEntryDate = entryDate
+      return getEntryEventsOldestFirst(entry).map((event) => ({
+        event,
+        date:
+          event.kind === ActEventKind.READING
+            ? event.report.sitting_date
+            : entryDate,
+      }))
     })
-  return datedEntries
+  return datedEvents
+    .map((datedEvent, recordIndex) => ({ ...datedEvent, recordIndex }))
     .sort(
-      (a, b) =>
-        b.date.localeCompare(a.date) || b.entry.ordinal - a.entry.ordinal
+      (a, b) => b.date.localeCompare(a.date) || b.recordIndex - a.recordIndex
     )
-    .map(({ entry }) => entry)
+    .map(({ event }) => event)
+}
+
+export function countActEventsByKind(
+  events: ActEvent[]
+): Record<ActEventKind, number> {
+  const counts = {
+    [ActEventKind.READING]: 0,
+    [ActEventKind.IN_FORCE]: 0,
+    [ActEventKind.REPRINT]: 0,
+    [ActEventKind.ORDER]: 0,
+  }
+  for (const event of events) counts[event.kind] += 1
+  return counts
+}
+
+export function getAvailableActEventKinds(
+  counts: Record<ActEventKind, number>
+): ActEventKind[] {
+  return Object.values(ActEventKind).filter((kind) => counts[kind] > 0)
+}
+
+export function parseShownActEventKinds(
+  kindParam: string | undefined,
+  availableKinds: ActEventKind[]
+): ActEventKind[] {
+  if (kindParam === undefined) return availableKinds
+  const namedKinds = new Set(
+    kindParam.split(ACT_EVENT_KIND_SEPARATOR).filter(isActEventKind)
+  )
+  return availableKinds.filter((kind) => namedKinds.has(kind))
+}
+
+export function formatShownActEventKinds(
+  shownKinds: ActEventKind[],
+  availableKinds: ActEventKind[]
+): string | undefined {
+  return shownKinds.length === availableKinds.length
+    ? undefined
+    : shownKinds.join(ACT_EVENT_KIND_SEPARATOR)
 }
 
 // NOTE: the Original is the earliest law that carries the Act's own name, once the year, punctuation and "Ordinance" for "Act" are set aside. The record's first entry is often an older law folded in later, or an amending Act, so it is not used.
@@ -129,38 +207,15 @@ export function findOriginalEntryOrdinal(
   entries: ActEntryData[]
 ): number | null {
   const actName = normaliseLawName(actTitle)
-  const namedEntries = sortActEntriesNewestFirst(entries).filter(
-    (entry) =>
-      ORIGINAL_KINDS.has(entry.kind) &&
-      normaliseLawName(entry.printed_title) === actName
-  )
+  const namedEntries = getActEventsNewestFirst(entries)
+    .filter((event) => event.kind !== ActEventKind.READING)
+    .map((event) => event.entry)
+    .filter(
+      (entry) =>
+        ORIGINAL_KINDS.has(entry.kind) &&
+        normaliseLawName(entry.printed_title) === actName
+    )
   return namedEntries[namedEntries.length - 1]?.ordinal ?? null
-}
-
-// NOTE: newest first, so In force leads and First reading closes. A backdated In force row falls below the readings, where its date puts it.
-export function getActEntryRows(entry: ActEntryData): ActEntryRow[] {
-  const reports = sortReportsOldestFirst(getReports(entry))
-  const labels = getReportLabels(reports)
-  const rows: ActEntryRow[] = reports
-    .map((report, index): ActEntryRow => ({
-      kind: ActEntryRowKind.REPORT,
-      report,
-      label: labels[index],
-    }))
-    .reverse()
-  if (entry.commencement_date === null) return rows
-  const inForceDate = entry.commencement_date
-  const inForceIndex = rows.findIndex(
-    (row) =>
-      row.kind === ActEntryRowKind.REPORT &&
-      row.report.sitting_date <= inForceDate
-  )
-  rows.splice(inForceIndex === -1 ? rows.length : inForceIndex, 0, {
-    kind: ActEntryRowKind.IN_FORCE,
-    date: inForceDate,
-    isBackdated: isEntryBackdated(entry),
-  })
-  return rows
 }
 
 export function formatOtherActCount(actCount: number): string | null {

@@ -1,4 +1,6 @@
-export enum ActEntryRowKind {
-  REPORT = 'REPORT',
-  IN_FORCE = 'IN_FORCE',
+export enum ActEventKind {
+  READING = 'reading',
+  IN_FORCE = 'in-force',
+  REPRINT = 'reprint',
+  ORDER = 'order',
 }
