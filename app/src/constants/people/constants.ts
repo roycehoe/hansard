@@ -24,6 +24,9 @@ export const MEMBERSHIP_PARLIAMENT_NUMBERS = Array.from(
 // that readers often type, so a typed suffix would match nothing.
 export const CONSTITUENCY_SUFFIX_WORDS = new Set(['grc', 'smc'])
 
+export const POSTAL_CODE_ENQUIRY_URL =
+  'https://app.eservice.eld.gov.sg/voter/postalcodeenquiry.aspx'
+
 const FONG_SIP_CHEE_PERSON_ID = 18
 
 export const PERSON_ID_TO_HAND_ALIAS_NOTE: Partial<

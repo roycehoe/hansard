@@ -1,4 +1,5 @@
 import type { ParliamentData } from '@/api/parliaments/getAllParliaments'
+import { TextConstituencyHint } from '@/components/people/TextConstituencyHint'
 import { PopoverConstituencyFilter } from '@/components/search/PopoverConstituencyFilter'
 import { PopoverFieldHint } from '@/components/search/PopoverFieldHint'
 import { Badge } from '@/components/ui/badge'
@@ -22,7 +23,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { FILTER_ALL, PHONE_MEDIA_QUERY } from '@/constants/constants'
-import { CONSTITUENCY_HINT_TEXT } from '@/constants/search/constants'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatParliament, formatParliamentOption } from '@/lib/format'
 import { Link } from '@tanstack/react-router'
@@ -117,7 +117,7 @@ export function FormFilterPersons({
         <PopoverFieldHint
           icon={Info}
           label="Constituency boundaries"
-          hint={CONSTITUENCY_HINT_TEXT}
+          hint={<TextConstituencyHint />}
         />
       </div>
       <PopoverConstituencyFilter
