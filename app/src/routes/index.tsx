@@ -3,9 +3,21 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 const HOME_LINKS = [
-  { title: 'Sittings', to: '/sittings' },
-  { title: 'People', to: '/people' },
-  { title: 'Coverage', to: '/coverage' },
+  {
+    title: 'Browse sittings',
+    description: 'Reports and attendance',
+    to: '/sittings',
+  },
+  {
+    title: 'Find a person',
+    description: 'Speeches, questions and offices held',
+    to: '/people',
+  },
+  {
+    title: 'Check coverage',
+    description: 'Dates, counts and source notes',
+    to: '/coverage',
+  },
 ] as const
 
 export const Route = createFileRoute('/')({
@@ -22,11 +34,14 @@ export const Route = createFileRoute('/')({
             >
               <Link
                 to={item.to}
-                className="group hover:bg-muted block rounded-sm px-2 py-4 outline-hidden transition-colors duration-150"
+                className="group hover:bg-muted block space-y-1 rounded-sm px-2 py-4 outline-hidden transition-colors duration-150"
               >
                 <h2 className="text-link group-focus-visible:decoration-ring font-serif text-lg font-semibold group-hover:underline group-focus-visible:underline">
                   {item.title}
                 </h2>
+                <p className="text-muted-foreground text-sm">
+                  {item.description}
+                </p>
               </Link>
             </li>
           ))}
