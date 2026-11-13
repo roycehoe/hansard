@@ -17,7 +17,6 @@ const WHITESPACE_PATTERN = /\s+/g
 const TRAILING_YEAR_PATTERN = /\s+(of\s+)?\d{4}$/i
 const LEADING_THE_PATTERN = /^the\s+/i
 const ORDINANCE_PATTERN = /\bordinance\b/gi
-const REPRINT_PATTERN = /reprint/i
 
 const ORIGINAL_KINDS = new Set<ActHistoryEntryKind>([
   ActHistoryEntryKind.ACT,
@@ -27,8 +26,6 @@ const ORIGINAL_KINDS = new Set<ActHistoryEntryKind>([
 
 const ACT_EVENT_KINDS = new Set<string>(Object.values(ActEventKind))
 
-type ActEntryEventKind = Exclude<ActEventKind, ActEventKind.READING>
-
 export type ActEvent =
   | {
       kind: ActEventKind.READING
@@ -37,7 +34,7 @@ export type ActEvent =
       label: string
       isNewestReading: boolean
     }
-  | { kind: ActEntryEventKind; entry: ActEntryData }
+  | { kind: ActEventKind.LEGISLATION; entry: ActEntryData }
 
 function getReports(entry: ActEntryData): ActEntryReportData[] {
   return entry.bill?.reports ?? []
@@ -109,22 +106,6 @@ export function isEntryBackdated(entry: ActEntryData): boolean {
   )
 }
 
-// NOTE: the record kinds an old reprint of the Act as Other, with Reprint in its law number. Every other Other entry is a law that came into force, such as the Malaysia Acts of 1964 and 1965.
-export function getEntryEventKind(entry: ActEntryData): ActEntryEventKind {
-  switch (entry.kind) {
-    case ActHistoryEntryKind.REVISED_EDITION:
-      return ActEventKind.REPRINT
-    case ActHistoryEntryKind.SUBSIDIARY_LEGISLATION:
-      return ActEventKind.ORDER
-    case ActHistoryEntryKind.OTHER:
-      return REPRINT_PATTERN.test(entry.printed_law_number)
-        ? ActEventKind.REPRINT
-        : ActEventKind.IN_FORCE
-    default:
-      return ActEventKind.IN_FORCE
-  }
-}
-
 function getEntryEventsOldestFirst(entry: ActEntryData): ActEvent[] {
   const reports = sortReportsOldestFirst(getReports(entry))
   const labels = getReportLabels(reports)
@@ -135,7 +116,7 @@ function getEntryEventsOldestFirst(entry: ActEntryData): ActEvent[] {
     label: labels[index],
     isNewestReading: index === reports.length - 1,
   }))
-  return [...readings, { kind: getEntryEventKind(entry), entry }]
+  return [...readings, { kind: ActEventKind.LEGISLATION, entry }]
 }
 
 // NOTE: every reading and every entry is one event, newest first by its own date, so a backdated In force falls below its readings. An entry the record gives no date sits just above the entry before it in the record. On one date, a later entry comes first, and an entry's own event comes above its readings.
@@ -167,9 +148,7 @@ export function countActEventsByKind(
 ): Record<ActEventKind, number> {
   const counts = {
     [ActEventKind.READING]: 0,
-    [ActEventKind.IN_FORCE]: 0,
-    [ActEventKind.REPRINT]: 0,
-    [ActEventKind.ORDER]: 0,
+    [ActEventKind.LEGISLATION]: 0,
   }
   for (const event of events) counts[event.kind] += 1
   return counts
@@ -208,7 +187,7 @@ export function findOriginalEntryOrdinal(
 ): number | null {
   const actName = normaliseLawName(actTitle)
   const namedEntries = getActEventsNewestFirst(entries)
-    .filter((event) => event.kind !== ActEventKind.READING)
+    .filter((event) => event.kind === ActEventKind.LEGISLATION)
     .map((event) => event.entry)
     .filter(
       (entry) =>

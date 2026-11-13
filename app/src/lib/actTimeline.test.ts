@@ -10,7 +10,6 @@ import {
   formatShownActEventKinds,
   getActEventsNewestFirst,
   getAvailableActEventKinds,
-  getEntryEventKind,
   getReportLabels,
   isEntryBackdated,
   parseShownActEventKinds,
@@ -36,7 +35,6 @@ function buildEntry(
   printedTitle: string,
   options: {
     kind?: ActHistoryEntryKind
-    lawNumber?: string
     commencementDate?: string | null
     reports?: ActEntryReportData[]
     actCount?: number
@@ -47,7 +45,7 @@ function buildEntry(
     ordinal,
     kind: options.kind ?? ActHistoryEntryKind.ACT,
     printed_title: printedTitle,
-    printed_law_number: options.lawNumber ?? `Act ${ordinal}`,
+    printed_law_number: `Act ${ordinal}`,
     printed_bill_number: null,
     first_reading_date: null,
     second_reading_date: null,
@@ -146,41 +144,6 @@ describe('isEntryBackdated', () => {
   })
 })
 
-describe('getEntryEventKind', () => {
-  it('counts an Other entry whose law number says Reprint as a reprint', () => {
-    const entry = buildEntry(1, 'Income Tax Act (Chapter 141)', {
-      kind: ActHistoryEntryKind.OTHER,
-      lawNumber: 'Second Reprint (1984)',
-    })
-    expect(getEntryEventKind(entry)).toBe(ActEventKind.REPRINT)
-  })
-
-  it('counts any other Other entry as in force', () => {
-    const entry = buildEntry(1, 'Income Tax Act 1964', {
-      kind: ActHistoryEntryKind.OTHER,
-      lawNumber: 'Malaysia Act 21 of 1964',
-    })
-    expect(getEntryEventKind(entry)).toBe(ActEventKind.IN_FORCE)
-  })
-
-  it('counts a Revised Edition as a reprint and an Order as an Order', () => {
-    expect(
-      getEntryEventKind(
-        buildEntry(1, 'Income Tax Act 1947', {
-          kind: ActHistoryEntryKind.REVISED_EDITION,
-        })
-      )
-    ).toBe(ActEventKind.REPRINT)
-    expect(
-      getEntryEventKind(
-        buildEntry(2, 'Income Tax (Exemption) Order', {
-          kind: ActHistoryEntryKind.SUBSIDIARY_LEGISLATION,
-        })
-      )
-    ).toBe(ActEventKind.ORDER)
-  })
-})
-
 describe('getActEventsNewestFirst', () => {
   it('lays every reading and In force date in one date order', () => {
     const entries = [
@@ -199,9 +162,9 @@ describe('getActEventsNewestFirst', () => {
       }),
     ]
     expect(getActEventsNewestFirst(entries).map(describeEvent)).toEqual([
-      'in-force 2',
+      'legislation 2',
       'first-2003',
-      'in-force 1',
+      'legislation 1',
       'third-2002',
       'first-2002',
     ])
@@ -220,7 +183,7 @@ describe('getActEventsNewestFirst', () => {
     expect(getActEventsNewestFirst(entries).map(describeEvent)).toEqual([
       'third',
       'first',
-      'in-force 1',
+      'legislation 1',
     ])
   })
 
@@ -234,9 +197,9 @@ describe('getActEventsNewestFirst', () => {
       buildEntry(3, 'Later', { commencementDate: '1990-01-01' }),
     ]
     expect(getActEventsNewestFirst(entries).map(describeEvent)).toEqual([
-      'in-force 3',
-      'order 2',
-      'in-force 1',
+      'legislation 3',
+      'legislation 2',
+      'legislation 1',
     ])
   })
 
@@ -251,7 +214,7 @@ describe('getActEventsNewestFirst', () => {
       }),
     ]
     expect(getActEventsNewestFirst(entries).map(describeEvent)).toEqual([
-      'in-force 1',
+      'legislation 1',
       'closes',
       'opens',
     ])
@@ -291,14 +254,11 @@ describe('event kind filter', () => {
   it('counts each kind and offers only the kinds the Act has', () => {
     expect(counts).toEqual({
       [ActEventKind.READING]: 1,
-      [ActEventKind.IN_FORCE]: 1,
-      [ActEventKind.REPRINT]: 1,
-      [ActEventKind.ORDER]: 0,
+      [ActEventKind.LEGISLATION]: 2,
     })
     expect(availableKinds).toEqual([
       ActEventKind.READING,
-      ActEventKind.IN_FORCE,
-      ActEventKind.REPRINT,
+      ActEventKind.LEGISLATION,
     ])
   })
 
@@ -307,8 +267,8 @@ describe('event kind filter', () => {
       availableKinds
     )
     expect(
-      parseShownActEventKinds('in-force,order,nonsense', availableKinds)
-    ).toEqual([ActEventKind.IN_FORCE])
+      parseShownActEventKinds('legislation,nonsense', availableKinds)
+    ).toEqual([ActEventKind.LEGISLATION])
     expect(parseShownActEventKinds('', availableKinds)).toEqual([])
   })
 
@@ -317,11 +277,8 @@ describe('event kind filter', () => {
       undefined
     )
     expect(
-      formatShownActEventKinds(
-        [ActEventKind.READING, ActEventKind.REPRINT],
-        availableKinds
-      )
-    ).toBe('reading,reprint')
+      formatShownActEventKinds([ActEventKind.READING], availableKinds)
+    ).toBe('reading')
   })
 })
 

@@ -14,9 +14,7 @@ export const BACKDATED_LABEL = 'backdated'
 
 export const ACT_EVENT_KIND_LABELS: Record<ActEventKind, string> = {
   [ActEventKind.READING]: 'Readings',
-  [ActEventKind.IN_FORCE]: IN_FORCE_LABEL,
-  [ActEventKind.REPRINT]: 'Reprints',
-  [ActEventKind.ORDER]: 'Orders',
+  [ActEventKind.LEGISLATION]: 'Legislation',
 }
 
 export const ACT_EVENT_KIND_SEPARATOR = ','

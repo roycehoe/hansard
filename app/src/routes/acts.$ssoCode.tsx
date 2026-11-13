@@ -86,6 +86,13 @@ export const Route = createFileRoute('/acts/$ssoCode')({
       <div className="space-y-8">
         <PageHeader
           title={data.title}
+          belowDescription={
+            <TextSource
+              sourceName={ACT_SOURCE_NAME}
+              sittingDate={null}
+              officialRecordUrl={data.sso_url}
+            />
+          }
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -143,11 +150,6 @@ export const Route = createFileRoute('/acts/$ssoCode')({
             />
           )}
         </div>
-        <TextSource
-          sourceName={ACT_SOURCE_NAME}
-          sittingDate={null}
-          officialRecordUrl={data.sso_url}
-        />
       </div>
     )
   },
