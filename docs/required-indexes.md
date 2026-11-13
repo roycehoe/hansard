@@ -995,7 +995,7 @@ CREATE UNIQUE INDEX act_pkey ON act (id);
 
 Rows in the copy (planner estimate): 523. Index sizes there: `act_sso_code_key` 32 kB, `act_pkey` 32 kB.
 
-Needed by `GET /acts`, `GET /acts/{sso_code}` and the `act` filter of `GET /search/speeches`, which the hidden Act pages read without the release setting. The code lookups use the unique index on `sso_code`. `get_all` lists every Act with no filter, and `get_by_ids` names a few Acts of a bill. Both sequentially scan the table, and Postgres is right to: `act` holds 523 rows in 48 kB.
+Needed by `GET /acts`, `GET /acts/{sso_code}` and the `act` filter of `GET /search/speeches`, which the Act pages read without the release setting. The code lookups use the unique index on `sso_code`. `get_all` lists every Act with no filter, and `get_by_ids` names a few Acts of a bill. Both sequentially scan the table, and Postgres is right to: `act` holds 523 rows in 48 kB.
 
 **Finding.** `acts_by_ids` and `acts_all` run a `Seq Scan` on `act`. The table is one row per current Act of the SSO harvest, so it grows by the Acts SSO adds. `acts_all` has no filter and no index could serve it. `acts_by_ids` reads `act_pkey` once sequential scans are off.
 

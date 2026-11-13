@@ -5,3 +5,7 @@ On 12 November 2026 a law graduate said Open Hansard was not good enough for leg
 ## Amendment, 12 Nov 2026
 
 The Act note waits for the public release of the Act pages. Later on 12 November 2026 Royce ruled that the Act pages stay hidden while the law graduate tests them: "we do not display the link anywhere on our webpage. This will be a hidden page." They are released once he gives his go-ahead. Until then no page links to an Act page, the search page included, so the note is not built.
+
+## Amendment, 14 Nov 2026
+
+Royce released the Act pages on 14 November 2026, before the law graduate's go-ahead. The header and phone menus now link the Acts list, the noindex tag is gone from `/acts` and every path under it, and the sitemap lists the Act pages. The Act note on search is still not built and waits on Royce.
