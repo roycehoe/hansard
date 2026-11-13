@@ -8,8 +8,6 @@ export const SPELLING_NOTE_ID = 'spelling-note'
 
 export const SPELLING_NOTE_NUMBER = 1
 
-export const PERSON_REPORT_PREVIEW_ROW_COUNT = 5
-
 export const MEMBER_TIMELINE_HEADING = 'Offices and Bills'
 
 export const MEMBERSHIP_CONTINUED_NOTE =
