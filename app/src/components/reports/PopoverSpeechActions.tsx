@@ -1,3 +1,4 @@
+import { DialogEmbedCode } from '@/components/reports/DialogEmbedCode'
 import { Button } from '@/components/ui/button'
 import {
   Popover,
@@ -7,7 +8,7 @@ import {
 import { CONTACT_EMAIL } from '@/constants/constants'
 import type { SpeechActionContext } from '@/lib/speechActions'
 import { buildSpeechActions } from '@/lib/speechActions'
-import { EllipsisVertical, Flag, Link2, Quote } from 'lucide-react'
+import { CodeXml, EllipsisVertical, Flag, Link2, Quote } from 'lucide-react'
 import { useState } from 'react'
 
 const DOTS_WRAPPER_CLASS_NAME =
@@ -16,6 +17,7 @@ const DOTS_WRAPPER_CLASS_NAME =
 export function PopoverSpeechActions(props: SpeechActionContext) {
   const { ordinal, citation } = props
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isEmbedDialogOpen, setIsEmbedDialogOpen] = useState<boolean>(false)
   const { copySpeechLink, copySpeechCitation, errorEmailHref } =
     buildSpeechActions(props)
   const actionsLabel = `Actions for paragraph ${ordinal}`
@@ -33,6 +35,11 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
   function copyCitationAndClose() {
     copySpeechCitation()
     closeMenu()
+  }
+
+  function openEmbedDialogAndClose() {
+    closeMenu()
+    setIsEmbedDialogOpen(true)
   }
 
   function openFirstMenu() {
@@ -88,6 +95,15 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
               Cite
             </Button>
           )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="full-row"
+            onClick={openEmbedDialogAndClose}
+          >
+            <CodeXml aria-hidden="true" />
+            Embed
+          </Button>
           {CONTACT_EMAIL && (
             <Button asChild variant="ghost" size="full-row">
               <a href={errorEmailHref} onClick={closeMenu}>
@@ -98,6 +114,11 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
           )}
         </PopoverContent>
       </Popover>
+      <DialogEmbedCode
+        {...props}
+        isOpen={isEmbedDialogOpen}
+        setIsOpen={setIsEmbedDialogOpen}
+      />
     </span>
   )
 }

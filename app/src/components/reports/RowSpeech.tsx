@@ -118,6 +118,9 @@ export function RowSpeech({
     anchor: speech.anchor,
     officialRecordUrl,
     citation,
+    speakerLabel: speech.speaker_label,
+    transcript: speech.transcript,
+    sittingDate,
   }
 
   function renderSpeakerLabel() {

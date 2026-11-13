@@ -1,3 +1,4 @@
+import { DialogEmbedCode } from '@/components/reports/DialogEmbedCode'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -7,12 +8,18 @@ import {
 import { CONTACT_EMAIL } from '@/constants/constants'
 import type { SpeechActionContext } from '@/lib/speechActions'
 import { buildSpeechActions } from '@/lib/speechActions'
-import { Flag, Link2, Quote } from 'lucide-react'
+import { CodeXml, Flag, Link2, Quote } from 'lucide-react'
+import { useState } from 'react'
 
 export function ActionBarSpeechCopy(props: SpeechActionContext) {
   const { ordinal, citation } = props
   const { copySpeechLink, copySpeechCitation, errorEmailHref } =
     buildSpeechActions(props)
+  const [isEmbedDialogOpen, setIsEmbedDialogOpen] = useState<boolean>(false)
+
+  function openEmbedDialog() {
+    setIsEmbedDialogOpen(true)
+  }
 
   return (
     <div className="hidden shrink-0 items-start opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 sm:flex any-pointer-coarse:opacity-100">
@@ -46,6 +53,20 @@ export function ActionBarSpeechCopy(props: SpeechActionContext) {
           <TooltipContent>Cite</TooltipContent>
         </Tooltip>
       )}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="quiet"
+            size="icon-sm"
+            onClick={openEmbedDialog}
+            aria-label={`Embed paragraph ${ordinal}`}
+          >
+            <CodeXml aria-hidden="true" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Embed</TooltipContent>
+      </Tooltip>
       {CONTACT_EMAIL && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -61,6 +82,11 @@ export function ActionBarSpeechCopy(props: SpeechActionContext) {
           <TooltipContent>Report an error</TooltipContent>
         </Tooltip>
       )}
+      <DialogEmbedCode
+        {...props}
+        isOpen={isEmbedDialogOpen}
+        setIsOpen={setIsEmbedDialogOpen}
+      />
     </div>
   )
 }

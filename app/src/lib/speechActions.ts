@@ -11,6 +11,9 @@ export interface SpeechActionContext {
   anchor: string
   officialRecordUrl: string
   citation?: string
+  speakerLabel: string
+  transcript: string
+  sittingDate: string
 }
 
 export function buildSpeechActions({

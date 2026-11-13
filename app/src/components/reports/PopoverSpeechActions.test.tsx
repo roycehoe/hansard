@@ -35,6 +35,9 @@ function renderMenu() {
         ordinal={3}
         anchor="s3"
         officialRecordUrl="https://example.com"
+        speakerLabel="Mr Speaker"
+        transcript="Order."
+        sittingDate="2026-10-07"
       />
     )
   })

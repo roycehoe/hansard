@@ -302,3 +302,8 @@ export const REPORT_HEADER_MAIN_CLASS_NAME =
   'col-span-2 row-start-2 flex min-w-0 flex-col gap-1 sm:col-span-1'
 export const REPORT_HEADER_ACTION_CLASS_NAME =
   'col-start-2 row-start-1 sm:row-start-2'
+
+export const EMBED_QUOTE_MAX_LENGTH = 900
+export const EMBED_LINE_HEIGHT = 28
+export const EMBED_CHARACTERS_PER_LINE = 78
+export const EMBED_SOURCE_LINE_HEIGHT = 70
