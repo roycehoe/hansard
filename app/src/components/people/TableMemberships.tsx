@@ -32,7 +32,7 @@ export function TableMemberships({
 }: TableMembershipsProps) {
   return (
     <div className="space-y-4">
-      <Table>
+      <Table className="w-auto">
         <TableCaption className="sr-only">Memberships</TableCaption>
         <TableHeader>
           <TableRow>
