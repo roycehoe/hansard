@@ -30,6 +30,7 @@ export const SEARCH_HELP_EXAMPLES = [
     meaning: 'Hawker with either rent or lease',
   },
   { query: 'hawker NOT Covid', meaning: 'Leaves out paragraphs with Covid' },
+  { query: 'hawker -Covid', meaning: 'Leaves out paragraphs with Covid' },
   {
     query: 'vaping (sale OR import)',
     meaning: 'Vaping with either sale or import',
@@ -38,6 +39,28 @@ export const SEARCH_HELP_EXAMPLES = [
   {
     query: 'hawker rent or lease',
     meaning: 'Hawker with both rent and lease',
+  },
+]
+
+export const SEARCH_HELP_LEGAL_SHORTHAND_LABEL = 'Westlaw and Lexis shorthand'
+
+export const SEARCH_HELP_LEGAL_SHORTHAND_EXAMPLES = [
+  {
+    queries: ['hawker & rent', 'hawker /p rent', 'hawker w/p rent'],
+    meaning: 'Both words in the same paragraph',
+  },
+  {
+    queries: ['hawker /s rent', 'hawker w/s rent'],
+    meaning:
+      'Both words in the same paragraph, as search cannot narrow to a sentence',
+  },
+  {
+    queries: ['hawker AND NOT Covid', 'hawker BUT NOT Covid', 'hawker % Covid'],
+    meaning: 'Leaves out paragraphs with Covid',
+  },
+  {
+    queries: ['ss 33A', 'Art 12', 'cl 5'],
+    meaning: 'Finds "sections 33A", "article 12" or "clause 5"',
   },
 ]
 
