@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 import type {
   FocusEvent,
+  KeyboardEvent,
   MouseEvent,
   PointerEvent,
   ReactNode,
@@ -33,6 +34,8 @@ export function PopoverFieldHint({
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const closeTimeoutRef = useRef<number | undefined>(undefined)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const isSkippingReopenRef = useRef<boolean>(false)
   const hintId = useId()
   const hasAnchor = anchorRef !== undefined
 
@@ -52,6 +55,7 @@ export function PopoverFieldHint({
 
   function closeUnlessButtonFocused() {
     if (document.activeElement === buttonRef.current) return
+    if (contentRef.current?.contains(document.activeElement)) return
     setIsOpen(false)
   }
 
@@ -67,13 +71,59 @@ export function PopoverFieldHint({
   }
 
   function openOnFocus() {
+    if (isSkippingReopenRef.current) {
+      isSkippingReopenRef.current = false
+      return
+    }
     cancelClose()
     setIsOpen(true)
   }
 
   function closeOnBlur(event: FocusEvent<HTMLButtonElement>) {
     if (event.currentTarget.matches(':hover')) return
+    if (contentRef.current?.contains(event.relatedTarget)) return
     setIsOpen(false)
+  }
+
+  function getHintLinks(): HTMLAnchorElement[] {
+    return Array.from(
+      contentRef.current?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? []
+    )
+  }
+
+  function focusButtonWithoutReopening() {
+    isSkippingReopenRef.current = true
+    buttonRef.current?.focus()
+  }
+
+  function moveFocusIntoHint(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key !== 'Tab' || event.shiftKey) return
+    const [firstLink] = getHintLinks()
+    if (firstLink === undefined) return
+    event.preventDefault()
+    firstLink.focus()
+  }
+
+  // The hint renders at the end of the page, so Tab from its last link would
+  // leave the form. Focus goes back to the button first, and the browser's own
+  // Tab then carries on from there to the next field.
+  function moveFocusOutOfHint(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== 'Tab') return
+    const hintLinks = getHintLinks()
+    if (event.shiftKey && document.activeElement === hintLinks[0]) {
+      event.preventDefault()
+      buttonRef.current?.focus()
+      return
+    }
+    const lastLink = hintLinks[hintLinks.length - 1]
+    if (!event.shiftKey && document.activeElement === lastLink) {
+      focusButtonWithoutReopening()
+    }
+  }
+
+  function returnFocusToButtonOnEscape() {
+    if (!contentRef.current?.contains(document.activeElement)) return
+    focusButtonWithoutReopening()
   }
 
   function openOnClick(event: MouseEvent<HTMLButtonElement>) {
@@ -102,11 +152,13 @@ export function PopoverFieldHint({
           onFocus={openOnFocus}
           onBlur={closeOnBlur}
           onClick={openOnClick}
+          onKeyDown={moveFocusIntoHint}
         >
           <Icon aria-hidden="true" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
+        ref={contentRef}
         side={hasAnchor ? 'bottom' : 'top'}
         avoidCollisions={!hasAnchor}
         align="start"
@@ -118,10 +170,12 @@ export function PopoverFieldHint({
         onPointerLeave={closeOnMouseLeave}
         onOpenAutoFocus={keepFocusOnButton}
         onCloseAutoFocus={keepFocusOnButton}
+        onKeyDown={moveFocusOutOfHint}
+        onEscapeKeyDown={returnFocusToButtonOnEscape}
       >
         {hint}
       </PopoverContent>
-      <div id={hintId} className="sr-only">
+      <div id={hintId} hidden>
         {hint}
       </div>
     </Popover>
