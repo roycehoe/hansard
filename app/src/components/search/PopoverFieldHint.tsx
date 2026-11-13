@@ -85,9 +85,10 @@ export function PopoverFieldHint({
     setIsOpen(false)
   }
 
-  function getHintLinks(): HTMLAnchorElement[] {
+  function getHintFocusTargets(): HTMLElement[] {
     return Array.from(
-      contentRef.current?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? []
+      contentRef.current?.querySelectorAll<HTMLElement>('a[href], summary') ??
+        []
     )
   }
 
@@ -98,25 +99,25 @@ export function PopoverFieldHint({
 
   function moveFocusIntoHint(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key !== 'Tab' || event.shiftKey) return
-    const [firstLink] = getHintLinks()
-    if (firstLink === undefined) return
+    const [firstFocusTarget] = getHintFocusTargets()
+    if (firstFocusTarget === undefined) return
     event.preventDefault()
-    firstLink.focus()
+    firstFocusTarget.focus()
   }
 
-  // The hint renders at the end of the page, so Tab from its last link would
-  // leave the form. Focus goes back to the button first, and the browser's own
-  // Tab then carries on from there to the next field.
+  // The hint renders at the end of the page, so Tab from its last link or fold
+  // would leave the form. Focus goes back to the button first, and the
+  // browser's own Tab then carries on from there to the next field.
   function moveFocusOutOfHint(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== 'Tab') return
-    const hintLinks = getHintLinks()
-    if (event.shiftKey && document.activeElement === hintLinks[0]) {
+    const hintFocusTargets = getHintFocusTargets()
+    if (event.shiftKey && document.activeElement === hintFocusTargets[0]) {
       event.preventDefault()
       buttonRef.current?.focus()
       return
     }
-    const lastLink = hintLinks[hintLinks.length - 1]
-    if (!event.shiftKey && document.activeElement === lastLink) {
+    const lastFocusTarget = hintFocusTargets[hintFocusTargets.length - 1]
+    if (!event.shiftKey && document.activeElement === lastFocusTarget) {
       focusButtonWithoutReopening()
     }
   }
