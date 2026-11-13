@@ -30,9 +30,7 @@ export function TableParliamentCounts({
   return (
     <div className="space-y-4">
       <Table>
-        <TableCaption className="sr-only">
-          Paragraphs, questions and attendance by Parliament
-        </TableCaption>
+        <TableCaption className="sr-only">Activity by Parliament</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead scope="col" className="whitespace-normal">

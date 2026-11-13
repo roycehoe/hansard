@@ -245,6 +245,35 @@ export const Route = createFileRoute('/people/$personSlug')({
             </Breadcrumb>
           }
         />
+        <section aria-labelledby="memberships-heading" className="space-y-2">
+          <h2
+            id="memberships-heading"
+            className="font-serif text-xl lg:text-2xl"
+          >
+            Memberships
+          </h2>
+          <TableMemberships
+            memberships={data.memberships}
+            nameSpellings={nameSpellings}
+            membershipToPartyNote={membershipToPartyNote}
+          />
+        </section>
+        {data.parliament_counts.length > 0 && (
+          <section aria-labelledby="activity-heading" className="space-y-2">
+            <h2
+              id="activity-heading"
+              className="font-serif text-xl lg:text-2xl"
+            >
+              Activity
+            </h2>
+            <TableParliamentCounts parliamentCounts={data.parliament_counts} />
+            <TextHandAliasNote
+              personName={data.canonical_name}
+              handAliasNote={PERSON_ID_TO_HAND_ALIAS_NOTE[data.person_id]}
+            />
+          </section>
+        )}
+        <SectionMemberTimeline personId={data.person_id} />
         <section aria-labelledby="reports-heading" className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="reports-heading" className="font-serif text-xl lg:text-2xl">
@@ -279,32 +308,6 @@ export const Route = createFileRoute('/people/$personSlug')({
             </TabsContent>
           </Tabs>
         </section>
-        <section aria-labelledby="memberships-heading" className="space-y-2">
-          <h2
-            id="memberships-heading"
-            className="font-serif text-xl lg:text-2xl"
-          >
-            Memberships
-          </h2>
-          <TableMemberships
-            memberships={data.memberships}
-            nameSpellings={nameSpellings}
-            membershipToPartyNote={membershipToPartyNote}
-          />
-        </section>
-        {data.parliament_counts.length > 0 && (
-          <section aria-labelledby="counts-heading" className="space-y-2">
-            <h2 id="counts-heading" className="font-serif text-xl lg:text-2xl">
-              Paragraphs, questions and attendance
-            </h2>
-            <TableParliamentCounts parliamentCounts={data.parliament_counts} />
-            <TextHandAliasNote
-              personName={data.canonical_name}
-              handAliasNote={PERSON_ID_TO_HAND_ALIAS_NOTE[data.person_id]}
-            />
-          </section>
-        )}
-        <SectionMemberTimeline personId={data.person_id} />
         <TextSource sittingDate={null} officialRecordUrl={null} />
       </div>
     )
