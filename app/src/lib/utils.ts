@@ -124,6 +124,10 @@ export function isEveryWordMatched(
   )
 }
 
+export function getCodeLetters(ssoCode: string): string {
+  return ssoCode.split(/\d/)[0].toLowerCase()
+}
+
 export function removeConstituencySuffix(constituency: string): string {
   const words = constituency.trim().split(/\s+/)
   const lastWord = words[words.length - 1].toLowerCase()

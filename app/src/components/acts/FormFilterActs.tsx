@@ -18,7 +18,7 @@ export function FormFilterActs({ value, onChange }: FormFilterActsProps) {
       aria-label="Acts filter"
       className="flex max-w-md flex-col gap-2"
     >
-      <Label htmlFor="filter-acts-title">Title</Label>
+      <Label htmlFor="filter-acts-title">Title or code</Label>
       <Input id="filter-acts-title" value={value} onChange={changeTitle} />
     </div>
   )

@@ -1,7 +1,7 @@
 import type { ActSummaryData } from '@/api/acts/getAllActs'
 import { useGetAllActs } from '@/api/acts/getAllActs'
 import { FormFilterActs } from '@/components/acts/FormFilterActs'
-import { ListActs } from '@/components/acts/ListActs'
+import { ListActs, type ActListItem } from '@/components/acts/ListActs'
 import { NoticeErrorActs } from '@/components/acts/NoticeErrorActs'
 import { SkeletonActs } from '@/components/acts/SkeletonActs'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -14,7 +14,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { isEveryWordMatched, splitIntoWords } from '@/lib/utils'
+import { getCodeLetters, isEveryWordMatched, splitIntoWords } from '@/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
@@ -23,14 +23,18 @@ const actsSearchSchema = z.object({
   title: z.string().optional(),
 })
 
-function filterActsByTitle(
-  acts: ActSummaryData[],
-  typedTitle: string
-): ActSummaryData[] {
-  const typedWords = splitIntoWords(typedTitle)
-  return acts.filter((act) =>
-    isEveryWordMatched(typedWords, splitIntoWords(act.title))
-  )
+function filterActs(acts: ActSummaryData[], typedText: string): ActListItem[] {
+  const typedWords = splitIntoWords(typedText)
+  const typedCode = typedText.trim().toLowerCase()
+  const items: ActListItem[] = []
+  for (const act of acts) {
+    if (isEveryWordMatched(typedWords, splitIntoWords(act.title))) {
+      items.push({ act, isCodeMatch: false })
+    } else if (typedCode === getCodeLetters(act.sso_code)) {
+      items.push({ act, isCodeMatch: true })
+    }
+  }
+  return items
 }
 
 export const Route = createFileRoute('/acts/')({
@@ -65,7 +69,7 @@ export const Route = createFileRoute('/acts/')({
       return (
         <div className="space-y-6">
           <FormFilterActs value={typedTitle} onChange={changeTitle} />
-          <ListActs acts={filterActsByTitle(acts.data.acts, typedTitle)} />
+          <ListActs items={filterActs(acts.data.acts, typedTitle)} />
         </div>
       )
     }

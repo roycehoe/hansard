@@ -4,17 +4,22 @@ import { NUMBER_LOCALE } from '@/constants/constants'
 import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 
-interface ListActsProps {
-  acts: ActSummaryData[]
+export interface ActListItem {
+  act: ActSummaryData
+  isCodeMatch: boolean
 }
 
-export function ListActs({ acts }: ListActsProps) {
-  if (acts.length === 0) {
+interface ListActsProps {
+  items: ActListItem[]
+}
+
+export function ListActs({ items }: ListActsProps) {
+  if (items.length === 0) {
     return (
       <NoticeEmpty
         icon={SearchX}
-        title="No Acts match this title"
-        description="Try fewer words or a different spelling."
+        title="No Acts match"
+        description="Try fewer words, a different spelling or the short code."
       />
     )
   }
@@ -22,11 +27,11 @@ export function ListActs({ acts }: ListActsProps) {
   return (
     <div className="space-y-2">
       <p aria-live="polite" className="text-muted-foreground text-sm">
-        {acts.length.toLocaleString(NUMBER_LOCALE)}{' '}
-        {acts.length === 1 ? 'Act' : 'Acts'}
+        {items.length.toLocaleString(NUMBER_LOCALE)}{' '}
+        {items.length === 1 ? 'Act' : 'Acts'}
       </p>
       <ul>
-        {acts.map((act) => (
+        {items.map(({ act, isCodeMatch }) => (
           <li
             key={act.sso_code}
             className="border-separator border-b py-3 last:border-b-0"
@@ -38,6 +43,11 @@ export function ListActs({ acts }: ListActsProps) {
             >
               {act.title}
             </Link>
+            {isCodeMatch && (
+              <p className="text-muted-foreground text-sm">
+                Code {act.sso_code}
+              </p>
+            )}
           </li>
         ))}
       </ul>
