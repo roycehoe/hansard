@@ -14,6 +14,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { ACT_SOURCE_NAME } from '@/constants/acts/constants'
 import { ANALYTICS_SITE_URL } from '@/constants/analytics/constants'
 import {
   ABSENCE_DEFINITION,
@@ -681,9 +682,9 @@ export const Route = createFileRoute('/coverage/methods')({
                   {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}.
                 </li>
                 <li>
-                  The Act pages&apos; Bill links come from copies of SSO taken
-                  between July and December 2024. Later amendments are not
-                  listed yet.
+                  The Act pages&apos; Bill links come from copies of{' '}
+                  {ACT_SOURCE_NAME} taken between July and December 2024. Later
+                  amendments are not listed yet.
                 </li>
               </ul>
             </div>
