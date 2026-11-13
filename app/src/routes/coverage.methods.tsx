@@ -18,10 +18,12 @@ import { ANALYTICS_SITE_URL } from '@/constants/analytics/constants'
 import {
   ABSENCE_DEFINITION,
   ANALYTICS_URL,
+  BACKDATED_DEFINITION,
   CONTACT_EMAIL,
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
   QUESTION_DEFINITION,
+  REVISED_EDITION_DEFINITION,
   TEXT_NOT_IN_ARCHIVE_LABEL,
 } from '@/constants/constants'
 import {
@@ -621,6 +623,14 @@ export const Route = createFileRoute('/coverage/methods')({
                 </dd>
                 <dt className={TERM_CLASS_NAME}>Questions asked</dt>
                 <dd className={DEFINITION_CLASS_NAME}>{QUESTION_DEFINITION}</dd>
+                <dt className={TERM_CLASS_NAME}>Revised Edition</dt>
+                <dd className={DEFINITION_CLASS_NAME}>
+                  {REVISED_EDITION_DEFINITION}
+                </dd>
+                <dt className={TERM_CLASS_NAME}>Backdated</dt>
+                <dd className={DEFINITION_CLASS_NAME}>
+                  {BACKDATED_DEFINITION}
+                </dd>
               </dl>
             </div>
             {REPORT_TYPE_GROUPS.map((group) => (

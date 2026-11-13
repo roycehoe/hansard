@@ -1068,7 +1068,7 @@ Most of this app is written by Claude, and Claude's defaults with shadcn and Tai
 
 ### Rules for this codebase
 
-- **Records are rows.** Any list of reports, speeches, sittings, people or links is a list of divided rows or a table. This rule has no exceptions outside `/design` and `/palette`.
+- **Records are rows.** Any list of reports, speeches, sittings, people or links is a list of divided rows or a table. Outside `/design` and `/palette` there is one exception: the entries on an Act page sit on a timeline rail with no dividers between them, because the page is the Act's history in date order (Royce's ruling of 13 Nov 2026). The report rows inside each entry keep their dividers.
 - **Numbers line up.** Numeric table columns follow [Numeric Columns](#numeric-columns), and counts in prose use `NUMBER_LOCALE`.
 - **Check the rendered page.** Open every changed route at 375 px, 1024 px and 1280 px before calling it done. The page has no horizontal scroll, and nav links and buttons don't wrap onto a second line.
 - **Every state is designed.** Loading, empty, error and not-found follow [Page Loading States](#page-loading-states), [Error Notices](#error-notices) and the table [Empty State](#empty-state). Test them with real content, such as a long all-caps report title, a person with one speech and a Parliament with no reports.

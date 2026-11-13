@@ -15,19 +15,10 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ACT_SOURCE_NAME, ACT_TITLE_SUFFIX } from '@/constants/acts/constants'
-import { ActEntryFilter } from '@/constants/acts/enums'
-import { FILTER_ALL, NUMBER_LOCALE } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { isBillNamedForAct } from '@/lib/actBills'
-import { cn, isActNotFoundError } from '@/lib/utils'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { z } from 'zod'
-
-const actSearchSchema = z.object({
-  filter: z.enum(ActEntryFilter).optional().catch(undefined),
-})
+import { isActNotFoundError } from '@/lib/utils'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 function hasEntryWithReports(entries: ActEntryData[]): boolean {
   return entries.some(
@@ -35,48 +26,14 @@ function hasEntryWithReports(entries: ActEntryData[]): boolean {
   )
 }
 
-function filterEntriesNamedForAct(
-  actTitle: string,
-  entries: ActEntryData[]
-): ActEntryData[] {
-  return entries.filter(
-    (entry) =>
-      entry.bill !== null && isBillNamedForAct(actTitle, entry.bill.title)
-  )
-}
-
-function renderTabCount(count: number) {
-  return (
-    <span className="text-muted-foreground tabular-nums">
-      {count.toLocaleString(NUMBER_LOCALE)}
-    </span>
-  )
-}
-
 export const Route = createFileRoute('/acts/$ssoCode')({
-  validateSearch: actSearchSchema,
   component: function PageAct() {
     const { ssoCode } = Route.useParams()
-    const { filter } = Route.useSearch()
-    const navigate = useNavigate()
     const act = useGetAct({ sso_code: ssoCode })
     useDocumentTitle(act.data && `${act.data.title}, ${ACT_TITLE_SUFFIX}`)
 
     function retryAct() {
       void act.refetch()
-    }
-
-    function changeTab(nextTab: string) {
-      void navigate({
-        to: '/acts/$ssoCode',
-        params: { ssoCode },
-        search: (previous) => ({
-          ...previous,
-          filter:
-            nextTab === ActEntryFilter.NAMED ? ActEntryFilter.NAMED : undefined,
-        }),
-        resetScroll: false,
-      })
     }
 
     if (act.isLoading) return <SkeletonAct />
@@ -88,11 +45,6 @@ export const Route = createFileRoute('/acts/$ssoCode')({
     }
 
     const { data } = act
-    const namedEntries = filterEntriesNamedForAct(data.title, data.entries)
-    const hasTabs =
-      namedEntries.length > 0 && namedEntries.length < data.entries.length
-    const hasSearchLink = hasEntryWithReports(data.entries)
-    const selectedTab = hasTabs ? (filter ?? FILTER_ALL) : FILTER_ALL
 
     return (
       <div className="space-y-8">
@@ -120,42 +72,18 @@ export const Route = createFileRoute('/acts/$ssoCode')({
             </Breadcrumb>
           }
         />
-        <Tabs value={selectedTab} onValueChange={changeTab} className="gap-4">
-          {(hasTabs || hasSearchLink) && (
-            <div
-              className={cn(
-                'flex flex-wrap-reverse items-center justify-end gap-2',
-                hasTabs && 'border-separator border-b'
-              )}
-            >
-              {hasTabs && (
-                <TabsList variant="line" className="mr-auto">
-                  <TabsTrigger value={FILTER_ALL}>
-                    All changes
-                    {renderTabCount(data.entries.length)}
-                  </TabsTrigger>
-                  <TabsTrigger value={ActEntryFilter.NAMED}>
-                    Named for this Act
-                    {renderTabCount(namedEntries.length)}
-                  </TabsTrigger>
-                </TabsList>
-              )}
-              {hasSearchLink && (
-                <Button asChild variant="link" size="sm">
-                  <Link to="/search" search={{ act: data.sso_code }}>
-                    Search the debates on this Act
-                  </Link>
-                </Button>
-              )}
+        <div className="space-y-4">
+          {hasEntryWithReports(data.entries) && (
+            <div className="flex justify-end">
+              <Button asChild variant="link" size="sm">
+                <Link to="/search" search={{ act: data.sso_code }}>
+                  Search the debates on this Act
+                </Link>
+              </Button>
             </div>
           )}
-          <TabsContent value={FILTER_ALL}>
-            <ListActEntries entries={data.entries} />
-          </TabsContent>
-          <TabsContent value={ActEntryFilter.NAMED}>
-            <ListActEntries entries={namedEntries} />
-          </TabsContent>
-        </Tabs>
+          <ListActEntries actTitle={data.title} entries={data.entries} />
+        </div>
         <TextSource
           sourceName={ACT_SOURCE_NAME}
           sittingDate={null}

@@ -43,6 +43,12 @@ export const TEXT_NOT_IN_ARCHIVE_LABEL = 'Text not in this archive'
 export const ABSENCE_DEFINITION =
   "Listed as absent in the sitting's attendance list. An absence can have many causes, including leave and official duties."
 
+export const BACKDATED_DEFINITION =
+  'In force from a date before Parliament first read the Bill.'
+
+export const REVISED_EDITION_DEFINITION =
+  'A reprint of an Act with every change made up to then folded into one text.'
+
 export const QUESTION_DEFINITION =
   'A question a member puts to a minister, aloud at Question Time or in writing. Ministers answer questions, and the Speaker and Deputy Speakers chair the sitting, so members in those offices ask few or none.'
 
