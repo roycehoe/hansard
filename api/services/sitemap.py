@@ -3,6 +3,7 @@ from urllib.parse import quote
 
 from sqlmodel import Session
 
+from crud.act import CRUDAct
 from crud.person import CRUDPerson
 from crud.report import CRUDReport
 from exceptions.sitemap import SitemapNotFoundException
@@ -15,7 +16,7 @@ from utils.sitemap_xml import SitemapUrl, get_sitemap_index_xml, get_urlset_xml
 SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
 _MAX_URLS_PER_FILE = 20_000
 _URL_SEPARATOR = "/"
-_PAGE_PATHS = ("/", "/people", "/sittings", "/coverage")
+_PAGE_PATHS = ("/", "/people", "/sittings", "/acts", "/coverage")
 # NOTE: a crawler obeys only the most specific group that names it, so the fetchers a person sends, which these groups name, may open /search while other crawlers may not
 _ROBOTS_TXT_LINES = (
     "User-agent: *",
@@ -45,6 +46,7 @@ def _get_kind_to_sitemap_urls(
 ) -> dict[str, list[SitemapUrl]]:
     sitting_dates = CRUDReport(session).get_all_sitting_dates()
     persons = CRUDPerson(session).get_all()
+    acts = CRUDAct(session).get_all()
     reports = CRUDReport(session).get_all_with_text_not_in_report_ids(
         get_taken_down_report_id_candidates()
     )
@@ -65,6 +67,10 @@ def _get_kind_to_sitemap_urls(
                 None,
             )
             for person in persons
+        ],
+        "acts": [
+            SitemapUrl(f"{site_origin}/acts/{quote(act.sso_code, safe='')}", None)
+            for act in acts
         ],
         "reports": [
             SitemapUrl(

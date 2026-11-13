@@ -20,7 +20,7 @@ def sitemap_client(
     return website_client
 
 
-@pytest.mark.parametrize("kind", ["pages", "sittings", "people", "reports"])
+@pytest.mark.parametrize("kind", ["pages", "sittings", "people", "acts", "reports"])
 def test_the_sitemap_index_lists_the_first_file_of_each_kind(
     sitemap_client: TestClient, kind: str
 ) -> None:
@@ -30,7 +30,7 @@ def test_the_sitemap_index_lists_the_first_file_of_each_kind(
     assert f"<loc>{_SITE_URL}/sitemap-{kind}-1.xml</loc>" in response.text
 
 
-@pytest.mark.parametrize("path", ["/", "/people", "/sittings", "/coverage"])
+@pytest.mark.parametrize("path", ["/", "/people", "/sittings", "/acts", "/coverage"])
 def test_the_pages_sitemap_lists_each_main_page(
     sitemap_client: TestClient, path: str
 ) -> None:
@@ -39,7 +39,7 @@ def test_the_pages_sitemap_lists_each_main_page(
     assert f"<loc>{_SITE_URL}{path}</loc>" in response.text
 
 
-@pytest.mark.parametrize("kind", ["sittings", "people", "reports"])
+@pytest.mark.parametrize("kind", ["sittings", "people", "acts", "reports"])
 def test_the_first_sitemap_file_of_each_kind_answers_xml_with_public_cache_control(
     sitemap_client: TestClient, kind: str
 ) -> None:
