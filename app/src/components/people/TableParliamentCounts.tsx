@@ -1,8 +1,6 @@
 import type { ParliamentCountData } from '@/api/people/getPerson'
-import {
-  DEFINED_TERM_CLASS_NAME,
-  PopoverDefinition,
-} from '@/components/layout/PopoverDefinition'
+import { DEFINED_TERM_CLASS_NAME } from '@/components/layout/PopoverDefinition'
+import { TooltipDefinition } from '@/components/layout/TooltipDefinition'
 import {
   Table,
   TableBody,
@@ -15,7 +13,6 @@ import {
 import {
   ABSENCE_DEFINITION,
   NUMBER_LOCALE,
-  QUESTION_COUNT_LINK_LABEL,
   QUESTION_DEFINITION,
 } from '@/constants/constants'
 import { formatParliament } from '@/lib/format'
@@ -39,20 +36,17 @@ export function TableParliamentCounts({
             Paragraphs
           </TableHead>
           <TableHead scope="col" className="text-right whitespace-normal">
-            <PopoverDefinition
-              definition={QUESTION_DEFINITION}
-              termsLinkLabel={QUESTION_COUNT_LINK_LABEL}
-            >
+            <TooltipDefinition definition={QUESTION_DEFINITION}>
               <span className={DEFINED_TERM_CLASS_NAME}>Questions asked</span>
-            </PopoverDefinition>
+            </TooltipDefinition>
           </TableHead>
           <TableHead scope="col" className="text-right whitespace-normal">
             Present
           </TableHead>
           <TableHead scope="col" className="text-right whitespace-normal">
-            <PopoverDefinition definition={ABSENCE_DEFINITION}>
+            <TooltipDefinition definition={ABSENCE_DEFINITION}>
               <span className={DEFINED_TERM_CLASS_NAME}>Absent</span>
-            </PopoverDefinition>
+            </TooltipDefinition>
           </TableHead>
         </TableRow>
       </TableHeader>
