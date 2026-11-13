@@ -81,10 +81,10 @@ export function RowActEvent({ event, actTitle, isOriginal }: RowActEventProps) {
         </>
       )
     }
-    if (entry.kind === ActHistoryEntryKind.SUBSIDIARY_LEGISLATION) {
-      return <span className={TITLE_CLASS_NAME}>{entry.printed_title}</span>
-    }
-    if (entry.kind === ActHistoryEntryKind.OTHER) {
+    if (
+      entry.kind === ActHistoryEntryKind.SUBSIDIARY_LEGISLATION ||
+      entry.kind === ActHistoryEntryKind.OTHER
+    ) {
       return (
         <>
           <span className={LABEL_CLASS_NAME}>{entry.printed_law_number}</span>
