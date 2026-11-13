@@ -680,6 +680,11 @@ export const Route = createFileRoute('/coverage/methods')({
                   are missing from that period. Parliament 14 was dissolved on{' '}
                   {formatSittingDate(PARLIAMENT_FOURTEEN_DISSOLVED)}.
                 </li>
+                <li>
+                  The Act pages&apos; Bill links come from copies of SSO taken
+                  between July and December 2024. Later amendments are not
+                  listed yet.
+                </li>
               </ul>
             </div>
             <div className={SUBSECTION_CLASS_NAME}>
