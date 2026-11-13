@@ -224,11 +224,13 @@ def test_a_group_of_only_excluded_words_is_left_out_of_the_websearch_query() -> 
         ("hawker rent OR lease", "hawker rent OR hawker lease"),
         ("tax or budget", "tax budget"),
         ("not guilty", "not guilty"),
-        ("CPF OR HDB", "CPF HDB"),
+        ("CPF OR HDB", "CPF OR HDB"),
+        ("POFMA NOT FICA", "POFMA -FICA"),
         (
             "SINGAPOREANS NOT COVERED BY MEDISHIELD",
             "SINGAPOREANS NOT COVERED BY MEDISHIELD",
         ),
+        ("FOREIGN HONOURS OR TITLES", "FOREIGN HONOURS TITLES"),
         ('"substantive assistance" NOT courier', '"substantive assistance" -courier'),
         (
             '"substantive assistance" AND NOT courier',

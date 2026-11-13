@@ -16,7 +16,7 @@ _SAME_PARAGRAPH_CONNECTOR = re.compile(r"&|w?/[ps]", re.IGNORECASE)
 _OR_WORD = "or"
 _OPENING_BRACKET = "("
 _CLOSING_BRACKET = ")"
-_MIN_CAPITALS_WORD_LETTER_COUNT = 2
+_MIN_TITLE_WORD_LETTER_COUNT = 7
 _EXCLUDED_PREFIX = "-"
 _HYPHEN = "-"
 _WEBSEARCH_OR = " OR "
@@ -150,12 +150,10 @@ def _get_query_to_parse(query: str) -> str:
     )
 
 
-# NOTE: report titles before 2011 are printed in capitals and get pasted whole, as in "SINGAPOREANS NOT COVERED BY MEDISHIELD", so a query typed in capitals reads OR, AND and NOT as words; a word needs two letters to count, so that "S 33B OR S 33A" still reads its OR
-def _is_query_in_capitals(query: str) -> bool:
+# NOTE: report titles before 2011 are printed in capitals and get pasted whole, as in "SINGAPOREANS NOT COVERED BY MEDISHIELD", so a query typed in capitals with a word of seven letters or more reads OR, AND and NOT as words; every such title holding OR or NOT has a word that long (54 on 13 Nov 2026), while an acronym search such as "POFMA OR FICA" has none and keeps its operators
+def _is_query_a_title_in_capitals(query: str) -> bool:
     return not any(character.islower() for character in query) and any(
-        sum(character.isalpha() for character in word)
-        >= _MIN_CAPITALS_WORD_LETTER_COUNT
-        and word not in _OPERATOR_WORDS
+        sum(character.isalpha() for character in word) >= _MIN_TITLE_WORD_LETTER_COUNT
         for word in _get_words(query)
     )
 
@@ -267,7 +265,9 @@ class _SearchQueryParser:
 def _get_search_query_clauses(
     query: str,
 ) -> tuple[tuple[SearchQueryTerm | _Bracket, ...], ...]:
-    parser = _SearchQueryParser(is_operator_word_read=not _is_query_in_capitals(query))
+    parser = _SearchQueryParser(
+        is_operator_word_read=not _is_query_a_title_in_capitals(query)
+    )
     query_to_parse = _get_query_to_parse(query)
     for match in _TOKEN.finditer(query_to_parse):
         if match.group(2) is not None:
