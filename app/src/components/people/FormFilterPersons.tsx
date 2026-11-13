@@ -157,7 +157,7 @@ export function FormFilterPersons({
   )
 
   const partyField = (
-    <div className="flex w-full flex-col gap-2 sm:w-56">
+    <div className="flex w-full flex-col gap-2 sm:w-80">
       <Label htmlFor="filter-persons-party">Party</Label>
       <Select value={values.party} onValueChange={changeParty}>
         <SelectTrigger id="filter-persons-party" className="w-full">
