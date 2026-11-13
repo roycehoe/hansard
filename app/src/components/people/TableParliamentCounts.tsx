@@ -17,6 +17,10 @@ import {
 } from '@/constants/constants'
 import { formatParliament } from '@/lib/format'
 
+const NUMBER_HEAD_CLASS_NAME = 'text-right whitespace-normal sm:pl-8'
+
+const NUMBER_CELL_CLASS_NAME = 'text-right tabular-nums sm:pl-8'
+
 interface TableParliamentCountsProps {
   parliamentCounts: ParliamentCountData[]
 }
@@ -25,25 +29,25 @@ export function TableParliamentCounts({
   parliamentCounts,
 }: TableParliamentCountsProps) {
   return (
-    <Table>
+    <Table className="w-auto">
       <TableCaption className="sr-only">Activity by Parliament</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead scope="col" className="whitespace-normal">
             Parliament
           </TableHead>
-          <TableHead scope="col" className="text-right whitespace-normal">
+          <TableHead scope="col" className={NUMBER_HEAD_CLASS_NAME}>
             Paragraphs
           </TableHead>
-          <TableHead scope="col" className="text-right whitespace-normal">
+          <TableHead scope="col" className={NUMBER_HEAD_CLASS_NAME}>
             <TooltipDefinition definition={QUESTION_DEFINITION}>
               <span className={DEFINED_TERM_CLASS_NAME}>Questions asked</span>
             </TooltipDefinition>
           </TableHead>
-          <TableHead scope="col" className="text-right whitespace-normal">
+          <TableHead scope="col" className={NUMBER_HEAD_CLASS_NAME}>
             Present
           </TableHead>
-          <TableHead scope="col" className="text-right whitespace-normal">
+          <TableHead scope="col" className={NUMBER_HEAD_CLASS_NAME}>
             <TooltipDefinition definition={ABSENCE_DEFINITION}>
               <span className={DEFINED_TERM_CLASS_NAME}>Absent</span>
             </TooltipDefinition>
@@ -56,16 +60,16 @@ export function TableParliamentCounts({
             <TableCell className="whitespace-normal">
               {formatParliament(count.parliament_number)}
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className={NUMBER_CELL_CLASS_NAME}>
               {count.speech_count.toLocaleString(NUMBER_LOCALE)}
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className={NUMBER_CELL_CLASS_NAME}>
               {count.questions_asked_count.toLocaleString(NUMBER_LOCALE)}
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className={NUMBER_CELL_CLASS_NAME}>
               {count.present_count.toLocaleString(NUMBER_LOCALE)}
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className={NUMBER_CELL_CLASS_NAME}>
               {count.absent_count.toLocaleString(NUMBER_LOCALE)}
             </TableCell>
           </TableRow>
