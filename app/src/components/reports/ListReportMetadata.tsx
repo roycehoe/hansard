@@ -3,19 +3,22 @@ import {
   LEGISLATIVE_ASSEMBLY_LABEL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
 } from '@/constants/constants'
+import { cn } from '@/lib/utils'
 
 interface ListReportMetadataProps {
   report: GetReportResponse
 }
 
 export function ListReportMetadata({ report }: ListReportMetadataProps) {
+  const isLegislativeAssembly =
+    report.parliament_number === LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER
   const facts = [
     {
       label: 'Parliament',
-      value:
-        report.parliament_number === LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER
-          ? LEGISLATIVE_ASSEMBLY_LABEL
-          : report.parliament_number,
+      value: isLegislativeAssembly
+        ? LEGISLATIVE_ASSEMBLY_LABEL
+        : report.parliament_number,
+      isLabelHidden: isLegislativeAssembly,
     },
     { label: 'Volume', value: report.volume_number },
     ...(report.sitting_number !== null
@@ -24,13 +27,11 @@ export function ListReportMetadata({ report }: ListReportMetadataProps) {
   ]
 
   return (
-    <dl className="flex flex-wrap gap-x-5">
+    <dl className="text-muted-foreground flex flex-wrap gap-x-5 text-sm tabular-nums">
       {facts.map((fact) => (
         <div key={fact.label} className="flex items-baseline gap-1.5">
-          <dt className="text-muted-foreground text-sm">{fact.label}</dt>
-          <dd className="text-base leading-5 font-medium tabular-nums">
-            {fact.value}
-          </dd>
+          <dt className={cn(fact.isLabelHidden && 'sr-only')}>{fact.label}</dt>
+          <dd>{fact.value}</dd>
         </div>
       ))}
     </dl>
