@@ -39,7 +39,6 @@ export const SEARCH_HELP_EXAMPLES = [
     query: 'hawker rent or lease',
     meaning: 'Hawker with both rent and lease',
   },
-  { query: 'CPF OR HDB', meaning: 'Both CPF and HDB in the same paragraph' },
 ]
 
 export const SEARCH_HELP_FILTERS_TEXT =

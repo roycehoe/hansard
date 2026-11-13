@@ -757,10 +757,19 @@ export const Route = createFileRoute('/coverage/methods')({
                   sentence.
                 </li>
                 <li>
-                  A search typed entirely in capitals treats operator words as
-                  ordinary words, because older report titles are printed in
-                  capitals. <code className="font-mono">CPF OR HDB</code>{' '}
-                  therefore requires both CPF and HDB in the same paragraph.
+                  In a search typed entirely in capitals,{' '}
+                  <code className="font-mono">AND</code>,{' '}
+                  <code className="font-mono">OR</code> and{' '}
+                  <code className="font-mono">NOT</code> work as operators
+                  unless any word has seven or more letters. If it does, they
+                  stay ordinary words so older report titles pasted in capitals
+                  still work. <code className="font-mono">CPF OR HDB</code>{' '}
+                  finds CPF or HDB; <code className="font-mono">NOT</code> stays
+                  a word in{' '}
+                  <code className="font-mono">
+                    SINGAPOREANS NOT COVERED BY MEDISHIELD
+                  </code>
+                  .
                 </li>
                 <li>
                   Search does not support proximity operators such as{' '}
