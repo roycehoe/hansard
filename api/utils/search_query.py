@@ -76,11 +76,11 @@ class _Bracket:
 
 
 @dataclass
-class _ClauseList:
-    clauses: list[list[SearchQueryTerm | _Bracket]] = field(default_factory=list)
+class _ClauseList[OperandT]:
+    clauses: list[list[OperandT]] = field(default_factory=list)
     is_or_pending: bool = False
 
-    def add_operand(self, operand: SearchQueryTerm | _Bracket) -> None:
+    def add_operand(self, operand: OperandT) -> None:
         if self.is_or_pending and self.clauses != []:
             self.clauses[-1].append(operand)
         else:
@@ -173,13 +173,15 @@ def _is_at_word_start(text: str, position: int) -> bool:
 class _SearchQueryParser:
     def __init__(self, is_operator_word_read: bool):
         self.is_operator_word_read = is_operator_word_read
-        self.clause_list = _ClauseList()
-        self.bracket_clause_list = _ClauseList()
+        self.clause_list = _ClauseList[SearchQueryTerm | _Bracket]()
+        self.bracket_clause_list = _ClauseList[SearchQueryTerm]()
         self.is_bracket_open = False
         self.is_bracket_excluded = False
         self.is_exclusion_pending = False
 
-    def _get_current_clause_list(self) -> _ClauseList:
+    def _get_current_clause_list(
+        self,
+    ) -> _ClauseList[SearchQueryTerm] | _ClauseList[SearchQueryTerm | _Bracket]:
         if self.is_bracket_open:
             return self.bracket_clause_list
         return self.clause_list
@@ -209,7 +211,7 @@ class _SearchQueryParser:
                     is_excluded=self.is_bracket_excluded,
                 )
             )
-        self.bracket_clause_list = _ClauseList()
+        self.bracket_clause_list = _ClauseList[SearchQueryTerm]()
         self.is_bracket_open = False
 
     def _read_operator_word(self, operator_word: str) -> None:
