@@ -21,7 +21,7 @@ const SAME_PARAGRAPH_CONNECTOR = /^(?:&|w?\/[ps])$/i
 const OR_WORD = 'or'
 const OPENING_BRACKET = '('
 const CLOSING_BRACKET = ')'
-const MIN_CAPITALS_WORD_LETTER_COUNT = 2
+const MIN_TITLE_WORD_LETTER_COUNT = 7
 const PROVISION_CITATION =
   /(?<![^\s"(])(ss?|art|cl)\.?\s+(\d{1,3}\p{L}{0,3})(?![\p{L}\p{N}])/giu
 const PLURAL_SECTION_ABBREVIATION = 'ss'
@@ -91,13 +91,11 @@ function getQueryToParse(query: string): string {
   )
 }
 
-function isQueryInCapitals(query: string): boolean {
+function isQueryATitleInCapitals(query: string): boolean {
   return (
     !LOWERCASE_LETTER.test(query) &&
     getWords(query).some(
-      (word) =>
-        (word.match(LETTER) ?? []).length >= MIN_CAPITALS_WORD_LETTER_COUNT &&
-        !OPERATOR_WORDS.has(word)
+      (word) => (word.match(LETTER) ?? []).length >= MIN_TITLE_WORD_LETTER_COUNT
     )
   )
 }
@@ -115,7 +113,7 @@ function isAtWordStart(text: string, position: number): boolean {
 
 // Port of the term reading in api/utils/search_query.py (_SearchQueryParser and _get_operand_terms). Keep the two in step.
 export function getSearchQueryTerms(query: string): SearchQueryTerm[] {
-  const isOperatorWordRead = !isQueryInCapitals(query)
+  const isOperatorWordRead = !isQueryATitleInCapitals(query)
   const queryToParse = getQueryToParse(query)
   const terms: SearchQueryTerm[] = []
   let isBracketOpen = false
@@ -212,7 +210,7 @@ function isSittingYear(word: string, currentYear: number): boolean {
 }
 
 export function hasSearchOperator(query: string): boolean {
-  const isOperatorWordRead = !isQueryInCapitals(query)
+  const isOperatorWordRead = !isQueryATitleInCapitals(query)
   return (
     QUOTE_CHARACTERS.test(query) ||
     query

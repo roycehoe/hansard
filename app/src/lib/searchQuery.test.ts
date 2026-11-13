@@ -135,6 +135,7 @@ describe('getSearchQueryTerms', () => {
     ['tax or budget', ['tax', 'budget']],
     ['not guilty', ['not', 'guilty']],
     ['CPF OR HDB', ['CPF', 'HDB']],
+    ['POFMA NOT FICA', ['POFMA', '-FICA']],
     [
       'SINGAPOREANS NOT COVERED BY MEDISHIELD',
       ['SINGAPOREANS', 'NOT', 'COVERED', 'BY', 'MEDISHIELD'],
