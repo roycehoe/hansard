@@ -24,7 +24,7 @@ export function ListActEntryReports({
     <ol>
       {reports.map((report) => {
         const stageLabels = getStageLabels(report.stages)
-        // NOTE: the Bill's title is printed just above, so a report shows its own title only where the record prints it differently (ADR 0006)
+        // NOTE: the entry's heading stands for the Bill, so a report shows its own title only where the record prints it differently from the Bill's (ADR 0006)
         const isTitlePrintedDifferently =
           report.title.toLowerCase() !== billTitle.toLowerCase()
         return (
