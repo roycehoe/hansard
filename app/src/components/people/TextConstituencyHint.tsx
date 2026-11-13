@@ -7,9 +7,9 @@ export function TextConstituencyHint() {
     <div className="flex flex-col gap-2">
       <p>{CONSTITUENCY_HINT_TEXT}</p>
       <p>
-        Not sure which is yours? Look up your postal code at the{' '}
+        Not sure which is yours?{' '}
         <LinkExternal href={POSTAL_CODE_ENQUIRY_URL}>
-          Elections Department
+          Find your constituency
         </LinkExternal>
         .
       </p>
