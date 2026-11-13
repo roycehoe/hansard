@@ -13,3 +13,7 @@ The footer now reads "This is not an official Parliament site. The Official Repo
 ## Amendment, 20 Oct 2026
 
 The footer is back to "Not an official Parliament site.", with the date the data was last checked below it. Royce found the SPRS sentence superfluous. The short line still tells a reader the site is not the official record, which is all this decision needs from the footer. The attribution line on report, sitting and person pages still names the Official Report. The speech preview card keeps "This is not an official Parliament site." after its quote, because a card shared in a chat app shows no footer.
+
+## Amendment, 14 Nov 2026
+
+A paragraph embedded on another site (`/embed/reports/{slug}`) carries the source line "Hansard, {sitting date}, on Open Hansard." and no unofficial line, by Royce's ruling on the embed drafts. The source line names the site and links back to the paragraph, which is enough to stop the quote passing for the official record. The speech preview card keeps "This is not an official Parliament site." after its quote.
