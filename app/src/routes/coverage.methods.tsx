@@ -268,10 +268,10 @@ export const Route = createFileRoute('/coverage/methods')({
           <p>
             In a second check, an AI read paragraphs to check who they were
             credited to, while a script compared every word with
-            Parliament&apos;s text. I decided every paragraph they flagged. I
-            read {HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT} of them myself, and
-            for the rest an AI applied decisions I had already made on the same
-            kinds of difference. In all, the check found{' '}
+            Parliament&apos;s text. I read{' '}
+            {HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT} of the paragraphs they
+            flagged myself. For the rest, an AI applied decisions I had already
+            made on the same kinds of difference. In all, the check found{' '}
             {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT}{' '}
             {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT === 1
               ? 'paragraph'
