@@ -9,7 +9,7 @@ import { CONTACT_EMAIL } from '@/constants/constants'
 import type { SpeechActionContext } from '@/lib/speechActions'
 import { buildSpeechActions } from '@/lib/speechActions'
 import { CodeXml, EllipsisVertical, Flag, Link2, Quote } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 const DOTS_WRAPPER_CLASS_NAME =
   'float-right -mr-1.5 ml-1.5 flex h-lh items-center sm:hidden'
@@ -18,6 +18,7 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
   const { ordinal, citation } = props
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [isEmbedDialogOpen, setIsEmbedDialogOpen] = useState<boolean>(false)
+  const dotsButtonRef = useRef<HTMLButtonElement>(null)
   const { copySpeechLink, copySpeechCitation, errorEmailHref } =
     buildSpeechActions(props)
   const actionsLabel = `Actions for paragraph ${ordinal}`
@@ -49,6 +50,7 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
 
   const dotsButton = (
     <Button
+      ref={dotsButtonRef}
       type="button"
       variant="quiet-toggle"
       size="icon-line"
@@ -118,6 +120,7 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
         {...props}
         isOpen={isEmbedDialogOpen}
         setIsOpen={setIsEmbedDialogOpen}
+        returnFocusRef={dotsButtonRef}
       />
     </span>
   )

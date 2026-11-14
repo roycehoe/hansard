@@ -12,15 +12,18 @@ import { formatSittingDate } from '@/lib/format'
 import type { SpeechActionContext } from '@/lib/speechActions'
 import { copyTextWithToast } from '@/lib/utils'
 import { Copy } from 'lucide-react'
+import type { RefObject } from 'react'
 
 interface DialogEmbedCodeProps extends SpeechActionContext {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
+  returnFocusRef: RefObject<HTMLButtonElement | null>
 }
 
 export function DialogEmbedCode({
   isOpen,
   setIsOpen,
+  returnFocusRef,
   reportSlug,
   ordinal,
   anchor,
@@ -36,6 +39,13 @@ export function DialogEmbedCode({
     `Hansard, ${formatSittingDate(sittingDate)}`
   )
 
+  // The dialog has no trigger of its own, and the phone menu that opened it
+  // has closed, so focus goes back to the control the reader used.
+  function returnFocusToOpener(event: Event) {
+    event.preventDefault()
+    returnFocusRef.current?.focus()
+  }
+
   function copyEmbedCode() {
     void copyTextWithToast(
       embedCode,
@@ -46,7 +56,10 @@ export function DialogEmbedCode({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="bg-background flex max-h-[90vh] flex-col gap-6 overflow-y-auto p-6 sm:max-w-xl sm:p-8">
+      <DialogContent
+        className="bg-background flex max-h-[90vh] flex-col gap-6 overflow-y-auto p-6 sm:max-w-xl sm:p-8"
+        onCloseAutoFocus={returnFocusToOpener}
+      >
         <DialogHeader>
           <DialogTitle>Embed</DialogTitle>
           <DialogDescription hidden />

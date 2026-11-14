@@ -9,13 +9,14 @@ import { CONTACT_EMAIL } from '@/constants/constants'
 import type { SpeechActionContext } from '@/lib/speechActions'
 import { buildSpeechActions } from '@/lib/speechActions'
 import { CodeXml, Flag, Link2, Quote } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 export function ActionBarSpeechCopy(props: SpeechActionContext) {
   const { ordinal, citation } = props
   const { copySpeechLink, copySpeechCitation, errorEmailHref } =
     buildSpeechActions(props)
   const [isEmbedDialogOpen, setIsEmbedDialogOpen] = useState<boolean>(false)
+  const embedButtonRef = useRef<HTMLButtonElement>(null)
 
   function openEmbedDialog() {
     setIsEmbedDialogOpen(true)
@@ -56,6 +57,7 @@ export function ActionBarSpeechCopy(props: SpeechActionContext) {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
+            ref={embedButtonRef}
             type="button"
             variant="quiet"
             size="icon-sm"
@@ -86,6 +88,7 @@ export function ActionBarSpeechCopy(props: SpeechActionContext) {
         {...props}
         isOpen={isEmbedDialogOpen}
         setIsOpen={setIsEmbedDialogOpen}
+        returnFocusRef={embedButtonRef}
       />
     </div>
   )
