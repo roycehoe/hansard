@@ -21,7 +21,7 @@ Royce named these readers on 14 Nov 2026.
 
 | Reader                                     | Pages                                                                                                                                                                                                                                   | What they already know                                                                                     |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Someone who knows nothing about Parliament | Home `/`, How Parliament works `/how-parliament-works`, About `/about`, Policies `/about/policies`, Coverage `/coverage`, Data quality and methods `/coverage/methods`                                                                  | Nothing. They don't know what an MP, a Bill, a sitting, or the Hansard is.                                 |
+| Someone who knows nothing about Parliament | Home `/`, How Parliament works `/about/how-parliament-works`, About `/about`, Policies `/about/policies`, Coverage `/about/coverage`, Data quality and methods `/about/coverage/methods`                                                | Nothing. They don't know what an MP, a Bill, a sitting, or the Hansard is.                                 |
 | A researcher or journalist                 | For researchers `/researchers`                                                                                                                                                                                                          | How Parliament works. They want to know how the archive was made, how far to trust it, and how to cite it. |
 | Anyone at all                              | Interface text on every page: the header, footer, buttons, labels, notices, tooltips, empty and error states, and `aria-label` values. That includes the record pages under `/search`, `/sittings`, `/people`, `/acts`, and `/reports`. | Anything from nothing to everything. Write so a newcomer can follow and an expert isn't slowed down.       |
 
@@ -29,7 +29,7 @@ Policies holds the long text that was on About until 14 Nov 2026, so it keeps Ab
 
 Interface text also follows the Copy section of `app/STYLE.md`, and a brief for interface text pastes that section in with this guide. Principles 3, 5, and 7 apply to page prose only. A label such as "Link copied" or "Couldn't load the speeches" needs no named actor.
 
-<!-- pending ruling: Royce hasn't named a reader for /palette, /design or docs/corrections.md. Recommendation: leave /palette (a colour specimen page) and /design out of the refine run. In docs/corrections.md, refine only the prose sections, for a lay reader, and leave the rows of the log as records. -->
+<!-- pending ruling: Royce hasn't named a reader for /about/palette, /design or docs/corrections.md. Recommendation: leave /about/palette (a colour specimen page) and /design out of the refine run. In docs/corrections.md, refine only the prose sections, for a lay reader, and leave the rows of the log as records. -->
 
 ### Explanatory pages
 

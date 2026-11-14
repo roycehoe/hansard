@@ -5,7 +5,7 @@
 
 Open Hansard is a website I've built for exploring Singapore's parliamentary record, going back to 1955. I wanted a way to follow an MP's contributions over time, with their speeches, parliamentary memberships and attendance in one place.
 
-[Open the site](https://openhansard.sg) · [Coverage](https://openhansard.sg/coverage) · [Data quality and methods](https://openhansard.sg/coverage/methods)
+[Open the site](https://openhansard.sg) · [Coverage](https://openhansard.sg/about/coverage) · [Data quality and methods](https://openhansard.sg/about/coverage/methods)
 
 ## Why I built it
 
@@ -40,7 +40,7 @@ You can start with a person, a sitting or a subject and follow the links between
 
 I opened the site to the public on 20 October 2026. It is an unofficial project, and the Official Report on [SPRS](https://sprs.parl.gov.sg/search/) remains the authoritative record. Each report links back there so readers can check my work against the source.
 
-The records come from my separate [hansard-scraper](https://github.com/roycehoe/hansard-scraper) project. The [coverage page](https://openhansard.sg/coverage) tracks what's available, while the [methods](https://openhansard.sg/coverage/methods) explain how I build the connections and where gaps remain.
+The records come from my separate [hansard-scraper](https://github.com/roycehoe/hansard-scraper) project. The [coverage page](https://openhansard.sg/about/coverage) tracks what's available, while the [methods](https://openhansard.sg/about/coverage/methods) explain how I build the connections and where gaps remain.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/report-dark.png">
