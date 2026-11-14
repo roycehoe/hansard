@@ -28,6 +28,7 @@ import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
 import { parseHighlightTerms } from '@/lib/highlight'
+import { formatReportPageTitle } from '@/lib/reportTitle'
 import { isTextPublished } from '@/lib/utils'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
@@ -91,7 +92,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
     })
     useDocumentTitle(
       data &&
-        `${data.title}, ${formatSittingDate(data.sitting_date)}, ${REPORT_RECORD_NAME}`
+        `${formatReportPageTitle(data)}, ${formatSittingDate(data.sitting_date)}, ${REPORT_RECORD_NAME}`
     )
 
     function retryReport() {
