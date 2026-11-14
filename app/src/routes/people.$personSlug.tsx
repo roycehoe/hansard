@@ -318,7 +318,6 @@ export const Route = createFileRoute('/people/$personSlug')({
               parliamentToBillCount={
                 billGroups && countPersonBillsByParliament(billGroups)
               }
-              personSlug={`${data.person_id}-${data.person_slug}`}
             />
             <TextHandAliasNote
               personName={data.canonical_name}

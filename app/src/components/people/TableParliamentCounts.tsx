@@ -16,11 +16,7 @@ import {
   NUMBER_LOCALE,
   QUESTION_DEFINITION,
 } from '@/constants/constants'
-import { PersonBillsFilter } from '@/constants/people/enums'
 import { formatParliament } from '@/lib/format'
-import { getPersonBillsAnchorId } from '@/lib/personBills'
-import { Link, useLocation } from '@tanstack/react-router'
-import type { MouseEvent } from 'react'
 
 const NUMBER_HEAD_CLASS_NAME = 'text-right whitespace-normal sm:pl-8'
 
@@ -29,43 +25,16 @@ const NUMBER_CELL_CLASS_NAME = 'text-right tabular-nums sm:pl-8'
 interface TableParliamentCountsProps {
   parliamentCounts: ParliamentCountData[]
   parliamentToBillCount: Map<number, number> | undefined
-  personSlug: string
 }
 
 export function TableParliamentCounts({
   parliamentCounts,
   parliamentToBillCount,
-  personSlug,
 }: TableParliamentCountsProps) {
-  const hash = useLocation({ select: (location) => location.hash })
-
-  function jumpToShownParliament(event: MouseEvent<HTMLAnchorElement>) {
-    const anchorId = event.currentTarget.hash.slice(1)
-    const heading = document.getElementById(anchorId)
-    if (anchorId !== hash || heading === null) return
-    event.preventDefault()
-    heading.scrollIntoView()
-    heading.focus({ preventScroll: true })
-  }
-
   function renderBillCount(parliamentNumber: number) {
     if (parliamentToBillCount === undefined) return null
     const billCount = parliamentToBillCount.get(parliamentNumber) ?? 0
-    const formattedBillCount = billCount.toLocaleString(NUMBER_LOCALE)
-    if (billCount === 0) return formattedBillCount
-    return (
-      <Link
-        to="/people/$personSlug"
-        params={{ personSlug }}
-        search={{ filter: PersonBillsFilter.BILLS }}
-        hash={getPersonBillsAnchorId(parliamentNumber)}
-        hashScrollIntoView={false}
-        onClick={jumpToShownParliament}
-        className="text-link focus-visible:decoration-ring outline-hidden hover:underline focus-visible:underline"
-      >
-        {formattedBillCount}
-      </Link>
-    )
+    return billCount.toLocaleString(NUMBER_LOCALE)
   }
 
   return (
