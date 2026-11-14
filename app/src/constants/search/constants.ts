@@ -62,10 +62,19 @@ export const SEARCH_HELP_LEGAL_SHORTHAND_EXAMPLES = [
     queries: ['ss 33A', 'Art 12', 'cl 5'],
     meaning: 'Finds "sections 33A", "article 12" or "clause 5"',
   },
+  {
+    queries: ['law /3 order', 'law w/3 order', 'law NEAR order'],
+    meaning:
+      'Not supported. The 3 and NEAR become search words, so these find paragraphs with each word',
+  },
+  {
+    queries: ['crim!', 'crim*'],
+    meaning: 'Not supported. These search for the word "crim" only',
+  },
 ]
 
 export const SEARCH_HELP_FILTERS_TEXT =
-  'To search by person or date, use the filters.'
+  'Search reads the text and titles of reports, not who spoke or when. To search by person or date, use the filters.'
 
 export const SEARCH_WORD_FORMS_NOTE =
   'Words without quotes also match other forms, so housing finds house.'
