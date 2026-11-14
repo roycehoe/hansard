@@ -24,6 +24,9 @@ const PAGE_TITLE = 'How Parliament works'
 const LINK_CLASS_NAME =
   'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
+const FOOTNOTE_MARKER_CLASS_NAME =
+  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
+
 const SECTION_HEADING_CLASS_NAME =
   'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
 
@@ -78,7 +81,7 @@ function renderFootnoteMarker(footnoteNumber: number) {
         id={getFootnoteMarkerId(footnoteNumber)}
         href={`#${getFootnoteId(footnoteNumber)}`}
         aria-describedby={FOOTNOTES_HEADING_ID}
-        className={LINK_CLASS_NAME}
+        className={FOOTNOTE_MARKER_CLASS_NAME}
       >
         {footnoteNumber}
       </a>
