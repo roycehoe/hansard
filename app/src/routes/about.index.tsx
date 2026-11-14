@@ -8,7 +8,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { ABOUT_NOT_OFFICIAL_SECTION_ID } from '@/constants/about/constants'
+import {
+  ABOUT_NOT_OFFICIAL_SECTION_ID,
+  POLICIES_PRIVACY_SECTION_ID,
+} from '@/constants/about/constants'
 import {
   CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
@@ -18,7 +21,6 @@ import {
 } from '@/constants/constants'
 import {
   CORRECTIONS_LOG_URL,
-  METHODS_PRIVACY_SECTION_ID,
   ORIENTATION_PARAGRAPHS,
 } from '@/constants/coverage/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -70,8 +72,8 @@ const ABOUT_LINK_COLUMNS = [
         { label: 'Policies', to: '/about/policies' },
         {
           label: 'Privacy',
-          to: '/coverage/methods',
-          hash: METHODS_PRIVACY_SECTION_ID,
+          to: '/about/policies',
+          hash: POLICIES_PRIVACY_SECTION_ID,
         },
         { label: 'Palette', to: '/palette' },
         { label: 'GitHub', href: SOURCE_CODE_URL },

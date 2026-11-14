@@ -12,8 +12,6 @@ const SITTING_DATE_FORMAT = 'd MMMM yyyy'
 const SITTING_DAY_MONTH_FORMAT = 'd MMMM'
 const MONTH_YEAR_FORMAT = 'MMMM yyyy'
 const WWW_PREFIX = /^www\./
-const PERCENTAGE_SCALE = 100
-const PERCENTAGE_DECIMAL_PLACES = 2
 const NAME_LIST_SEPARATOR = ', '
 const NAME_LIST_LAST_SEPARATOR = ' and '
 const MEMBERSHIP_LIST_SEPARATOR = ', '
@@ -32,10 +30,6 @@ export function formatCalendarDate(date: Date): string {
 
 export function formatSittingDayMonth(sittingDate: string): string {
   return format(parseISO(sittingDate), SITTING_DAY_MONTH_FORMAT)
-}
-
-export function formatPercentage(share: number): string {
-  return `${(share * PERCENTAGE_SCALE).toFixed(PERCENTAGE_DECIMAL_PLACES)}%`
 }
 
 export function formatParliament(parliamentNumber: number): string {
