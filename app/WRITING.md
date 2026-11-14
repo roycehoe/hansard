@@ -21,11 +21,11 @@ Royce named these readers on 14 Nov 2026.
 
 | Reader                                     | Pages                                                                                                                                                                                                                                   | What they already know                                                                                     |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Someone who knows nothing about Parliament | Home `/`, How Parliament works `/how-parliament-works`, About `/about`, Policies `/about/policies`, Coverage `/coverage`                                                                                                                | Nothing. They don't know what an MP, a Bill, a sitting, or the Hansard is.                                 |
-| A researcher or journalist                 | Data quality and methods `/coverage/methods`, For researchers `/researchers`                                                                                                                                                            | How Parliament works. They want to know how the archive was made, how far to trust it, and how to cite it. |
+| Someone who knows nothing about Parliament | Home `/`, How Parliament works `/how-parliament-works`, About `/about`, Policies `/about/policies`, Coverage `/coverage`, Data quality and methods `/coverage/methods`                                                                  | Nothing. They don't know what an MP, a Bill, a sitting, or the Hansard is.                                 |
+| A researcher or journalist                 | For researchers `/researchers`                                                                                                                                                                                                          | How Parliament works. They want to know how the archive was made, how far to trust it, and how to cite it. |
 | Anyone at all                              | Interface text on every page: the header, footer, buttons, labels, notices, tooltips, empty and error states, and `aria-label` values. That includes the record pages under `/search`, `/sittings`, `/people`, `/acts`, and `/reports`. | Anything from nothing to everything. Write so a newcomer can follow and an expert isn't slowed down.       |
 
-Policies holds the long text that was on About until 14 Nov 2026, so it keeps About's reader.
+Policies holds the long text that was on About until 14 Nov 2026, so it keeps About's reader. Data quality and methods moved to the lay reader on 14 Nov 2026: "Write for the layman. Someone who has no idea how statistics, law, legislation works, with very limited vocabulary."
 
 Interface text also follows the Copy section of `app/STYLE.md`, and a brief for interface text pastes that section in with this guide. Principles 3, 5, and 7 apply to page prose only. A label such as "Link copied" or "Couldn't load the speeches" needs no named actor.
 
@@ -230,10 +230,10 @@ Royce ruled the first three on 14 Nov 2026. The fourth repeats `app/STYLE.md`.
 
 ### Numbers and dates
 
-- On a page for lay readers, give a rate as a percentage, the form readers already know. On Data quality and methods, keep a raw count such as "1 of 464" where the page gives one, because a researcher wants the count. "Let's do percentages instead" (7 Nov 2026). He asked the same of his resume on 6 Nov 2026: "Do percentage."
+- On a page for lay readers, give a rate as a percentage, the form readers already know. "Let's do percentages instead" (7 Nov 2026). He asked the same of his resume on 6 Nov 2026: "Do percentage."
   - Before: "In reports from 1955 to 2011, 7 paragraphs in 10,000 had one of these mistakes."
   - After: "In reports from 1955 to 2011, 0.07% of paragraphs had one of these mistakes."
-- On a lay page, give the finding and what it means for the reader. Confidence limits, sample sizes, and how a check was done belong on Data quality and methods (rule 4).
+- On a lay page, give the finding and what it means for the reader. Confidence limits and sample sizes belong in the check reports that Data quality and methods links to, not on any page (rule 4).
   - Before: "...7 paragraphs in 10,000 had one of these errors, and very likely no more than 12. [...] "Very likely" here means at 95% confidence. The checks picked paragraphs at random..."
   - After: "These checks cover only part of the archive, so they can miss mistakes, including in the current Parliament."
 - When text says something happens, say when (rule 3).
@@ -269,6 +269,6 @@ Run this on each page you change, in order, and fix what fails before you move o
 10. Does any claim name a bigger or smaller group than the one that acts, or leave out cases it covers? Does any "or" join two words that mean the same thing?
 11. Does every list of three or more have the Oxford comma?
 12. For each footnote, can the main text carry it instead? If not, is it one exception in two sentences or fewer? Interface text has none.
-13. On a lay page, are rates given as percentages? Does it carry confidence limits or sample sizes that belong on Data quality and methods?
+13. On a lay page, are rates given as percentages? Does it carry confidence limits or sample sizes, which belong in the check reports?
 14. On an explanatory page, is it "I", never "we", with "I'm Royce" at the first "I"? Read each paragraph aloud. If it sounds like a telegram, join the sentences that share a subject or a cause. If a sentence adds a second idea after a comma, split it.
 15. Is every fact, figure, date, name, link target, placeholder, and kept word unchanged? On Home and About, did you add no sentence? List every fact you cut and every question you couldn't answer from the text.
