@@ -9,14 +9,16 @@ from sqlmodel import Session
 
 from crud.act import CRUDAct
 from crud.attendance import CRUDAttendance
+from crud.bill_stage_line import CRUDBillStageLine
 from crud.membership import CRUDMembership
 from crud.person import CRUDPerson
 from crud.report import CRUDReport
 from crud.speech import CRUDSpeech
+from database.bill_stage_line import BillStageLine
 from database.report import Report
 from database.speaker import Speaker
 from database.speech import Speech
-from enums import PreviewType
+from enums import BillStage, PreviewType
 from middleware.membership import get_membership_id_to_person
 from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
 from schemas.preview import PreviewData
@@ -46,6 +48,7 @@ _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
 _SEAT_SEPARATOR = ", "
 _NAME_SEPARATOR = ", "
+_SENTENCE_SEPARATOR = " "
 _LISTED_SPEAKER_COUNT = 3
 _LISTED_REPORT_COUNT = 3
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
@@ -73,6 +76,11 @@ _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
 _REPORT_WORD = "report"
 _REPORTS_WORD = "reports"
+_FIRST_READING_TITLE_LABEL = "First Reading"
+_SECOND_READING_TITLE_LABEL = "Second Reading"
+_THIRD_READING_TITLE_LABEL = "Third Reading"
+_LEADING_THE = re.compile(r"^the\s+", re.IGNORECASE)
+_BILL_WORD = re.compile(r"\bbill\b", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -227,11 +235,74 @@ def _get_report_description(
     return get_paragraph_quote(first_speech.speaker, first_speech.transcript)
 
 
+def _get_stage_title_label(stage: BillStage) -> str:
+    if stage == BillStage.FIRST_READING:
+        return _FIRST_READING_TITLE_LABEL
+    if stage == BillStage.THIRD_READING:
+        return _THIRD_READING_TITLE_LABEL
+    return _SECOND_READING_TITLE_LABEL
+
+
+def _get_report_title(
+    report: Report, sitting_date_label: str, stage_lines: list[BillStageLine]
+) -> str:
+    if not stage_lines:
+        return f"{report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
+    bill_title = _LEADING_THE.sub(_EMPTY_LABEL, report.title)
+    stage_label = _get_stage_title_label(stage_lines[0].stage)
+    return f"{stage_label} of the {bill_title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
+
+
+# NOTE: a Bill debate opens on an order line with no speaker, so the description is that line, then the first speaker outside the chair, who moves the Bill
+def _get_bill_report_description(report_id: int, session: Session) -> Optional[str]:
+    speeches = CRUDSpeech(session).get_all_by_report_id(report_id)
+    for index, speech in enumerate(speeches):
+        if speech.speaker is None or speech.speaker == _EMPTY_LABEL:
+            continue
+        if is_chair_speaker_label(speech.speaker):
+            continue
+        order_lines = [
+            get_transcript_quote(opening_speech.transcript)
+            for opening_speech in speeches[:index]
+            if opening_speech.speaker is None or opening_speech.speaker == _EMPTY_LABEL
+        ]
+        return _SENTENCE_SEPARATOR.join(
+            [*order_lines[:1], get_paragraph_quote(speech.speaker, speech.transcript)]
+        )
+    return None
+
+
+def _get_report_preview_description(
+    report_id: int,
+    sitting_date_label: str,
+    stage_lines: list[BillStageLine],
+    session: Session,
+) -> str:
+    if not stage_lines:
+        return _get_report_description(report_id, sitting_date_label, session)
+    bill_description = _get_bill_report_description(report_id, session)
+    if bill_description is None:
+        return _get_report_description(report_id, sitting_date_label, session)
+    return bill_description
+
+
+# NOTE: the record can print a Bill's stage lines in a report it titles as something else, such as the Adjournment to a Later Day Motion of 16 November 1960, so only a report whose title names a Bill takes the stage
+def _get_report_stage_lines(report: Report, session: Session) -> list[BillStageLine]:
+    if _BILL_WORD.search(report.title) is None:
+        return []
+    return CRUDBillStageLine(session).get_all_by_sprs_report_ids_excluding_report_ids(
+        [report.report_id], []
+    )
+
+
 def _get_report_preview(report: Report, session: Session) -> PreviewData:
     sitting_date_label = get_sitting_date_label(report.sitting_date.date())
+    stage_lines = _get_report_stage_lines(report, session)
     return PreviewData(
-        title=f"{report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}",
-        description=_get_report_description(report.id, sitting_date_label, session),
+        title=_get_report_title(report, sitting_date_label, stage_lines),
+        description=_get_report_preview_description(
+            report.id, sitting_date_label, stage_lines, session
+        ),
         preview_type=PreviewType.ARTICLE,
         path=_get_report_path(report),
         is_found=True,
