@@ -13,8 +13,12 @@ import { useRef, useState } from 'react'
 
 export function ActionBarSpeechCopy(props: SpeechActionContext) {
   const { ordinal, citation } = props
-  const { copySpeechLink, copySpeechCitation, errorEmailHref } =
-    buildSpeechActions(props)
+  const {
+    copySpeechLink,
+    copySpeechCitation,
+    showSpeechLinkInAddress,
+    errorEmailHref,
+  } = buildSpeechActions(props)
   const [isEmbedDialogOpen, setIsEmbedDialogOpen] = useState<boolean>(false)
   const embedButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -23,7 +27,11 @@ export function ActionBarSpeechCopy(props: SpeechActionContext) {
   }
 
   return (
-    <div className="hidden shrink-0 items-start opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 sm:flex any-pointer-coarse:opacity-100">
+    <div
+      onPointerEnter={showSpeechLinkInAddress}
+      onFocus={showSpeechLinkInAddress}
+      className="hidden shrink-0 items-start opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100 sm:flex any-pointer-coarse:opacity-100"
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
