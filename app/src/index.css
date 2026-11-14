@@ -136,6 +136,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  .js [data-page-text] {
+    display: none;
+  }
   @media (prefers-reduced-motion: reduce) {
     *,
     ::before,

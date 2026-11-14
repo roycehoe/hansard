@@ -185,7 +185,7 @@ def test_a_report_page_carries_its_title_date_speakers_and_paragraphs(
 
     assert response.status_code == status.HTTP_200_OK
     assert _get_root_contents(response.text).split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>SUPPLY BILL</h1>",
         "<p>Second Reading</p>",
         '<p><time datetime="2020-01-01">1 January 2020</time></p>',
@@ -346,7 +346,7 @@ def test_the_home_page_links_parliaments_people_and_recent_sittings(
     root_contents = _get_root_contents(client.get("/").text)
 
     assert root_contents.split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Open Hansard</h1>",
         "<p>Singapore&#x27;s Hansard &amp; more.</p>",
         f"<p>Search: {search_example_url}</p>",
@@ -443,7 +443,7 @@ def test_a_sitting_page_links_each_report_of_the_sitting(
     root_contents = _get_root_contents(client.get("/sittings/2026-10-07").text)
 
     assert root_contents.split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         '<h1>Sitting of <time datetime="2026-10-07">7 October 2026</time></h1>',
         "<ul>",
         '<li><a href="/reports/bill-1">SUPPLY &lt;BILL&gt;</a><br>Second Reading</li>',
@@ -505,7 +505,7 @@ def test_the_sittings_page_of_a_parliament_links_each_sitting(
     root_contents = _get_root_contents(client.get("/sittings?parliament=0").text)
 
     assert root_contents.split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Sittings</h1>",
         "<h2>Legislative Assembly</h2>",
         "<ul>",
@@ -657,7 +657,7 @@ def test_a_person_page_lists_memberships_and_recent_reports(
     assert person_report_arguments == [(7, 1, 20, None)]
     assert response.status_code == status.HTTP_200_OK
     assert _get_root_contents(response.text).split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Tan &lt;b&gt;&amp; Lee</h1>",
         "<h2>Memberships</h2>",
         "<table>",
@@ -853,7 +853,7 @@ def test_a_search_page_lists_the_first_page_of_speech_matches(
     assert response.status_code == status.HTTP_200_OK
     assert response.headers["vary"] == "Sec-Fetch-Dest"
     assert _get_root_contents(response.text).split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Search</h1>",
         _COVERAGE_LINE,
         "<p>more than 1,000 speech matches</p>",
@@ -1001,7 +1001,7 @@ def test_a_search_that_fails_writes_the_line_the_app_shows(
 
     assert response.status_code == status.HTTP_200_OK
     assert _get_root_contents(response.text).split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Search</h1>",
         _COVERAGE_LINE,
         f"<p>{note}</p>",
@@ -1032,7 +1032,7 @@ def test_a_search_the_api_would_refuse_writes_a_line_and_runs_no_search(
     root_contents = _get_root_contents(client.get(f"/search{query}").text)
 
     assert root_contents.split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Search</h1>",
         _COVERAGE_LINE,
         f"<p>{note}</p>",
@@ -1071,7 +1071,7 @@ def test_a_search_with_no_matches_says_so(
     root_contents = _get_root_contents(client.get(f"/search{query}").text)
 
     assert root_contents.split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Search</h1>",
         _COVERAGE_LINE,
         *lines,
@@ -1162,7 +1162,7 @@ def test_a_title_search_lists_the_first_page_of_title_matches(
     assert response.status_code == status.HTTP_200_OK
     assert response.headers["vary"] == "Sec-Fetch-Dest"
     assert _get_root_contents(response.text).split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Search</h1>",
         _COVERAGE_LINE,
         "<p>more than 1,000 title matches</p>",
@@ -1267,7 +1267,7 @@ def test_a_title_search_with_no_matches_says_so(
     root_contents = _get_root_contents(client.get(f"/search{query}").text)
 
     assert root_contents.split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Search</h1>",
         _COVERAGE_LINE,
         *lines,
@@ -1301,7 +1301,7 @@ def test_a_title_search_that_fails_writes_the_line_the_app_shows(
     root_contents = _get_root_contents(client.get("/search?q=tax&tab=titles").text)
 
     assert root_contents.split("\n") == [
-        "<main>",
+        "<main data-page-text>",
         "<h1>Search</h1>",
         _COVERAGE_LINE,
         f"<p>{note}</p>",
@@ -1316,7 +1316,7 @@ def test_a_title_search_that_fails_writes_the_line_the_app_shows(
             "?q=-covid&tab=titles",
             "\n".join(
                 [
-                    "<main>",
+                    "<main data-page-text>",
                     "<h1>Search</h1>",
                     _COVERAGE_LINE,
                     "<p>A minus sign excludes a word. Add a word to search for, or "

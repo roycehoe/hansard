@@ -19,7 +19,7 @@ _EXPECTED_HEADERS = {
     "referrer-policy": "strict-origin-when-cross-origin",
     "content-security-policy": (
         "default-src 'self'; "
-        "script-src 'self' 'sha256-v113e9zedJ1qRfpnuqczJ7xOkqPKWJmuhUiw9Rd9jNI=' "
+        "script-src 'self' 'sha256-wLu71OCuXzpZ+ambmNtMhkj/r7ZXfeEDJWbdp87/SlI=' "
         "https://gc.zgo.at; "
         "style-src 'self' 'unsafe-inline'; "
         "connect-src 'self' https://royceinbox.goatcounter.com; "

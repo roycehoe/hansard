@@ -58,6 +58,8 @@ _NO_ROOT_ELEMENT = ""
 _NO_SPEAKER_LABEL = ""
 _NO_SUBTITLE = ""
 _ROOT_ELEMENT = '<div id="root"></div>'
+# NOTE: nothing here reads the attribute. app/src/index.css hides the element once the inline script in app/index.html marks the page as running JavaScript, so a browser shows only React's page while a reader without JavaScript still gets this text
+_PAGE_TEXT_START = "<main data-page-text>"
 _LINE_SEPARATOR = "\n"
 _HOME_PATH = "/"
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
@@ -232,7 +234,7 @@ def _get_report_html(report: GetReportResponse) -> str:
     )
     return _LINE_SEPARATOR.join(
         [
-            "<main>",
+            _PAGE_TEXT_START,
             f"<h1>{escape(report.title)}</h1>",
             *subtitle_paragraphs,
             f'<p><time datetime="{escape(report.sitting_date.isoformat())}">'
@@ -280,7 +282,7 @@ def _get_home_html(
     sitting_items = [_get_sitting_item_html(sitting) for sitting in recent_sittings]
     return _LINE_SEPARATOR.join(
         [
-            "<main>",
+            _PAGE_TEXT_START,
             f"<h1>{escape(title)}</h1>",
             f"<p>{escape(description)}</p>",
             f"<p>Search: {escape(search_example_url)}</p>",
@@ -304,7 +306,7 @@ def _get_parliament_sittings_html(
 ) -> str:
     return _LINE_SEPARATOR.join(
         [
-            "<main>",
+            _PAGE_TEXT_START,
             f"<h1>{escape(title)}</h1>",
             f"<h2>{escape(_get_parliament_label(parliament_number))}</h2>",
             "<ul>",
@@ -328,7 +330,7 @@ def _get_sitting_report_item_html(report: SittingReportData) -> str:
 def _get_sitting_html(sitting: GetSittingResponse) -> str:
     return _LINE_SEPARATOR.join(
         [
-            "<main>",
+            _PAGE_TEXT_START,
             f"<h1>{_SITTING_TITLE_PREFIX} "
             f'<time datetime="{escape(sitting.sitting_date.isoformat())}">'
             f"{escape(get_sitting_date_label(sitting.sitting_date))}</time></h1>",
@@ -392,7 +394,7 @@ def _get_person_html(
     person_search_query = urlencode({_PERSON_PARAMETER: person.person_id})
     return _LINE_SEPARATOR.join(
         [
-            "<main>",
+            _PAGE_TEXT_START,
             f"<h1>{escape(person.canonical_name)}</h1>",
             f"<h2>{_MEMBERSHIPS_HEADING}</h2>",
             "<table>",
@@ -561,7 +563,7 @@ def _get_next_page_lines(
 def _get_search_html(title: str, lines: list[str]) -> str:
     return _LINE_SEPARATOR.join(
         [
-            "<main>",
+            _PAGE_TEXT_START,
             f"<h1>{escape(title)}</h1>",
             f"<p>{escape(_COVERAGE_NOTE)}</p>",
             *lines,

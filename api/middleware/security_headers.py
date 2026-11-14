@@ -10,7 +10,7 @@ _CONTENT_SECURITY_POLICY_HEADER = "Content-Security-Policy"
 # NOTE: the sha256 source is the inline theme script in app/index.html, and tests/test_security_headers.py recomputes it. style-src needs 'unsafe-inline' because Radix's scroll lock writes a <style> element whose contents change with the scrollbar width
 _SHARED_CONTENT_SECURITY_POLICY_DIRECTIVES = (
     "default-src 'self'",
-    "script-src 'self' 'sha256-v113e9zedJ1qRfpnuqczJ7xOkqPKWJmuhUiw9Rd9jNI=' https://gc.zgo.at",
+    "script-src 'self' 'sha256-wLu71OCuXzpZ+ambmNtMhkj/r7ZXfeEDJWbdp87/SlI=' https://gc.zgo.at",
     "style-src 'self' 'unsafe-inline'",
     "connect-src 'self' https://royceinbox.goatcounter.com",
     "object-src 'none'",
