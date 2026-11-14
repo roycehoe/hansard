@@ -1,12 +1,11 @@
-import { useGetPersonBills } from '@/api/people/getPersonBills'
 import { useGetPersonPrintedRanges } from '@/api/people/getPersonPrintedRanges'
 import { ListMemberTimeline } from '@/components/people/ListMemberTimeline'
 import { NoticeErrorPersonTimeline } from '@/components/people/NoticeErrorPersonTimeline'
 import { MEMBER_TIMELINE_HEADING } from '@/constants/people/constants'
+import { useAllPersonBills } from '@/hooks/useAllPersonBills'
 import { buildMemberTimelineGroups } from '@/lib/memberTimeline'
 import { isEndpointNotFoundError } from '@/lib/utils'
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
 
 interface SectionMemberTimelineProps {
   personId: number
@@ -16,21 +15,13 @@ export function SectionMemberTimeline({
   personId,
 }: SectionMemberTimelineProps) {
   const printedRanges = useGetPersonPrintedRanges({ person_id: personId })
-  const bills = useGetPersonBills({ person_id: personId })
+  const { bills } = useAllPersonBills(personId)
   const {
     hasNextPage,
     isFetchingNextPage,
     isFetchNextPageError,
     fetchNextPage,
   } = bills
-
-  useEffect(
-    function fetchEveryBillPage() {
-      if (!hasNextPage || isFetchingNextPage || isFetchNextPageError) return
-      void fetchNextPage()
-    },
-    [hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage]
-  )
 
   function retryTimeline() {
     if (printedRanges.isLoadingError) void printedRanges.refetch()

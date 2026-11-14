@@ -2,6 +2,7 @@ import {
   DEFINED_TERM_CLASS_NAME,
   PopoverDefinition,
 } from '@/components/layout/PopoverDefinition'
+import { ListPersonBills } from '@/components/people/ListPersonBills'
 import {
   MEMBERSHIP_CONTINUED_NOTE,
   OFFICE_DATES_DEFINITION,
@@ -9,11 +10,8 @@ import {
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import type { MemberTimelineGroup } from '@/lib/memberTimeline'
 import {
-  formatPersonBillDates,
-  formatPersonBillParagraphCount,
   formatPrintedRangeSittingCount,
   getPrintedRangeSittingDates,
-  isEveryPersonBillReportBudgetDebate,
 } from '@/lib/memberTimeline'
 import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
@@ -91,26 +89,7 @@ export function ListMemberTimeline({ groups }: ListMemberTimelineProps) {
           {group.bills.length > 0 && (
             <div>
               <p className={PART_LABEL_CLASS_NAME}>Bills</p>
-              <ul>
-                {group.bills.map(({ bill, firstReport }) => (
-                  <li key={bill.bill_key} className={ROW_CLASS_NAME}>
-                    <Link
-                      to="/reports/$reportSlug"
-                      params={{ reportSlug: firstReport.report_slug }}
-                      className={cn(LINK_CLASS_NAME, 'font-medium')}
-                    >
-                      {bill.title}
-                    </Link>
-                    <span className={META_CLASS_NAME}>
-                      <span>{formatPersonBillDates(bill.reports)}</span>
-                      <span>{formatPersonBillParagraphCount(bill)}</span>
-                      {isEveryPersonBillReportBudgetDebate(bill) && (
-                        <span>Budget debate</span>
-                      )}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <ListPersonBills bills={group.bills} />
             </div>
           )}
         </div>
