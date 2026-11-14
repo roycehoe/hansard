@@ -1,4 +1,5 @@
 import { apiGet } from '@/api/client'
+import type { BillStage } from '@/constants/bills/enums'
 import type {
   ColumnNote,
   ReportType,
@@ -47,6 +48,24 @@ export interface AskerData {
   reader_person_name: string
 }
 
+export interface ReportBillReportData {
+  report_slug: string
+  sitting_date: string
+  stages: BillStage[]
+}
+
+export interface ReportBillActData {
+  sso_code: string
+  title: string
+  is_made_by_bill: boolean
+}
+
+export interface ReportBillData {
+  title: string
+  reports: ReportBillReportData[]
+  acts: ReportBillActData[]
+}
+
 export interface GetReportResponse {
   report_slug: string
   title: string
@@ -65,6 +84,7 @@ export interface GetReportResponse {
   referencing_oral_answer: ReferencedReportData | null
   previous_report: ReferencedReportData | null
   next_report: ReferencedReportData | null
+  bill: ReportBillData | null
 }
 
 async function getReportResponse(

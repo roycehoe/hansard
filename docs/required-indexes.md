@@ -865,7 +865,7 @@ CREATE INDEX ix_billreport_bill_id ON billreport (bill_id);
 
 Rows in the copy (planner estimate): 5,827. Index sizes there: `ix_billreport_report_id` 144 kB, `ix_billreport_bill_id` 128 kB.
 
-Three statements read this table. `GET /bills/{report_slug}` finds the bill of a report by `report_id` (`ix_billreport_report_id`) and lists a bill's reports by `bill_id` (`ix_billreport_bill_id`). `GET /people/{person_id}/bills` and `GET /acts/{sso_code}/people` go from SPRS report ids to `billreport` rows by joining `report` on its unique `report_id`, then probing `ix_billreport_report_id`. The taken-down exclusion is `report_id NOT IN (...)` over a short list, applied as a filter.
+Three statements read this table. `GET /bills/{report_slug}` finds the bill of a report by `report_id` (`ix_billreport_report_id`) and lists a bill's reports by `bill_id` (`ix_billreport_bill_id`). `GET /reports/{report_slug}` makes the same two reads: the `report_id` lookup for every report, and the bill's reports for a Bill debate. `GET /people/{person_id}/bills` and `GET /acts/{sso_code}/people` go from SPRS report ids to `billreport` rows by joining `report` on its unique `report_id`, then probing `ix_billreport_report_id`. The taken-down exclusion is `report_id NOT IN (...)` over a short list, applied as a filter.
 
 ```sql
 -- bill_report_by_report_id (GET /bills/{report_slug}; report 12665)
@@ -967,7 +967,7 @@ CREATE INDEX ix_billstageline_sprs_report_id ON billstageline (sprs_report_id);
 
 Rows in the copy (planner estimate): 10,673. Index sizes there: `ix_billstageline_sprs_report_id` 648 kB.
 
-Needed by `GET /bills/{report_slug}` and `GET /acts/{sso_code}`: the printed stage lines of the bill's reports, by `sprs_report_id` (`ix_billstageline_sprs_report_id`), joined to `report` for the taken-down exclusion and sorted by report, ordinal and stage.
+Needed by `GET /bills/{report_slug}`, `GET /reports/{report_slug}` (a Bill debate's `bill`), the search preview of a report page and `GET /acts/{sso_code}`: the printed stage lines of the bill's reports, by `sprs_report_id` (`ix_billstageline_sprs_report_id`), joined to `report` for the taken-down exclusion and sorted by report, ordinal and stage.
 
 ```sql
 -- bill_stage_lines_by_sprs_report_ids_excluding_report_ids (GET /bills/{report_slug}; 6 lines)
@@ -1055,7 +1055,7 @@ CREATE INDEX ix_acthistoryentry_bill_id ON acthistoryentry (bill_id);
 
 Rows in the copy (planner estimate): 9,905. Index sizes there: `ix_acthistoryentry_act_id` 96 kB, `ix_acthistoryentry_bill_id` 120 kB.
 
-Needed by `GET /acts/{sso_code}` (the Act's entries, by `act_id`), `GET /bills/{report_slug}` (the entries that link to the bill, by `bill_id`) and the `act` filter of `GET /search/speeches`. The first reads `ix_acthistoryentry_act_id` and sorts on `ordinal`; `uq_acthistoryentry_act_id_ordinal` could return the rows in order, and at 226 rows the planner prefers the cheaper index and a sort. The second reads `ix_acthistoryentry_bill_id` and hash-joins `act` for the code sort.
+Needed by `GET /acts/{sso_code}` (the Act's entries, by `act_id`), `GET /bills/{report_slug}` and `GET /reports/{report_slug}` (the entries that link to the bill, by `bill_id`) and the `act` filter of `GET /search/speeches`. The first reads `ix_acthistoryentry_act_id` and sorts on `ordinal`; `uq_acthistoryentry_act_id_ordinal` could return the rows in order, and at 226 rows the planner prefers the cheaper index and a sort. The second reads `ix_acthistoryentry_bill_id` and hash-joins `act` for the code sort.
 
 ```sql
 -- act_history_entries_by_act_id (GET /acts/{sso_code}; Act 237, 226 rows)

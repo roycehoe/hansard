@@ -119,6 +119,9 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("AskerData", f"{_REPORT_INTERFACES_FILE}::AskerData"),
     ("SpeechData", f"{_REPORT_INTERFACES_FILE}::SpeechData"),
     ("SpeechLinkData", f"{_REPORT_INTERFACES_FILE}::SpeechLinkData"),
+    ("ReportBillData", f"{_REPORT_INTERFACES_FILE}::ReportBillData"),
+    ("ReportBillReportData", f"{_REPORT_INTERFACES_FILE}::ReportBillReportData"),
+    ("ReportBillActData", f"{_REPORT_INTERFACES_FILE}::ReportBillActData"),
     (
         "GetReportLinksResponse",
         f"{_REPORT_LINKS_INTERFACES_FILE}::GetReportLinksResponse",

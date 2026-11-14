@@ -106,6 +106,7 @@ def _get_report(title: str, speeches: list[SpeechData]) -> GetReportResponse:
         referencing_oral_answer=None,
         previous_report=None,
         next_report=None,
+        bill=None,
     )
 
 

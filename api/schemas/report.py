@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from enums import ColumnNote, SpeechKind, SpeechLinkStatus
+from enums import BillStage, ColumnNote, SpeechKind, SpeechLinkStatus
 
 
 class SpeechData(BaseModel):
@@ -39,6 +39,24 @@ class AskerData(BaseModel):
     reader_person_name: str
 
 
+class ReportBillReportData(BaseModel):
+    report_slug: str
+    sitting_date: date
+    stages: list[BillStage]
+
+
+class ReportBillActData(BaseModel):
+    sso_code: str
+    title: str
+    is_made_by_bill: bool
+
+
+class ReportBillData(BaseModel):
+    title: str
+    reports: list[ReportBillReportData]
+    acts: list[ReportBillActData]
+
+
 class GetReportResponse(BaseModel):
     report_slug: str
     title: str
@@ -57,6 +75,7 @@ class GetReportResponse(BaseModel):
     referencing_oral_answer: Optional[ReferencedReportData]
     previous_report: Optional[ReferencedReportData]
     next_report: Optional[ReferencedReportData]
+    bill: Optional[ReportBillData]
 
 
 class GetReportMatchedWordsResponse(BaseModel):

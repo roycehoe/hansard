@@ -2,16 +2,23 @@ from typing import Optional
 
 from sqlmodel import Session
 
+from crud.act import CRUDAct
+from crud.act_history_entry import CRUDActHistoryEntry
+from crud.bill_report import CRUDBillReport
+from crud.bill_stage_line import CRUDBillStageLine
 from crud.report import CRUDReport
 from crud.report_asker import CRUDReportAsker
 from crud.report_link import CRUDReportLink
 from crud.speech import CRUDSpeech
+from database.act_history_entry import ActHistoryEntry
+from database.bill_stage_line import BillStageLine
 from database.person import Person
 from database.report import Report
 from database.report_asker import ReportAsker
 from database.report_link import ReportLink
 from database.speech import Speech
 from enums import (
+    BillReportRole,
     ReportLinkRelation,
     ReportLinkType,
     ReportType,
@@ -19,18 +26,23 @@ from enums import (
     SpeechLinkStatus,
 )
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
+from middleware.bill import get_bill_id_to_visible_bill
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
-from middleware.takedown import is_report_id_taken_down
+from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
 from schemas.report import (
     AskerData,
     GetReportMatchedWordsResponse,
     GetReportResponse,
     ReferencedReportData,
+    ReportBillActData,
+    ReportBillData,
+    ReportBillReportData,
     SpeechData,
     SpeechLinkData,
 )
 from schemas.report_link import GetReportLinksResponse, ReportLinkData
+from utils.law_name import get_law_name
 from utils.marked_words import get_marked_words
 from utils.official_record import get_official_record_url
 from utils.person_slug import get_person_slug
@@ -301,6 +313,74 @@ def get_report_links(report_slug: str, session: Session) -> GetReportLinksRespon
     )
 
 
+def _is_act_made_by_bill(entry: ActHistoryEntry, act_title: str) -> bool:
+    return get_law_name(entry.printed_title) == get_law_name(act_title)
+
+
+def _get_report_bill_data(report: Report, session: Session) -> Optional[ReportBillData]:
+    bill_report = CRUDBillReport(session).get_by_report_id(report.id)
+    if bill_report is None:
+        return None
+    taken_down_report_ids = get_taken_down_report_ids(session)
+    visible_bill = get_bill_id_to_visible_bill(
+        [bill_report.bill_id], taken_down_report_ids, session
+    ).get(bill_report.bill_id)
+    if (
+        visible_bill is None
+        or visible_bill.sprs_report_id_to_role[report.report_id]
+        != BillReportRole.READING
+    ):
+        return None
+    reading_reports = [
+        visible_report
+        for visible_report in visible_bill.reports
+        if visible_bill.sprs_report_id_to_role[visible_report.report_id]
+        == BillReportRole.READING
+    ]
+    sprs_report_id_to_stage_lines: dict[str, list[BillStageLine]] = {}
+    for stage_line in CRUDBillStageLine(
+        session
+    ).get_all_by_sprs_report_ids_excluding_report_ids(
+        [reading_report.report_id for reading_report in reading_reports],
+        taken_down_report_ids,
+    ):
+        sprs_report_id_to_stage_lines.setdefault(stage_line.sprs_report_id, []).append(
+            stage_line
+        )
+    entries = CRUDActHistoryEntry(session).get_all_by_bill_id(visible_bill.bill.id)
+    act_ids = sorted({entry.act_id for entry in entries})
+    return ReportBillData(
+        title=visible_bill.bill.title,
+        reports=[
+            ReportBillReportData(
+                report_slug=get_report_slug(reading_report.report_id),
+                sitting_date=reading_report.sitting_date.date(),
+                stages=list(
+                    dict.fromkeys(
+                        stage_line.stage
+                        for stage_line in sprs_report_id_to_stage_lines.get(
+                            reading_report.report_id, []
+                        )
+                    )
+                ),
+            )
+            for reading_report in reading_reports
+        ],
+        acts=[
+            ReportBillActData(
+                sso_code=act.sso_code,
+                title=act.title,
+                is_made_by_bill=any(
+                    _is_act_made_by_bill(entry, act.title)
+                    for entry in entries
+                    if entry.act_id == act.id
+                ),
+            )
+            for act in CRUDAct(session).get_by_ids(act_ids)
+        ],
+    )
+
+
 def get_report(
     report_slug: str,
     speech_ordinal: Optional[int],
@@ -381,6 +461,7 @@ def get_report(
         ),
         previous_report=_get_sitting_neighbour_data(sitting_reports, report_index - 1),
         next_report=_get_sitting_neighbour_data(sitting_reports, report_index + 1),
+        bill=_get_report_bill_data(report, session),
     )
 
 
