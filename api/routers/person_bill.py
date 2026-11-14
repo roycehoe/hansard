@@ -4,17 +4,12 @@ from sqlmodel import Session
 from database.engine import get_session
 from schemas.bill import GetPersonBillsResponse
 from services import bill as bill_service
-from validators.unreleased_endpoint import validate_can_read_unreleased_endpoint
 
 _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
 _MAX_INTEGER_COLUMN_VALUE = 2_147_483_647
 
-router = APIRouter(
-    prefix="/people",
-    tags=["people"],
-    dependencies=[Depends(validate_can_read_unreleased_endpoint)],
-)
+router = APIRouter(prefix="/people", tags=["people"])
 
 
 @router.get("/{person_id}/bills", status_code=200)

@@ -820,7 +820,7 @@ CREATE UNIQUE INDEX bill_pkey ON bill (id);
 
 Rows in the copy (planner estimate): 2,811. Index sizes there: `bill_pkey` 80 kB.
 
-Needed by `GET /bills/{report_slug}`, `GET /acts/{sso_code}`, `GET /acts/{sso_code}/people`, `GET /people/{person_id}/bills` and the `act` filter of `GET /search/speeches` (the bill routes and `GET /acts/{sso_code}/people` are unreleased), through `middleware/bill.py`, which reads the bills of the reports it has found and keeps those with a `billkey` row and a visible report. The statement reads `bill` by primary key. `ix_bill_bill_number` and `ix_bill_title_key` are not read by any API statement.
+Needed by `GET /bills/{report_slug}`, `GET /acts/{sso_code}`, `GET /acts/{sso_code}/people`, `GET /people/{person_id}/bills` and the `act` filter of `GET /search/speeches` (`GET /bills/{report_slug}` and `GET /acts/{sso_code}/people` are unreleased), through `middleware/bill.py`, which reads the bills of the reports it has found and keeps those with a `billkey` row and a visible report. The statement reads `bill` by primary key. `ix_bill_bill_number` and `ix_bill_title_key` are not read by any API statement.
 
 ```sql
 -- bills_by_ids (middleware/bill.py; 2 bills)
