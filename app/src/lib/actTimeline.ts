@@ -52,7 +52,7 @@ function getFirstReportDate(entry: ActEntryData): string | null {
   return sortReportsOldestFirst(getReports(entry))[0]?.sitting_date ?? null
 }
 
-function normaliseLawName(title: string): string {
+export function normaliseLawName(title: string): string {
   return title
     .replace(CHAPTER_PATTERN, '')
     .replace(PUNCTUATION_PATTERN, '')
@@ -69,7 +69,9 @@ function isActEventKind(value: string): value is ActEventKind {
 }
 
 // NOTE: one label per report, worked out in date order. A report the record names no reading for reads "Debate", or "Second reading continued" once a second reading has opened and not yet been agreed.
-export function getReportLabels(reports: ActEntryReportData[]): string[] {
+export function getReportLabels(
+  reports: Pick<ActEntryReportData, 'stages'>[]
+): string[] {
   let isSecondReadingOpen = false
   let isSecondReadingAgreed = false
   return reports.map((report) => {

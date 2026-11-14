@@ -2,6 +2,7 @@ import type { GetReportResponse } from '@/api/reports/getReport'
 import { ButtonCopyCitation } from '@/components/reports/ButtonCopyCitation'
 import { ListReportMetadata } from '@/components/reports/ListReportMetadata'
 import { PopoverReportType } from '@/components/reports/PopoverReportType'
+import { PopoverTimeline } from '@/components/reports/PopoverTimeline'
 import { TextAskedBy } from '@/components/reports/TextAskedBy'
 import {
   Breadcrumb,
@@ -18,8 +19,10 @@ import {
   REPORT_HEADER_MAIN_CLASS_NAME,
   REPORT_HEADER_TRAIL_CLASS_NAME,
 } from '@/constants/reports/constants'
+import { isTimelineShown } from '@/lib/billTimeline'
 import { buildReportCitation } from '@/lib/citation'
 import { formatSittingDate } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { ChevronLeft } from 'lucide-react'
 
@@ -28,6 +31,8 @@ interface SectionReportHeaderProps {
 }
 
 export function SectionReportHeader({ report }: SectionReportHeaderProps) {
+  const timelineBill =
+    report.bill !== null && isTimelineShown(report.bill) ? report.bill : null
   return (
     <div className={REPORT_HEADER_CLASS_NAME}>
       <Breadcrumb className={REPORT_HEADER_TRAIL_CLASS_NAME}>
@@ -74,8 +79,28 @@ export function SectionReportHeader({ report }: SectionReportHeaderProps) {
         <div className="mt-2">
           <ListReportMetadata report={report} />
         </div>
+        {timelineBill !== null && (
+          <div className="mt-3 sm:hidden">
+            <PopoverTimeline
+              key={report.report_slug}
+              bill={timelineBill}
+              reportSlug={report.report_slug}
+              align="start"
+            />
+          </div>
+        )}
       </div>
-      <div className={REPORT_HEADER_ACTION_CLASS_NAME}>
+      <div className={cn(REPORT_HEADER_ACTION_CLASS_NAME, 'flex gap-2')}>
+        {timelineBill !== null && (
+          <div className="max-sm:hidden">
+            <PopoverTimeline
+              key={report.report_slug}
+              bill={timelineBill}
+              reportSlug={report.report_slug}
+              align="end"
+            />
+          </div>
+        )}
         <ButtonCopyCitation
           citation={buildReportCitation(
             report.sitting_date,
