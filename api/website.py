@@ -12,6 +12,7 @@ from middleware.cache_fill import (
     fill_coverage_parliament_and_sitemap_caches_after_each_refresh,
 )
 from middleware.frontend import FrontendFiles
+from middleware.page_redirect import PageRedirectMiddleware
 from middleware.security_headers import SecurityHeadersMiddleware
 from middleware.takedown import TakedownMiddleware
 from routers import embed, sitemap
@@ -45,6 +46,8 @@ app.add_middleware(
     TakedownMiddleware,
     frontend_dist_path=website_settings.frontend_dist_path,
 )
+
+app.add_middleware(PageRedirectMiddleware)
 
 if not website_settings.is_public_mode:
     app.add_middleware(
