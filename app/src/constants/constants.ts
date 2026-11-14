@@ -52,6 +52,9 @@ export const REVISED_EDITION_DEFINITION =
 export const QUESTION_DEFINITION =
   'A question a member puts to a minister, aloud at Question Time or in writing. Ministers answer questions, and the Speaker and Deputy Speakers chair the sitting, so members in those offices ask few or none.'
 
+export const BILL_DEFINITION =
+  'A Bill the member spoke on, at one of its readings or in the Budget debate. Speaking from the chair does not count.'
+
 export const DEFAULT_QUERY_RETRY_COUNT = 3
 
 export const SEARCH_BUSY_RETRY_COUNT = 1

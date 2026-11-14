@@ -13,3 +13,7 @@ export enum PersonNameSpellingKind {
 export enum PersonReportFilter {
   ASKED = 'asked',
 }
+
+export enum PersonBillsFilter {
+  BILLS = 'bills',
+}

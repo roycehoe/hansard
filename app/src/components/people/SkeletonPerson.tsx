@@ -38,7 +38,7 @@ export function SkeletonPerson() {
           <Skeleton className="h-7 w-28" />
           <Skeleton className="h-8 w-56" />
         </div>
-        <Skeleton className="h-9 w-72" />
+        <Skeleton className="h-9 w-96 max-w-full" />
         <SkeletonReportRows />
       </div>
     </div>

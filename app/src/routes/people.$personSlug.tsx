@@ -5,8 +5,10 @@ import { ButtonCopyLink } from '@/components/layout/ButtonCopyLink'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { PaginationInfiniteScroll } from '@/components/layout/PaginationInfiniteScroll'
 import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
+import { ListPersonBillsByParliament } from '@/components/people/ListPersonBillsByParliament'
 import { ListPersonReports } from '@/components/people/ListPersonReports'
 import { NoticeErrorPerson } from '@/components/people/NoticeErrorPerson'
+import { NoticeErrorPersonBills } from '@/components/people/NoticeErrorPersonBills'
 import { NoticeErrorPersonReports } from '@/components/people/NoticeErrorPersonReports'
 import { NoticeNotFoundPerson } from '@/components/people/NoticeNotFoundPerson'
 import { SectionMemberTimeline } from '@/components/people/SectionMemberTimeline'
@@ -37,9 +39,15 @@ import {
   PERSON_TITLE_SUFFIX,
   SPELLING_NOTE_NUMBER,
 } from '@/constants/people/constants'
-import { PersonReportFilter } from '@/constants/people/enums'
+import { PersonBillsFilter, PersonReportFilter } from '@/constants/people/enums'
+import { useAllPersonBills } from '@/hooks/useAllPersonBills'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament } from '@/lib/format'
+import {
+  countPersonBills,
+  countPersonBillsByParliament,
+  groupPersonBillsByParliament,
+} from '@/lib/personBills'
 import { formatOtherNames, getNameSpellings } from '@/lib/personName'
 import {
   getMembershipToPartyNote,
@@ -51,7 +59,10 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 
 const personSearchSchema = z.object({
-  filter: z.enum(PersonReportFilter).optional().catch(undefined),
+  filter: z
+    .union([z.enum(PersonReportFilter), z.enum(PersonBillsFilter)])
+    .optional()
+    .catch(undefined),
 })
 
 export const Route = createFileRoute('/people/$personSlug')({
@@ -62,7 +73,18 @@ export const Route = createFileRoute('/people/$personSlug')({
     const navigate = useNavigate()
     const { personId, slug } = parsePersonSlug(personSlug)
     const person = useGetPerson({ person_id: personId })
-    const reports = useGetPersonReports({ person_id: personId, filter })
+    const reportFilter = filter === PersonBillsFilter.BILLS ? undefined : filter
+    const reports = useGetPersonReports({
+      person_id: personId,
+      filter: reportFilter,
+    })
+    const { bills } = useAllPersonBills(personId)
+    const billGroups =
+      bills.data && !bills.hasNextPage
+        ? groupPersonBillsByParliament(
+            bills.data.pages.flatMap((page) => page.bills)
+          )
+        : undefined
     const canonicalSlug = person.data?.person_slug
     useDocumentTitle(
       person.data && `${person.data.canonical_name}, ${PERSON_TITLE_SUFFIX}`
@@ -93,19 +115,27 @@ export const Route = createFileRoute('/people/$personSlug')({
       void reports.fetchNextPage()
     }
 
+    function retryBills() {
+      if (bills.isLoadingError) void bills.refetch()
+      else void bills.fetchNextPage()
+    }
+
     function changeTab(nextTab: string) {
       void navigate({
         to: '/people/$personSlug',
         params: { personSlug },
         search: (previous) => ({
           ...previous,
-          filter:
-            nextTab === PersonReportFilter.ASKED
-              ? PersonReportFilter.ASKED
-              : undefined,
+          filter: getFilterOfTab(nextTab),
         }),
         resetScroll: false,
       })
+    }
+
+    function getFilterOfTab(nextTab: string) {
+      if (nextTab === PersonReportFilter.ASKED) return PersonReportFilter.ASKED
+      if (nextTab === PersonBillsFilter.BILLS) return PersonBillsFilter.BILLS
+      return undefined
     }
 
     function renderReports(personName: string) {
@@ -123,14 +153,14 @@ export const Route = createFileRoute('/people/$personSlug')({
       const [firstPage] = reports.data.pages
       const personReports = reports.data.pages.flatMap((page) => page.reports)
       const reportCount =
-        filter === PersonReportFilter.ASKED
+        reportFilter === PersonReportFilter.ASKED
           ? firstPage.questions_asked_count
           : firstPage.total_count
       return (
         <div className="space-y-4">
           <ListPersonReports
             reports={personReports}
-            filter={filter}
+            filter={reportFilter}
             personName={personName}
           />
           {reports.hasNextPage && !reports.isFetchNextPageError && (
@@ -149,6 +179,24 @@ export const Route = createFileRoute('/people/$personSlug')({
             shownCount={personReports.length}
           />
         </div>
+      )
+    }
+
+    function renderBills(personName: string) {
+      if (bills.isLoadingError || bills.isFetchNextPageError) {
+        return (
+          <NoticeErrorPersonBills
+            onRetry={retryBills}
+            isRetrying={bills.isRefetching || bills.isFetchingNextPage}
+          />
+        )
+      }
+      if (billGroups === undefined) return <SkeletonReportRows />
+      return (
+        <ListPersonBillsByParliament
+          groups={billGroups}
+          personName={personName}
+        />
       )
     }
 
@@ -265,7 +313,13 @@ export const Route = createFileRoute('/people/$personSlug')({
             >
               Activity
             </h2>
-            <TableParliamentCounts parliamentCounts={data.parliament_counts} />
+            <TableParliamentCounts
+              parliamentCounts={data.parliament_counts}
+              parliamentToBillCount={
+                billGroups && countPersonBillsByParliament(billGroups)
+              }
+              personSlug={`${data.person_id}-${data.person_slug}`}
+            />
             <TextHandAliasNote
               personName={data.canonical_name}
               handAliasNote={PERSON_ID_TO_HAND_ALIAS_NOTE[data.person_id]}
@@ -289,7 +343,7 @@ export const Route = createFileRoute('/people/$personSlug')({
             onValueChange={changeTab}
             className="gap-4"
           >
-            <TabsList>
+            <TabsList className="flex-wrap group-data-[orientation=horizontal]/tabs:h-auto">
               <TabsTrigger value={FILTER_ALL}>
                 All reports
                 {renderTabCount(firstReportsPage?.total_count)}
@@ -298,12 +352,19 @@ export const Route = createFileRoute('/people/$personSlug')({
                 Questions asked
                 {renderTabCount(firstReportsPage?.questions_asked_count)}
               </TabsTrigger>
+              <TabsTrigger value={PersonBillsFilter.BILLS}>
+                Bills spoken on
+                {renderTabCount(billGroups && countPersonBills(billGroups))}
+              </TabsTrigger>
             </TabsList>
             <TabsContent value={FILTER_ALL}>
               {renderReports(data.canonical_name)}
             </TabsContent>
             <TabsContent value={PersonReportFilter.ASKED}>
               {renderReports(data.canonical_name)}
+            </TabsContent>
+            <TabsContent value={PersonBillsFilter.BILLS}>
+              {renderBills(data.canonical_name)}
             </TabsContent>
           </Tabs>
         </section>
