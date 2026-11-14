@@ -27,8 +27,6 @@ import {
   DATA_LOSS_REGISTER_URL,
   ERROR_SHARE_PARLIAMENTS_TWELVE_TO_FOURTEEN,
   ERROR_SHARE_TO_PARLIAMENT_ELEVEN,
-  HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT,
-  HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT,
   HOW_THIS_WAS_BUILT_URL,
   METHODS_ANNEX_SECTION_ID,
   METHODS_ATTRIBUTION_HEADING_ID,
@@ -281,19 +279,6 @@ export const Route = createFileRoute('/coverage/methods')({
             kinds of mistake: words credited to the wrong person, text lost or
             repeated, and something that happened in the chamber shown as
             someone&apos;s words.
-          </p>
-          <p>
-            In a second check, an AI read paragraphs to check who they were
-            credited to, while a script compared every word with
-            Parliament&apos;s text. I read{' '}
-            {HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT} of the paragraphs they
-            flagged myself. For the rest, an AI applied decisions I had already
-            made on the same kinds of difference. In all, the check found{' '}
-            {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT}{' '}
-            {HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT === 1
-              ? 'paragraph'
-              : 'paragraphs'}{' '}
-            credited to the wrong person.
           </p>
           <p>
             The{' '}
