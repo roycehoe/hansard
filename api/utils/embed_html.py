@@ -1,6 +1,9 @@
 import re
+from dataclasses import dataclass
 from datetime import date
 from html import escape
+from itertools import accumulate
+from typing import Optional
 from urllib.parse import quote, urlencode
 
 from utils.sitting_date import get_sitting_date_label
@@ -12,6 +15,9 @@ _ELLIPSIS = "…"
 _INLINE_MARKUP = re.compile(r"(\*\*[^*]+\*\*|_[^_]+_)")
 _BOLD_MARKER = "**"
 _ITALIC_MARKER = "_"
+_BOLD_TAG_NAME = "strong"
+_ITALIC_TAG_NAME = "em"
+_NOT_FOUND_INDEX = -1
 _NO_SPEAKER_LABEL = ""
 _NO_ANCHOR = ""
 _SPEECH_ORDINAL_PARAMETER = "s"
@@ -40,45 +46,77 @@ _EMBED_STYLE = (
 )
 
 
-def _get_embed_quote(transcript: str) -> str:
-    if len(transcript) <= _MAX_QUOTE_LENGTH:
-        return transcript
-    sentence_ends = [
-        match.end()
-        for match in _SENTENCE_END.finditer(transcript)
-        if match.end() <= _MAX_QUOTE_LENGTH
-    ]
-    if sentence_ends:
-        return f"{transcript[: sentence_ends[-1]]}{_WORD_SEPARATOR}{_ELLIPSIS}"
-    words = transcript[:_MAX_QUOTE_LENGTH].rsplit(_WORD_SEPARATOR, 1)[0]
-    return words + _ELLIPSIS
+@dataclass(frozen=True)
+class _TranscriptPart:
+    text: str
+    tag_name: Optional[str]
 
 
-def _get_transcript_part_html(part: str) -> str:
+def _get_transcript_part(markup_part: str) -> _TranscriptPart:
     if (
-        len(part) > len(_BOLD_MARKER) * 2
-        and part.startswith(_BOLD_MARKER)
-        and part.endswith(_BOLD_MARKER)
+        len(markup_part) > len(_BOLD_MARKER) * 2
+        and markup_part.startswith(_BOLD_MARKER)
+        and markup_part.endswith(_BOLD_MARKER)
     ):
-        return (
-            f"<strong>{escape(part[len(_BOLD_MARKER) : -len(_BOLD_MARKER)])}</strong>"
+        return _TranscriptPart(
+            markup_part[len(_BOLD_MARKER) : -len(_BOLD_MARKER)], _BOLD_TAG_NAME
         )
     if (
-        len(part) > len(_ITALIC_MARKER) * 2
-        and part.startswith(_ITALIC_MARKER)
-        and part.endswith(_ITALIC_MARKER)
+        len(markup_part) > len(_ITALIC_MARKER) * 2
+        and markup_part.startswith(_ITALIC_MARKER)
+        and markup_part.endswith(_ITALIC_MARKER)
     ):
-        return f"<em>{escape(part[len(_ITALIC_MARKER) : -len(_ITALIC_MARKER)])}</em>"
-    return escape(part)
+        return _TranscriptPart(
+            markup_part[len(_ITALIC_MARKER) : -len(_ITALIC_MARKER)], _ITALIC_TAG_NAME
+        )
+    return _TranscriptPart(markup_part, None)
 
 
 # NOTE: the same bold and italic markup that parseTranscriptInline in app/src/lib/transcript.ts draws on the report page
-def _get_transcript_html(transcript: str) -> str:
-    return "".join(
-        _get_transcript_part_html(part)
-        for part in _INLINE_MARKUP.split(transcript)
-        if part != ""
-    )
+def _get_transcript_parts(transcript: str) -> list[_TranscriptPart]:
+    return [
+        _get_transcript_part(markup_part)
+        for markup_part in _INLINE_MARKUP.split(transcript)
+        if markup_part != ""
+    ]
+
+
+def _get_quote_length(plain_text: str) -> int:
+    if len(plain_text) <= _MAX_QUOTE_LENGTH:
+        return len(plain_text)
+    sentence_ends = [
+        match.end()
+        for match in _SENTENCE_END.finditer(plain_text)
+        if match.end() <= _MAX_QUOTE_LENGTH
+    ]
+    if sentence_ends:
+        return sentence_ends[-1]
+    last_word_end = plain_text.rfind(_WORD_SEPARATOR, 0, _MAX_QUOTE_LENGTH + 1)
+    if last_word_end == _NOT_FOUND_INDEX:
+        return _MAX_QUOTE_LENGTH
+    return last_word_end
+
+
+def _get_transcript_part_html(text: str, tag_name: Optional[str]) -> str:
+    if tag_name is None:
+        return escape(text)
+    return f"<{tag_name}>{escape(text)}</{tag_name}>"
+
+
+# NOTE: the cut runs on the text after the markup is read, so a cut inside a bold or italic run still closes its tag
+def _get_quote_html(transcript: str) -> str:
+    parts = _get_transcript_parts(transcript)
+    plain_text = "".join(part.text for part in parts)
+    quote_length = _get_quote_length(plain_text)
+    part_starts = accumulate((len(part.text) for part in parts), initial=0)
+    part_htmls = [
+        _get_transcript_part_html(part.text[: quote_length - part_start], part.tag_name)
+        for part, part_start in zip(parts, part_starts)
+        if part_start < quote_length
+    ]
+    if quote_length == len(plain_text):
+        return "".join(part_htmls)
+    return f"{''.join(part_htmls)}{_WORD_SEPARATOR}{_ELLIPSIS}"
 
 
 def _get_speech_path(report_slug: str, ordinal: int, anchor: str) -> str:
@@ -123,7 +161,7 @@ def get_speech_embed_html(
         "<figure>"
         '<blockquote class="quote"><p>'
         f"{_get_speaker_label_html(speaker_label)}"
-        f"{_get_transcript_html(_get_embed_quote(transcript))}"
+        f"{_get_quote_html(transcript)}"
         "</p></blockquote>"
         f'<figcaption><a href="{escape(speech_path)}" target="_blank" '
         f'rel="nofollow noopener">Hansard, {escape(sitting_date_label)}'
