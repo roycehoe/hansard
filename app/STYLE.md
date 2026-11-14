@@ -1444,6 +1444,8 @@ sessionStorage.getItem('SpeechFilters')
 
 Every user-facing string in `app/src` follows these rules: buttons, labels, toasts, notices, empty and error states, tooltips, `aria-label` values, `sr-only` text, page and section text, placeholders, meta titles, `/design` and `/palette`, and any API error message the app shows. Copy states a fact the reader needs, in the words the interface already uses. Each symptom below is a way copy fails; the sources are linked once per symptom.
 
+Page and section prose also follows [`app/WRITING.md`](WRITING.md), the writing guide, which wins where the two differ.
+
 ### Symptoms
 
 - **Leaking system internals** (also: developer voice, internal jargon). Words the reader never sees on screen: parse, re-parse, cache, payload, status codes. Fix: say what happened or what to do, or drop it. [NN/g heuristic 2](https://www.nngroup.com/articles/ten-usability-heuristics/).
@@ -1491,19 +1493,14 @@ Every user-facing string in `app/src` follows these rules: buttons, labels, toas
 - **No em dashes.** Use the real ellipsis character (…), only for an in-progress label such as "Retrying…". Never three dots.
 - **House choices where sources disagree:**
   - Contractions are fine ("Couldn't load the speeches"): they match the existing copy and Microsoft's guide, though GOV.UK avoids them.
-  - No first person ("we", "I", "our") in interface strings or on record pages: state the fact, since the app is a record, not a speaker. Explanatory pages are the exception, under [Explanatory pages](#explanatory-pages).
+  - No first person ("we", "I", "our") in interface strings or on record pages: state the fact, since the app is a record, not a speaker. Explanatory pages are the exception, under [Voice](WRITING.md#voice) in the writing guide.
   - No "please" and no "sorry": neither helps the reader fix anything.
   - No exclamation marks: a records site has no routine milestone to celebrate.
   - Dates keep the format the app already uses; don't introduce a second one.
 
 ### Explanatory pages
 
-About, Data quality and methods, For researchers, How Parliament works and `docs/corrections.md` are prose that Royce writes to the reader. Three rules differ there, because the job of these pages is to explain and to make promises a person stands behind.
-
-- **Write as "I".** Say "I'm Royce" where the page first says "I", and write "I" after that. Leave the surname out of first-person text, because nobody introduces themselves that way. A byline such as "Built and run by Royce Hoe" is a signature and keeps the full name. Never write "we", since one person runs the site. Things the software does keep the archive or the site as their subject ("The archive splits each report into speeches").
-- **Keep the reason.** Over-explaining is a symptom of toasts, notices and labels. On these pages the reason is often the point, so keep the "because" that says why a rule exists or what a figure means.
-- **Write paragraphs, not telegrams.** Vary sentence length, let some sentences run past 20 words, and keep the word that links one sentence to the next. The 15 to 25 word average in plain-language guides is a ceiling to check against, not a target. A run of short sentences of one length with nothing joining them reads as machine-written. [Wikipedia, Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing); [digital.gov, write short sentences](https://digital.gov/guides/plain-language/writing/clear-short).
-  Before: `Royce fixes it and lists each fix in the corrections log, newest first.` After: `Tell me and I'll fix it. Each fix goes in the corrections log, newest first, so you can see what changed and when.`
+Which pages are explanatory pages, and the rules that differ on them, are in [`app/WRITING.md`](WRITING.md#explanatory-pages).
 
 ### Review checklist
 

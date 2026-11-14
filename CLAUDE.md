@@ -10,7 +10,7 @@ Open Hansard is a web app at openhansard.sg for browsing Singapore Parliament Ha
 
 | Path | What it is | Conventions |
 |------|-----------|-------------|
-| `app/` | Frontend: React 19, TypeScript, Vite, Tailwind 4, shadcn, TanStack | `app/CLAUDE.md`, `app/STYLE.md` |
+| `app/` | Frontend: React 19, TypeScript, Vite, Tailwind 4, shadcn, TanStack | `app/CLAUDE.md`, `app/STYLE.md`, `app/WRITING.md` |
 | `api/` | Backend: Python 3.15, FastAPI, SQLModel, read-only against the scraper database | `api/CLAUDE.md`, `api/STYLE.md`, `api/STYLE-RULINGS.md` |
 | `docs/` | Palette, indexes, takedown and corrections notes, and the ADRs. `docs/README.md` says what each file is for. | `docs/README.md` |
 | `docs/adr/` | Architecture decision records. Read these before recommending or planning a change. An ADR may already have decided it. | |
