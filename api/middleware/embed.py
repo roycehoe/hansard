@@ -14,7 +14,7 @@ _MAX_SPEECH_ANCHOR_LENGTH = 200
 _REPORT_NOT_FOUND_TITLE = "Report not found"
 _REPORT_NOT_FOUND_DESCRIPTION = "No report has this address."
 _REPORT_REMOVED_TITLE = "Report removed"
-_REPORT_REMOVED_DESCRIPTION = "This report is no longer on this site."
+_REPORT_REMOVED_DESCRIPTION = "This report is no longer on Open Hansard."
 _PARAGRAPH_NOT_FOUND_TITLE = "Paragraph not found"
 _PARAGRAPH_NOT_FOUND_DESCRIPTION = (
     "The paragraph this link pointed to is no longer in this report."
