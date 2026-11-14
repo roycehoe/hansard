@@ -19,11 +19,11 @@ Work in this order. Find the page's reader, apply the nine principles, apply the
 
 Royce named these readers on 14 Nov 2026.
 
-| Reader | Pages | What they already know |
-|---|---|---|
-| Someone who knows nothing about Parliament | Home `/`, How Parliament works `/how-parliament-works`, About `/about`, Policies `/about/policies`, Coverage `/coverage` | Nothing. They don't know what an MP, a Bill, a sitting, or the Hansard is. |
-| A researcher or journalist | Data quality and methods `/coverage/methods`, For researchers `/researchers` | How Parliament works. They want to know how the archive was made, how far to trust it, and how to cite it. |
-| Anyone at all | Interface text on every page: the header, footer, buttons, labels, notices, tooltips, empty and error states, and `aria-label` values. That includes the record pages under `/search`, `/sittings`, `/people`, `/acts`, and `/reports`. | Anything from nothing to everything. Write so a newcomer can follow and an expert isn't slowed down. |
+| Reader                                     | Pages                                                                                                                                                                                                                                   | What they already know                                                                                     |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Someone who knows nothing about Parliament | Home `/`, How Parliament works `/how-parliament-works`, About `/about`, Policies `/about/policies`, Coverage `/coverage`                                                                                                                | Nothing. They don't know what an MP, a Bill, a sitting, or the Hansard is.                                 |
+| A researcher or journalist                 | Data quality and methods `/coverage/methods`, For researchers `/researchers`                                                                                                                                                            | How Parliament works. They want to know how the archive was made, how far to trust it, and how to cite it. |
+| Anyone at all                              | Interface text on every page: the header, footer, buttons, labels, notices, tooltips, empty and error states, and `aria-label` values. That includes the record pages under `/search`, `/sittings`, `/people`, `/acts`, and `/reports`. | Anything from nothing to everything. Write so a newcomer can follow and an expert isn't slowed down.       |
 
 Policies holds the long text that was on About until 14 Nov 2026, so it keeps About's reader.
 
@@ -214,6 +214,7 @@ Royce, 14 Nov 2026: "Footnotes are to be used sparingly. Using footnotes to expl
 - Interface text never has a footnote. A note beside a printed value on a record page follows `docs/adr/0006-display-what-the-record-prints.md`, and this guide doesn't change it.
 - Before (66 words): "By convention, Ministers come from the elected MPs of the party that forms the Government, and Parliament's own guides describe them that way. An NCMP comes from a party outside the Government, and an NMP who became a Minister still could not vote on the Bill that approves their own Government's spending or on a vote of no confidence, so either appointment would be highly unusual."
 - After (38 words): "By convention, Ministers are elected MPs from the party that forms the Government. NCMPs come from outside the Government, while NMPs cannot vote on Government spending Bills or a vote of no confidence, making either appointment highly unusual."
+
 ### Terms
 
 Royce ruled the first three on 14 Nov 2026. The fourth repeats `app/STYLE.md`.
