@@ -19,8 +19,12 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [isEmbedDialogOpen, setIsEmbedDialogOpen] = useState<boolean>(false)
   const dotsButtonRef = useRef<HTMLButtonElement>(null)
-  const { copySpeechLink, copySpeechCitation, errorEmailHref } =
-    buildSpeechActions(props)
+  const {
+    copySpeechLink,
+    copySpeechCitation,
+    showSpeechLinkInAddress,
+    errorEmailHref,
+  } = buildSpeechActions(props)
   const actionsLabel = `Actions for paragraph ${ordinal}`
   const [hasOpened, setHasOpened] = useState<boolean>(false)
 
@@ -44,8 +48,14 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
   }
 
   function openFirstMenu() {
+    showSpeechLinkInAddress()
     setHasOpened(true)
     setIsOpen(true)
+  }
+
+  function changeMenuOpen(isNextOpen: boolean) {
+    if (isNextOpen) showSpeechLinkInAddress()
+    setIsOpen(isNextOpen)
   }
 
   const dotsButton = (
@@ -69,7 +79,7 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
 
   return (
     <span className={DOTS_WRAPPER_CLASS_NAME}>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover open={isOpen} onOpenChange={changeMenuOpen}>
         <PopoverTrigger asChild>{dotsButton}</PopoverTrigger>
         <PopoverContent
           align="end"

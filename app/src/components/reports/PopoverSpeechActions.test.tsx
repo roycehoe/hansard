@@ -2,9 +2,10 @@
 import { PopoverSpeechActions } from '@/components/reports/PopoverSpeechActions'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 const DOTS_LABEL = 'Actions for paragraph 3'
+const PARAGRAPH_ADDRESS = '/reports/report?s=3&q=s3'
 
 let container: HTMLElement
 let root: Root
@@ -16,6 +17,10 @@ beforeAll(() => {
     unobserve() {}
     disconnect() {}
   }
+})
+
+beforeEach(() => {
+  window.history.replaceState(null, '', '/reports/report')
 })
 
 afterEach(() => {
@@ -61,6 +66,10 @@ async function pressEscape() {
   })
 }
 
+function readAddress() {
+  return `${window.location.pathname}${window.location.search}`
+}
+
 function getMenu() {
   return document.querySelector('[role="dialog"]')
 }
@@ -97,5 +106,24 @@ describe('PopoverSpeechActions', () => {
     expect(document.activeElement).toBe(
       container.querySelector(`button[aria-label="${DOTS_LABEL}"]`)
     )
+  })
+
+  it('puts the paragraph link in the address when the first menu opens', () => {
+    const lengthBefore = window.history.length
+    tap(renderMenu())
+    expect(readAddress()).toBe(PARAGRAPH_ADDRESS)
+    expect(window.history.length).toBe(lengthBefore)
+  })
+
+  it('puts the paragraph link back when a later menu opens', async () => {
+    renderMenu()
+    const tapDots = () =>
+      tap(container.querySelector(`button[aria-label="${DOTS_LABEL}"]`)!)
+    tapDots()
+    await pressEscape()
+    expect(readAddress()).toBe(PARAGRAPH_ADDRESS)
+    window.history.replaceState(null, '', '/reports/report')
+    tapDots()
+    expect(readAddress()).toBe(PARAGRAPH_ADDRESS)
   })
 })
