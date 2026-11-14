@@ -4,6 +4,11 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 
 const HOME_LINKS = [
   {
+    title: 'Search Hansard',
+    description: 'Speech text and report titles',
+    to: '/search',
+  },
+  {
     title: 'Browse sittings',
     description: 'Reports and attendance',
     to: '/sittings',
@@ -14,14 +19,9 @@ const HOME_LINKS = [
     to: '/people',
   },
   {
-    title: 'Check coverage',
-    description: 'Dates, counts and source notes',
-    to: '/coverage',
-  },
-  {
-    title: 'Learn how Parliament works',
-    description: 'What Parliament does and what the Hansard records',
-    to: '/how-parliament-works',
+    title: 'Browse Acts',
+    description: 'Each Act and the reports on it',
+    to: '/acts',
   },
 ] as const
 
