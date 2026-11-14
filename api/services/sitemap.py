@@ -17,7 +17,14 @@ from utils.sitemap_xml import SitemapUrl, get_sitemap_index_xml, get_urlset_xml
 SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
 _MAX_URLS_PER_FILE = 20_000
 _URL_SEPARATOR = "/"
-_PAGE_PATHS = ("/", "/people", "/sittings", "/acts", "/coverage")
+_PAGE_PATHS = (
+    "/",
+    "/people",
+    "/sittings",
+    "/acts",
+    "/coverage",
+    "/how-parliament-works",
+)
 # NOTE: the day the server began writing each report's text into its page, which changed every report page; a later change that rewrites every report page moves this date on
 _REPORT_PAGES_LAST_REWRITTEN_DATE = date(2026, 11, 12)
 # NOTE: a crawler obeys only the most specific group that names it, so the fetchers a person sends, which these groups name, may open /search while other crawlers may not
