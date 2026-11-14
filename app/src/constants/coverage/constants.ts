@@ -2,11 +2,13 @@ import { SCRAPER_SOURCE_CODE_URL, SOURCE_CODE_URL } from '@/constants/constants'
 
 export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
-export const METHODS_LAST_REVISED = '2026-11-14'
+export const METHODS_LAST_REVISED = '2026-11-15'
 
 export const METHODS_TERMS_SECTION_ID = 'terms'
 
 export const METHODS_ATTRIBUTION_HEADING_ID = 'attribution-heading'
+
+export const METHODS_ANNEX_SECTION_ID = 'annex'
 
 export const HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT = 3
 

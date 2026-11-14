@@ -30,6 +30,7 @@ import {
   HAND_CHECK_JUDGED_BY_ROYCE_SPEECH_COUNT,
   HAND_CHECK_WRONG_CREDIT_SPEECH_COUNT,
   HOW_THIS_WAS_BUILT_URL,
+  METHODS_ANNEX_SECTION_ID,
   METHODS_ATTRIBUTION_HEADING_ID,
   METHODS_LAST_REVISED,
   METHODS_TERMS_SECTION_ID,
@@ -45,27 +46,29 @@ import { ReportType } from '@/constants/reports/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useScrollToLinkedSectionOnLoad } from '@/hooks/useScrollToLinkedSectionOnLoad'
 import { formatSittingDate } from '@/lib/format'
-import { cn } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
 const SECTION_HEADING_CLASS_NAME =
   'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
 
-const SUBHEADING_CLASS_NAME = 'font-serif text-base font-semibold lg:text-lg'
+const SUBHEADING_CLASS_NAME = 'pt-4 text-lg font-semibold'
 
-const SUBSECTION_CLASS_NAME = 'space-y-3 sm:space-y-2'
+const SUBSECTION_CLASS_NAME = 'space-y-2'
 
-const GAP_LIST_CLASS_NAME = 'list-disc space-y-2 pl-5 text-sm'
+const GAP_LIST_CLASS_NAME = 'list-disc space-y-2 pl-5'
+
+const LINK_CLASS_NAME =
+  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
 const COUNTS_SKELETON_ROW_COUNT = 10
 
 const TERM_LIST_CLASS_NAME =
-  'grid gap-x-8 text-sm sm:grid-cols-[14rem_1fr] sm:gap-y-3'
+  'grid md:grid-cols-[14rem_1fr] md:gap-x-6 md:gap-y-3'
 
-const TERM_CLASS_NAME = 'font-medium not-first:mt-5 sm:not-first:mt-0'
+const TERM_CLASS_NAME = 'font-medium not-first:mt-5 md:not-first:mt-0'
 
-const DEFINITION_CLASS_NAME = 'text-muted-foreground mt-1 max-w-prose sm:mt-0'
+const DEFINITION_CLASS_NAME = 'mt-1 max-w-prose md:mt-0'
 
 export const Route = createFileRoute('/coverage/methods')({
   component: function PageCoverageMethods() {
@@ -79,12 +82,7 @@ export const Route = createFileRoute('/coverage/methods')({
 
     function renderHoldings() {
       if (coverage.isLoading)
-        return (
-          <SkeletonCoverageSection
-            tableRowCount={COUNTS_SKELETON_ROW_COUNT}
-            isSectionHeading
-          />
-        )
+        return <SkeletonCoverageSection tableRowCount={0} isSectionHeading />
       if (coverage.isLoadingError || !coverage.data) {
         return (
           <NoticeErrorCoverage
@@ -95,10 +93,12 @@ export const Route = createFileRoute('/coverage/methods')({
       }
 
       const coverageData = coverage.data
-      const withoutTextCount =
-        coverageData.report_count - coverageData.text_report_count
-      const returnedNoTextCount =
-        withoutTextCount - coverageData.no_text_by_design_report_count
+      const linkedSpeechShare = (
+        coverageData.linked_speech_count / coverageData.speech_count
+      ).toLocaleString(NUMBER_LOCALE, {
+        style: 'percent',
+        maximumFractionDigits: 0,
+      })
 
       return (
         <section aria-labelledby="counts-heading" className="space-y-4">
@@ -106,55 +106,72 @@ export const Route = createFileRoute('/coverage/methods')({
             What the archive holds
           </h2>
           <p>
-            The archive holds Parliament&apos;s written record, day by day. Each
-            day Parliament met is a sitting, and each piece of business that
-            day, such as one question and its answer, is a report. The archive
-            also keeps track of who spoke and who attended.
+            The archive holds{' '}
+            {coverageData.speech_count.toLocaleString(NUMBER_LOCALE)} paragraphs
+            of Parliament&apos;s written record
+            {coverageData.text_first_sitting_date !== null &&
+              coverageData.text_last_sitting_date !== null &&
+              ` from ${formatSittingDate(coverageData.text_first_sitting_date)} to ${formatSittingDate(coverageData.text_last_sitting_date)}`}
+            . It credits about {linkedSpeechShare} of those paragraphs to a
+            named person. See the{' '}
+            <Link
+              to="/coverage/methods"
+              hash={METHODS_ANNEX_SECTION_ID}
+              className={LINK_CLASS_NAME}
+            >
+              full counts and counts by year
+            </Link>
+            .
+          </p>
+        </section>
+      )
+    }
+
+    function renderAnnex() {
+      if (coverage.isLoading)
+        return (
+          <SkeletonCoverageSection
+            tableRowCount={COUNTS_SKELETON_ROW_COUNT}
+            isSectionHeading
+          />
+        )
+      if (coverage.isLoadingError || !coverage.data) return null
+
+      const coverageData = coverage.data
+
+      return (
+        <section
+          id={METHODS_ANNEX_SECTION_ID}
+          aria-labelledby="annex-heading"
+          className="space-y-4"
+        >
+          <h2 id="annex-heading" className={SECTION_HEADING_CLASS_NAME}>
+            Full counts
+          </h2>
+          <p>
+            These tables count what the archive holds. I haven&apos;t checked
+            the counts one by one against Parliament&apos;s record.
           </p>
           <p>
-            In the table, a paragraph is one paragraph of a report, as
-            Parliament&apos;s record prints it. A person is counted once,
-            however long they served, while a membership is one person&apos;s
-            seat in one Parliament, the term between one general election and
-            the next. Both counts include the Governors and Presidents, who were
-            never members. An attendance record is one name on a sitting&apos;s
-            list of who attended.
+            A sitting is a day Parliament met, and a report is one piece of
+            business that day, such as a question and its answer. A paragraph is
+            one paragraph as Parliament&apos;s record prints it. A person counts
+            once, however long they served. A membership is one person&apos;s
+            seat in one Parliament, the term between general elections. The
+            people and membership counts also include Governors and Presidents,
+            who were never members. An attendance record is one name on a
+            sitting&apos;s list of who attended.
           </p>
           <TableCoverageCounts coverage={coverageData} />
-          {coverageData.text_first_sitting_date !== null &&
-            coverageData.text_last_sitting_date !== null && (
-              <p className="text-muted-foreground text-sm">
-                The text covers{' '}
-                {formatSittingDate(coverageData.text_first_sitting_date)} to{' '}
-                {formatSittingDate(coverageData.text_last_sitting_date)}
-                {coverageData.attendance_last_sitting_date !== null &&
-                  `, and attendance lists run to ${formatSittingDate(coverageData.attendance_last_sitting_date)}`}
-                .
-              </p>
-            )}
-          <p>
-            Of the {withoutTextCount.toLocaleString(NUMBER_LOCALE)} reports with
-            no text,{' '}
-            {coverageData.no_text_by_design_report_count.toLocaleString(
-              NUMBER_LOCALE
-            )}{' '}
-            are a type Parliament&apos;s website publishes without text. The
-            other {returnedNoTextCount.toLocaleString(NUMBER_LOCALE)} had no
-            text on Parliament&apos;s website when the archive was built.
-          </p>
           {coverageData.first_sitting_date !== null &&
             coverageData.last_sitting_date !== null && (
               <>
-                <h3
-                  id="years-heading"
-                  className={cn(SUBHEADING_CLASS_NAME, 'pt-4')}
-                >
+                <h3 id="years-heading" className={SUBHEADING_CLASS_NAME}>
                   By year
                 </h3>
                 <p>
-                  This table counts sittings and reports in each year. The
-                  counts show what the archive holds, and I haven&apos;t checked
-                  them one by one against Parliament&apos;s record.
+                  This table counts sittings and reports in each year, with and
+                  without text.
                 </p>
                 <TableCoverageYears
                   years={coverageData.years}
@@ -383,69 +400,66 @@ export const Route = createFileRoute('/coverage/methods')({
             )}{' '}
             types of report.
           </p>
-          <div className="space-y-8 sm:space-y-6">
-            <div className={SUBSECTION_CLASS_NAME}>
-              <h3 className={SUBHEADING_CLASS_NAME}>The record</h3>
+          <div className={SUBSECTION_CLASS_NAME}>
+            <h3 className={SUBHEADING_CLASS_NAME}>The record</h3>
+            <dl className={TERM_LIST_CLASS_NAME}>
+              <dt className={TERM_CLASS_NAME}>Sitting</dt>
+              <dd className={DEFINITION_CLASS_NAME}>A day Parliament met.</dd>
+              <dt className={TERM_CLASS_NAME}>Report</dt>
+              <dd className={DEFINITION_CLASS_NAME}>
+                One piece of business in a sitting, such as one question and its
+                answer, or one stage of a Bill.
+              </dd>
+              <dt className={TERM_CLASS_NAME}>{TEXT_NOT_IN_ARCHIVE_LABEL}</dt>
+              <dd className={DEFINITION_CLASS_NAME}>
+                Parliament&apos;s website lists the report, but the archive
+                couldn&apos;t get its text. Only the title and details are here.
+              </dd>
+              <dt className={TERM_CLASS_NAME}>Absent</dt>
+              <dd className={DEFINITION_CLASS_NAME}>{ABSENCE_DEFINITION}</dd>
+              <dt className={TERM_CLASS_NAME}>Parliamentary question (PQ)</dt>
+              <dd className={DEFINITION_CLASS_NAME}>
+                A question a member asks a minister. Three types of report hold
+                a question and its answer:{' '}
+                {REPORT_TYPE_LABELS[ReportType.ORAL_ANSWER]},{' '}
+                {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER]}, and{' '}
+                {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER_NA]}. A question
+                counts for the member who asked it. If another member read out
+                an absent member&apos;s question for them, it still counts for
+                the absent member, and the question&apos;s page names the member
+                who read it. When a minister answers several questions together,
+                each member who asked one gets a count.
+              </dd>
+              <dt className={TERM_CLASS_NAME}>Questions asked</dt>
+              <dd className={DEFINITION_CLASS_NAME}>{QUESTION_DEFINITION}</dd>
+              <dt className={TERM_CLASS_NAME}>Revised Edition</dt>
+              <dd className={DEFINITION_CLASS_NAME}>
+                {REVISED_EDITION_DEFINITION}
+              </dd>
+              <dt className={TERM_CLASS_NAME}>Backdated</dt>
+              <dd className={DEFINITION_CLASS_NAME}>{BACKDATED_DEFINITION}</dd>
+            </dl>
+          </div>
+          {REPORT_TYPE_GROUPS.map((group) => (
+            <div key={group.heading} className={SUBSECTION_CLASS_NAME}>
+              <h3 className={SUBHEADING_CLASS_NAME}>{group.heading}</h3>
               <dl className={TERM_LIST_CLASS_NAME}>
-                <dt className={TERM_CLASS_NAME}>Sitting</dt>
-                <dd className={DEFINITION_CLASS_NAME}>A day Parliament met.</dd>
-                <dt className={TERM_CLASS_NAME}>Report</dt>
-                <dd className={DEFINITION_CLASS_NAME}>
-                  One piece of business in a sitting, such as one question and
-                  its answer, or one stage of a Bill.
-                </dd>
-                <dt className={TERM_CLASS_NAME}>{TEXT_NOT_IN_ARCHIVE_LABEL}</dt>
-                <dd className={DEFINITION_CLASS_NAME}>
-                  Parliament&apos;s website lists the report, but the archive
-                  couldn&apos;t get its text. Only the title and details are
-                  here.
-                </dd>
-                <dt className={TERM_CLASS_NAME}>Absent</dt>
-                <dd className={DEFINITION_CLASS_NAME}>{ABSENCE_DEFINITION}</dd>
-                <dt className={TERM_CLASS_NAME}>Parliamentary question (PQ)</dt>
-                <dd className={DEFINITION_CLASS_NAME}>
-                  A question a member asks a minister. Three types of report
-                  hold a question and its answer:{' '}
-                  {REPORT_TYPE_LABELS[ReportType.ORAL_ANSWER]},{' '}
-                  {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER]}, and{' '}
-                  {REPORT_TYPE_LABELS[ReportType.WRITTEN_ANSWER_NA]}. A question
-                  counts for the member who asked it. If another member read out
-                  an absent member&apos;s question for them, it still counts for
-                  the absent member, and the question&apos;s page names the
-                  member who read it. When a minister answers several questions
-                  together, each member who asked one gets a count.
-                </dd>
-                <dt className={TERM_CLASS_NAME}>Questions asked</dt>
-                <dd className={DEFINITION_CLASS_NAME}>{QUESTION_DEFINITION}</dd>
-                <dt className={TERM_CLASS_NAME}>Revised Edition</dt>
-                <dd className={DEFINITION_CLASS_NAME}>
-                  {REVISED_EDITION_DEFINITION}
-                </dd>
-                <dt className={TERM_CLASS_NAME}>Backdated</dt>
-                <dd className={DEFINITION_CLASS_NAME}>
-                  {BACKDATED_DEFINITION}
-                </dd>
+                {group.reportTypes.map((reportType) => (
+                  <Fragment key={reportType}>
+                    <dt className={TERM_CLASS_NAME}>
+                      {REPORT_TYPE_LABELS[reportType]}
+                    </dt>
+                    <dd className={DEFINITION_CLASS_NAME}>
+                      {REPORT_TYPE_DESCRIPTIONS[reportType]}
+                    </dd>
+                  </Fragment>
+                ))}
               </dl>
             </div>
-            {REPORT_TYPE_GROUPS.map((group) => (
-              <div key={group.heading} className={SUBSECTION_CLASS_NAME}>
-                <h3 className={SUBHEADING_CLASS_NAME}>{group.heading}</h3>
-                <dl className={TERM_LIST_CLASS_NAME}>
-                  {group.reportTypes.map((reportType) => (
-                    <Fragment key={reportType}>
-                      <dt className={TERM_CLASS_NAME}>
-                        {REPORT_TYPE_LABELS[reportType]}
-                      </dt>
-                      <dd className={DEFINITION_CLASS_NAME}>
-                        {REPORT_TYPE_DESCRIPTIONS[reportType]}
-                      </dd>
-                    </Fragment>
-                  ))}
-                </dl>
-              </div>
-            ))}
-          </div>
+          ))}
         </section>
+
+        {renderAnnex()}
 
         <p className="text-muted-foreground border-separator border-t pt-6 text-sm">
           Last revised {formatSittingDate(METHODS_LAST_REVISED)}.
