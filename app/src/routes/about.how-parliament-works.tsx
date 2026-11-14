@@ -100,7 +100,7 @@ function renderFootnoteBackLink(footnoteNumber: number) {
   )
 }
 
-export const Route = createFileRoute('/how-parliament-works')({
+export const Route = createFileRoute('/about/how-parliament-works')({
   component: function PageHowParliamentWorks() {
     useDocumentTitle(PAGE_TITLE)
 
@@ -114,6 +114,12 @@ export const Route = createFileRoute('/how-parliament-works')({
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link to="/">Home</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/about">About</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />

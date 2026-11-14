@@ -65,7 +65,11 @@ def test_every_spelling_of_a_hidden_report_page_answers_410(
 
 @pytest.mark.parametrize(
     "path",
-    [f"/reports/{_SHOWN_REPORT_SLUG}", f"/Reports/{_SHOWN_REPORT_SLUG}", "/coverage"],
+    [
+        f"/reports/{_SHOWN_REPORT_SLUG}",
+        f"/Reports/{_SHOWN_REPORT_SLUG}",
+        "/about/coverage",
+    ],
 )
 def test_a_page_that_is_not_hidden_answers_200(
     page_client: TestClient, path: str

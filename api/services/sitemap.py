@@ -22,8 +22,8 @@ _PAGE_PATHS = (
     "/people",
     "/sittings",
     "/acts",
-    "/coverage",
-    "/how-parliament-works",
+    "/about/coverage",
+    "/about/how-parliament-works",
 )
 # NOTE: the day the server began writing each report's text into its page, which changed every report page; a later change that rewrites every report page moves this date on
 _REPORT_PAGES_LAST_REWRITTEN_DATE = date(2026, 11, 12)

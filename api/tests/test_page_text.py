@@ -259,7 +259,7 @@ def test_a_report_that_cannot_be_shown_leaves_the_root_empty(
         ("/people/1-tan", preview_service.get_not_found_preview()),
         ("/sittings/2020-01-01", preview_service.get_not_found_preview()),
         ("/search", preview_service.get_default_preview()),
-        ("/coverage", preview_service.get_default_preview()),
+        ("/about/coverage", preview_service.get_default_preview()),
     ],
 )
 def test_a_page_that_is_not_a_found_report_or_home_gets_no_text(

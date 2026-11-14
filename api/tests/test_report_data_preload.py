@@ -108,7 +108,7 @@ def test_a_report_address_with_only_a_highlight_gets_the_plain_preload(
 
 
 @pytest.mark.parametrize(
-    "path", ["/", "/coverage", "/people/1-tan", "/sittings/2020-01-01", "/search"]
+    "path", ["/", "/about/coverage", "/people/1-tan", "/sittings/2020-01-01", "/search"]
 )
 def test_a_page_that_is_not_a_report_gets_no_preload(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, path: str

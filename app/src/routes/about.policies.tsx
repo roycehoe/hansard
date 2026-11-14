@@ -148,7 +148,7 @@ export const Route = createFileRoute('/about/policies')({
             mistakes, including in the current Parliament. I explain how the
             checks were done on{' '}
             <Link
-              to="/coverage/methods"
+              to="/about/coverage/methods"
               hash={METHODS_ATTRIBUTION_HEADING_ID}
               className={LINK_CLASS_NAME}
             >

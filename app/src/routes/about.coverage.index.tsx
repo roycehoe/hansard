@@ -25,7 +25,7 @@ const LINK_CLASS_NAME =
 
 const UNDERLINED_LINK_CLASS_NAME = `${LINK_CLASS_NAME} underline underline-offset-4`
 
-export const Route = createFileRoute('/coverage/')({
+export const Route = createFileRoute('/about/coverage/')({
   component: function PageCoverage() {
     useDocumentTitle('Coverage')
     const coverage = useGetCoverage()
@@ -79,6 +79,12 @@ export const Route = createFileRoute('/coverage/')({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/about">About</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
                   <BreadcrumbPage>Coverage</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -121,7 +127,7 @@ export const Route = createFileRoute('/coverage/')({
 
             <p>
               <Link
-                to="/coverage/methods"
+                to="/about/coverage/methods"
                 className={UNDERLINED_LINK_CLASS_NAME}
               >
                 Data quality and methods

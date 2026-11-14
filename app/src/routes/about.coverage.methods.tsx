@@ -68,7 +68,7 @@ const TERM_CLASS_NAME = 'font-medium not-first:mt-5 md:not-first:mt-0'
 
 const DEFINITION_CLASS_NAME = 'mt-1 max-w-prose md:mt-0'
 
-export const Route = createFileRoute('/coverage/methods')({
+export const Route = createFileRoute('/about/coverage/methods')({
   component: function PageCoverageMethods() {
     useDocumentTitle('Data quality and methods')
     const coverage = useGetCoverage()
@@ -113,7 +113,7 @@ export const Route = createFileRoute('/coverage/methods')({
             . It credits about {linkedSpeechShare} of those paragraphs to a
             named person. See the{' '}
             <Link
-              to="/coverage/methods"
+              to="/about/coverage/methods"
               hash={METHODS_ANNEX_SECTION_ID}
               className={LINK_CLASS_NAME}
             >
@@ -197,12 +197,18 @@ export const Route = createFileRoute('/coverage/methods')({
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to="/coverage">Coverage</Link>
+                    <Link to="/about">About</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Data quality and methods</BreadcrumbPage>
+                  <BreadcrumbLink asChild>
+                    <Link to="/about/coverage">Coverage</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Methods</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>

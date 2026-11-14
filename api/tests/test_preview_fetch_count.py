@@ -83,7 +83,7 @@ def test_a_bot_fetch_posts_one_event_hit_to_goatcounter(
 def test_each_hit_gets_its_own_session(monkeypatch: pytest.MonkeyPatch) -> None:
     requests = _use_goatcounter(monkeypatch)
 
-    _count_fetches("Slack", ["/coverage", "/coverage"])
+    _count_fetches("Slack", ["/about/coverage", "/about/coverage"])
 
     assert len({hit["session"] for hit in _get_hits(requests)}) == 2
 
@@ -109,7 +109,7 @@ def test_nothing_is_sent_while_a_setting_is_unset(
     requests = _use_goatcounter(monkeypatch)
     monkeypatch.setattr(settings, "goatcounter_api_token", None)
 
-    _count_fetches("Slack", ["/coverage"])
+    _count_fetches("Slack", ["/about/coverage"])
 
     assert requests == []
 
@@ -119,7 +119,7 @@ def test_a_refused_count_is_logged_once_and_dropped(
 ) -> None:
     requests = _use_goatcounter(monkeypatch, status_code=429)
 
-    _count_fetches("Slack", ["/coverage"])
+    _count_fetches("Slack", ["/about/coverage"])
 
     assert len(requests) == 1
     assert [record.levelname for record in caplog.records] == ["WARNING"]
@@ -142,8 +142,10 @@ def test_only_a_bot_page_fetch_reaches_the_counter(
         )
     )
 
-    slack_response = client.get("/coverage", headers={"User-Agent": _SLACK_USER_AGENT})
-    client.get("/coverage", headers={"User-Agent": _BROWSER_USER_AGENT})
+    slack_response = client.get(
+        "/about/coverage", headers={"User-Agent": _SLACK_USER_AGENT}
+    )
+    client.get("/about/coverage", headers={"User-Agent": _BROWSER_USER_AGENT})
 
     assert "<title>What the archive covers" in slack_response.text
-    assert counted == [("Slack", "/coverage")]
+    assert counted == [("Slack", "/about/coverage")]

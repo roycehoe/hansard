@@ -51,7 +51,7 @@ const ABOUT_LINK_COLUMNS = [
       id: 'parliament-links-heading',
       heading: 'Parliament',
       links: [
-        { label: 'How Parliament works', to: '/how-parliament-works' },
+        { label: 'How Parliament works', to: '/about/how-parliament-works' },
         { label: 'Official Report', href: OFFICIAL_RECORD_SEARCH_URL },
       ],
     },
@@ -59,8 +59,8 @@ const ABOUT_LINK_COLUMNS = [
       id: 'archive-links-heading',
       heading: 'The archive',
       links: [
-        { label: 'Coverage', to: '/coverage' },
-        { label: 'Methods', to: '/coverage/methods' },
+        { label: 'Coverage', to: '/about/coverage' },
+        { label: 'Methods', to: '/about/coverage/methods' },
       ],
     },
   ],
@@ -75,7 +75,7 @@ const ABOUT_LINK_COLUMNS = [
           to: '/about/policies',
           hash: POLICIES_PRIVACY_SECTION_ID,
         },
-        { label: 'Palette', to: '/palette' },
+        { label: 'Palette', to: '/about/palette' },
         { label: 'GitHub', href: SOURCE_CODE_URL },
         { label: 'Security', href: SECURITY_POLICY_URL },
       ],

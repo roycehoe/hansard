@@ -30,7 +30,9 @@ def test_the_sitemap_index_lists_the_first_file_of_each_kind(
     assert f"<loc>{_SITE_URL}/sitemap-{kind}-1.xml</loc>" in response.text
 
 
-@pytest.mark.parametrize("path", ["/", "/people", "/sittings", "/acts", "/coverage"])
+@pytest.mark.parametrize(
+    "path", ["/", "/people", "/sittings", "/acts", "/about/coverage"]
+)
 def test_the_pages_sitemap_lists_each_main_page(
     sitemap_client: TestClient, path: str
 ) -> None:

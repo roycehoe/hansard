@@ -39,7 +39,7 @@ export function PopoverDefinition({
         <p>{definition}</p>
         {termsLinkLabel && (
           <Link
-            to="/coverage/methods"
+            to="/about/coverage/methods"
             hash={METHODS_TERMS_SECTION_ID}
             className={LINK_CLASS_NAME}
           >
