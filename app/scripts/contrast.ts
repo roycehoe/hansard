@@ -32,7 +32,7 @@ const PAIRS: Pair[] = [
   // Text on its own surface
   ...pairs('foreground', ['background', 'muted', 'secondary'], TEXT_MINIMUM),
   ...pairs('card-foreground', ['card'], TEXT_MINIMUM),
-  ...pairs('popover-foreground', ['popover'], TEXT_MINIMUM),
+  ...pairs('popover-foreground', ['popover', 'accent'], TEXT_MINIMUM),
   ...pairs(
     'primary-foreground',
     ['primary', 'primary-rest', 'primary-hover', 'primary-active'],
@@ -74,7 +74,11 @@ const PAIRS: Pair[] = [
     TEXT_MINIMUM
   ),
   ...pairs('link', [...SURFACES, 'muted', 'popover', 'accent'], TEXT_MINIMUM),
-  ...pairs('visited', [...SURFACES, 'muted'], TEXT_MINIMUM),
+  ...pairs(
+    'visited',
+    [...SURFACES, 'muted', 'popover', 'accent'],
+    TEXT_MINIMUM
+  ),
   ...pairs('destructive', SURFACES, TEXT_MINIMUM),
   ...pairs('success', SURFACES, TEXT_MINIMUM),
   ...pairs('warning', SURFACES, TEXT_MINIMUM),
