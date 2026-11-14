@@ -41,16 +41,16 @@ export const LEGISLATIVE_ASSEMBLY_LABEL = 'Legislative Assembly'
 export const TEXT_NOT_IN_ARCHIVE_LABEL = 'Text not in this archive'
 
 export const ABSENCE_DEFINITION =
-  "Listed as absent in the sitting's attendance list. An absence can have many causes, including leave and official duties."
+  "The sitting's list of who attended marks the member as absent. An absence can have many causes, such as leave or official duties."
 
 export const BACKDATED_DEFINITION =
-  'In force from a date before Parliament first read the Bill.'
+  'The law takes effect from a date earlier than the day its Bill, the proposed law, was first read in Parliament.'
 
 export const REVISED_EDITION_DEFINITION =
-  'A reprint of an Act with every change made up to then folded into one text.'
+  'A new copy of an Act with every change made to it up to then written into the text.'
 
 export const QUESTION_DEFINITION =
-  'A question a member puts to a minister, aloud at Question Time or in writing. Ministers answer questions, and the Speaker and Deputy Speakers chair the sitting, so members in those offices ask few or none.'
+  'A question a member asks a minister, either aloud at Question Time, the part of a sitting set aside for questions, or in writing. Ministers answer questions, and the Speaker and Deputy Speakers run the sitting, so members in those roles ask few or none.'
 
 export const BILL_DEFINITION =
   'A Bill the member spoke on, at one of its readings or in the Budget debate. Speaking from the chair does not count.'

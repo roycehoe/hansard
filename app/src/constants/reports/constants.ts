@@ -28,44 +28,47 @@ export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
 
 export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
   [ReportType.ORAL_ANSWER]:
-    "A member's question asked in the House and answered aloud by a minister during Question Time.",
+    "A member's question asked in a sitting and answered aloud by a minister during Question Time.",
   [ReportType.WRITTEN_ANSWER]:
-    "A question the member filed for a written reply, with the minister's reply.",
+    "A question a member sent in for a written reply, with the minister's reply.",
   [ReportType.WRITTEN_ANSWER_NA]:
-    "A question for Question Time that the House didn't reach before time ran out, so the minister replied in writing.",
+    'A question a member sent in to be answered aloud. Question Time ran out before it was reached, so the minister replied in writing.',
   [ReportType.CLARIFICATION]:
-    'A spoken correction or addition to something said earlier.',
+    'A correction or addition someone makes aloud to something said earlier.',
   [ReportType.MOTION]:
-    'A proposal put to the House for debate and a decision, including motions to adjourn.',
+    'A proposal put to Parliament to debate and decide on, including proposals to end a sitting.',
   [ReportType.MATTER_ADJ]:
-    'A short debate a member raises at the end of a sitting, on the motion to adjourn.',
-  [ReportType.BILL]: "A bill's first, second or third reading.",
-  [ReportType.BILL_INTRO]: 'Notice that a bill was introduced.',
+    'A short debate a member raises at the end of a sitting, before the sitting ends.',
+  [ReportType.BILL]:
+    "A Bill's first, second, or third reading. A Bill is a proposed law, and each reading is one stage of Parliament's work on it.",
+  [ReportType.BILL_INTRO]:
+    'A notice that a Bill was brought before Parliament.',
   [ReportType.MINISTERIAL_STATEMENT]:
-    'A statement a minister makes to the House, not in answer to a question.',
+    'A statement a minister makes to Parliament, not in answer to a question.',
   [ReportType.WRITTEN_STATEMENT]:
-    "A written correction to something an office holder said earlier, circulated with the presiding officer's leave.",
+    'A written correction to something a minister or other office holder said earlier, shared with the permission of the person running the sitting.',
   [ReportType.BUDGET]:
-    "The Budget debate and the Committee of Supply, where the House debates each ministry's spending.",
-  [ReportType.SPEAKER]: 'A statement or ruling by the presiding officer.',
+    "Parliament's debate on Government spending, including the Committee of Supply, where it debates each ministry's spending.",
+  [ReportType.SPEAKER]:
+    'A statement or decision by the presiding officer, the person running the sitting.',
   [ReportType.DEPUTY_SPEAKER]: 'A statement by the Deputy Speaker.',
   [ReportType.PERSONAL_EXPLANATION]:
-    "A member, with the presiding officer's leave, explaining or correcting something that concerns them.",
+    'A member explaining or correcting something that concerns them, with the permission of the person running the sitting.',
   [ReportType.POINT_OF_ORDER]:
-    'A member asking the presiding officer to rule on whether the House is following its rules.',
-  [ReportType.TRIBUTE]: 'A tribute to a member or a public figure.',
+    'A member asking the person running the sitting to decide whether Parliament is following its rules.',
+  [ReportType.TRIBUTE]: 'Words honouring a member or a public figure.',
   [ReportType.PRESIDENT_ADDRESS]:
-    "The President's address at the opening of a session, the debate on it, and each ministry's addendum setting out its plans.",
-  [ReportType.PETITION]: 'A petition presented to the House.',
+    "The President's speech at the opening of a session, a period of Parliament's work, with the debate on it and each ministry's written plans.",
+  [ReportType.PETITION]: 'A formal written request presented to Parliament.',
   [ReportType.ADMIN_OATHS]:
-    'Members taking the Oath of Allegiance or making the Affirmation of Allegiance.',
+    'Members taking the Oath of Allegiance or making the Affirmation of Allegiance, a formal promise of loyalty.',
   [ReportType.OBITUARY_SPEECH]:
     'Speeches marking the death of a member or a public figure.',
   [ReportType.YANG_DI_MESSAGE]:
-    "A message from Singapore's head of state between 1959 and 1965.",
+    "A message from Singapore's head of state between 1959 and 1965, when the role was called the Yang di-Pertuan Negara.",
   [ReportType.MISC]: 'Records that fit no other type.',
   [ReportType.ATBP]:
-    'The record that the head of state assented to bills the House passed.',
+    "The record that Singapore's head of state approved Bills Parliament had passed.",
 }
 
 export const REPORT_TYPE_GROUPS: {
