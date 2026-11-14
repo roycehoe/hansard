@@ -55,12 +55,14 @@ import {
 import { SearchSort, SearchTab } from '@/constants/search/enums'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { getNamedAct } from '@/lib/actName'
 import { getToday } from '@/lib/format'
 import { getNamedPerson } from '@/lib/personName'
 import {
   getSingleUnquotedWord,
   getTrailingYear,
   hasSearchOperator,
+  hasSearchOperatorWord,
   isQueryOnlyExcludedWords,
 } from '@/lib/searchQuery'
 import {
@@ -168,8 +170,11 @@ export const Route = createFileRoute('/search')({
       ? (sort ?? defaultSort)
       : getSortWithoutWords(sort)
     const personName = personDetail.data?.canonical_name
-    const acts = useGetAllActs(hasAct ? {} : undefined)
+    const canNameAct = hasWords && !hasAct && !hasSearchOperatorWord(words)
+    const acts = useGetAllActs(hasAct || canNameAct ? {} : undefined)
     const actTitle = act === undefined ? undefined : getActTitle(acts.data, act)
+    const namedAct =
+      canNameAct && acts.data ? getNamedAct(words, acts.data.acts) : undefined
     const speechesHeading = getSpeechesHeading(
       hasWords,
       personName,
@@ -300,6 +305,26 @@ export const Route = createFileRoute('/search')({
     }
 
     function renderSearchNote() {
+      if (namedAct !== undefined) {
+        const { act: matchedAct, typedName, otherWords } = namedAct
+        const note = `Searching for "${typedName}" finds mentions of the name, not necessarily the debates on its Bills.`
+        if (otherWords === '') {
+          return (
+            <TextSearchNote
+              note={note}
+              linkLabel={`See the Bills and debates on ${matchedAct.title}`}
+              linkActCode={matchedAct.sso_code}
+            />
+          )
+        }
+        return (
+          <TextSearchNote
+            note={note}
+            linkLabel={`Search debates on ${matchedAct.title} for "${otherWords}"`}
+            linkSearch={{ q: otherWords, act: matchedAct.sso_code }}
+          />
+        )
+      }
       if (namedPerson !== undefined) {
         const name = namedPerson.person.canonical_name
         return (

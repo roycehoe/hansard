@@ -11,28 +11,51 @@ function followNoteLink() {
   document.getElementById(SEARCH_WORDS_INPUT_ID)?.focus()
 }
 
-interface TextSearchNoteProps {
-  note: string
-  linkLabel: string
-  linkSearch: { q: string; from?: string; to?: string; person?: number }
+function followNoteActLink() {
+  countEvent(AnalyticsEvent.SEARCH_NOTE_LINK)
 }
+
+interface SearchNoteLinkSearch {
+  q: string
+  from?: string
+  to?: string
+  person?: number
+  act?: string
+}
+
+type TextSearchNoteProps = { note: string; linkLabel: string } & (
+  | { linkSearch: SearchNoteLinkSearch; linkActCode?: never }
+  | { linkActCode: string; linkSearch?: never }
+)
 
 export function TextSearchNote({
   note,
   linkLabel,
   linkSearch,
+  linkActCode,
 }: TextSearchNoteProps) {
   return (
     <p className="text-muted-foreground text-sm">
       {note}{' '}
-      <Link
-        to="/search"
-        search={(previous) => ({ ...previous, ...linkSearch })}
-        onClick={followNoteLink}
-        className={LINK_CLASS_NAME}
-      >
-        {linkLabel}
-      </Link>
+      {linkActCode === undefined ? (
+        <Link
+          to="/search"
+          search={(previous) => ({ ...previous, ...linkSearch })}
+          onClick={followNoteLink}
+          className={LINK_CLASS_NAME}
+        >
+          {linkLabel}
+        </Link>
+      ) : (
+        <Link
+          to="/acts/$ssoCode"
+          params={{ ssoCode: linkActCode }}
+          onClick={followNoteActLink}
+          className={LINK_CLASS_NAME}
+        >
+          {linkLabel}
+        </Link>
+      )}
     </p>
   )
 }

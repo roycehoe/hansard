@@ -209,20 +209,20 @@ function isSittingYear(word: string, currentYear: number): boolean {
   return year >= FIRST_SITTING_YEAR && year <= currentYear
 }
 
-export function hasSearchOperator(query: string): boolean {
+export function hasSearchOperatorWord(query: string): boolean {
   const isOperatorWordRead = !isQueryATitleInCapitals(query)
-  return (
-    QUOTE_CHARACTERS.test(query) ||
-    query
-      .split(/\s+/)
-      .some(
-        (word) =>
-          word.startsWith(EXCLUDED_PREFIX) ||
-          word === EXCLUDING_SYMBOL ||
-          (isOperatorWordRead &&
-            (word === OR_OPERATOR || word === NOT_OPERATOR))
-      )
-  )
+  return query
+    .split(/\s+/)
+    .some(
+      (word) =>
+        word.startsWith(EXCLUDED_PREFIX) ||
+        word === EXCLUDING_SYMBOL ||
+        (isOperatorWordRead && (word === OR_OPERATOR || word === NOT_OPERATOR))
+    )
+}
+
+export function hasSearchOperator(query: string): boolean {
+  return QUOTE_CHARACTERS.test(query) || hasSearchOperatorWord(query)
 }
 
 export function getTrailingYear(
