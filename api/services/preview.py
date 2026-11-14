@@ -65,6 +65,7 @@ _SEARCH_PATH = "/search"
 _PEOPLE_PATH = "/people"
 _SITTINGS_PATH = "/sittings"
 _ACTS_PATH = "/acts"
+_HOW_PARLIAMENT_WORKS_PATH = "/how-parliament-works"
 _COVERAGE_TITLE = "What the archive covers"
 _METHODS_TITLE = "Data quality and methods"
 _ABOUT_TITLE = "About Open Hansard"
@@ -72,6 +73,7 @@ _SEARCH_TITLE = "Search"
 _PEOPLE_TITLE = "People"
 _SITTINGS_TITLE = "Sittings"
 _ACTS_TITLE = "Acts"
+_HOW_PARLIAMENT_WORKS_TITLE = "How Parliament works"
 _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
 _REPORT_WORD = "report"
@@ -136,6 +138,8 @@ def _get_fixed_page_title(path: str) -> Optional[str]:
         return _SITTINGS_TITLE
     if path == _ACTS_PATH:
         return _ACTS_TITLE
+    if path == _HOW_PARLIAMENT_WORKS_PATH:
+        return _HOW_PARLIAMENT_WORKS_TITLE
     return None
 
 
