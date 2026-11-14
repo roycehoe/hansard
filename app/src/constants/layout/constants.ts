@@ -3,7 +3,7 @@ export const NAV_ITEMS = [
   { label: 'Sittings', to: '/sittings' },
   { label: 'People', to: '/people' },
   { label: 'Acts', to: '/acts' },
-  { label: 'Coverage', to: '/coverage' },
+  { label: 'About', to: '/about' },
 ] as const
 
 export const JUMP_TO_TOP_SCREEN_COUNT = 2
