@@ -85,6 +85,7 @@ import {
   SEARCH_WORDS_MAX_LENGTH,
 } from '@/constants/search/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { useScrollToLinkedSectionOnLoad } from '@/hooks/useScrollToLinkedSectionOnLoad'
 import { buildAttributionFigures } from '@/lib/attribution'
 import { formatSittingDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -118,6 +119,7 @@ export const Route = createFileRoute('/coverage/methods')({
   component: function PageCoverageMethods() {
     useDocumentTitle('Data quality and methods')
     const coverage = useGetCoverage()
+    useScrollToLinkedSectionOnLoad(coverage.isLoading)
 
     function retryCoverage() {
       void coverage.refetch()
