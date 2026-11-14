@@ -122,11 +122,16 @@ export const Route = createFileRoute('/how-parliament-works')({
           }
         />
 
-        <p>
-          Parliament makes laws, decides what the Government may spend, and
-          holds the Government to account. Members of Parliament (MPs) debate
-          these matters.
-        </p>
+        <section aria-labelledby="parliament-heading" className="space-y-4">
+          <h2 id="parliament-heading" className={SECTION_HEADING_CLASS_NAME}>
+            What does Parliament do?
+          </h2>
+          <p>
+            Parliament makes laws, decides what the Government may spend, and
+            holds the Government to account. Members of Parliament (MPs) debate
+            these matters.
+          </p>
+        </section>
 
         <section aria-labelledby="hansard-heading" className="space-y-4">
           <h2 id="hansard-heading" className={SECTION_HEADING_CLASS_NAME}>
