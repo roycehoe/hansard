@@ -9,7 +9,7 @@ Errors found in the archive, by an audit or by a reader's report, and the fix fo
 
 ## What happens next
 
-I'm Royce, and I run the site on my own. When the archive gets a speech's words or its speaker wrong, I fix it and add a row to the log below. If Parliament asks me to take a report down, I do it within 2 working days and don't ask for a reason.
+I run the site on my own. When the archive gets a speech's words or its speaker wrong, I fix it and add a row to the log below. If Parliament asks me to take a report down, I do it within 2 working days and don't ask for a reason.
 
 Fixes to the stored text or credits go into [roycehoe/hansard-scraper](https://github.com/roycehoe/hansard-scraper), which owns the database. This site only reads it.
 
