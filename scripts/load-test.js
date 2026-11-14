@@ -170,10 +170,10 @@ function browse(data) {
     getPage('/')
     get('/api/parliaments', 'api')
   } else if (roll < 0.5) {
-    getPage('/coverage')
+    getPage('/about/coverage')
     get('/api/coverage', 'api')
   } else if (roll < 0.6) {
-    getPage('/coverage/methods')
+    getPage('/about/coverage/methods')
   } else if (roll < 0.8) {
     const n = pick(data.parliamentNumbers)
     getPage('/sittings')
