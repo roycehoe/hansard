@@ -54,7 +54,7 @@ Read `VITE_API_URL` through `import.meta.env.VITE_API_URL`. Only `src/api/client
 app/
   package.json            # pnpm, exact version pins, engines.node 24
   index.html
-  vite.config.ts          # @/ alias to src, TanStack Router file-based plugin
+  vite.config.ts          # @/ alias to src, TanStack Router file-based plugin, preload tags for the Latin Inter and Source Serif 4 files
   tsconfig.json, tsconfig.app.json, tsconfig.node.json
   eslint.config.js
   .prettierrc.cjs, .prettierignore
