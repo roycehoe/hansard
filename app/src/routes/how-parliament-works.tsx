@@ -32,7 +32,7 @@ const SECTION_HEADING_CLASS_NAME =
 
 const BULLET_LIST_CLASS_NAME = 'list-disc space-y-2 pl-5'
 
-const NUMBERED_LIST_CLASS_NAME = 'list-decimal space-y-2 pl-5'
+const NUMBERED_LIST_CLASS_NAME = 'list-decimal space-y-2 pl-7'
 
 const FOOTNOTES_HEADING_ID = 'footnotes-heading'
 
