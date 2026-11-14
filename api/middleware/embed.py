@@ -9,6 +9,8 @@ from schemas.report import GetReportResponse, SpeechData
 from services import report as report_service
 from utils.embed_html import get_notice_embed_html, get_speech_embed_html
 
+_MAX_SPEECH_ORDINAL_DIGITS = 9
+_MAX_SPEECH_ANCHOR_LENGTH = 200
 _REPORT_NOT_FOUND_TITLE = "Report not found"
 _REPORT_NOT_FOUND_DESCRIPTION = "No report has this address."
 _REPORT_REMOVED_TITLE = "Report removed"
@@ -23,6 +25,21 @@ _PARAGRAPH_NOT_FOUND_DESCRIPTION = (
 class SpeechEmbed:
     html: str
     status_code: int
+
+
+# NOTE: the s and q limits of GET /reports/{report_slug}; a value it would refuse with 422 counts as no paragraph, so the frame shows the notice in place of the API's JSON and the report's takedown and not-found answers still apply
+def _get_speech_ordinal(
+    speech_ordinal_text: Optional[str], speech_anchor: Optional[str]
+) -> Optional[int]:
+    if speech_ordinal_text is None:
+        return None
+    if not speech_ordinal_text.isdecimal():
+        return None
+    if len(speech_ordinal_text) > _MAX_SPEECH_ORDINAL_DIGITS:
+        return None
+    if speech_anchor is not None and len(speech_anchor) > _MAX_SPEECH_ANCHOR_LENGTH:
+        return None
+    return int(speech_ordinal_text)
 
 
 # NOTE: the report page's own rule: a link with q follows the paragraph to its new ordinal or finds it missing, and a link with only s names the ordinal
@@ -40,10 +57,11 @@ def _get_linked_speech(
 
 def get_speech_embed(
     report_slug: str,
-    speech_ordinal: Optional[int],
+    speech_ordinal_text: Optional[str],
     speech_anchor: Optional[str],
     session: Session,
 ) -> SpeechEmbed:
+    speech_ordinal = _get_speech_ordinal(speech_ordinal_text, speech_anchor)
     try:
         report = report_service.get_report(
             report_slug, speech_ordinal, speech_anchor, session
