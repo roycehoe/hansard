@@ -147,8 +147,8 @@ export const Route = createFileRoute('/about/coverage/methods')({
             Full counts
           </h2>
           <p>
-            These tables count what the archive holds. I haven&apos;t checked
-            the counts one by one against Parliament&apos;s record.
+            I haven&apos;t checked the counts one by one against
+            Parliament&apos;s record.
           </p>
           <p>
             A sitting is a day Parliament met, and a report is one piece of
@@ -167,10 +167,6 @@ export const Route = createFileRoute('/about/coverage/methods')({
                 <h3 id="years-heading" className={SUBHEADING_CLASS_NAME}>
                   By year
                 </h3>
-                <p>
-                  This table counts sittings and reports in each year, with and
-                  without text.
-                </p>
                 <TableCoverageYears
                   years={coverageData.years}
                   firstSittingDate={coverageData.first_sitting_date}
@@ -215,12 +211,6 @@ export const Route = createFileRoute('/about/coverage/methods')({
           }
         />
 
-        <p>
-          I&apos;m Royce, and I built this archive of Singapore
-          Parliament&apos;s debates. This page says what the archive holds, how
-          I made it, and how far you can trust it.
-        </p>
-
         {renderHoldings()}
 
         <section aria-labelledby="text-gathered-heading" className="space-y-4">
@@ -238,23 +228,8 @@ export const Route = createFileRoute('/about/coverage/methods')({
             When the label says who spoke, the archive credits the speech to
             that person. If the label gives only a role, such as &quot;Mr
             Speaker&quot; or &quot;The Chairman&quot;, the archive credits the
-            person who held that role at the time.
-          </p>
-          <p>
-            Credits to a Deputy Speaker or a Chairman carry a small{' '}
-            <sup className="text-link text-xs">i</sup> beside the person&apos;s
-            name. These are the people who run a sitting, and several people
-            hold those roles at once. If the person in the chair changes and the
-            record doesn&apos;t say so, the credit can be wrong. The archive
-            also uses this mark when a speech has no label but the rest of the
-            report shows who spoke.
-          </p>
-          <p>
-            Names of elected MPs follow the Elections Department&apos;s spelling
-            in its election results. For people who never stood for election,
-            names come from Parliament&apos;s list of members or from lists kept
-            by hand. If another source spells a name differently, the
-            person&apos;s page lists that spelling and its source.
+            person who held that role at the time. If the role changed hands and
+            the record doesn&apos;t say so, that credit can be wrong.
           </p>
           <p>
             For the tools I used and how the work ran, read{' '}
@@ -309,9 +284,7 @@ export const Route = createFileRoute('/about/coverage/methods')({
             What&apos;s missing or could be wrong
           </h2>
           <p>
-            I know of three kinds of gap: text that is missing or damaged,
-            speeches the archive can&apos;t credit, and details that are
-            incomplete. Most affect reports from before 10 September 2012, when
+            Most of these affect reports from before 10 September 2012, when
             Parliament&apos;s website moved to a newer system.
           </p>
           <div className={SUBSECTION_CLASS_NAME}>
