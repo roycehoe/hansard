@@ -48,4 +48,4 @@ Change the list only through the GitHub secret. A value saved in the DigitalOcea
 
 ## Researchers form
 
-`/researchers` and its footer link appear only when the build has `VITE_RESEARCHERS_FORM_URL` set to the form's address. Put the address in the `VITE_RESEARCHERS_FORM_URL` entry (`scope: BUILD_TIME`) in `.do/app.yaml`, commit, and deploy, which rebuilds the frontend. While it is unset, `/researchers` sends visitors to the home page.
+`/researchers` and the link to it on `/about/policies` appear only when the build has `VITE_RESEARCHERS_FORM_URL` set to the form's address. Put the address in the `VITE_RESEARCHERS_FORM_URL` entry (`scope: BUILD_TIME`) in `.do/app.yaml`, commit, and deploy, which rebuilds the frontend. While it is unset, `/researchers` sends visitors to the home page.

@@ -8,15 +8,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import {
-  ABOUT_LAST_REVISED,
-  ABOUT_NOT_OFFICIAL_SECTION_ID,
-} from '@/constants/about/constants'
+import { POLICIES_LAST_REVISED } from '@/constants/about/constants'
 import {
   CONTACT_EMAIL,
   REPORT_ERROR_FORM_URL,
   RESEARCHERS_FORM_URL,
-  SITE_NAME,
 } from '@/constants/constants'
 import {
   CORRECTIONS_LOG_URL,
@@ -29,7 +25,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
-const PAGE_TITLE = 'About'
+const PAGE_TITLE = 'Policies'
 
 const LINK_CLASS_NAME =
   'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
@@ -47,14 +43,14 @@ function renderContactEmailLink() {
   )
 }
 
-export const Route = createFileRoute('/about')({
-  component: function PageAbout() {
+export const Route = createFileRoute('/about/policies')({
+  component: function PagePolicies() {
     useDocumentTitle(PAGE_TITLE)
 
     return (
       <div className="space-y-8">
         <PageHeader
-          title={`About ${SITE_NAME}`}
+          title={PAGE_TITLE}
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -65,30 +61,18 @@ export const Route = createFileRoute('/about')({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/about">About</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
                   <BreadcrumbPage>{PAGE_TITLE}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           }
         />
-
-        <section
-          id={ABOUT_NOT_OFFICIAL_SECTION_ID}
-          aria-labelledby="official-heading"
-          className="space-y-4"
-        >
-          <h2 id="official-heading" className={SECTION_HEADING_CLASS_NAME}>
-            An unofficial archive
-          </h2>
-          <p>
-            I&apos;m Royce, and I built {SITE_NAME} and run it on my own. It is
-            not an official Parliament site. If you&apos;re quoting a debate in
-            print or citing it in a court document, use the Official Report on
-            Parliament&apos;s website because it is the authoritative text.
-            Report pages here link to Parliament&apos;s copy of the same report
-            so you can check it.
-          </p>
-        </section>
 
         <section aria-labelledby="why-heading" className="space-y-4">
           <h2 id="why-heading" className={SECTION_HEADING_CLASS_NAME}>
@@ -262,18 +246,8 @@ export const Route = createFileRoute('/about')({
           </p>
         </section>
 
-        <section aria-labelledby="contact-heading" className="space-y-4">
-          <h2 id="contact-heading" className={SECTION_HEADING_CLASS_NAME}>
-            Contact
-          </h2>
-          <p>
-            {CONTACT_EMAIL && `Email me at ${CONTACT_EMAIL}. `}The source code
-            is on GitHub.
-          </p>
-        </section>
-
         <p className="text-muted-foreground border-separator border-t pt-6 text-sm">
-          Last revised {formatSittingDate(ABOUT_LAST_REVISED)}.
+          Last revised {formatSittingDate(POLICIES_LAST_REVISED)}.
         </p>
       </div>
     )
