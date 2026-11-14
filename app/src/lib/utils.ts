@@ -141,10 +141,6 @@ export function getSortWithoutWords(sort: SearchSort | undefined): SearchSort {
   return sort === SearchSort.OLDEST ? SearchSort.OLDEST : SearchSort.DATE
 }
 
-export function readSearchQuery(form: HTMLFormElement): string {
-  return String(new FormData(form).get('q') ?? '').trim()
-}
-
 export async function copyTextWithToast(
   text: string,
   successMessage: string,
