@@ -242,7 +242,9 @@ Royce ruled the first three on 14 Nov 2026. The fourth repeats `app/STYLE.md`.
 
 On explanatory pages:
 
-- Write as "I". Say "I'm Royce" where the page first says "I", and write "I" after that. Leave the surname out of first-person text, because nobody introduces themselves that way. A byline such as "Built and run by Royce Hoe" is a signature and keeps the full name. Never write "we", since one person runs the site. Things the software does keep the archive or the site as their subject ("The archive splits each report into speeches").
+- Write as "I", with no name. About is the one page that names Royce ("I'm Royce, and I run the site on my own"), because that is where a reader goes to find out who runs the site. No other page introduces him or carries a byline.
+  > "is it neccesary to mention my name? I don't like plastering my name around my webpage. Feels very vain" (15 Nov 2026)
+- Never write "we", since one person runs the site. Things the software does keep the archive or the site as their subject ("The archive splits each report into speeches").
 - Keep the reason that the reader can't work out alone. Over-explaining is a fault of toasts, notices, and labels, but on these pages the reason is often the point, so keep the "because" that says why a rule exists or what a figure means. Cut a reason the page already makes plain. "It is the authoritative text" went from About (14 Nov 2026), because the sentences before it already said the site isn't official and to quote Parliament's Official Report.
 - (inferred) How Parliament works is about Parliament, not about Royce or the site, so it has no "I" (rule 8).
 
@@ -270,5 +272,5 @@ Run this on each page you change, in order, and fix what fails before you move o
 11. Does every list of three or more have the Oxford comma?
 12. For each footnote, can the main text carry it instead? If not, is it one exception in two sentences or fewer? Interface text has none.
 13. On a lay page, are rates given as percentages? Does it carry confidence limits or sample sizes, which belong in the check reports?
-14. On an explanatory page, is it "I", never "we", with "I'm Royce" at the first "I"? Read each paragraph aloud. If it sounds like a telegram, join the sentences that share a subject or a cause. If a sentence adds a second idea after a comma, split it.
+14. On an explanatory page, is it "I", never "we", with no name outside About? Read each paragraph aloud. If it sounds like a telegram, join the sentences that share a subject or a cause. If a sentence adds a second idea after a comma, split it.
 15. Is every fact, figure, date, name, link target, placeholder, and kept word unchanged? On Home and About, did you add no sentence? List every fact you cut and every question you couldn't answer from the text.

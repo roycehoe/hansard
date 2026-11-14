@@ -64,8 +64,8 @@ export const Route = createFileRoute('/researchers')({
             Bulk data
           </h2>
           <p>
-            I&apos;m Royce, and I run the site. There is no bulk download yet,
-            but I&apos;ll offer one once enough researchers ask for it.
+            There is no bulk download yet, but I&apos;ll offer one once enough
+            researchers ask for it.
           </p>
         </section>
 

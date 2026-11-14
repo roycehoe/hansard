@@ -146,22 +146,18 @@ export const Route = createFileRoute('/about/coverage/')({
           </div>
         </div>
 
-        <p className="border-separator text-muted-foreground border-t pt-6 text-sm">
-          Built and run by Royce Hoe.
-          {CONTACT_EMAIL && (
-            <>
-              {' '}
-              To report an error, email{' '}
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className={UNDERLINED_LINK_CLASS_NAME}
-              >
-                {CONTACT_EMAIL}
-              </a>
-              .
-            </>
-          )}
-        </p>
+        {CONTACT_EMAIL && (
+          <p className="border-separator text-muted-foreground border-t pt-6 text-sm">
+            To report an error, email{' '}
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className={UNDERLINED_LINK_CLASS_NAME}
+            >
+              {CONTACT_EMAIL}
+            </a>
+            .
+          </p>
+        )}
       </div>
     )
   },
