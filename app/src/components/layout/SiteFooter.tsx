@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
 const FOOTER_LINKS = [
+  { label: 'How Parliament works', to: '/how-parliament-works' },
   { label: 'Methods', to: '/coverage/methods' },
   { label: 'About', to: '/about' },
   ...(CONTACT_EMAIL

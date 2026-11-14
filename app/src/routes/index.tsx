@@ -18,6 +18,11 @@ const HOME_LINKS = [
     description: 'Dates, counts and source notes',
     to: '/coverage',
   },
+  {
+    title: 'Learn how Parliament works',
+    description: 'What Parliament does and what the Hansard records',
+    to: '/how-parliament-works',
+  },
 ] as const
 
 export const Route = createFileRoute('/')({
