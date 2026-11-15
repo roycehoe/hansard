@@ -40,5 +40,5 @@ def test_security_txt_answers_the_file_as_text_not_the_page(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.headers["content-type"].startswith("text/plain")
-    assert response.text.startswith("Contact: mailto:royceinbox@hotmail.com\n")
+    assert response.text.startswith("Contact: mailto:contact@openhansard.sg\n")
     assert "<html" not in response.text

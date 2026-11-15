@@ -49,7 +49,7 @@ The records come from my separate [hansard-scraper](https://github.com/roycehoe/
 
 ## Report an error
 
-If you find something wrong, email me at royceinbox@hotmail.com. The "Report an error" action on each paragraph fills in its speech's address for you, which helps me find the passage you mean. If you prefer to report it publicly, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml).
+If you find something wrong, email me at contact@openhansard.sg. The "Report an error" action on each paragraph fills in its speech's address for you, which helps me find the passage you mean. If you prefer to report it publicly, use the [Report an error form](https://github.com/roycehoe/hansard/issues/new?template=report-an-error.yml).
 
 ## Who runs it
 

@@ -85,4 +85,4 @@ The table in "The October burst" stops on 19 October. This section carries the c
 
 ## Contact
 
-You can reach me at royceinbox@hotmail.com.
+You can reach me at contact@openhansard.sg.

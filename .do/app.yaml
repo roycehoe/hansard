@@ -80,7 +80,7 @@ services:
         value: ${GOATCOUNTER_API_TOKEN}
       - key: VITE_CONTACT_EMAIL
         scope: BUILD_TIME
-        value: royceinbox@hotmail.com
+        value: contact@openhansard.sg
       - key: VITE_RESEARCHERS_FORM_URL
         scope: BUILD_TIME
         value: ""
