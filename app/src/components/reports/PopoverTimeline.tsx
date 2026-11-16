@@ -1,7 +1,9 @@
 import { useGetAct } from '@/api/acts/getAct'
-import type { ReportBillData } from '@/api/reports/getReport'
+import type { ReportBillActData, ReportBillData } from '@/api/reports/getReport'
+import { ButtonTimelineOtherActs } from '@/components/reports/ButtonTimelineOtherActs'
+import { ListTimelineActs } from '@/components/reports/ListTimelineActs'
 import { ListTimelineReadings } from '@/components/reports/ListTimelineReadings'
-import { SkeletonTimelineReadings } from '@/components/reports/SkeletonTimelineReadings'
+import { RowTimelineAct } from '@/components/reports/RowTimelineAct'
 import { Button } from '@/components/ui/button'
 import {
   Popover,
@@ -9,36 +11,29 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import {
+  findBillEntry,
   findTimelineAct,
-  getActTimelineReadings,
+  formatChangedActCount,
   getBillTimelineReadings,
+  getTimelineOtherActs,
 } from '@/lib/billTimeline'
-import { Link } from '@tanstack/react-router'
 import { ChevronDown } from 'lucide-react'
 
-interface ListTimelineActReadingsProps {
-  ssoCode: string
-  reportSlug: string
+interface RowTimelineLeadActProps {
+  bill: ReportBillData
+  act: ReportBillActData
 }
 
-// NOTE: the Act's answer can run to 159 KB (the Income Tax Act), so it is fetched when the menu opens, not with the page
-function ListTimelineActReadings({
-  ssoCode,
-  reportSlug,
-}: ListTimelineActReadingsProps) {
-  const { data, isLoading, isLoadingError } = useGetAct({ sso_code: ssoCode })
-  if (isLoading) return <SkeletonTimelineReadings />
-  if (isLoadingError || !data) {
-    return (
-      <p className="text-muted-foreground px-4 py-3 text-sm">
-        The readings did not load.
-      </p>
-    )
-  }
+// NOTE: the Act's answer can run to 159 KB (the Income Tax Act), so the lead Act is fetched when the menu opens, only for the date this Bill's entry came into force. The row reads Changed while it loads, if it fails, and where the record gives no date.
+function RowTimelineLeadAct({ bill, act }: RowTimelineLeadActProps) {
+  const { data } = useGetAct({ sso_code: act.sso_code })
   return (
-    <ListTimelineReadings
-      readings={getActTimelineReadings(data)}
-      reportSlug={reportSlug}
+    <RowTimelineAct
+      ssoCode={act.sso_code}
+      title={act.title}
+      inForceDate={
+        data ? (findBillEntry(data, bill)?.commencement_date ?? null) : null
+      }
     />
   )
 }
@@ -54,7 +49,8 @@ export function PopoverTimeline({
   reportSlug,
   align,
 }: PopoverTimelineProps) {
-  const act = findTimelineAct(bill)
+  const leadAct = findTimelineAct(bill)
+  const otherActs = getTimelineOtherActs(bill, leadAct)
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -69,27 +65,23 @@ export function PopoverTimeline({
         aria-label="Timeline"
         className="relative max-h-[min(36rem,var(--radix-popover-content-available-height))] w-[min(28rem,calc(100vw-2.5rem))] overflow-y-auto p-0"
       >
-        {act === null ? (
-          <ListTimelineReadings
-            readings={getBillTimelineReadings(bill.reports)}
-            reportSlug={reportSlug}
-          />
-        ) : (
-          <>
-            <div className="bg-popover border-separator sticky top-0 z-10 border-b px-4 py-3 text-sm">
-              <Link
-                to="/acts/$ssoCode"
-                params={{ ssoCode: act.sso_code }}
-                className="text-link visited:text-visited focus-visible:decoration-ring font-medium outline-hidden hover:underline focus-visible:underline"
-              >
-                {act.title}
-              </Link>
-            </div>
-            <ListTimelineActReadings
-              ssoCode={act.sso_code}
-              reportSlug={reportSlug}
-            />
-          </>
+        <ListTimelineReadings
+          readings={getBillTimelineReadings(bill.reports)}
+          reportSlug={reportSlug}
+          tail={
+            leadAct !== null && <RowTimelineLeadAct bill={bill} act={leadAct} />
+          }
+        />
+        {leadAct !== null && otherActs.length > 0 && (
+          <ButtonTimelineOtherActs acts={otherActs} />
+        )}
+        {leadAct === null && otherActs.length > 0 && (
+          <div className="border-separator border-t py-1">
+            <p className="text-muted-foreground px-4 pt-2 pb-1 text-sm">
+              {formatChangedActCount(otherActs.length)}
+            </p>
+            <ListTimelineActs acts={otherActs} />
+          </div>
         )}
       </PopoverContent>
     </Popover>

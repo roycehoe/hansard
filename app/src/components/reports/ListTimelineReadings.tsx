@@ -2,64 +2,28 @@ import type { TimelineReading } from '@/lib/billTimeline'
 import { formatSittingDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
+import type { ReactNode } from 'react'
 
 // NOTE: the Act page's rail (RowActEvent) at menu size. Each other reading is one link across the row, lit on hover in the muted fill as the home page's rows are, so it never looks like the reading on screen. The reading on screen takes the phone menu's current-page look: an accent row, a semibold date and a marker in the primary colour.
-const RAIL_ITEM_CLASS_NAME =
+export const RAIL_ITEM_CLASS_NAME =
   'before:bg-border relative text-sm [--marker-top:18px] before:pointer-events-none before:absolute before:inset-y-0 before:left-[13px] before:w-px first:before:top-(--marker-top) last:before:bottom-[calc(100%-var(--marker-top))] after:pointer-events-none after:absolute after:top-[calc(var(--marker-top)-4.5px)] after:left-[9px] after:size-[9px] after:rounded-full'
 
-const READING_CLASS_NAME =
+export const READING_CLASS_NAME =
   'flex flex-wrap items-baseline gap-x-3 gap-y-0.5 rounded-sm py-2 pr-3 pl-9'
 
-const LABEL_CLASS_NAME = 'text-muted-foreground'
-
-const POPOVER_CONTENT_SELECTOR = '[data-slot="popover-content"]'
-
-function renderReadingDetails(reading: TimelineReading) {
-  return (
-    <>
-      <span className={LABEL_CLASS_NAME}>{reading.label}</span>
-      {reading.title !== null && (
-        <span className="text-popover-foreground min-w-0 basis-full break-words">
-          {reading.title}
-        </span>
-      )}
-      {reading.otherActCount !== null && (
-        <span className={LABEL_CLASS_NAME}>{reading.otherActCount}</span>
-      )}
-    </>
-  )
-}
-
-// NOTE: on a long Act the reading on screen sits deep in the list, so the menu opens with it near the middle. It reads offsetTop, which the menu's opening zoom does not scale, once the menu has taken its height.
-function useCentredCurrentRow() {
-  const currentRowRef = useRef<HTMLLIElement>(null)
-  useEffect(() => {
-    const row = currentRowRef.current
-    const container = row?.closest<HTMLElement>(POPOVER_CONTENT_SELECTOR)
-    if (!row || !container) return
-    const observer = new ResizeObserver(() => {
-      if (container.scrollHeight <= container.clientHeight) return
-      container.scrollTop =
-        row.offsetTop - (container.clientHeight - row.offsetHeight) / 2
-      observer.disconnect()
-    })
-    observer.observe(container)
-    return () => observer.disconnect()
-  }, [])
-  return currentRowRef
-}
+export const LABEL_CLASS_NAME = 'text-muted-foreground'
 
 interface ListTimelineReadingsProps {
   readings: TimelineReading[]
   reportSlug: string
+  tail?: ReactNode
 }
 
 export function ListTimelineReadings({
   readings,
   reportSlug,
+  tail,
 }: ListTimelineReadingsProps) {
-  const currentRowRef = useCentredCurrentRow()
   return (
     <ol className="p-1">
       {readings.map((reading) => {
@@ -67,7 +31,6 @@ export function ListTimelineReadings({
         return (
           <li
             key={reading.reportSlug}
-            ref={isCurrent ? currentRowRef : undefined}
             aria-current={isCurrent ? 'page' : undefined}
             className={cn(
               RAIL_ITEM_CLASS_NAME,
@@ -79,7 +42,7 @@ export function ListTimelineReadings({
                 <span className="font-semibold tabular-nums">
                   {formatSittingDate(reading.sittingDate)}
                 </span>
-                {renderReadingDetails(reading)}
+                <span className={LABEL_CLASS_NAME}>{reading.label}</span>
               </div>
             ) : (
               <Link
@@ -93,12 +56,13 @@ export function ListTimelineReadings({
                 <span className="font-medium tabular-nums">
                   {formatSittingDate(reading.sittingDate)}
                 </span>
-                {renderReadingDetails(reading)}
+                <span className={LABEL_CLASS_NAME}>{reading.label}</span>
               </Link>
             )}
           </li>
         )
       })}
+      {tail}
     </ol>
   )
 }

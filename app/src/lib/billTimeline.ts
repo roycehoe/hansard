@@ -1,23 +1,16 @@
-import type { GetActResponse } from '@/api/acts/getAct'
+import type { ActEntryData, GetActResponse } from '@/api/acts/getAct'
 import type {
   ReportBillActData,
   ReportBillData,
   ReportBillReportData,
 } from '@/api/reports/getReport'
-import { ActEventKind } from '@/constants/acts/enums'
-import {
-  formatOtherActCount,
-  getActEventsNewestFirst,
-  getReportLabels,
-  normaliseLawName,
-} from '@/lib/actTimeline'
+import { NUMBER_LOCALE } from '@/constants/constants'
+import { getReportLabels, normaliseLawName } from '@/lib/actTimeline'
 
 export interface TimelineReading {
   reportSlug: string
   sittingDate: string
   label: string
-  title: string | null
-  otherActCount: string | null
 }
 
 const BILL_TITLE_BRACKETS_PATTERN = /\([^)]*\)/g
@@ -63,28 +56,7 @@ export function findTimelineAct(
 }
 
 export function isTimelineShown(bill: ReportBillData): boolean {
-  return findTimelineAct(bill) !== null || bill.reports.length > 1
-}
-
-export function getActTimelineReadings(act: GetActResponse): TimelineReading[] {
-  const seenReportSlugs = new Set<string>()
-  const readings: TimelineReading[] = []
-  for (const event of getActEventsNewestFirst(act.entries)) {
-    if (event.kind !== ActEventKind.READING) continue
-    if (seenReportSlugs.has(event.report.report_slug)) continue
-    seenReportSlugs.add(event.report.report_slug)
-    readings.push({
-      reportSlug: event.report.report_slug,
-      sittingDate: event.report.sitting_date,
-      label: event.label,
-      title: event.report.title,
-      otherActCount:
-        event.isNewestReading && event.entry.bill !== null
-          ? formatOtherActCount(event.entry.bill.act_count)
-          : null,
-    })
-  }
-  return readings
+  return bill.acts.length > 0 || bill.reports.length > 1
 }
 
 export function getBillTimelineReadings(
@@ -94,13 +66,40 @@ export function getBillTimelineReadings(
     a.sitting_date.localeCompare(b.sitting_date)
   )
   const labels = getReportLabels(reportsOldestFirst)
-  return reportsOldestFirst
-    .map((report, index) => ({
-      reportSlug: report.report_slug,
-      sittingDate: report.sitting_date,
-      label: labels[index],
-      title: null,
-      otherActCount: null,
-    }))
-    .reverse()
+  return reportsOldestFirst.map((report, index) => ({
+    reportSlug: report.report_slug,
+    sittingDate: report.sitting_date,
+    label: labels[index],
+  }))
+}
+
+// NOTE: every Act the Bill changed bar the one the rail ends with, by title. With no such Act, every Act.
+export function getTimelineOtherActs(
+  bill: ReportBillData,
+  leadAct: ReportBillActData | null
+): ReportBillActData[] {
+  return bill.acts
+    .filter((act) => act.sso_code !== leadAct?.sso_code)
+    .sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
+}
+
+export function formatChangedActCount(actCount: number): string {
+  return `Changed ${actCount.toLocaleString(NUMBER_LOCALE)} ${actCount === 1 ? 'Act' : 'Acts'}`
+}
+
+// NOTE: the Act's entry for this Bill is its first entry whose Bill has a reading on this Bill's reports, so the rail can print the date the record gives it in force.
+export function findBillEntry(
+  act: GetActResponse,
+  bill: ReportBillData
+): ActEntryData | null {
+  const reportSlugs = new Set(bill.reports.map((report) => report.report_slug))
+  return (
+    [...act.entries]
+      .sort((a, b) => a.ordinal - b.ordinal)
+      .find((entry) =>
+        entry.bill?.reports.some((report) =>
+          reportSlugs.has(report.report_slug)
+        )
+      ) ?? null
+  )
 }
