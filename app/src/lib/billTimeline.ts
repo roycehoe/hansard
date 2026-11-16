@@ -16,12 +16,20 @@ export interface TimelineReading {
 const BILL_TITLE_BRACKETS_PATTERN = /\([^)]*\)/g
 const BILL_TITLE_AMENDING_BRACKETS_PATTERN =
   /\((?:amendment[^)]*|no\.?\s*\d+)\)/gi
-const BILL_WORD_PATTERN = /\bbill\b/gi
-const ACT_WORD = 'act'
+const BILL_WORD_PATTERN = /\s*\bbill\b/gi
+const TRAILING_ACT_PATTERN = /\s+act$/
 
-function getBillLawName(billTitle: string, bracketsPattern: RegExp): string {
-  return normaliseLawName(
-    billTitle.replace(bracketsPattern, '').replace(BILL_WORD_PATTERN, ACT_WORD)
+// NOTE: a law name is compared without its closing Act, since Bills always end in Bill but some laws end in Code, Charter or no word at all: the Penal Code (Amendment) Bill names the Penal Code 1871.
+function getLawNameStem(lawTitle: string): string {
+  return normaliseLawName(lawTitle).replace(TRAILING_ACT_PATTERN, '')
+}
+
+function getBillLawNameStem(
+  billTitle: string,
+  bracketsPattern: RegExp
+): string {
+  return getLawNameStem(
+    billTitle.replace(bracketsPattern, '').replace(BILL_WORD_PATTERN, '')
   )
 }
 
@@ -33,9 +41,9 @@ function findNamedAct(
     BILL_TITLE_AMENDING_BRACKETS_PATTERN,
     BILL_TITLE_BRACKETS_PATTERN,
   ]) {
-    const billLawName = getBillLawName(billTitle, bracketsPattern)
+    const billLawNameStem = getBillLawNameStem(billTitle, bracketsPattern)
     const namedAct = acts.find(
-      (act) => normaliseLawName(act.title) === billLawName
+      (act) => getLawNameStem(act.title) === billLawNameStem
     )
     if (namedAct !== undefined) return namedAct
   }

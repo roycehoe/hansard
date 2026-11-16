@@ -3,6 +3,7 @@ import type { ReportBillActData, ReportBillData } from '@/api/reports/getReport'
 import { BillStage } from '@/constants/bills/enums'
 import {
   findBillEntry,
+  findTimelineAct,
   formatChangedActCount,
   getBillTimelineReadings,
   getTimelineOtherActs,
@@ -110,5 +111,51 @@ describe('findBillEntry', () => {
       entries: [buildEntry(1, null)],
     } as unknown as GetActResponse
     expect(findBillEntry(act, buildBill([]))).toBeNull()
+  })
+})
+
+describe('findTimelineAct', () => {
+  function buildTitledBill(title: string, acts: ReportBillActData[]) {
+    return { ...buildBill(acts), title }
+  }
+
+  const acts = [
+    buildAct('CPC2010', 'Criminal Procedure Code 2010'),
+    buildAct('EA1893', 'Evidence Act 1893'),
+    buildAct('PC1871', 'Penal Code 1871'),
+    buildAct('WC1961', 'Women\u2019s Charter 1961'),
+    buildAct('SCJA1969', 'Supreme Court of Judicature Act 1969'),
+    buildAct('JSO1878', 'Jewish Synagogue Ordinance 1878'),
+  ]
+
+  it('matches a law that ends in Code', () => {
+    const bill = buildTitledBill('Penal Code (Amendment) Bill', acts)
+    expect(findTimelineAct(bill)?.sso_code).toBe('PC1871')
+  })
+
+  it('matches a law that ends in Charter, in capitals', () => {
+    const bill = buildTitledBill('WOMEN\u2019S CHARTER (AMENDMENT) BILL', acts)
+    expect(findTimelineAct(bill)?.sso_code).toBe('WC1961')
+  })
+
+  it('still matches a law that ends in Act', () => {
+    const bill = buildTitledBill(
+      'Supreme Court of Judicature (Amendment) Bill',
+      acts
+    )
+    expect(findTimelineAct(bill)?.sso_code).toBe('SCJA1969')
+  })
+
+  it('matches an Ordinance', () => {
+    const bill = buildTitledBill('Jewish Synagogue (Amendment) Bill', acts)
+    expect(findTimelineAct(bill)?.sso_code).toBe('JSO1878')
+  })
+
+  it('names no Act when the title names none of several', () => {
+    const bill = buildTitledBill(
+      'Criminal Law (Miscellaneous Amendments) Bill',
+      acts
+    )
+    expect(findTimelineAct(bill)).toBeNull()
   })
 })
