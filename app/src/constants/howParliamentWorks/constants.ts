@@ -1,4 +1,4 @@
-export const HOW_PARLIAMENT_WORKS_LAST_REVISED = '2026-11-14'
+export const HOW_PARLIAMENT_WORKS_LAST_REVISED = '2026-11-17'
 
 export const OFFICIAL_REPORTS_URL =
   'https://www.parliament.gov.sg/parliamentary-business/official-reports'

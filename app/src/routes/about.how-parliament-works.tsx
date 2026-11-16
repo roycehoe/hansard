@@ -217,9 +217,10 @@ export const Route = createFileRoute('/about/how-parliament-works')({
               debate.
             </li>
             <li>
-              At the second reading, MPs debate its general principles.
-              Parliament usually then forms a committee of all MPs to consider
-              the Bill.
+              At the second reading, MPs debate the Bill&apos;s main ideas.
+              Parliament usually then forms a committee of all MPs to go through
+              the Bill. Any MP can propose a change to the Bill&apos;s wording,
+              called an amendment. The committee votes on each amendment.
             </li>
             <li>
               At the third reading, only minor corrections can be made to the
@@ -357,7 +358,9 @@ export const Route = createFileRoute('/about/how-parliament-works')({
             Second, MPs can propose motions for Parliament to decide on. A
             motion is a proposal for Parliament to act or express an opinion.
             Through motions, Parliament can endorse or criticise Government
-            policies, or express an opinion on other matters.
+            policies, or express an opinion on other matters. During the debate,
+            any MP can propose an amendment to the motion. Parliament votes on
+            each amendment first, then on the motion.
           </p>
           <p>
             In February 2013, for example, the Deputy Prime Minister proposed{' '}
