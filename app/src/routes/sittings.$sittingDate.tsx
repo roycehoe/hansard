@@ -21,6 +21,7 @@ import {
 import { HTTP_NOT_FOUND, NUMBER_LOCALE } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament, formatSittingDate } from '@/lib/format'
+import { getSittingYear } from '@/lib/sittingYears'
 import { cn } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
@@ -106,6 +107,7 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
                     <Link
                       to="/sittings"
                       search={{ parliament: data.parliament_number }}
+                      hash={String(getSittingYear(data.sitting_date))}
                     >
                       Sittings
                     </Link>

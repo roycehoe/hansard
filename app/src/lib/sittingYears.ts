@@ -12,10 +12,14 @@ export interface SittingYear {
   runs: SittingRun[]
 }
 
+export function getSittingYear(sittingDate: string): number {
+  return parseISO(sittingDate).getFullYear()
+}
+
 export function groupSittingsByYear(sittings: SittingData[]): SittingYear[] {
   const sittingYears: SittingYear[] = []
   for (const sitting of sittings) {
-    const year = parseISO(sitting.sitting_date).getFullYear()
+    const year = getSittingYear(sitting.sitting_date)
     let sittingYear = sittingYears[sittingYears.length - 1]
     if (sittingYear?.year !== year) {
       sittingYear = { year, runs: [] }
