@@ -42,6 +42,8 @@ I opened the site to the public on 20 October 2026. It is an unofficial project,
 
 The records come from my separate [hansard-scraper](https://github.com/roycehoe/hansard-scraper) project. The [coverage page](https://openhansard.sg/about/coverage) tracks what's available, while the [methods](https://openhansard.sg/about/coverage/methods) explain how I build the connections and where gaps remain.
 
+The site is non-partisan on purpose. It sorts the record so you can browse it, and it publishes no analysis of its own, such as comparisons between parties, rankings of members, or a verdict on how a member's views changed. The site's colour scheme avoids party colours for the same reason. The scraper's [vision](https://github.com/roycehoe/hansard-scraper/blob/master/docs/vision.md#scope) sets out where that line sits.
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/report-dark.png">
   <img alt="A report page: a written answer from 6 March 2024, split into speeches, with each speaker's name linked to their page" src="docs/images/report-light.png">
