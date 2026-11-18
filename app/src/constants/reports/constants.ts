@@ -38,7 +38,7 @@ export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
   [ReportType.MOTION]:
     'A proposal put to Parliament to debate and decide on, including proposals to end a sitting.',
   [ReportType.MATTER_ADJ]:
-    'A short debate a member raises at the end of a sitting, before the sitting ends.',
+    'A short debate a member raises at the end of a sitting.',
   [ReportType.BILL]:
     "A Bill's first, second, or third reading. A Bill is a proposed law, and each reading is one stage of Parliament's work on it.",
   [ReportType.BILL_INTRO]:
