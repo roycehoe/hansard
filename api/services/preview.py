@@ -80,9 +80,9 @@ _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
 _REPORT_WORD = "report"
 _REPORTS_WORD = "reports"
-_FIRST_READING_TITLE_LABEL = "First Reading"
-_SECOND_READING_TITLE_LABEL = "Second Reading"
-_THIRD_READING_TITLE_LABEL = "Third Reading"
+_FIRST_READING_TITLE_LABEL = "First reading"
+_SECOND_READING_TITLE_LABEL = "Second reading"
+_THIRD_READING_TITLE_LABEL = "Third reading"
 _LEADING_THE = re.compile(r"^the\s+", re.IGNORECASE)
 _BILL_WORD = re.compile(r"\bbill\b", re.IGNORECASE)
 
