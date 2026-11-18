@@ -41,10 +41,8 @@ export function PopoverPersonFilter({
   const [typedName, setTypedName] = useState<string>('')
   const persons = useGetAllPersons({})
   const chosenPerson = useGetPerson({ person_id: value ?? 0 })
-  const listedPersons = filterPersonsByMembership(
-    persons.data?.persons ?? [],
-    filters
-  )
+  const allPersons = persons.data?.persons ?? []
+  const listedPersons = filterPersonsByMembership(allPersons, filters)
   const matches =
     typedName.trim() === ''
       ? listedPersons
@@ -54,7 +52,9 @@ export function PopoverPersonFilter({
   const noMatchesLine =
     typedName.trim() === ''
       ? 'No people match the other filters'
-      : 'No people match this name'
+      : listedPersons.length < allPersons.length
+        ? 'No people match this name and the other filters'
+        : 'No people match this name'
   const emptyLine =
     persons.isSuccess && matches.length === 0 ? `${noMatchesLine}.` : null
 

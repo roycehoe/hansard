@@ -45,20 +45,21 @@ export function PopoverConstituencyFilter({
   const [typedName, setTypedName] = useState<string>('')
   const persons = useGetAllPersons({})
   const allPersons = persons.data?.persons ?? []
-  const matches = getConstituencyMatches(
-    typedName,
-    filterConstituenciesByMembership(
-      isSeatTypeListed
-        ? [...getSeatTypes(allPersons), ...getConstituencies(allPersons)]
-        : getConstituencies(allPersons),
-      allPersons,
-      filters
-    )
+  const allConstituencies = isSeatTypeListed
+    ? [...getSeatTypes(allPersons), ...getConstituencies(allPersons)]
+    : getConstituencies(allPersons)
+  const listedConstituencies = filterConstituenciesByMembership(
+    allConstituencies,
+    allPersons,
+    filters
   )
+  const matches = getConstituencyMatches(typedName, listedConstituencies)
   const noMatchesLine =
     typedName.trim() === ''
       ? 'No constituencies match the other filters'
-      : 'No constituencies match this name'
+      : listedConstituencies.length < allConstituencies.length
+        ? 'No constituencies match this name and the other filters'
+        : 'No constituencies match this name'
   const emptyLine =
     persons.isSuccess && matches.length === 0 ? `${noMatchesLine}.` : null
 
