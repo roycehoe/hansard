@@ -137,7 +137,7 @@ export const Route = createFileRoute('/acts/$ssoCode')({
           )}
           {data.entries.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No amendments are listed for this Act.
+              No history is listed for this Act.
             </p>
           ) : (
             <ListActEvents
