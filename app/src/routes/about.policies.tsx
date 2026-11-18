@@ -356,11 +356,12 @@ export const Route = createFileRoute('/about/policies')({
               <p>
                 Copy link, Cite, and the links in search notes are counted when
                 used, without the text copied or the words searched. The site
-                keeps the date of your last visit in your browser and counts a
-                return visit, without sending that date or anything that
-                identifies you. When an app such as WhatsApp or Telegram fetches
-                a page to show a preview of a link, the site counts the fetch
-                under the page address and the app&apos;s name.
+                also counts each time it shows the &quot;Search is busy&quot;
+                notice. The site keeps the date of your last visit in your
+                browser and counts a return visit, without sending that date or
+                anything that identifies you. When an app such as WhatsApp or
+                Telegram fetches a page to show a preview of a link, the site
+                counts the fetch under the page address and the app&apos;s name.
               </p>
             </>
           )}
