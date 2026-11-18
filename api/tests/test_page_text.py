@@ -550,7 +550,7 @@ def test_a_database_failure_leaves_the_sittings_root_empty(
 def _get_person_preview() -> PreviewData:
     return PreviewData(
         title="Tan & Lee, speeches in Parliament",
-        description="Every speech by Tan & Lee.",
+        description="Tan & Lee's speeches.",
         preview_type=PreviewType.WEBSITE,
         path="/people/7-tan-lee",
         is_found=True,

@@ -394,7 +394,7 @@ def _get_person_description(person_id: int, person_name: str, session: Session) 
     report_count = len(
         set(report_id_to_speech_count).difference(get_taken_down_report_ids(session))
     )
-    lead_sentence = f"Every speech by {person_name} in Singapore's Hansard."
+    lead_sentence = f"{person_name}'s speeches in Singapore's Hansard."
     if report_count == 0:
         return lead_sentence
     word = _REPORT_WORD if report_count == 1 else _REPORTS_WORD
