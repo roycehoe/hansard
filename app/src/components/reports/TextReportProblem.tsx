@@ -10,7 +10,7 @@ const LINK_CLASS_NAME =
 
 function buildReportProblemHref(title: string): string {
   return buildErrorEmailHref(
-    `Problem on ${title}`,
+    `Error in ${title}`,
     `${window.location.origin}${window.location.pathname}`
   )
 }
@@ -21,7 +21,7 @@ export function TextReportProblem({ title }: TextReportProblemProps) {
   return (
     <p className="text-sm">
       <a href={buildReportProblemHref(title)} className={LINK_CLASS_NAME}>
-        Report a problem with this report
+        Report an error
       </a>
     </p>
   )
