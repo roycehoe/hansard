@@ -30,7 +30,7 @@ I had a few uses in mind: looking up what your MP has said, following politician
 You can start with a person, a sitting or a subject and follow the links between them:
 
 - [Find your MP](https://openhansard.sg/people?constituency=Ang%20Mo%20Kio&parliament=15) by choosing a constituency on the people page, starting with the latest Parliament.
-- [A person's page](https://openhansard.sg/people/399-louis-ng-kok-kwang) brings their memberships, attendance and contributions together by Parliament, with links to the reports they contributed to.
+- [A person's page](https://openhansard.sg/people/399-louis-ng-kok-kwang) brings together the Parliaments they sat in, their attendance and their contributions, with links to the reports they contributed to.
 - [A report](https://openhansard.sg/reports/written-answer-16079) groups the text into speeches, with links to speakers where they've been identified. The transcript keeps its original spelling, even when a misspelt speaker label links to the right person.
 - [A speech link](https://openhansard.sg/reports/written-answer-16079?s=1&q=asked+the+minister+for+manpower+a+apart+from) takes you straight to a contribution. Copy link, Cite and Report an error sit on each paragraph so you can share it, quote it or flag a problem where you found it.
 - [A sitting](https://openhansard.sg/sittings/2024-03-06) puts the day's reports beside its lists of members present and absent.
