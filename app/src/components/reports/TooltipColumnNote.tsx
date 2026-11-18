@@ -33,7 +33,7 @@ function buildColumnNoteText(
         ? `The record prints column ${columnStart} here. It is likely a misprint, out of step with the columns around it.`
         : `The record prints column ${columnStart} here. It is likely a misprint: the columns around it suggest ${columnSuggested}.`
     case ColumnNote.SPEAKER_NAMED_IN_COLUMN_BEFORE:
-      return `The record names the speaker at the end of column ${columnStart}, and the speech starts in the next column. The archive cites the column where the speaker is named.`
+      return `The record names the speaker at the end of column ${columnStart}. The speech starts in the next column. The archive cites the column where the speaker is named.`
     case ColumnNote.PRINTED_WITH_L_FOR_1:
       return 'The record prints this column number with a letter l in place of a 1.'
   }
