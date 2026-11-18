@@ -309,8 +309,9 @@ export const Route = createFileRoute('/about/policies')({
           <p>
             I aim for the site to meet WCAG 2.2 at level AA, a standard for
             making websites usable by people with disabilities. Before each
-            update goes live, a script checks every pair of colours on the site
-            for enough contrast. After each update, an automated checker tests
+            update goes live, a script checks that the site&apos;s text, border
+            and focus ring colours have enough contrast against the backgrounds
+            they are meant for. After each update, an automated checker tests
             the home page, a report, and a search on the live site.
           </p>
           <p>
