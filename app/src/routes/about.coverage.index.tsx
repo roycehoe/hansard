@@ -120,9 +120,8 @@ export const Route = createFileRoute('/about/coverage/')({
                 Official Report
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
-              , splits each report where a new speaker begins and links speeches
-              to a person when it can identify who spoke. The copy can differ,
-              so check the Official Report before quoting.
+              . The copy can differ, so check the Official Report before
+              quoting.
             </p>
 
             <p>
