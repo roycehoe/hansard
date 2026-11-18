@@ -15,7 +15,7 @@ Fixes to the stored text or credits go into [roycehoe/hansard-scraper](https://g
 
 ## Log
 
-Each fix gets a row here, newest first. The Found by column says whether an audit of the data or a reader's report found the error; a dash in Reported means the fix came from an audit. The log starts with write #7, which the scraper stored on 17 October 2026. Most fixes also have a fuller row in the scraper's [data-loss register](https://github.com/roycehoe/hansard-scraper/blob/master/docs/data-loss-register.md).
+Each fix gets a row here, newest first. The Found by column says whether an audit of the data or a reader's report found the error; a dash in Reported means the fix came from an audit. A write is one batch of changes the scraper saves to its database, numbered in order. The log starts with write #7, which the scraper stored on 17 October 2026. Most fixes also have a fuller row in the scraper's [data-loss register](https://github.com/roycehoe/hansard-scraper/blob/master/docs/data-loss-register.md).
 
 | Reported | Fixed | Found by | Report | What was wrong | What changed |
 | --- | --- | --- | --- | --- | --- |
