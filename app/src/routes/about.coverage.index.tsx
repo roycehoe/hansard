@@ -132,8 +132,8 @@ export const Route = createFileRoute('/about/coverage/')({
               >
                 Data quality and methods
               </Link>{' '}
-              explains how far to trust the text and how to cite it, and lists
-              the full counts and known gaps.
+              explains how far to trust the text, and lists the full counts and
+              known gaps.
             </p>
           </div>
 
