@@ -114,6 +114,12 @@ export const EMPTY_SPEECH_WORDS_DESCRIPTION =
 export const EMPTY_TITLE_WORDS_DESCRIPTION =
   'All search terms must appear in the title. Try using fewer words. Common words like "the" are ignored.'
 
+export const EMPTY_SPEECH_OPERATOR_WORDS_DESCRIPTION =
+  'Try using fewer words. Common words like "the" are ignored.'
+
+export const EMPTY_TITLE_OPERATOR_WORDS_DESCRIPTION =
+  'Try using fewer words. Common words like "the" are ignored.'
+
 export const EMPTY_FILTERS_DESCRIPTION =
   'Try a wider date range or another Parliament.'
 

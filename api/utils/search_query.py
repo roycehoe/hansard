@@ -369,6 +369,17 @@ def is_quote_in_query(query: str) -> bool:
     return _QUOTE in _get_query_to_parse(query)
 
 
+# NOTE: the same rule as hasSearchOperatorWord in app/src/lib/searchQuery.ts, so the page text and the app's search page show the same note when nothing matches
+def is_operator_word_in_query(query: str) -> bool:
+    is_operator_word_read = not _is_query_a_title_in_capitals(query)
+    return any(
+        word.startswith(_EXCLUDED_PREFIX)
+        or word == _EXCLUDING_SYMBOL
+        or (is_operator_word_read and (word == _OR_OPERATOR or word == _NOT_OPERATOR))
+        for word in query.split()
+    )
+
+
 def is_quoted_or_query(query: str) -> bool:
     return len(get_search_query_groups(query)) > 1 and is_quote_in_query(query)
 

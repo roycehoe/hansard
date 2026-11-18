@@ -45,7 +45,7 @@ from services import report as report_service
 from services import search as search_service
 from services import sitting as sitting_service
 from settings import settings
-from utils.search_query import is_query_only_excluded_words
+from utils.search_query import is_operator_word_in_query, is_query_only_excluded_words
 from utils.sitting_date import get_sitting_date_label
 from validators.search import (
     MAX_SEARCH_QUERY_GROUP_COUNT,
@@ -132,10 +132,16 @@ _NO_SPEECH_MATCHES_NOTE = (
     "No speech matches. All search terms must appear in the same paragraph. "
     'Try using fewer words. Common words like "the" are ignored.'
 )
+_NO_SPEECH_MATCHES_OPERATOR_WORDS_NOTE = (
+    'No speech matches. Try using fewer words. Common words like "the" are ignored.'
+)
 _NO_SPEECHES_NOTE = "No speeches. Try a wider date range or another Parliament."
 _NO_TITLE_MATCHES_NOTE = (
     "No title matches. All search terms must appear in the title. "
     'Try using fewer words. Common words like "the" are ignored.'
+)
+_NO_TITLE_MATCHES_OPERATOR_WORDS_NOTE = (
+    'No title matches. Try using fewer words. Common words like "the" are ignored.'
 )
 _NO_REPORTS_NOTE = "No reports. Try a wider date range or another Parliament."
 _TITLE_MATCHES_LINK_TEXT = "Title matches"
@@ -590,7 +596,11 @@ def _get_search_results_html(
         no_results_note = (
             _NO_SPEECHES_NOTE
             if is_query_without_search_words
-            else _NO_SPEECH_MATCHES_NOTE
+            else (
+                _NO_SPEECH_MATCHES_OPERATOR_WORDS_NOTE
+                if is_operator_word_in_query(parameters.query)
+                else _NO_SPEECH_MATCHES_NOTE
+            )
         )
         return _get_search_html(
             title, [*title_search_lines, f"<p>{escape(no_results_note)}</p>"]
@@ -639,7 +649,11 @@ def _get_title_search_results_html(
         no_results_note = (
             _NO_REPORTS_NOTE
             if is_query_without_search_words
-            else _NO_TITLE_MATCHES_NOTE
+            else (
+                _NO_TITLE_MATCHES_OPERATOR_WORDS_NOTE
+                if is_operator_word_in_query(parameters.query)
+                else _NO_TITLE_MATCHES_NOTE
+            )
         )
         return _get_search_html(
             title, [speech_search_line, f"<p>{escape(no_results_note)}</p>"]

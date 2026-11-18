@@ -5,9 +5,11 @@ import { TextMatchCount } from '@/components/search/TextMatchCount'
 import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
 import {
   EMPTY_FILTERS_DESCRIPTION,
+  EMPTY_TITLE_OPERATOR_WORDS_DESCRIPTION,
   EMPTY_TITLE_WORDS_DESCRIPTION,
 } from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
+import { hasSearchOperatorWord } from '@/lib/searchQuery'
 import { isTextPublished } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
@@ -35,6 +37,9 @@ export function ListReportMatches({
   isTotalCapped,
   sortControl,
 }: ListReportMatchesProps) {
+  const hasOperatorWord =
+    highlightWords !== undefined && hasSearchOperatorWord(highlightWords)
+
   return (
     <div className="space-y-4">
       {results.length === 0 ? (
@@ -44,7 +49,9 @@ export function ListReportMatches({
             title={hasWords ? EMPTY_WORDS_TITLE : EMPTY_FILTERS_TITLE}
             description={
               hasWords
-                ? EMPTY_TITLE_WORDS_DESCRIPTION
+                ? hasOperatorWord
+                  ? EMPTY_TITLE_OPERATOR_WORDS_DESCRIPTION
+                  : EMPTY_TITLE_WORDS_DESCRIPTION
                 : EMPTY_FILTERS_DESCRIPTION
             }
           />

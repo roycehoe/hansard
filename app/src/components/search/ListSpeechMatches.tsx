@@ -8,9 +8,11 @@ import { ListSpeechMatchesInReport } from '@/components/search/ListSpeechMatches
 import { TextMatchCount } from '@/components/search/TextMatchCount'
 import {
   EMPTY_FILTERS_DESCRIPTION,
+  EMPTY_SPEECH_OPERATOR_WORDS_DESCRIPTION,
   EMPTY_SPEECH_WORDS_DESCRIPTION,
 } from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
+import { hasSearchOperatorWord } from '@/lib/searchQuery'
 import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -71,6 +73,8 @@ export function ListSpeechMatches({
     () => groupSpeechMatchesByReport(resultPages),
     [resultPages]
   )
+  const hasOperatorWord =
+    highlightWords !== undefined && hasSearchOperatorWord(highlightWords)
 
   return (
     <div className="space-y-4">
@@ -81,7 +85,9 @@ export function ListSpeechMatches({
             title={hasWords ? EMPTY_WORDS_TITLE : EMPTY_FILTERS_TITLE}
             description={
               hasWords
-                ? EMPTY_SPEECH_WORDS_DESCRIPTION
+                ? hasOperatorWord
+                  ? EMPTY_SPEECH_OPERATOR_WORDS_DESCRIPTION
+                  : EMPTY_SPEECH_WORDS_DESCRIPTION
                 : EMPTY_FILTERS_DESCRIPTION
             }
           />
