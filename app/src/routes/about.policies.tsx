@@ -208,12 +208,13 @@ export const Route = createFileRoute('/about/policies')({
           </h2>
           <p>
             Cite on a paragraph copies its citation, a link to the paragraph
-            here, and a link to the Official Report. The citation gives the
-            column number, the number Parliament&apos;s printed record gives
-            each column of text, where the record prints one. It copies the
-            number as printed, even if the site marks it as a likely misprint.
-            Copy citation on a report adds no column number. A court document
-            needs one, so if your citation has none, find the passage in the{' '}
+            here, and a link to the Official Report. Parliament&apos;s printed
+            record numbers its columns of text. The citation includes the
+            paragraph&apos;s column number where the record prints one. It
+            copies the number as printed, even if the site marks it as a likely
+            misprint. Copy citation on a report adds no column number. A court
+            document needs one, so if your citation has none, find the passage
+            in the{' '}
             <LinkExternal href={OFFICIAL_RECORD_SEARCH_URL}>
               Official Report
             </LinkExternal>{' '}
