@@ -42,7 +42,7 @@ export function ListPersonBillsByParliament({
     return (
       <NoticeEmpty
         icon={FileText}
-        title="No Bills spoken on"
+        title="No Bills found"
         description={`The archive has no Bills that ${personName} spoke on.`}
       />
     )

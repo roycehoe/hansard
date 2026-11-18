@@ -23,7 +23,7 @@ export function ListPersonReports({
       return (
         <NoticeEmpty
           icon={FileText}
-          title="No questions asked"
+          title="No questions found"
           description={`The archive has no parliamentary questions credited to ${personName}.`}
         />
       )
