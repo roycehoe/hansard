@@ -1,4 +1,4 @@
-export const POLICIES_LAST_REVISED = '2026-11-14'
+export const POLICIES_LAST_REVISED = '2026-11-19'
 
 export const POLICIES_PRIVACY_SECTION_ID = 'privacy'
 
