@@ -331,6 +331,10 @@ export const Route = createFileRoute('/about/coverage/methods')({
             <h3 className={SUBHEADING_CLASS_NAME}>Incomplete details</h3>
             <ul className={GAP_LIST_CLASS_NAME}>
               <li>
+                Within a sitting, reports often don&apos;t appear in the order
+                Parliament printed them.
+              </li>
+              <li>
                 Some documents attached to the record, such as the lists of
                 planned spending, have the type &quot;
                 {REPORT_TYPE_LABELS[ReportType.SPEAKER]}&quot;.
