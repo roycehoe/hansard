@@ -279,6 +279,9 @@ export const COLUMN_NOTE_LABELS: Record<ColumnNote, string> = {
   [ColumnNote.PRINTED_WITH_L_FOR_1]: 'printed with a letter l',
 }
 
+export const DIVISION_COUNTS_DISAGREE_NOTE_TEXT =
+  'The names listed below do not add up to the counts above.'
+
 export const SPEECH_ANCHOR_MAX_LENGTH = 200
 export const SPEECH_LINK_NOTICE_ID = 'speech-link-notice'
 export const SPEECH_LINK_MOVED_NOTICE = 'This paragraph moved after an update.'

@@ -6,6 +6,7 @@ import type {
 import { NoticeHighlighting } from '@/components/reports/NoticeHighlighting'
 import { NoticeSpeechLink } from '@/components/reports/NoticeSpeechLink'
 import { RowSpeech } from '@/components/reports/RowSpeech'
+import { TextDivisionNote } from '@/components/reports/TextDivisionNote'
 import {
   SPEECH_LINK_MISSING_NOTICE,
   SPEECH_LINK_MOVED_NOTICE,
@@ -63,6 +64,19 @@ function getPreviousSpeech(
     }
   }
   return undefined
+}
+
+function getDivisionNoteSpeech(
+  report: GetReportResponse,
+  countLineOrdinal: number
+): SpeechData | undefined {
+  const divisionNote = report.division_notes.find(
+    (note) => note.count_line_ordinal === countLineOrdinal
+  )
+  if (divisionNote === undefined) return undefined
+  return report.speeches.find(
+    (speech) => speech.ordinal === divisionNote.non_chair_speech_ordinal
+  )
 }
 
 export function ListSpeeches({
@@ -128,6 +142,10 @@ export function ListSpeeches({
             officialRecordUrl={report.official_record_url}
             hasColumnMarkers={hasColumnMarkers}
             highlightPattern={highlightPattern}
+          />
+          <TextDivisionNote
+            speech={getDivisionNoteSpeech(report, speech.ordinal)}
+            hasColumnMarkers={hasColumnMarkers}
           />
         </Fragment>
       ))}
