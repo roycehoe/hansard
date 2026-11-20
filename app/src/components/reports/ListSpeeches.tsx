@@ -66,19 +66,6 @@ function getPreviousSpeech(
   return undefined
 }
 
-function getDivisionNoteSpeech(
-  report: GetReportResponse,
-  countLineOrdinal: number
-): SpeechData | undefined {
-  const divisionNote = report.division_notes.find(
-    (note) => note.count_line_ordinal === countLineOrdinal
-  )
-  if (divisionNote === undefined) return undefined
-  return report.speeches.find(
-    (speech) => speech.ordinal === divisionNote.non_chair_speech_ordinal
-  )
-}
-
 export function ListSpeeches({
   report,
   highlightTerms,
@@ -144,7 +131,10 @@ export function ListSpeeches({
             highlightPattern={highlightPattern}
           />
           <TextDivisionNote
-            speech={getDivisionNoteSpeech(report, speech.ordinal)}
+            divisionNote={report.division_notes.find(
+              (note) => note.count_line_ordinal === speech.ordinal
+            )}
+            speeches={report.speeches}
             hasColumnMarkers={hasColumnMarkers}
           />
         </Fragment>

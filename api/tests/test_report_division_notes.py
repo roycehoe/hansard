@@ -31,7 +31,7 @@ def _build_speech(
     )
 
 
-def test_a_member_speaking_after_the_list_gets_the_note() -> None:
+def test_a_member_speaking_after_the_list_is_quoted() -> None:
     speeches = [
         _build_speech(
             44,
@@ -63,7 +63,7 @@ def test_a_member_speaking_after_the_list_gets_the_note() -> None:
     )
 
 
-def test_only_the_chair_speaking_after_the_list_gets_no_note() -> None:
+def test_only_the_chair_speaking_after_the_list_gives_no_quote() -> None:
     speeches = [
         _build_speech(
             161,
@@ -95,7 +95,7 @@ def test_only_the_chair_speaking_after_the_list_gets_no_note() -> None:
     )
 
 
-def test_a_list_running_to_the_end_of_the_report_gets_no_note() -> None:
+def test_a_list_running_to_the_end_of_the_report_gives_no_quote() -> None:
     speeches = [
         _build_speech(
             100,
@@ -131,11 +131,17 @@ def test_a_list_running_to_the_end_of_the_report_gets_no_note() -> None:
             _MANUAL_VOTE_REPORT_SLUG,
             [{"count_line_ordinal": 44, "non_chair_speech_ordinal": 127}],
         ),
-        (_CHAIR_ONLY_REPORT_SLUG, []),
-        (_LIST_TO_THE_END_REPORT_SLUG, []),
+        (
+            _CHAIR_ONLY_REPORT_SLUG,
+            [{"count_line_ordinal": 161, "non_chair_speech_ordinal": None}],
+        ),
+        (
+            _LIST_TO_THE_END_REPORT_SLUG,
+            [{"count_line_ordinal": 100, "non_chair_speech_ordinal": None}],
+        ),
     ],
 )
-def test_a_report_carries_a_note_only_where_a_member_speaks_after_the_list(
+def test_every_list_whose_names_miss_its_counts_gets_a_note(
     api_client: TestClient, report_slug: str, division_notes: list[dict[str, Any]]
 ) -> None:
     response = api_client.get(f"/reports/{quote(report_slug, safe='')}")

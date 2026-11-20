@@ -68,7 +68,7 @@ export interface ReportBillData {
 
 export interface ReportDivisionNoteData {
   count_line_ordinal: number
-  non_chair_speech_ordinal: number
+  non_chair_speech_ordinal: number | null
 }
 
 export interface GetReportResponse {

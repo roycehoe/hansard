@@ -418,15 +418,12 @@ def _get_division_note_data(
     ):
         if division.speech_ordinal is None:
             continue
-        non_chair_speech_ordinal = _get_non_chair_speech_ordinal_after_division_list(
-            division.speech_ordinal, speeches
-        )
-        if non_chair_speech_ordinal is None:
-            continue
         division_notes.append(
             ReportDivisionNoteData(
                 count_line_ordinal=division.speech_ordinal,
-                non_chair_speech_ordinal=non_chair_speech_ordinal,
+                non_chair_speech_ordinal=_get_non_chair_speech_ordinal_after_division_list(
+                    division.speech_ordinal, speeches
+                ),
             )
         )
     return division_notes

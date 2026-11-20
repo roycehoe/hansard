@@ -59,7 +59,7 @@ class ReportBillData(BaseModel):
 
 class ReportDivisionNoteData(BaseModel):
     count_line_ordinal: int
-    non_chair_speech_ordinal: int
+    non_chair_speech_ordinal: Optional[int]
 
 
 class GetReportResponse(BaseModel):
