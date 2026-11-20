@@ -14,6 +14,8 @@ class Report(SQLModel, table=True):
     sitting_number: Optional[int] = None
     sitting_date: NaiveDatetime
     speech_number: int
+    printed_place: Optional[int] = None
+    printed_place_rule: Optional[str] = None
     title: str
     # NOTE: a deferred class attribute, so reading a Report never loads the vector
     title_tsv: ClassVar = deferred(Column(TSVECTOR))

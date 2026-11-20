@@ -167,7 +167,11 @@ class CRUDReport:
             select(Report)
             .options(defer(Report.markdown_content))
             .where(Report.sitting_date == sitting_date)
-            .order_by(Report.speech_number, Report.id)
+            .order_by(
+                col(Report.printed_place).nulls_last(),
+                col(Report.speech_number),
+                col(Report.id),
+            )
         )
         return list(self.session.exec(statement).all())
 
@@ -250,11 +254,16 @@ class CRUDReport:
         self, report_ids: list[int], limit: int, offset: int
     ) -> list[int]:
         # NOTE: adding zero hides the order from the sitting date index, which the planner would walk, testing every report against the id list
-        unindexed_sitting_date = Report.sitting_date + _NO_DURATION
+        unindexed_sitting_date = col(Report.sitting_date) + _NO_DURATION
         statement = (
             select(Report.id)
             .where(_get_is_id_any_of(report_ids))
-            .order_by(unindexed_sitting_date.desc(), Report.speech_number, Report.id)
+            .order_by(
+                unindexed_sitting_date.desc(),
+                col(Report.printed_place).nulls_last(),
+                col(Report.speech_number),
+                col(Report.id),
+            )
             .limit(limit)
             .offset(offset)
         )
