@@ -1533,6 +1533,8 @@ Rows in the copy (planner estimate): 303. Index sizes there: `ix_division_sittin
 
 Needed by `GET /divisions` (a page and a total count) and `GET /divisions/{division_id}` (a primary key lookup). The list filters by any of `parliament_number`, a date range on `sitting_date` and a report (`sprs_report_id`), outer-joins `report` for the taken-down check and sorts newest first with the id as tie-break. `ix_division_sitting_date` serves the date range and the newest-first sort, `ix_division_sprs_report_id` the report filter. No index holds `parliament_number`: a list filtered by Parliament alone reads `ix_division_sitting_date` backward and discards the rows of other Parliaments (for Parliament 0 it discards 142 rows on the way to the first 20).
 
+`GET /reports/{report_slug}` reads `division` too, for its division notes, whatever `IS_UNRELEASED_ENDPOINTS_ENABLED` says. `divisions_by_sprs_report_id_and_list_status` finds the report's rows through `ix_division_sprs_report_id` and filters `list_status` after it: an index scan, 0.07 ms for report 25350 on hansard_positions (20 Nov 2026).
+
 **Finding.** `divisions_count_filtered` runs a `Seq Scan` on `division` (303 rows; 25 for Parliament 14) and `divisions_by_parliament_number` filters `parliament_number` after an index walk. Both are cheap at this size (0.15 ms and 0.21 ms), and the table gains a few rows a year. No index is added.
 
 ```sql

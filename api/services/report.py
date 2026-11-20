@@ -1,3 +1,4 @@
+from itertools import dropwhile
 from typing import Optional
 
 from sqlmodel import Session
@@ -6,6 +7,7 @@ from crud.act import CRUDAct
 from crud.act_history_entry import CRUDActHistoryEntry
 from crud.bill_report import CRUDBillReport
 from crud.bill_stage_line import CRUDBillStageLine
+from crud.division import CRUDDivision
 from crud.report import CRUDReport
 from crud.report_asker import CRUDReportAsker
 from crud.report_link import CRUDReportLink
@@ -19,10 +21,12 @@ from database.report_link import ReportLink
 from database.speech import Speech
 from enums import (
     BillReportRole,
+    DivisionListStatus,
     ReportLinkRelation,
     ReportLinkType,
     ReportType,
     SearchEndpoint,
+    SpeechKind,
     SpeechLinkStatus,
 )
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
@@ -38,6 +42,7 @@ from schemas.report import (
     ReportBillActData,
     ReportBillData,
     ReportBillReportData,
+    ReportDivisionNoteData,
     SpeechData,
     SpeechLinkData,
 )
@@ -53,10 +58,11 @@ from utils.search_query import (
     get_search_query_groups,
     get_stemmed_websearch_query,
 )
-from utils.speaker_label import is_shared_role_speaker_label
+from utils.speaker_label import is_chair_speaker_label, is_shared_role_speaker_label
 from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
 
 _EMPTY_ANCHOR = ""
+_DIVISION_LIST_LINE_MAX_LENGTH = 70
 
 
 def _get_validated_report(report_slug: str, session: Session) -> Report:
@@ -381,6 +387,51 @@ def _get_report_bill_data(report: Report, session: Session) -> Optional[ReportBi
     )
 
 
+def _is_division_list_line(speech: Speech) -> bool:
+    return (
+        speech.speaker is None
+        and speech.kind == SpeechKind.UNCLASSIFIED
+        and len(speech.transcript) <= _DIVISION_LIST_LINE_MAX_LENGTH
+    )
+
+
+def _get_non_chair_speech_ordinal_after_division_list(
+    count_line_ordinal: int, speeches: list[Speech]
+) -> Optional[int]:
+    speeches_after_count_line = [
+        speech for speech in speeches if speech.ordinal > count_line_ordinal
+    ]
+    for speech in dropwhile(_is_division_list_line, speeches_after_count_line):
+        if speech.kind == SpeechKind.PROCEDURAL:
+            return None
+        if speech.speaker is not None and not is_chair_speaker_label(speech.speaker):
+            return speech.ordinal
+    return None
+
+
+def _get_division_note_data(
+    report_id: str, speeches: list[Speech], session: Session
+) -> list[ReportDivisionNoteData]:
+    division_notes: list[ReportDivisionNoteData] = []
+    for division in CRUDDivision(session).get_all_by_sprs_report_id_and_list_status(
+        report_id, DivisionListStatus.COUNTS_DISAGREE
+    ):
+        if division.speech_ordinal is None:
+            continue
+        non_chair_speech_ordinal = _get_non_chair_speech_ordinal_after_division_list(
+            division.speech_ordinal, speeches
+        )
+        if non_chair_speech_ordinal is None:
+            continue
+        division_notes.append(
+            ReportDivisionNoteData(
+                count_line_ordinal=division.speech_ordinal,
+                non_chair_speech_ordinal=non_chair_speech_ordinal,
+            )
+        )
+    return division_notes
+
+
 def get_report(
     report_slug: str,
     speech_ordinal: Optional[int],
@@ -462,6 +513,7 @@ def get_report(
         previous_report=_get_sitting_neighbour_data(sitting_reports, report_index - 1),
         next_report=_get_sitting_neighbour_data(sitting_reports, report_index + 1),
         bill=_get_report_bill_data(report, session),
+        division_notes=_get_division_note_data(report.report_id, speeches, session),
     )
 
 

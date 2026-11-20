@@ -73,7 +73,7 @@ Check it as `hansard_api` with `SELECT count(*) FROM attached_file_pointer;`.
 
 ## Votes and minutes
 
-The unreleased endpoints `GET /divisions`, `GET /divisions/{division_id}` and `GET /minutes` read five tables the scraper adds in migrations `7b1f3c9a2e40`, `3e8a6d15c2f7`, `c41b7e2f9a06` and `5fa92d0e8b13` (re-parented when they land). Run this as the owner role once the migrations are applied and the five `apply_*` scripts have filled the tables, and before `IS_UNRELEASED_ENDPOINTS_ENABLED` is switched on. Until it runs, the role cannot read the tables and a request to any of the three endpoints fails while the setting is on. It is not a grant already in place.
+The unreleased endpoints `GET /divisions`, `GET /divisions/{division_id}` and `GET /minutes` read five tables the scraper adds in migrations `7b1f3c9a2e40`, `3e8a6d15c2f7`, `c41b7e2f9a06` and `5fa92d0e8b13` (re-parented when they land). Run this as the owner role once the migrations are applied and the five `apply_*` scripts have filled the tables, and before `IS_UNRELEASED_ENDPOINTS_ENABLED` is switched on. Until it runs, the role cannot read the tables and a request to any of the three endpoints fails while the setting is on. It is not a grant already in place. `GET /reports/{report_slug}` also reads `division`, whatever the setting, for the note under a division's count line, so every report page fails until the role can read `division`.
 
 ```sql
 GRANT SELECT ON division, division_vote, division_party_count, minutes_division TO hansard_api;

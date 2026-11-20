@@ -6,6 +6,7 @@ from sqlmodel import Session, col, select
 
 from database.division import Division
 from database.report import Report
+from enums import DivisionListStatus
 
 
 def _get_division_filters(
@@ -40,6 +41,17 @@ class CRUDDivision:
 
     def get(self, division_id: int) -> Optional[Division]:
         return self.session.get(Division, division_id)
+
+    def get_all_by_sprs_report_id_and_list_status(
+        self, sprs_report_id: str, list_status: DivisionListStatus
+    ) -> list[Division]:
+        statement = (
+            select(Division)
+            .where(Division.sprs_report_id == sprs_report_id)
+            .where(Division.list_status == list_status)
+            .order_by(col(Division.speech_ordinal))
+        )
+        return list(self.session.exec(statement).all())
 
     def get_all_filtered(
         self,

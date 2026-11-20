@@ -66,6 +66,11 @@ export interface ReportBillData {
   acts: ReportBillActData[]
 }
 
+export interface ReportDivisionNoteData {
+  count_line_ordinal: number
+  non_chair_speech_ordinal: number
+}
+
 export interface GetReportResponse {
   report_slug: string
   title: string
@@ -85,6 +90,7 @@ export interface GetReportResponse {
   previous_report: ReferencedReportData | null
   next_report: ReferencedReportData | null
   bill: ReportBillData | null
+  division_notes: ReportDivisionNoteData[]
 }
 
 async function getReportResponse(

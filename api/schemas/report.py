@@ -57,6 +57,11 @@ class ReportBillData(BaseModel):
     acts: list[ReportBillActData]
 
 
+class ReportDivisionNoteData(BaseModel):
+    count_line_ordinal: int
+    non_chair_speech_ordinal: int
+
+
 class GetReportResponse(BaseModel):
     report_slug: str
     title: str
@@ -76,6 +81,7 @@ class GetReportResponse(BaseModel):
     previous_report: Optional[ReferencedReportData]
     next_report: Optional[ReferencedReportData]
     bill: Optional[ReportBillData]
+    division_notes: list[ReportDivisionNoteData]
 
 
 class GetReportMatchedWordsResponse(BaseModel):

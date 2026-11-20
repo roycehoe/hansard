@@ -123,6 +123,10 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
     ("ReportBillReportData", f"{_REPORT_INTERFACES_FILE}::ReportBillReportData"),
     ("ReportBillActData", f"{_REPORT_INTERFACES_FILE}::ReportBillActData"),
     (
+        "ReportDivisionNoteData",
+        f"{_REPORT_INTERFACES_FILE}::ReportDivisionNoteData",
+    ),
+    (
         "GetReportLinksResponse",
         f"{_REPORT_LINKS_INTERFACES_FILE}::GetReportLinksResponse",
     ),
