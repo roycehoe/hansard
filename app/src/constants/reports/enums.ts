@@ -30,6 +30,13 @@ export enum TranscriptSegmentKind {
   ITALIC = 'italic',
 }
 
+export enum PictureKind {
+  TABLE = 'TABLE',
+  DIVISION_LIST = 'DIVISION_LIST',
+  TEXT = 'TEXT',
+  OTHER = 'OTHER',
+}
+
 export enum SpeechKind {
   SPEECH = 'SPEECH',
   PROCEDURAL = 'PROCEDURAL',

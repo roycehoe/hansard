@@ -3,7 +3,14 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from enums import BillReportPart, BillStage, ColumnNote, SpeechKind, SpeechLinkStatus
+from enums import (
+    BillReportPart,
+    BillStage,
+    ColumnNote,
+    PictureKind,
+    SpeechKind,
+    SpeechLinkStatus,
+)
 
 
 class SpeechData(BaseModel):
@@ -69,6 +76,26 @@ class ReportColumnRangeData(BaseModel):
     column_end: Optional[int]
 
 
+class TypedTableData(BaseModel):
+    caption: str
+    header_rows: list[list[str]]
+    body_rows: list[list[str]]
+    notes: list[str]
+
+
+class TypedCopyData(BaseModel):
+    heading: str
+    tables: list[TypedTableData]
+
+
+class ReportPictureData(BaseModel):
+    picture_index: int
+    kind: PictureKind
+    follows_ordinal: Optional[int]
+    sha256: str
+    typed_copy: Optional[TypedCopyData]
+
+
 class GetReportResponse(BaseModel):
     report_slug: str
     title: str
@@ -89,6 +116,7 @@ class GetReportResponse(BaseModel):
     next_report: Optional[ReferencedReportData]
     bill: Optional[ReportBillData]
     division_notes: list[ReportDivisionNoteData]
+    pictures: list[ReportPictureData]
 
 
 class GetReportMatchedWordsResponse(BaseModel):

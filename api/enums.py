@@ -59,6 +59,13 @@ class ColumnNote(StrEnum):
     PRINTED_WITH_L_FOR_1 = "PRINTED_WITH_L_FOR_1"
 
 
+class PictureKind(StrEnum):
+    TABLE = "TABLE"
+    DIVISION_LIST = "DIVISION_LIST"
+    TEXT = "TEXT"
+    OTHER = "OTHER"
+
+
 class DatePrecision(StrEnum):
     DAY = "DAY"
     MONTH = "MONTH"

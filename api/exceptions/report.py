@@ -9,3 +9,8 @@ class ReportNotFoundException(AppHttpExceptionBase):
 class ReportTakenDownException(AppHttpExceptionBase):
     def __init__(self):
         super().__init__(ErrorCode.REPORT_TAKEN_DOWN)
+
+
+class ReportPictureNotFoundException(AppHttpExceptionBase):
+    def __init__(self):
+        super().__init__(ErrorCode.REPORT_PICTURE_NOT_FOUND)

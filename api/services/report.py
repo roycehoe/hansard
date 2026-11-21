@@ -9,12 +9,14 @@ from crud.division import CRUDDivision
 from crud.report import CRUDReport
 from crud.report_asker import CRUDReportAsker
 from crud.report_link import CRUDReportLink
+from crud.report_picture import CRUDReportPicture
 from crud.speech import CRUDSpeech
 from database.act_history_entry import ActHistoryEntry
 from database.person import Person
 from database.report import Report
 from database.report_asker import ReportAsker
 from database.report_link import ReportLink
+from database.report_picture import ReportPicture
 from database.speech import Speech
 from enums import (
     DivisionListStatus,
@@ -25,7 +27,11 @@ from enums import (
     SpeechKind,
     SpeechLinkStatus,
 )
-from exceptions.report import ReportNotFoundException, ReportTakenDownException
+from exceptions.report import (
+    ReportNotFoundException,
+    ReportPictureNotFoundException,
+    ReportTakenDownException,
+)
 from middleware.bill_part import get_report_bill, get_report_bill_part
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
@@ -40,8 +46,10 @@ from schemas.report import (
     ReportBillReportData,
     ReportColumnRangeData,
     ReportDivisionNoteData,
+    ReportPictureData,
     SpeechData,
     SpeechLinkData,
+    TypedCopyData,
 )
 from schemas.report_link import GetReportLinksResponse, ReportLinkData
 from utils.law_name import get_law_name
@@ -432,6 +440,20 @@ def get_report_slug_of_old_address(
     return get_report_slug(reports[0].report_id)
 
 
+def _get_report_picture_data(picture: ReportPicture) -> ReportPictureData:
+    return ReportPictureData(
+        picture_index=picture.picture_index,
+        kind=picture.kind,
+        follows_ordinal=picture.follows_ordinal,
+        sha256=picture.sha256,
+        typed_copy=(
+            None
+            if picture.typed_copy is None
+            else TypedCopyData.model_validate(picture.typed_copy)
+        ),
+    )
+
+
 def get_report(
     report_slug: str,
     speech_ordinal: Optional[int],
@@ -514,7 +536,23 @@ def get_report(
         next_report=_get_sitting_neighbour_data(sitting_reports, report_index + 1),
         bill=_get_report_bill_data(report, session),
         division_notes=_get_division_note_data(report.report_id, speeches, session),
+        pictures=[
+            _get_report_picture_data(picture)
+            for picture in CRUDReportPicture(session).get_all_by_report_id(report.id)
+        ],
     )
+
+
+def get_report_picture(
+    report_slug: str, sha256: str, session: Session
+) -> tuple[str, bytes]:
+    report = _get_validated_report(report_slug, session)
+    media_type_and_bytes = CRUDReportPicture(
+        session
+    ).get_media_type_and_bytes_by_report_id_and_sha256(report.id, sha256)
+    if media_type_and_bytes is None:
+        raise ReportPictureNotFoundException
+    return media_type_and_bytes
 
 
 def get_report_column_range(

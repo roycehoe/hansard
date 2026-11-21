@@ -126,6 +126,9 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
         "ReportDivisionNoteData",
         f"{_REPORT_INTERFACES_FILE}::ReportDivisionNoteData",
     ),
+    ("ReportPictureData", f"{_REPORT_INTERFACES_FILE}::ReportPictureData"),
+    ("TypedCopyData", f"{_REPORT_INTERFACES_FILE}::TypedCopyData"),
+    ("TypedTableData", f"{_REPORT_INTERFACES_FILE}::TypedTableData"),
     (
         "GetReportLinksResponse",
         f"{_REPORT_LINKS_INTERFACES_FILE}::GetReportLinksResponse",

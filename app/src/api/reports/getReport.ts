@@ -2,6 +2,7 @@ import { apiGet } from '@/api/client'
 import type { BillReportPart, BillStage } from '@/constants/bills/enums'
 import type {
   ColumnNote,
+  PictureKind,
   ReportType,
   SpeechKind,
   SpeechLinkStatus,
@@ -73,6 +74,26 @@ export interface ReportDivisionNoteData {
   non_chair_speech_ordinal: number | null
 }
 
+export interface TypedTableData {
+  caption: string
+  header_rows: string[][]
+  body_rows: string[][]
+  notes: string[]
+}
+
+export interface TypedCopyData {
+  heading: string
+  tables: TypedTableData[]
+}
+
+export interface ReportPictureData {
+  picture_index: number
+  kind: PictureKind
+  follows_ordinal: number | null
+  sha256: string
+  typed_copy: TypedCopyData | null
+}
+
 export interface GetReportResponse {
   report_slug: string
   title: string
@@ -93,6 +114,7 @@ export interface GetReportResponse {
   next_report: ReferencedReportData | null
   bill: ReportBillData | null
   division_notes: ReportDivisionNoteData[]
+  pictures: ReportPictureData[]
 }
 
 async function getReportResponse(

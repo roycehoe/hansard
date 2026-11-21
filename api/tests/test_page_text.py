@@ -111,6 +111,7 @@ def _get_report(title: str, speeches: list[SpeechData]) -> GetReportResponse:
         next_report=None,
         bill=None,
         division_notes=[],
+        pictures=[],
     )
 
 
