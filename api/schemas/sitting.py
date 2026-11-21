@@ -22,6 +22,17 @@ class AttendanceData(BaseModel):
     person_name: str
 
 
+class SittingPersonData(BaseModel):
+    person_id: int
+    person_slug: str
+    person_name: str
+
+
+class SittingReportPeopleData(BaseModel):
+    askers: list[SittingPersonData]
+    first_speaker: Optional[SittingPersonData]
+
+
 class GetSittingResponse(BaseModel):
     sitting_date: date
     parliament_number: int

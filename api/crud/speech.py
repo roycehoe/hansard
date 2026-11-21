@@ -26,6 +26,7 @@ _ONE_DAY = timedelta(days=1)
 _BEFORE_FIRST_SITTING = datetime(1900, 1, 1)
 _AFTER_LAST_SITTING = datetime(2100, 1, 1)
 _SITTING_DATE_FORMAT = "DD-MM-YYYY"
+_NO_SPEAKER_LABEL = ""
 
 
 def _get_report_filters(
@@ -245,6 +246,21 @@ class CRUDSpeech:
             .where(col(Speech.report_id).in_(report_ids))
             .where(col(Speech.speaker_id).in_(membership_ids))
             .where(Speech.kind == kind)
+            .order_by(col(Speech.report_id), col(Speech.ordinal))
+        )
+        return list(self.session.exec(statement).all())
+
+    def get_all_first_by_report_ids_excluding_speaker_pattern(
+        self, report_ids: list[int], excluded_speaker_pattern: str
+    ) -> list[Speech]:
+        statement = (
+            select(Speech)
+            .options(defer(col(Speech.transcript)))  # type: ignore[arg-type]
+            .where(col(Speech.report_id).in_(report_ids))
+            .where(col(Speech.speaker).is_not(None))
+            .where(col(Speech.speaker) != _NO_SPEAKER_LABEL)
+            .where(~col(Speech.speaker).regexp_match(excluded_speaker_pattern))
+            .distinct(col(Speech.report_id))
             .order_by(col(Speech.report_id), col(Speech.ordinal))
         )
         return list(self.session.exec(statement).all())

@@ -31,6 +31,7 @@ from utils.marked_words import get_headline_without_nested_marks
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.search_query import is_query_only_excluded_words
+from utils.speaker_label import CHAIR_SPEAKER_LABEL_PATTERN
 from utils.speech_link import get_speech_anchor
 from utils.transcript_snippet import get_transcript_snippet
 
@@ -38,7 +39,6 @@ _MAX_COUNTED_MATCHES = 1_000
 _ONE_DAY = timedelta(days=1)
 MAX_SEARCH_PAGE = 50
 _CHAIR_WORD_PATTERN = r"(?i)speaker|chairman"
-_CHAIR_SPEAKER_LABEL_PATTERN = r"(?i)^(the |mr |mdm |madam )?(temporary |deputy )?(deputy ?speaker|speaker|chairman)\M|\((mr |mdm )?(deputy )?speaker\)$"
 
 
 @dataclass(frozen=True)
@@ -79,7 +79,7 @@ def _get_excluded_speaker_patterns(constituency: Optional[str]) -> tuple[str, ..
     if constituency is None:
         return ()
     # NOTE: lines spoken from the chair are credited to the presiding member, so without this a Speaker's seat opens on procedure such as "Go ahead." instead of what its members said; the person filter keeps them
-    return (_CHAIR_WORD_PATTERN, _CHAIR_SPEAKER_LABEL_PATTERN)
+    return (_CHAIR_WORD_PATTERN, CHAIR_SPEAKER_LABEL_PATTERN)
 
 
 def _is_query_without_search_words(query: str) -> bool:

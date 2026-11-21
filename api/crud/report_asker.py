@@ -15,6 +15,14 @@ class CRUDReportAsker:
         )
         return list(self.session.exec(statement).all())
 
+    def get_all_by_report_ids(self, report_ids: list[int]) -> list[ReportAsker]:
+        statement = (
+            select(ReportAsker)
+            .where(col(ReportAsker.report_id).in_(report_ids))
+            .order_by(col(ReportAsker.report_id), col(ReportAsker.ordinal))
+        )
+        return list(self.session.exec(statement).all())
+
     def get_all_report_ids_by_membership_ids(
         self, membership_ids: list[int]
     ) -> list[int]:

@@ -41,7 +41,9 @@ from schemas.sitting import (
     GetAllSittingsResponse,
     GetSittingResponse,
     SittingData,
+    SittingPersonData,
     SittingReportData,
+    SittingReportPeopleData,
 )
 from services import parliament as parliament_service
 from services import person as person_service
@@ -418,6 +420,12 @@ def _get_sitting_preview() -> PreviewData:
     )
 
 
+def _get_sitting_person(person_id: int, person_name: str) -> SittingPersonData:
+    return SittingPersonData(
+        person_id=person_id, person_slug="grace-fu", person_name=person_name
+    )
+
+
 def _get_sitting_report(
     report_slug: str, title: str, subtitle: str
 ) -> SittingReportData:
@@ -450,7 +458,22 @@ def test_a_sitting_page_links_each_report_of_the_sitting(
             attendance=[],
         )
 
+    def get_sitting_report_people(
+        sitting_date: date, session: Session
+    ) -> dict[str, SittingReportPeopleData]:
+        return {
+            "bill-1": SittingReportPeopleData(
+                askers=[], first_speaker=_get_sitting_person(1, "Grace <Fu>")
+            ),
+            "00069110-ZZ_1#id004-budget": SittingReportPeopleData(
+                askers=[], first_speaker=None
+            ),
+        }
+
     monkeypatch.setattr(sitting_service, "get_sitting", get_sitting)
+    monkeypatch.setattr(
+        sitting_service, "get_sitting_report_people", get_sitting_report_people
+    )
     client = _get_client(tmp_path, monkeypatch, _get_sitting_preview())
 
     root_contents = _get_root_contents(client.get("/sittings/2026-10-07").text)
@@ -459,8 +482,9 @@ def test_a_sitting_page_links_each_report_of_the_sitting(
         "<main data-page-text>",
         '<h1>Sitting of <time datetime="2026-10-07">7 October 2026</time></h1>',
         "<ul>",
-        '<li><a href="/reports/bill-1">SUPPLY &lt;BILL&gt;</a><br>Second Reading</li>',
-        '<li><a href="/reports/00069110-ZZ_1%23id004-budget">BUDGET</a></li>',
+        '<li><a href="/reports/bill-1">SUPPLY &lt;BILL&gt;</a><br>Second Reading<br>'
+        'Bill. <a href="/people/1-grace-fu">Grace &lt;Fu&gt;</a> spoke first.</li>',
+        '<li><a href="/reports/00069110-ZZ_1%23id004-budget">BUDGET</a><br>Bill.</li>',
         "</ul>",
         "</main>",
     ]

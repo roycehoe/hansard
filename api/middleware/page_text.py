@@ -38,7 +38,13 @@ from schemas.search import (
     SearchSpeechesResponse,
     SpeechMatchData,
 )
-from schemas.sitting import GetSittingResponse, SittingData, SittingReportData
+from schemas.sitting import (
+    GetSittingResponse,
+    SittingData,
+    SittingPersonData,
+    SittingReportData,
+    SittingReportPeopleData,
+)
 from services import parliament as parliament_service
 from services import person as person_service
 from services import report as report_service
@@ -110,6 +116,8 @@ _PRINTED_WITH_L_FOR_1_NOTE = (
     "The record prints this column number with a letter l in place of a 1."
 )
 _URL_SEPARATOR = "/"
+_NAME_LIST_SEPARATOR = ", "
+_NAME_LIST_LAST_SEPARATOR = " and "
 _PARLIAMENT_PARAMETER = "parliament"
 _SEARCH_PATH = "/search"
 _SEARCH_EXAMPLE_PATH = "/search?q=your+words"
@@ -426,17 +434,111 @@ def _get_parliament_sittings_html(
     )
 
 
-def _get_sitting_report_item_html(report: SittingReportData) -> str:
+def _get_person_link_html(person: SittingPersonData) -> str:
+    return (
+        f'<a href="{_PEOPLE_PATH}/{person.person_id}-{escape(person.person_slug)}">'
+        f"{escape(person.person_name)}</a>"
+    )
+
+
+def _get_name_list_separator(index: int, count: int) -> str:
+    if index == 0:
+        return ""
+    return _NAME_LIST_LAST_SEPARATOR if index == count - 1 else _NAME_LIST_SEPARATOR
+
+
+def _get_asker_names_html(askers: list[SittingPersonData]) -> str:
+    return "".join(
+        f"{_get_name_list_separator(index, len(askers))}{_get_person_link_html(asker)}"
+        for index, asker in enumerate(askers)
+    )
+
+
+# NOTE: the words of REPORT_TYPE_LABELS in app/src/constants/reports/constants.ts; a type missing here prints as the record stores it, as BadgeReportType.tsx does
+def _get_report_type_label(report_type: str) -> str:
+    if report_type == ReportType.ORAL_ANSWER:
+        return "Oral answer"
+    if report_type == ReportType.WRITTEN_ANSWER:
+        return "Written answer"
+    if report_type == ReportType.WRITTEN_ANSWER_NA:
+        return "Written answer to oral question"
+    if report_type == ReportType.CLARIFICATION:
+        return "Clarification"
+    if report_type == ReportType.MOTION:
+        return "Motion"
+    if report_type == ReportType.MATTER_ADJ:
+        return "Adjournment matter"
+    if report_type == ReportType.BILL:
+        return "Bill"
+    if report_type == ReportType.BILL_INTRO:
+        return "Bill introduction"
+    if report_type == ReportType.MINISTERIAL_STATEMENT:
+        return "Ministerial statement"
+    if report_type == ReportType.WRITTEN_STATEMENT:
+        return "Written statement"
+    if report_type == ReportType.BUDGET:
+        return "Budget"
+    if report_type == ReportType.SPEAKER:
+        return "Presiding officer's statement"
+    if report_type == ReportType.DEPUTY_SPEAKER:
+        return "Deputy Speaker's statement"
+    if report_type == ReportType.PERSONAL_EXPLANATION:
+        return "Personal explanation"
+    if report_type == ReportType.POINT_OF_ORDER:
+        return "Point of order"
+    if report_type == ReportType.TRIBUTE:
+        return "Tribute"
+    if report_type == ReportType.PRESIDENT_ADDRESS:
+        return "President's address"
+    if report_type == ReportType.PETITION:
+        return "Petition"
+    if report_type == ReportType.ADMIN_OATHS:
+        return "Administration of oaths"
+    if report_type == ReportType.OBITUARY_SPEECH:
+        return "Obituary speech"
+    if report_type == ReportType.YANG_DI_MESSAGE:
+        return "Message from the Yang di-Pertuan Negara"
+    if report_type == ReportType.MISC:
+        return "Miscellaneous"
+    if report_type == ReportType.ATBP:
+        return "Assent to Bills passed"
+    return report_type
+
+
+def _get_sitting_report_type_line_html(
+    report: SittingReportData, people: SittingReportPeopleData
+) -> str:
+    type_label = escape(_get_report_type_label(report.report_type))
+    if people.askers != []:
+        return f"{type_label}. Asked by {_get_asker_names_html(people.askers)}."
+    if people.first_speaker is not None:
+        return (
+            f"{type_label}. {_get_person_link_html(people.first_speaker)} spoke first."
+        )
+    return f"{type_label}."
+
+
+def _get_sitting_report_item_html(
+    report: SittingReportData,
+    report_slug_to_people: dict[str, SittingReportPeopleData],
+) -> str:
     report_link = (
         f'<a href="/reports/{escape(quote(report.report_slug, safe=""))}">'
         f"{escape(report.title)}</a>"
     )
-    if report.subtitle == _NO_SUBTITLE:
-        return f"<li>{report_link}</li>"
-    return f"<li>{report_link}<br>{escape(report.subtitle)}</li>"
+    subtitle_lines = (
+        [] if report.subtitle == _NO_SUBTITLE else [escape(report.subtitle)]
+    )
+    type_line = _get_sitting_report_type_line_html(
+        report, report_slug_to_people[report.report_slug]
+    )
+    return f"<li>{'<br>'.join([report_link, *subtitle_lines, type_line])}</li>"
 
 
-def _get_sitting_html(sitting: GetSittingResponse) -> str:
+def _get_sitting_html(
+    sitting: GetSittingResponse,
+    report_slug_to_people: dict[str, SittingReportPeopleData],
+) -> str:
     return _LINE_SEPARATOR.join(
         [
             _PAGE_TEXT_START,
@@ -444,7 +546,10 @@ def _get_sitting_html(sitting: GetSittingResponse) -> str:
             f'<time datetime="{escape(sitting.sitting_date.isoformat())}">'
             f"{escape(get_sitting_date_label(sitting.sitting_date))}</time></h1>",
             "<ul>",
-            *[_get_sitting_report_item_html(report) for report in sitting.reports],
+            *[
+                _get_sitting_report_item_html(report, report_slug_to_people)
+                for report in sitting.reports
+            ],
             "</ul>",
             "</main>",
         ]
@@ -856,7 +961,11 @@ def _get_sitting_page_text_html(sitting_date_text: str) -> str:
     try:
         sitting_date = date.fromisoformat(sitting_date_text)
         with Session(engine) as session:
-            return _get_sitting_html(sitting_service.get_sitting(sitting_date, session))
+            sitting = sitting_service.get_sitting(sitting_date, session)
+            return _get_sitting_html(
+                sitting,
+                sitting_service.get_sitting_report_people(sitting_date, session),
+            )
     except ValueError:
         return _NO_PAGE_TEXT
     except SittingNotFoundException:

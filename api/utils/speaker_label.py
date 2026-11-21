@@ -16,8 +16,9 @@ _OPENING_PARENTHESIS = "("
 _CLOSING_PARENTHESIS = ")"
 _ASSOC_PROF_SPACED = "Assoc. Prof."
 
+CHAIR_SPEAKER_LABEL_PATTERN = r"(?i)^(the |mr |mdm |madam )?(temporary |deputy )?(deputy ?speaker|speaker|chairman)\M|\((mr |mdm )?(deputy )?speaker\)$"
 _CHAIRMAN_LABEL = re.compile(r"^(?:the ?|mr ?)?chairman:?$", re.IGNORECASE)
-# NOTE: the Python form of _CHAIR_SPEAKER_LABEL_PATTERN in services/search.py, which runs in Postgres; a change to one has to be made to the other
+# NOTE: the Python form of CHAIR_SPEAKER_LABEL_PATTERN, which runs in Postgres; a change to one has to be made to the other
 _CHAIR_LABEL = re.compile(
     r"^(the |mr |mdm |madam )?(temporary |deputy )?(deputy ?speaker|speaker|chairman)\b|\((mr |mdm )?(deputy )?speaker\)$",
     re.IGNORECASE,
