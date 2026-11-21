@@ -36,7 +36,7 @@ export function TableTypedCopy({ table }: TableTypedCopyProps) {
         className={cn(
           CELL_CLASS_NAME,
           'bg-muted text-muted-foreground font-medium',
-          cell.columnIndex === 0 && STUB_CLASS_NAME,
+          cell.columnIndex === 0 && cell.colSpan === 1 && STUB_CLASS_NAME,
           isGroup && 'text-center align-middle',
           isLeaf && isNumericColumn[cell.columnIndex] && 'min-w-22 text-right',
           header.groupStartColumns.includes(cell.columnIndex) &&
@@ -101,7 +101,13 @@ export function TableTypedCopy({ table }: TableTypedCopyProps) {
           <TextTypedCopy text={table.caption} />
         </p>
       )}
-      <div className="mt-2 overflow-x-auto">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-labelledby={table.caption === '' ? undefined : captionId}
+        aria-label={table.caption === '' ? 'Table' : undefined}
+        className="mt-2 overflow-x-auto"
+      >
         <table
           aria-labelledby={table.caption === '' ? undefined : captionId}
           className="border-separate border-spacing-0 text-sm leading-5 tabular-nums"

@@ -54,6 +54,7 @@ export function mergeHeaderRows(headerRows: string[][]): MergedHeader {
 }
 
 const NUMBER_PATTERN = /^[-+−–(]?(?:S?\$)?\d[\d,]*(?:\.\d+)?%?\)?$/
+const YEAR_PATTERN = /^\d{4}$/
 const PLACEHOLDER_PATTERN = /^(?:-|–|—|nil|n\.?a\.?)$/i
 
 function stripSuperscripts(text: string): string {
@@ -76,6 +77,8 @@ export function getNumericColumns(bodyRows: string[][]): boolean[] {
       .map((row) => stripSuperscripts(row[columnIndex] ?? ''))
       .filter((text) => text !== '' && !PLACEHOLDER_PATTERN.test(text))
     const numberCount = cells.filter((text) => NUMBER_PATTERN.test(text)).length
-    return numberCount > 0 && numberCount * 2 >= cells.length
+    const isYearColumn =
+      cells.length > 0 && cells.every((text) => YEAR_PATTERN.test(text))
+    return numberCount > 0 && numberCount * 2 >= cells.length && !isYearColumn
   })
 }

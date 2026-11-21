@@ -129,6 +129,15 @@ describe('getNumericColumns', () => {
     ).toEqual([false, true, false, true])
   })
 
+  it('keeps a column of years left-aligned', () => {
+    expect(
+      getNumericColumns([
+        ['Total', '2019', '5'],
+        ['Other', '2020', '7'],
+      ])
+    ).toEqual([false, false, true])
+  })
+
   it('never marks the row header column', () => {
     expect(getNumericColumns([['2020', '5']])).toEqual([false, true])
   })
