@@ -32,6 +32,7 @@ from database.report import Report
 from database.report_asker import ReportAsker
 from database.report_link import ReportLink
 from database.report_participant import ReportParticipant
+from database.report_picture import ReportPicture
 from database.report_put_to import ReportPutTo
 from database.seat_holding import SeatHolding
 from database.sitting import Sitting
@@ -74,6 +75,7 @@ pytestmark = [pytest.mark.database, pytest.mark.schema_drift]
         ReportAsker,
         ReportLink,
         ReportParticipant,
+        ReportPicture,
         ReportPutTo,
         SeatHolding,
         Sitting,
