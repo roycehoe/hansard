@@ -22,6 +22,7 @@ I keep the background to Open Hansard here: how I built it, why I made particula
 | [sgds-tokens.md](sgds-tokens.md) | How spacing, typography and other non-colour design values from the Singapore Government Design System carry over into the site's Tailwind theme. | Anyone working on the site's layout or typography |
 | [palette/](palette/) | The colour research in [research.md](palette/research.md), source notes and reusable assets. The current chamber photos are cited in [palette.md](palette.md) but aren't included because they lack an open licence. | Anyone tracing the colours or checking asset sources |
 | [images/](images/) | The banner and report screenshot used to introduce the project in the main README. | Anyone updating the main README's images |
+| [report/](report/) | The audit and validation reports for the `hansard-user-stories` feature, the largest built with the process in [how-this-was-built.md](how-this-was-built.md). The plan files they cite stay in the gitignored `plans/` folder. | Reviewers |
 
 ## Decisions
 

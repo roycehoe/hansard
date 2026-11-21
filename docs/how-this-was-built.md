@@ -49,7 +49,7 @@ A model ran every check above. In the check of 1,000 credited paragraphs finishe
 
 Changes go straight to `master`. The exceptions are two pull requests merged on 17 October and three launch-build branches merged on 18 and 19 October. Since I work on the project alone, there is no second person reviewing changes before they land.
 
-A large feature goes through the steps in "How the work ran": an audit of the execution plan, a validation pass over the commits and a fresh Opus session over the whole change. The audit and validation reports sit in `plans/`, which git ignores, so they are not in this repository. Four features have both reports: `hansard-user-stories`, `coverage-revamp`, `exact-form-quotes` and `coverage-precompute`.
+A large feature goes through the steps in "How the work ran": an audit of the execution plan, a validation pass over the commits and a fresh Opus session over the whole change. Four features have both an audit and a validation report: `hansard-user-stories`, `coverage-revamp`, `exact-form-quotes` and `coverage-precompute`. The two for `hansard-user-stories` are in [docs/report/](report/): the [audit](report/hansard-user-stories-audit.md) and the [validation](report/hansard-user-stories-validate.md). The other three features' reports sit in `plans/`, which git ignores, so they are not in this repository, and the plan files the two published reports cite are there too.
 
 When a review finds something, the fix is its own commit. Six commits titled "refactor: apply convention review findings", made from 17 to 22 October, are that trace in the history.
 
