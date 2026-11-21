@@ -646,8 +646,10 @@ def _get_link_item_html(href: str, text: str) -> str:
     return f"<li>{_get_link_html(href, text)}</li>"
 
 
+# NOTE: Cloudflare rewrites a bare address into "[email protected]" and a script unless email_off markers wrap it, and a crawler reads the rewrite as the address
 def _get_email_link_html(contact_email: str) -> str:
-    return _get_link_html(f"mailto:{contact_email}", contact_email)
+    link_html = _get_link_html(f"mailto:{contact_email}", contact_email)
+    return f"<!--email_off-->{link_html}<!--/email_off-->"
 
 
 def _get_orientation_lines() -> list[str]:
