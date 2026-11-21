@@ -10,6 +10,7 @@ function buildSpeech(
   return {
     ordinal,
     speaker_label: speakerLabel,
+    language_note: null,
     transcript,
     kind: null,
     person_id: null,

@@ -18,6 +18,7 @@ export interface GetReportRequest {
 export interface SpeechData {
   ordinal: number
   speaker_label: string
+  language_note: string | null
   transcript: string
   kind: SpeechKind | null
   person_id: number | null

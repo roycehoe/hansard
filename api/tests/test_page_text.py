@@ -76,6 +76,7 @@ def _get_speech(ordinal: int, speaker_label: str, transcript: str) -> SpeechData
     return SpeechData(
         ordinal=ordinal,
         speaker_label=speaker_label,
+        language_note=None,
         transcript=transcript,
         kind=None,
         person_id=None,

@@ -9,6 +9,7 @@ from enums import BillReportPart, BillStage, ColumnNote, SpeechKind, SpeechLinkS
 class SpeechData(BaseModel):
     ordinal: int
     speaker_label: str
+    language_note: Optional[str]
     transcript: str
     kind: Optional[SpeechKind]
     person_id: Optional[int]

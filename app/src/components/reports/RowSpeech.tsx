@@ -125,6 +125,13 @@ export function RowSpeech({
     sittingDate,
   }
 
+  const languageNote =
+    speech.language_note === null ? undefined : (
+      <>
+        (<em>{speech.language_note}</em>)
+      </>
+    )
+
   function renderSpeakerLabel() {
     if (speakerLabelSource === SpeakerLabelSource.NOT_RECORDED) {
       return (
@@ -132,12 +139,31 @@ export function RowSpeech({
           <span className="text-muted-foreground font-semibold">
             {SPEAKER_NOT_RECORDED_LABEL}
           </span>
+          {languageNote}
           {': '}
         </>
       )
     }
-    if (speakerLabelSource === SpeakerLabelSource.NONE) return undefined
+    if (speakerLabelSource === SpeakerLabelSource.NONE) {
+      return languageNote === undefined ? undefined : (
+        <>
+          {languageNote}
+          {': '}
+        </>
+      )
+    }
     if (isContinuation) {
+      if (languageNote !== undefined) {
+        return (
+          <>
+            <span className={isLinkedTarget ? 'font-semibold' : 'sr-only'}>
+              {shownSpeakerName}, continued
+            </span>
+            {languageNote}
+            {': '}
+          </>
+        )
+      }
       return (
         <span className={isLinkedTarget ? 'font-semibold' : 'sr-only'}>
           {shownSpeakerName}, continued:{' '}
@@ -148,6 +174,7 @@ export function RowSpeech({
       return (
         <>
           <span className="font-semibold">{speech.speaker_label}</span>
+          {languageNote}
           {': '}
         </>
       )
@@ -176,6 +203,7 @@ export function RowSpeech({
             sentences={buildInferredCreditSentences(speech.speaker_label)}
           />
         )}
+        {languageNote}
         {': '}
       </>
     )

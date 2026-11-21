@@ -358,6 +358,12 @@ def _get_speaker_label_html(speech: SpeechData) -> str:
     )
 
 
+def _get_language_note_html(speech: SpeechData) -> str:
+    if speech.language_note is None:
+        return ""
+    return f"(<em>{escape(speech.language_note)}</em>)"
+
+
 def _get_paragraph_html(
     speech: SpeechData,
     previous_speaker_label: str,
@@ -365,14 +371,17 @@ def _get_paragraph_html(
 ) -> str:
     column_marker = _get_column_marker_html(speech, previous_column_speech)
     paragraph_start = f'{column_marker}<p id="s{speech.ordinal}">'
+    language_note = _get_language_note_html(speech)
     if (
         speech.speaker_label == _NO_SPEAKER_LABEL
         or speech.speaker_label == previous_speaker_label
     ):
-        return f"{paragraph_start}{escape(speech.transcript)}</p>"
+        if speech.language_note is None:
+            return f"{paragraph_start}{escape(speech.transcript)}</p>"
+        return f"{paragraph_start}{language_note}: {escape(speech.transcript)}</p>"
     return (
-        f"{paragraph_start}<strong>{_get_speaker_label_html(speech)}</strong>: "
-        f"{escape(speech.transcript)}</p>"
+        f"{paragraph_start}<strong>{_get_speaker_label_html(speech)}</strong>"
+        f"{language_note}: {escape(speech.transcript)}</p>"
     )
 
 

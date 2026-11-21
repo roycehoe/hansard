@@ -92,6 +92,7 @@ def _get_speech_data(
         return SpeechData(
             ordinal=speech.ordinal,
             speaker_label=speech.speaker or "",
+            language_note=speech.language_note,
             transcript=speech.transcript,
             kind=speech.kind,
             person_id=None,
@@ -106,6 +107,7 @@ def _get_speech_data(
     return SpeechData(
         ordinal=speech.ordinal,
         speaker_label=speech.speaker or "",
+        language_note=speech.language_note,
         transcript=speech.transcript,
         kind=speech.kind,
         person_id=person.id,

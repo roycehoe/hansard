@@ -13,6 +13,7 @@ class Speech(SQLModel, table=True):
     id: int = Field(primary_key=True)
     ordinal: int
     speaker: Optional[str] = None
+    language_note: Optional[str] = None
     transcript: str
     kind: Optional[SpeechKind] = Field(
         default=None,
