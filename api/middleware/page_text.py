@@ -497,21 +497,21 @@ def _get_paragraphs_with_pictures_html(
     placed_ordinals = {_BEFORE_FIRST_PARAGRAPH_ORDINAL} | {
         speech.ordinal for speech in report.speeches
     }
-    pictures_by_ordinal: dict[Optional[int], list[str]] = {}
+    ordinal_to_pictures: dict[Optional[int], list[str]] = {}
     for picture in report.pictures:
         key = (
             picture.follows_ordinal
             if picture.follows_ordinal in placed_ordinals
             else None
         )
-        pictures_by_ordinal.setdefault(key, []).extend(
+        ordinal_to_pictures.setdefault(key, []).extend(
             _get_picture_html(report.report_slug, picture)
         )
-    blocks = list(pictures_by_ordinal.get(_BEFORE_FIRST_PARAGRAPH_ORDINAL, []))
+    blocks = list(ordinal_to_pictures.get(_BEFORE_FIRST_PARAGRAPH_ORDINAL, []))
     for speech, paragraph in zip(report.speeches, paragraphs):
         blocks.append(paragraph)
-        blocks.extend(pictures_by_ordinal.get(speech.ordinal, []))
-    return [*blocks, *pictures_by_ordinal.get(None, [])]
+        blocks.extend(ordinal_to_pictures.get(speech.ordinal, []))
+    return [*blocks, *ordinal_to_pictures.get(None, [])]
 
 
 def _get_report_html(
