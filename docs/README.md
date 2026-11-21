@@ -8,6 +8,7 @@ I keep the background to Open Hansard here: how I built it, why I made particula
 | --- | --- | --- |
 | [how-this-was-built.md](how-this-was-built.md) | My account of building with AI tools, the decisions I made, and what the audits and reviews did and didn't check. | Visitors and reviewers |
 | [corrections.md](corrections.md) | Where to report an error and follow the fixes, including what was wrong and how it changed. | Readers reporting errors, and me when I fix them |
+| [dropped.md](dropped.md) | What I tried on the site and dropped, when, why, and where each decision is recorded. | Visitors and reviewers |
 | [user-testing.md](user-testing.md) | The plan for usability sessions, with the tasks I'll ask readers to try and a log for findings once sessions begin. | Visitors and reviewers |
 | [running-cost.md](running-cost.md) | How I'll track visits, hosting costs and corrections each quarter, including the calculation for cost per 1,000 visits. | Readers interested in running costs, and site maintainers |
 | [takedown.md](takedown.md) | Instructions for controlling public access and taking a report down, including how to check that it's hidden. | Me, or anyone maintaining the site |
