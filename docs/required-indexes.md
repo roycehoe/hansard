@@ -2120,3 +2120,15 @@ SELECT speaker.id, speaker.name, speaker.party, speaker.parliament_number, speak
 Seq Scan on speaker  (cost=0.00..51.51 rows=7 width=51)
   Filter: (((name)::text ~~* '%%tan%%'::text) AND (parliament_number = 9))
 ```
+
+## Indexes of report_picture
+
+```sql
+CREATE INDEX ix_report_picture_report_id ON report_picture (report_id);
+CREATE INDEX ix_report_picture_sha256 ON report_picture (sha256);
+```
+
+Scraper migration `79cd2ef32c09` creates both. Neither has been timed here, and the table holds 974 rows (21 November 2026), so a scan would cost little either way.
+
+- `ix_report_picture_report_id` serves the report read of `GET /reports/{report_slug}`, which filters `report_picture` by `report_id` and sorts on `picture_index`.
+- `ix_report_picture_sha256` serves the bytes route `GET /reports/{report_slug}/pictures/{sha256}`, which filters by `report_id` and `sha256`. The planner can use either index for that filter and check the other column on the few rows that match.

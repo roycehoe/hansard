@@ -38,6 +38,8 @@ The list lives in the `TAKEDOWN_REPORT_SLUGS` GitHub secret, so it never appears
 
 A taken-down report answers 410 on its page, on every paragraph embed of it (`/embed/reports/{slug}`, which then shows "Report removed" with no text and no link) and in the API, and its page carries no preview tags. It drops out of search results, its sitting's report list and each person's report list and report count. The bill and act endpoints leave it out as well: it is dropped from a Bill's reports, stage lines and member counts, and a Bill's key slug moves to the next visible report. Counts on `/about/coverage` still include it. The stored rows do not change. To bring a report back, save the list from the note without its slug.
 
+A taken-down report's pictures answer 410 from the bytes route (`/api/reports/{slug}/pictures/{sha256}`), but that route sends `Cache-Control: public, max-age=31536000, immutable`. A browser that fetched a picture before the takedown keeps its copy for up to a year, and the deploy cannot reach it.
+
 A deploy restarts the process, which empties the in-memory caches of preview tags and API responses. A browser or proxy can keep its own copy of a page for as long as the response's `Cache-Control` allows.
 
 If an entry holds `/`, `?` or a space, the site does not start and the deployment fails, with the entry's number in the deploy log. The platform rolls back to the last deployment that worked. Fix the secret and re-run the jobs.
