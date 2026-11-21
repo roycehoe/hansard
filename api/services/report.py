@@ -545,14 +545,12 @@ def get_report(
 
 def get_report_picture(
     report_slug: str, sha256: str, session: Session
-) -> tuple[str, bytes]:
+) -> ReportPicture:
     report = _get_validated_report(report_slug, session)
-    media_type_and_bytes = CRUDReportPicture(
-        session
-    ).get_media_type_and_bytes_by_report_id_and_sha256(report.id, sha256)
-    if media_type_and_bytes is None:
+    picture = CRUDReportPicture(session).get_by_report_id_and_sha256(report.id, sha256)
+    if picture is None:
         raise ReportPictureNotFoundException
-    return media_type_and_bytes
+    return picture
 
 
 def get_report_column_range(

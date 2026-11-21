@@ -19,11 +19,12 @@ class CRUDReportPicture:
         )
         return list(self.session.exec(statement).all())
 
-    def get_media_type_and_bytes_by_report_id_and_sha256(
+    def get_by_report_id_and_sha256(
         self, report_id: int, sha256: str
-    ) -> Optional[tuple[str, bytes]]:
-        statement = select(
-            col(ReportPicture.media_type), col(ReportPicture.picture_bytes)
-        ).where(ReportPicture.report_id == report_id, ReportPicture.sha256 == sha256)
-        row = self.session.exec(statement).first()
-        return None if row is None else (row[0], row[1])
+    ) -> Optional[ReportPicture]:
+        statement = (
+            select(ReportPicture)
+            .where(ReportPicture.report_id == report_id)
+            .where(ReportPicture.sha256 == sha256)
+        )
+        return self.session.exec(statement).first()
