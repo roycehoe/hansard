@@ -1,4 +1,4 @@
-import { API_URL, apiGet } from '@/api/client'
+import { apiGet } from '@/api/client'
 import type { BillReportPart, BillStage } from '@/constants/bills/enums'
 import type {
   ColumnNote,
@@ -115,13 +115,6 @@ export interface GetReportResponse {
   bill: ReportBillData | null
   division_notes: ReportDivisionNoteData[]
   pictures: ReportPictureData[]
-}
-
-export function buildReportPictureUrl(
-  reportSlug: string,
-  sha256: string
-): string {
-  return `${API_URL}/reports/${encodeURIComponent(reportSlug)}/pictures/${sha256}`
 }
 
 async function getReportResponse(

@@ -1,13 +1,10 @@
-import {
-  buildReportPictureUrl,
-  type ReportPictureData,
-  type TypedCopyData,
-} from '@/api/reports/getReport'
+import type { ReportPictureData, TypedCopyData } from '@/api/reports/getReport'
 import { ListPictureDivision } from '@/components/reports/ListPictureDivision'
 import { TableTypedCopy } from '@/components/reports/TableTypedCopy'
 import { TextPictureSource } from '@/components/reports/TextPictureSource'
 import { TextTypedCopy } from '@/components/reports/TextTypedCopy'
 import { PictureKind } from '@/constants/reports/enums'
+import { buildReportPictureUrl } from '@/lib/reportPictures'
 
 interface RowPictureProps {
   reportSlug: string

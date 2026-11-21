@@ -1,3 +1,4 @@
+import { API_URL } from '@/api/client'
 import type { ReportPictureData, SpeechData } from '@/api/reports/getReport'
 
 export interface PicturePlacement {
@@ -35,4 +36,11 @@ export function placePictures(
     }
   }
   return placement
+}
+
+export function buildReportPictureUrl(
+  reportSlug: string,
+  sha256: string
+): string {
+  return `${API_URL}/reports/${encodeURIComponent(reportSlug)}/pictures/${sha256}`
 }
