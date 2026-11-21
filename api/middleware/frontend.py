@@ -9,10 +9,12 @@ from sqlmodel import Session
 from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
+from starlette.responses import RedirectResponse
 from starlette.types import Scope
 
 from database.engine import engine
 from middleware.page_text import get_index_html_with_page_text, get_page_text_html
+from middleware.report_redirect import get_old_report_address_url
 from schemas.preview import PreviewData
 from services import preview as preview_service
 from services import preview_fetch as preview_fetch_service
@@ -118,7 +120,7 @@ class FrontendFiles(StaticFiles):
             preload_html,
         )
 
-    async def _get_index_response(self, scope: Scope) -> HTMLResponse:
+    async def _get_index_response(self, scope: Scope) -> Response:
         request = Request(scope)
         bot_name = get_preview_bot_name(request.headers.get(_USER_AGENT_HEADER, ""))
         if bot_name is not None:
@@ -130,6 +132,14 @@ class FrontendFiles(StaticFiles):
             query_params.get(_SPEECH_ORDINAL_PARAMETER),
             query_params.get(_SPEECH_ANCHOR_PARAMETER),
         )
+        if not preview.is_found:
+            redirect_url = await run_in_threadpool(
+                get_old_report_address_url, scope[_PATH_KEY], request.url.query
+            )
+            if redirect_url is not None:
+                return RedirectResponse(
+                    redirect_url, status_code=status.HTTP_301_MOVED_PERMANENTLY
+                )
         page_text_html = await run_in_threadpool(
             get_page_text_html,
             scope[_PATH_KEY],

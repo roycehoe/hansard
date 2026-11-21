@@ -629,3 +629,14 @@ class CRUDReport:
         ).where(Report.id.in_(report_ids))
         rows = self.session.exec(statement).all()
         return {report_id: headline for report_id, headline in rows}
+
+    def get_all_by_report_id_prefix(
+        self, report_id_prefix: str, limit: int
+    ) -> list[Report]:
+        statement = (
+            select(Report)
+            .options(defer(Report.markdown_content))  # pyright: ignore[reportArgumentType]
+            .where(col(Report.report_id).startswith(report_id_prefix, autoescape=True))
+            .limit(limit)
+        )
+        return list(self.session.exec(statement).all())

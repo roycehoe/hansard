@@ -60,6 +60,10 @@ from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
 
 _EMPTY_ANCHOR = ""
 _DIVISION_LIST_LINE_MAX_LENGTH = 70
+_ENCODED_FRAGMENT_SEPARATOR = "%23"
+_FRAGMENT_SEPARATOR = "#"
+_ONLY_MATCH_COUNT = 1
+_OLD_ADDRESS_MATCH_LIMIT = 2
 
 
 def _get_validated_report(report_slug: str, session: Session) -> Report:
@@ -400,6 +404,27 @@ def _get_division_note_data(
             )
         )
     return division_notes
+
+
+# NOTE: a link whose %23 became # reaches the server as the part before it, and one whose % was encoded again reaches it with a literal %23. Two or more matches stay unanswered, and a listed report's forms are never answered, so a redirect cannot reveal a hidden address.
+def get_report_slug_of_old_address(
+    requested_slug: str, session: Session
+) -> Optional[str]:
+    if _ENCODED_FRAGMENT_SEPARATOR in requested_slug:
+        reports = CRUDReport(session).get_all_by_report_ids(
+            get_report_id_candidates(
+                requested_slug.replace(_ENCODED_FRAGMENT_SEPARATOR, _FRAGMENT_SEPARATOR)
+            )
+        )
+    else:
+        reports = CRUDReport(session).get_all_by_report_id_prefix(
+            requested_slug + _FRAGMENT_SEPARATOR, _OLD_ADDRESS_MATCH_LIMIT
+        )
+    if len(reports) != _ONLY_MATCH_COUNT:
+        return None
+    if is_report_id_taken_down(reports[0].report_id):
+        return None
+    return get_report_slug(reports[0].report_id)
 
 
 def get_report(
