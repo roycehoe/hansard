@@ -62,6 +62,11 @@ class ReportDivisionNoteData(BaseModel):
     non_chair_speech_ordinal: Optional[int]
 
 
+class ReportColumnRangeData(BaseModel):
+    column_start: Optional[int]
+    column_end: Optional[int]
+
+
 class GetReportResponse(BaseModel):
     report_slug: str
     title: str

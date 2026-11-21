@@ -30,7 +30,7 @@ from schemas.person import (
     PersonReportData,
 )
 from schemas.preview import PreviewData
-from schemas.report import GetReportResponse, SpeechData
+from schemas.report import GetReportResponse, ReportColumnRangeData, SpeechData
 from schemas.search import (
     ReportMatchData,
     SearchReportsResponse,
@@ -180,6 +180,11 @@ def test_a_report_page_carries_its_title_date_speakers_and_paragraphs(
     monkeypatch.setattr(
         report_service, "get_report", lambda slug, ordinal, anchor, session: report
     )
+    monkeypatch.setattr(
+        report_service,
+        "get_report_column_range",
+        lambda slug, session: ReportColumnRangeData(column_start=None, column_end=None),
+    )
     client = _get_client(tmp_path, monkeypatch, _get_report_preview())
 
     response = client.get(f"/reports/bill-818{query}")
@@ -190,6 +195,8 @@ def test_a_report_page_carries_its_title_date_speakers_and_paragraphs(
         "<h1>SUPPLY BILL</h1>",
         "<p>Second Reading</p>",
         '<p><time datetime="2020-01-01">1 January 2020</time></p>',
+        "<p>Singapore Parliamentary Debates, Official Report (1 January 2020) "
+        "vol 95. The record gives no column numbers for this report.</p>",
         '<p>Source: <a href="https://sprs.parl.gov.sg/">'
         "Parliament of Singapore, Official Report, 1 January 2020</a>. "
         "Not an official Parliament site.</p>",
@@ -210,6 +217,11 @@ def test_report_text_is_escaped(
     )
     monkeypatch.setattr(
         report_service, "get_report", lambda slug, ordinal, anchor, session: report
+    )
+    monkeypatch.setattr(
+        report_service,
+        "get_report_column_range",
+        lambda slug, session: ReportColumnRangeData(column_start=None, column_end=None),
     )
     client = _get_client(tmp_path, monkeypatch, _get_report_preview())
 

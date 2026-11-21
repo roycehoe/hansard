@@ -42,6 +42,7 @@ from schemas.report import (
     ReportBillActData,
     ReportBillData,
     ReportBillReportData,
+    ReportColumnRangeData,
     ReportDivisionNoteData,
     SpeechData,
     SpeechLinkData,
@@ -511,6 +512,15 @@ def get_report(
         next_report=_get_sitting_neighbour_data(sitting_reports, report_index + 1),
         bill=_get_report_bill_data(report, session),
         division_notes=_get_division_note_data(report.report_id, speeches, session),
+    )
+
+
+def get_report_column_range(
+    report_slug: str, session: Session
+) -> ReportColumnRangeData:
+    report = _get_validated_report(report_slug, session)
+    return ReportColumnRangeData(
+        column_start=report.column_start, column_end=report.column_end
     )
 
 

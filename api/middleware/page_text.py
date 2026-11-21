@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session
 
 from database.engine import engine, search_engine
-from enums import ReportType, SearchSort
+from enums import ColumnNote, ReportType, SearchSort
 from exceptions.act import ActNotFoundException
 from exceptions.person import PersonNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
@@ -31,7 +31,7 @@ from schemas.person import (
     PersonReportData,
 )
 from schemas.preview import PreviewData
-from schemas.report import GetReportResponse, SpeechData
+from schemas.report import GetReportResponse, ReportColumnRangeData, SpeechData
 from schemas.search import (
     ReportMatchData,
     SearchReportsResponse,
@@ -88,6 +88,27 @@ _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER = 0
 _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
 _SOURCE_NAME = "Parliament of Singapore, Official Report"
 _NOT_OFFICIAL_NOTE = "Not an official Parliament site."
+_PARLIAMENT_CITATION_TITLE = "Singapore Parliamentary Debates, Official Report"
+_LEGISLATIVE_ASSEMBLY_CITATION_TITLE = (
+    "Singapore Legislative Assembly Debates, Official Report"
+)
+_NO_COLUMNS_NOTE = "The record gives no column numbers for this report."
+_LIKELY_MISPRINT_NOTE = (
+    "The record prints column {column_start} here. It is likely a misprint, "
+    "out of step with the columns around it."
+)
+_LIKELY_MISPRINT_SUGGESTED_NOTE = (
+    "The record prints column {column_start} here. It is likely a misprint: "
+    "the columns around it suggest {column_suggested}."
+)
+_SPEAKER_NAMED_IN_COLUMN_BEFORE_NOTE = (
+    "The record names the speaker at the end of column {column_start}. "
+    "The speech starts in the next column. "
+    "The archive cites the column where the speaker is named."
+)
+_PRINTED_WITH_L_FOR_1_NOTE = (
+    "The record prints this column number with a letter l in place of a 1."
+)
 _URL_SEPARATOR = "/"
 _PARLIAMENT_PARAMETER = "parliament"
 _SEARCH_PATH = "/search"
@@ -211,8 +232,52 @@ class _SearchPageParameters(BaseModel):
     page: int = Field(default=1, ge=1, le=search_service.MAX_SEARCH_PAGE)
 
 
-def _get_paragraph_html(speech: SpeechData, previous_speaker_label: str) -> str:
-    paragraph_start = f'<p id="s{speech.ordinal}">'
+def _get_column_note_text(
+    column_start: int, column_note: ColumnNote, column_suggested: Optional[int]
+) -> str:
+    if column_note == ColumnNote.LIKELY_MISPRINT:
+        if column_suggested is None:
+            return _LIKELY_MISPRINT_NOTE.format(column_start=column_start)
+        return _LIKELY_MISPRINT_SUGGESTED_NOTE.format(
+            column_start=column_start, column_suggested=column_suggested
+        )
+    if column_note == ColumnNote.SPEAKER_NAMED_IN_COLUMN_BEFORE:
+        return _SPEAKER_NAMED_IN_COLUMN_BEFORE_NOTE.format(column_start=column_start)
+    return _PRINTED_WITH_L_FOR_1_NOTE
+
+
+def _is_column_marker_repeated(
+    speech: SpeechData, previous_column_speech: Optional[SpeechData]
+) -> bool:
+    return (
+        previous_column_speech is not None
+        and previous_column_speech.column_start == speech.column_start
+        and previous_column_speech.column_note == speech.column_note
+    )
+
+
+def _get_column_marker_html(
+    speech: SpeechData, previous_column_speech: Optional[SpeechData]
+) -> str:
+    if speech.column_start is None:
+        return ""
+    if _is_column_marker_repeated(speech, previous_column_speech):
+        return ""
+    if speech.column_note is None:
+        return f"<p>col. {speech.column_start}</p>{_LINE_SEPARATOR}"
+    note_text = _get_column_note_text(
+        speech.column_start, speech.column_note, speech.column_suggested
+    )
+    return f"<p>col. {speech.column_start}<br>{escape(note_text)}</p>{_LINE_SEPARATOR}"
+
+
+def _get_paragraph_html(
+    speech: SpeechData,
+    previous_speaker_label: str,
+    previous_column_speech: Optional[SpeechData],
+) -> str:
+    column_marker = _get_column_marker_html(speech, previous_column_speech)
+    paragraph_start = f'{column_marker}<p id="s{speech.ordinal}">'
     if (
         speech.speaker_label == _NO_SPEAKER_LABEL
         or speech.speaker_label == previous_speaker_label
@@ -224,15 +289,52 @@ def _get_paragraph_html(speech: SpeechData, previous_speaker_label: str) -> str:
     )
 
 
-def _get_report_html(report: GetReportResponse) -> str:
+def _get_report_citation_html(
+    report: GetReportResponse, column_range: ReportColumnRangeData
+) -> str:
+    citation_title = (
+        _LEGISLATIVE_ASSEMBLY_CITATION_TITLE
+        if report.parliament_number == _LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER
+        else _PARLIAMENT_CITATION_TITLE
+    )
+    citation = (
+        f"{citation_title} ({get_sitting_date_label(report.sitting_date)}) "
+        f"vol {report.volume_number}"
+    )
+    if column_range.column_start is None or column_range.column_end is None:
+        return f"<p>{escape(citation)}. {_NO_COLUMNS_NOTE}</p>"
+    if column_range.column_start == column_range.column_end:
+        return f"<p>{escape(citation)} at col {column_range.column_start}</p>"
+    return (
+        f"<p>{escape(citation)} at cols "
+        f"{column_range.column_start} to {column_range.column_end}</p>"
+    )
+
+
+def _get_previous_column_speeches(
+    speeches: list[SpeechData],
+) -> list[Optional[SpeechData]]:
+    previous_column_speeches: list[Optional[SpeechData]] = []
+    previous_column_speech: Optional[SpeechData] = None
+    for speech in speeches:
+        previous_column_speeches.append(previous_column_speech)
+        if speech.column_start is not None:
+            previous_column_speech = speech
+    return previous_column_speeches
+
+
+def _get_report_html(
+    report: GetReportResponse, column_range: ReportColumnRangeData
+) -> str:
     previous_speaker_labels = [
         _NO_SPEAKER_LABEL,
         *[speech.speaker_label for speech in report.speeches],
     ]
+    previous_column_speeches = _get_previous_column_speeches(report.speeches)
     paragraphs = [
-        _get_paragraph_html(speech, previous_speaker_label)
-        for speech, previous_speaker_label in zip(
-            report.speeches, previous_speaker_labels
+        _get_paragraph_html(speech, previous_speaker_label, previous_column_speech)
+        for speech, previous_speaker_label, previous_column_speech in zip(
+            report.speeches, previous_speaker_labels, previous_column_speeches
         )
     ]
     subtitle_paragraphs = (
@@ -245,6 +347,7 @@ def _get_report_html(report: GetReportResponse) -> str:
             *subtitle_paragraphs,
             f'<p><time datetime="{escape(report.sitting_date.isoformat())}">'
             f"{escape(get_sitting_date_label(report.sitting_date))}</time></p>",
+            _get_report_citation_html(report, column_range),
             f'<p>Source: <a href="{escape(report.official_record_url)}">'
             f"{_SOURCE_NAME}, {escape(get_sitting_date_label(report.sitting_date))}"
             f"</a>. {_NOT_OFFICIAL_NOTE}</p>",
@@ -692,7 +795,8 @@ def _get_report_page_text_html(report_slug: str) -> str:
     try:
         with Session(engine) as session:
             return _get_report_html(
-                report_service.get_report(report_slug, None, None, session)
+                report_service.get_report(report_slug, None, None, session),
+                report_service.get_report_column_range(report_slug, session),
             )
     except ReportNotFoundException:
         return _NO_PAGE_TEXT
