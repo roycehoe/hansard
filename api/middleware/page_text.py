@@ -85,7 +85,7 @@ _PERSON_REPORTS_HEADING = "Reports"
 _PERSON_SPEECHES_LINK_TEXT = "Search this person's speeches"
 _NO_PERSON_REPORTS_NOTE = "No paragraphs by this person are in the archive yet."
 _FIRST_PAGE = 1
-_PERSON_REPORT_PAGE_SIZE = 20
+_ALL_PERSON_REPORTS_PAGE_SIZE = 1_000_000
 _PERSON_PARAMETER = "person"
 _PARLIAMENTS_HEADING = "Parliaments"
 _RECENT_SITTINGS_HEADING = "Recent sittings"
@@ -279,6 +279,15 @@ def _get_column_marker_html(
     return f"<p>col. {speech.column_start}<br>{escape(note_text)}</p>{_LINE_SEPARATOR}"
 
 
+def _get_speaker_label_html(speech: SpeechData) -> str:
+    if speech.person_id is None:
+        return escape(speech.speaker_label)
+    return (
+        f'<a href="{_PEOPLE_PATH}/{speech.person_id}-{escape(speech.person_slug)}">'
+        f"{escape(speech.speaker_label)}</a>"
+    )
+
+
 def _get_paragraph_html(
     speech: SpeechData,
     previous_speaker_label: str,
@@ -292,7 +301,7 @@ def _get_paragraph_html(
     ):
         return f"{paragraph_start}{escape(speech.transcript)}</p>"
     return (
-        f"{paragraph_start}<strong>{escape(speech.speaker_label)}</strong>: "
+        f"{paragraph_start}<strong>{_get_speaker_label_html(speech)}</strong>: "
         f"{escape(speech.transcript)}</p>"
     )
 
@@ -575,30 +584,38 @@ def _get_person_report_item_html(report: PersonReportData) -> str:
         f'<li><a href="/reports/{escape(quote(report.report_slug, safe=""))}">'
         f"{escape(report.title)}</a>, "
         f'<time datetime="{escape(report.sitting_date.isoformat())}">'
-        f"{escape(get_sitting_date_label(report.sitting_date))}</time></li>"
+        f"{escape(get_sitting_date_label(report.sitting_date))}</time>, "
+        f"{escape(_get_report_type_label(report.report_type))}</li>"
     )
 
 
-def _get_shown_report_count_lines(
-    shown_count: int, total_count: int, has_next_page: bool
+def _get_parliament_report_lines(
+    parliament_number: int, reports: list[PersonReportData]
 ) -> list[str]:
-    if not has_next_page:
-        return []
-    return [f"<p>Showing {shown_count:,} of {total_count:,}.</p>"]
+    noun = _REPORT_NOUN if len(reports) == 1 else _REPORTS_NOUN
+    return [
+        f"<h3>{escape(_get_parliament_label(parliament_number))}</h3>",
+        f"<p>{len(reports):,} {noun}</p>",
+        "<ol>",
+        *[_get_person_report_item_html(report) for report in reports],
+        "</ol>",
+    ]
 
 
 def _get_person_report_lines(person_reports: GetPersonReportsResponse) -> list[str]:
     if person_reports.reports == []:
         return [f"<p>{escape(_NO_PERSON_REPORTS_NOTE)}</p>"]
+    parliament_number_to_reports: dict[int, list[PersonReportData]] = {}
+    for report in person_reports.reports:
+        parliament_number_to_reports.setdefault(report.parliament_number, []).append(
+            report
+        )
     return [
-        "<ol>",
-        *[_get_person_report_item_html(report) for report in person_reports.reports],
-        "</ol>",
-        *_get_shown_report_count_lines(
-            len(person_reports.reports),
-            person_reports.total_count,
-            person_reports.has_next_page,
-        ),
+        line
+        for parliament_number in sorted(parliament_number_to_reports, reverse=True)
+        for line in _get_parliament_report_lines(
+            parliament_number, parliament_number_to_reports[parliament_number]
+        )
     ]
 
 
@@ -980,7 +997,7 @@ def _get_person_page_text_html(person_id: int) -> str:
             return _get_person_html(
                 person_service.get_person(person_id, session),
                 person_service.get_person_reports(
-                    person_id, _FIRST_PAGE, _PERSON_REPORT_PAGE_SIZE, None, session
+                    person_id, _FIRST_PAGE, _ALL_PERSON_REPORTS_PAGE_SIZE, None, session
                 ),
             )
     except PersonNotFoundException:

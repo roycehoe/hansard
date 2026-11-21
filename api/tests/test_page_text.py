@@ -649,15 +649,8 @@ def _get_person_reports_response(
     )
 
 
-@pytest.mark.parametrize(
-    ("has_next_page", "shown_count_lines"),
-    [(True, ["<p>Showing 2 of 1,234.</p>"]), (False, [])],
-)
-def test_a_person_page_lists_memberships_and_recent_reports(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    has_next_page: bool,
-    shown_count_lines: list[str],
+def test_a_person_page_lists_memberships_and_every_report_by_parliament(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     person_report_arguments: list[tuple[object, ...]] = []
 
@@ -670,7 +663,7 @@ def test_a_person_page_lists_memberships_and_recent_reports(
                     "00069110-ZZ_1#id004-budget", "BUDGET <i>", date(2019, 3, 1)
                 ),
             ],
-            has_next_page,
+            False,
         )
 
     monkeypatch.setattr(
@@ -691,7 +684,7 @@ def test_a_person_page_lists_memberships_and_recent_reports(
 
     response = client.get("/people/7-tan")
 
-    assert person_report_arguments == [(7, 1, 20, None)]
+    assert person_report_arguments == [(7, 1, 1_000_000, None)]
     assert response.status_code == status.HTTP_200_OK
     assert _get_root_contents(response.text).split("\n") == [
         "<main data-page-text>",
@@ -706,13 +699,14 @@ def test_a_person_page_lists_memberships_and_recent_reports(
         "</table>",
         "<h2>Reports</h2>",
         '<p><a href="/search?person=7">Search this person&#x27;s speeches</a></p>',
+        "<h3>Parliament 14</h3>",
+        "<p>2 reports</p>",
         "<ol>",
         '<li><a href="/reports/bill-818">SUPPLY BILL</a>, '
-        '<time datetime="2020-01-01">1 January 2020</time></li>',
+        '<time datetime="2020-01-01">1 January 2020</time>, Bill</li>',
         '<li><a href="/reports/00069110-ZZ_1%23id004-budget">BUDGET &lt;i&gt;</a>, '
-        '<time datetime="2019-03-01">1 March 2019</time></li>',
+        '<time datetime="2019-03-01">1 March 2019</time>, Bill</li>',
         "</ol>",
-        *shown_count_lines,
         "</main>",
     ]
 
