@@ -18,10 +18,12 @@ from database.bill_stage_line import BillStageLine
 from database.report import Report
 from database.speaker import Speaker
 from database.speech import Speech
-from enums import BillStage, PreviewType
+from enums import BillReportPart, BillStage, PreviewType
+from middleware.bill_part import ReportBill, get_report_bill, get_report_bill_part
 from middleware.membership import get_membership_id_to_person
 from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
 from schemas.preview import PreviewData
+from utils.bill_opening_line import get_resumed_from_label
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.sitting_date import get_sitting_date_label
@@ -49,6 +51,7 @@ _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
 _SEAT_SEPARATOR = ", "
 _NAME_SEPARATOR = ", "
 _SENTENCE_SEPARATOR = " "
+_DEBATE_RESUMED_FROM = "Debate resumed from"
 _LISTED_SPEAKER_COUNT = 3
 _LISTED_REPORT_COUNT = 3
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
@@ -83,6 +86,9 @@ _REPORTS_WORD = "reports"
 _FIRST_READING_TITLE_LABEL = "First reading"
 _SECOND_READING_TITLE_LABEL = "Second reading"
 _THIRD_READING_TITLE_LABEL = "Third reading"
+_SECOND_AND_THIRD_READING_TITLE_LABEL = "Second and third reading"
+_MINISTERS_REPLY_TITLE_LABEL = "Minister's reply"
+_SECOND_READING_DEBATE_RESUMED_TITLE_LABEL = "Second reading debate resumed"
 _LEADING_THE = re.compile(r"^the\s+", re.IGNORECASE)
 _BILL_WORD = re.compile(r"\bbill\b", re.IGNORECASE)
 
@@ -252,11 +258,20 @@ def _get_stage_title_label(stage: BillStage) -> str:
 
 
 def _get_report_title(
-    report: Report, sitting_date_label: str, stage_lines: list[BillStageLine]
+    report: Report,
+    sitting_date_label: str,
+    stage_lines: list[BillStageLine],
+    report_part: Optional[BillReportPart],
 ) -> str:
+    if report_part == BillReportPart.MINISTERS_REPLY:
+        return f"{_MINISTERS_REPLY_TITLE_LABEL}, {report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
+    if report_part == BillReportPart.SECOND_READING_DEBATE_RESUMED:
+        return f"{_SECOND_READING_DEBATE_RESUMED_TITLE_LABEL}, {report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
     if not stage_lines:
         return f"{report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
     bill_title = _LEADING_THE.sub(_EMPTY_LABEL, report.title)
+    if report_part == BillReportPart.SECOND_AND_THIRD_READING:
+        return f"{_SECOND_AND_THIRD_READING_TITLE_LABEL} of the {bill_title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
     stage_label = _get_stage_title_label(stage_lines[0].stage)
     return f"{stage_label} of the {bill_title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
 
@@ -294,6 +309,65 @@ def _get_report_preview_description(
     return bill_description
 
 
+# NOTE: a part on the first reading is no debate, so a resumed line with no printed date takes the latest earlier sitting of a part with no first reading
+def _get_earlier_second_reading_date(
+    report: Report, report_bill: ReportBill
+) -> Optional[date]:
+    return max(
+        (
+            reading_report.sitting_date.date()
+            for reading_report in report_bill.reading_reports
+            if reading_report.sitting_date.date() < report.sitting_date.date()
+            and not any(
+                stage_line.stage == BillStage.FIRST_READING
+                for stage_line in report_bill.sprs_report_id_to_stage_lines.get(
+                    reading_report.report_id, []
+                )
+            )
+        ),
+        default=None,
+    )
+
+
+def _get_report_part_description(
+    report: Report,
+    sitting_date_label: str,
+    stage_lines: list[BillStageLine],
+    report_part: Optional[BillReportPart],
+    report_bill: Optional[ReportBill],
+    session: Session,
+) -> str:
+    if report_part == BillReportPart.MINISTERS_REPLY:
+        reply_description = _get_bill_report_description(report.id, session)
+        if reply_description is not None:
+            return reply_description
+    description = _get_report_preview_description(
+        report.id, sitting_date_label, stage_lines, session
+    )
+    if report_part == BillReportPart.SECOND_AND_THIRD_READING:
+        third_reading_line = [
+            stage_line
+            for stage_line in stage_lines
+            if stage_line.stage == BillStage.THIRD_READING
+        ][-1]
+        return f"{description}{_SENTENCE_SEPARATOR}{get_transcript_quote(third_reading_line.printed_text)}"
+    if report_part != BillReportPart.SECOND_READING_DEBATE_RESUMED:
+        return description
+    if report_bill is None:
+        return description
+    opening_speech = CRUDSpeech(session).get_first_by_report_id(report.id)
+    if opening_speech is None:
+        return description
+    resumed_from = get_resumed_from_label(
+        opening_speech.transcript,
+        _get_earlier_second_reading_date(report, report_bill),
+        report.sitting_date.year,
+    )
+    if resumed_from is None:
+        return description
+    return f"{_DEBATE_RESUMED_FROM} {resumed_from}.{_SENTENCE_SEPARATOR}{description}"
+
+
 # NOTE: the record can print a Bill's stage lines in a report it titles as something else, such as the Adjournment to a Later Day Motion of 16 November 1960, so only a report whose title names a Bill takes the stage
 def _get_report_stage_lines(report: Report, session: Session) -> list[BillStageLine]:
     if _BILL_WORD.search(report.title) is None:
@@ -306,10 +380,16 @@ def _get_report_stage_lines(report: Report, session: Session) -> list[BillStageL
 def _get_report_preview(report: Report, session: Session) -> PreviewData:
     sitting_date_label = get_sitting_date_label(report.sitting_date.date())
     stage_lines = _get_report_stage_lines(report, session)
+    report_bill = get_report_bill(report, session)
+    report_part = (
+        None
+        if report_bill is None
+        else get_report_bill_part(report, report_bill, session)
+    )
     return PreviewData(
-        title=_get_report_title(report, sitting_date_label, stage_lines),
-        description=_get_report_preview_description(
-            report.id, sitting_date_label, stage_lines, session
+        title=_get_report_title(report, sitting_date_label, stage_lines, report_part),
+        description=_get_report_part_description(
+            report, sitting_date_label, stage_lines, report_part, report_bill, session
         ),
         preview_type=PreviewType.ARTICLE,
         path=_get_report_path(report),

@@ -1,5 +1,5 @@
 import { apiGet } from '@/api/client'
-import type { BillStage } from '@/constants/bills/enums'
+import type { BillReportPart, BillStage } from '@/constants/bills/enums'
 import type {
   ColumnNote,
   ReportType,
@@ -62,6 +62,7 @@ export interface ReportBillActData {
 
 export interface ReportBillData {
   title: string
+  report_part: BillReportPart | null
   reports: ReportBillReportData[]
   acts: ReportBillActData[]
 }

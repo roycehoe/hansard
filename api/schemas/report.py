@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from enums import BillStage, ColumnNote, SpeechKind, SpeechLinkStatus
+from enums import BillReportPart, BillStage, ColumnNote, SpeechKind, SpeechLinkStatus
 
 
 class SpeechData(BaseModel):
@@ -53,6 +53,7 @@ class ReportBillActData(BaseModel):
 
 class ReportBillData(BaseModel):
     title: str
+    report_part: Optional[BillReportPart]
     reports: list[ReportBillReportData]
     acts: list[ReportBillActData]
 

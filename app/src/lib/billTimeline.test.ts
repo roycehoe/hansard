@@ -25,6 +25,7 @@ function buildBill(
 ): ReportBillData {
   return {
     title: 'Some Bill',
+    report_part: null,
     acts,
     reports: reportSlugs.map((slug) => ({
       report_slug: slug,
