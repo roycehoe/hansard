@@ -315,3 +315,6 @@ export const EMBED_QUOTE_MAX_LENGTH = 900
 export const EMBED_LINE_HEIGHT = 28
 export const EMBED_CHARACTERS_PER_LINE = 78
 export const EMBED_SOURCE_LINE_HEIGHT = 70
+
+export const TRANSCRIPT_FOOTNOTE_CLASS_NAME =
+  'text-muted-foreground before:bg-separator font-sans text-sm leading-5 before:mb-2 before:block before:h-px before:w-12'

@@ -1,10 +1,12 @@
 import type {
   GetReportResponse,
+  ReportPictureData,
   SpeechData,
   SpeechLinkData,
 } from '@/api/reports/getReport'
 import { NoticeHighlighting } from '@/components/reports/NoticeHighlighting'
 import { NoticeSpeechLink } from '@/components/reports/NoticeSpeechLink'
+import { RowPicture } from '@/components/reports/RowPicture'
 import { RowSpeech } from '@/components/reports/RowSpeech'
 import {
   SPEECH_LINK_MISSING_NOTICE,
@@ -15,6 +17,7 @@ import { SpeechKind, SpeechLinkStatus } from '@/constants/reports/enums'
 import { buildDivisionNoteText } from '@/lib/divisionNote'
 import { buildHighlightPattern } from '@/lib/highlight'
 import { isLinkedSpeech } from '@/lib/linkedSpeech'
+import { placePictures } from '@/lib/reportPictures'
 import { scrollAgainWhenFontsLoad } from '@/lib/scrollAgain'
 import { isSameSpeakerAsPrevious } from '@/lib/speakerLabel'
 import { Fragment, useEffect } from 'react'
@@ -87,6 +90,18 @@ export function ListSpeeches({
   const hasColumnMarkers = report.speeches.some(
     (speech) => typeof speech.column_start === 'number'
   )
+  const picturePlacement = placePictures(report.pictures, report.speeches)
+
+  function renderPictures(pictures: ReportPictureData[] | undefined) {
+    return pictures?.map((picture) => (
+      <RowPicture
+        key={picture.picture_index}
+        reportSlug={report.report_slug}
+        picture={picture}
+        hasColumnMarkers={hasColumnMarkers}
+      />
+    ))
+  }
 
   return (
     <section aria-labelledby="speeches-heading">
@@ -102,6 +117,7 @@ export function ListSpeeches({
       {isSpeechLinkMissing && (
         <NoticeSpeechLink message={SPEECH_LINK_MISSING_NOTICE} />
       )}
+      {renderPictures(picturePlacement.beforeFirstRow)}
       {report.speeches.map((speech, index) => {
         const divisionNote = report.division_notes.find(
           (note) => note.count_line_ordinal === speech.ordinal
@@ -138,9 +154,11 @@ export function ListSpeeches({
                 buildDivisionNoteText(divisionNote, report.speeches)
               }
             />
+            {renderPictures(picturePlacement.afterOrdinal.get(speech.ordinal))}
           </Fragment>
         )
       })}
+      {renderPictures(picturePlacement.afterLastRow)}
     </section>
   )
 }

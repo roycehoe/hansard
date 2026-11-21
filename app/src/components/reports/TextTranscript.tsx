@@ -2,6 +2,7 @@ import { DEFINED_TERM_CLASS_NAME } from '@/components/layout/PopoverDefinition'
 import { TooltipDefinition } from '@/components/layout/TooltipDefinition'
 import { TextHighlighted } from '@/components/reports/TextHighlighted'
 import { TRANSCRIPT_APPEARANCE_CLASS_NAME } from '@/constants/appearance/constants'
+import { TRANSCRIPT_FOOTNOTE_CLASS_NAME } from '@/constants/reports/constants'
 import {
   TranscriptSegmentKind,
   TranscriptStyle,
@@ -77,7 +78,7 @@ export function TextTranscript({
         transcriptStyle === TranscriptStyle.STAGE_DIRECTION &&
           'text-muted-foreground pl-12 text-base leading-7 italic',
         transcriptStyle === TranscriptStyle.FOOTNOTE &&
-          'text-muted-foreground before:bg-separator font-sans text-sm leading-5 before:mb-2 before:block before:h-px before:w-12',
+          TRANSCRIPT_FOOTNOTE_CLASS_NAME,
         transcriptStyle === TranscriptStyle.BODY && 'text-base leading-7',
         transcriptStyle === TranscriptStyle.QUOTED &&
           'border-separator border-l-2 pl-4 text-base leading-7',
