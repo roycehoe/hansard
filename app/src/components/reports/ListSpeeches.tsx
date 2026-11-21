@@ -6,13 +6,13 @@ import type {
 import { NoticeHighlighting } from '@/components/reports/NoticeHighlighting'
 import { NoticeSpeechLink } from '@/components/reports/NoticeSpeechLink'
 import { RowSpeech } from '@/components/reports/RowSpeech'
-import { TextDivisionNote } from '@/components/reports/TextDivisionNote'
 import {
   SPEECH_LINK_MISSING_NOTICE,
   SPEECH_LINK_MOVED_NOTICE,
   SPEECH_LINK_NOTICE_ID,
 } from '@/constants/reports/constants'
 import { SpeechKind, SpeechLinkStatus } from '@/constants/reports/enums'
+import { buildDivisionNoteText } from '@/lib/divisionNote'
 import { buildHighlightPattern } from '@/lib/highlight'
 import { isLinkedSpeech } from '@/lib/linkedSpeech'
 import { scrollAgainWhenFontsLoad } from '@/lib/scrollAgain'
@@ -102,43 +102,45 @@ export function ListSpeeches({
       {isSpeechLinkMissing && (
         <NoticeSpeechLink message={SPEECH_LINK_MISSING_NOTICE} />
       )}
-      {report.speeches.map((speech, index) => (
-        <Fragment key={speech.ordinal}>
-          {speech.ordinal === movedSpeechOrdinal && (
-            <NoticeSpeechLink message={SPEECH_LINK_MOVED_NOTICE} />
-          )}
-          <RowSpeech
-            speech={speech}
-            isContinuation={isSameSpeakerAsPrevious(
-              speech,
-              getPreviousSpeech(report.speeches, index)
+      {report.speeches.map((speech, index) => {
+        const divisionNote = report.division_notes.find(
+          (note) => note.count_line_ordinal === speech.ordinal
+        )
+        return (
+          <Fragment key={speech.ordinal}>
+            {speech.ordinal === movedSpeechOrdinal && (
+              <NoticeSpeechLink message={SPEECH_LINK_MOVED_NOTICE} />
             )}
-            isLinkedTarget={isLinkedSpeech(
-              speech.ordinal,
-              report.speech_link,
-              window.location.hash
-            )}
-            previousSpeechKind={
-              index > 0 ? report.speeches[index - 1].kind : null
-            }
-            reportSlug={report.report_slug}
-            reportTitle={report.title}
-            sittingDate={report.sitting_date}
-            volumeNumber={report.volume_number}
-            parliamentNumber={report.parliament_number}
-            officialRecordUrl={report.official_record_url}
-            hasColumnMarkers={hasColumnMarkers}
-            highlightPattern={highlightPattern}
-          />
-          <TextDivisionNote
-            divisionNote={report.division_notes.find(
-              (note) => note.count_line_ordinal === speech.ordinal
-            )}
-            speeches={report.speeches}
-            hasColumnMarkers={hasColumnMarkers}
-          />
-        </Fragment>
-      ))}
+            <RowSpeech
+              speech={speech}
+              isContinuation={isSameSpeakerAsPrevious(
+                speech,
+                getPreviousSpeech(report.speeches, index)
+              )}
+              isLinkedTarget={isLinkedSpeech(
+                speech.ordinal,
+                report.speech_link,
+                window.location.hash
+              )}
+              previousSpeechKind={
+                index > 0 ? report.speeches[index - 1].kind : null
+              }
+              reportSlug={report.report_slug}
+              reportTitle={report.title}
+              sittingDate={report.sitting_date}
+              volumeNumber={report.volume_number}
+              parliamentNumber={report.parliament_number}
+              officialRecordUrl={report.official_record_url}
+              hasColumnMarkers={hasColumnMarkers}
+              highlightPattern={highlightPattern}
+              divisionNoteText={
+                divisionNote &&
+                buildDivisionNoteText(divisionNote, report.speeches)
+              }
+            />
+          </Fragment>
+        )
+      })}
     </section>
   )
 }

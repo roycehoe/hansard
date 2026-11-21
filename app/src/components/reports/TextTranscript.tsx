@@ -1,3 +1,5 @@
+import { DEFINED_TERM_CLASS_NAME } from '@/components/layout/PopoverDefinition'
+import { TooltipDefinition } from '@/components/layout/TooltipDefinition'
 import { TextHighlighted } from '@/components/reports/TextHighlighted'
 import { TRANSCRIPT_APPEARANCE_CLASS_NAME } from '@/constants/appearance/constants'
 import {
@@ -14,6 +16,7 @@ interface TextTranscriptProps {
   transcriptStyle: TranscriptStyle
   highlightPattern?: RegExp
   trailing?: ReactNode
+  definition?: string
 }
 
 export function TextTranscript({
@@ -22,6 +25,7 @@ export function TextTranscript({
   transcriptStyle,
   highlightPattern,
   trailing,
+  definition,
 }: TextTranscriptProps) {
   const segments = parseTranscriptInline(transcript)
 
@@ -30,21 +34,29 @@ export function TextTranscript({
     transcriptStyle === TranscriptStyle.QUOTED ||
     transcriptStyle === TranscriptStyle.STAGE_DIRECTION
 
+  const transcriptText = segments.map((segment, index) => {
+    const text = (
+      <TextHighlighted text={segment.text} pattern={highlightPattern} />
+    )
+    if (segment.kind === TranscriptSegmentKind.BOLD) {
+      return <strong key={index}>{text}</strong>
+    }
+    if (segment.kind === TranscriptSegmentKind.ITALIC) {
+      return <em key={index}>{text}</em>
+    }
+    return <span key={index}>{text}</span>
+  })
+
   const content = (
     <>
       {label}
-      {segments.map((segment, index) => {
-        const text = (
-          <TextHighlighted text={segment.text} pattern={highlightPattern} />
-        )
-        if (segment.kind === TranscriptSegmentKind.BOLD) {
-          return <strong key={index}>{text}</strong>
-        }
-        if (segment.kind === TranscriptSegmentKind.ITALIC) {
-          return <em key={index}>{text}</em>
-        }
-        return <span key={index}>{text}</span>
-      })}
+      {definition === undefined ? (
+        transcriptText
+      ) : (
+        <TooltipDefinition definition={definition}>
+          <span className={DEFINED_TERM_CLASS_NAME}>{transcriptText}</span>
+        </TooltipDefinition>
+      )}
       {trailing}
     </>
   )

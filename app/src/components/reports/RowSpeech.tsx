@@ -36,6 +36,7 @@ interface RowSpeechProps {
   officialRecordUrl: string
   hasColumnMarkers: boolean
   highlightPattern?: RegExp
+  divisionNoteText?: string
 }
 
 function getTranscriptStyle(speech: SpeechData): TranscriptStyle {
@@ -87,6 +88,7 @@ export function RowSpeech({
   officialRecordUrl,
   hasColumnMarkers,
   highlightPattern,
+  divisionNoteText,
 }: RowSpeechProps) {
   const speakerLabelSource = getSpeakerLabelSource(
     speech.speaker_label,
@@ -224,6 +226,7 @@ export function RowSpeech({
           transcriptStyle={getTranscriptStyle(speech)}
           highlightPattern={highlightPattern}
           trailing={<PopoverSpeechActions {...speechActionContext} />}
+          definition={divisionNoteText}
         />
       </div>
       <ActionBarSpeechCopy {...speechActionContext} />

@@ -280,7 +280,9 @@ export const COLUMN_NOTE_LABELS: Record<ColumnNote, string> = {
 }
 
 export const DIVISION_COUNTS_DISAGREE_NOTE_TEXT =
-  'The names listed below do not add up to the counts above.'
+  "The names listed below don't add up to these counts."
+export const DIVISION_COUNTS_DISAGREE_NO_REASON_TEXT =
+  "The record doesn't say why."
 
 export const SPEECH_ANCHOR_MAX_LENGTH = 200
 export const SPEECH_LINK_NOTICE_ID = 'speech-link-notice'
