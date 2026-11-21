@@ -90,7 +90,7 @@ export function ListSpeeches({
   const hasColumnMarkers = report.speeches.some(
     (speech) => typeof speech.column_start === 'number'
   )
-  const picturePlacement = placePictures(report.pictures, report.speeches)
+  const picturePlacement = placePictures(report.pictures ?? [], report.speeches)
 
   function renderPictures(pictures: ReportPictureData[] | undefined) {
     return pictures?.map((picture) => (
