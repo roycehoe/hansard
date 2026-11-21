@@ -11,7 +11,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session
 
 from database.engine import engine, search_engine
-from enums import ActHistoryEntryKind, BillStage, ColumnNote, ReportType, SearchSort
+from enums import (
+    ActHistoryEntryKind,
+    BillStage,
+    ColumnNote,
+    PictureKind,
+    ReportType,
+    SearchSort,
+)
 from exceptions.act import ActNotFoundException
 from exceptions.person import PersonNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
@@ -36,7 +43,13 @@ from schemas.person import (
     PersonReportData,
 )
 from schemas.preview import PreviewData
-from schemas.report import GetReportResponse, ReportColumnRangeData, SpeechData
+from schemas.report import (
+    GetReportResponse,
+    ReportColumnRangeData,
+    ReportPictureData,
+    SpeechData,
+    TypedTableData,
+)
 from schemas.search import (
     ReportMatchData,
     SearchReportsResponse,
@@ -81,6 +94,10 @@ _SITTINGS_PATH = "/sittings"
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
 _SITTING_TITLE_PREFIX = "Sitting of"
 _PEOPLE_PATH = "/people"
+_BEFORE_FIRST_PARAGRAPH_ORDINAL = 0
+_PICTURE_ALT_TEXT = "Picture printed in the record"
+# NOTE: the characters encodeURIComponent leaves alone, so the address matches the one the app builds
+_PICTURE_SLUG_SAFE_CHARACTERS = "-_.!~*'()"
 _ABOUT_PATH = "/about"
 _ABOUT_TITLE = "About Open Hansard"
 _ABOUT_INTRODUCTION = (
@@ -419,6 +436,84 @@ def _get_previous_column_speeches(
     return previous_column_speeches
 
 
+def _get_picture_address(report_slug: str, picture: ReportPictureData) -> str:
+    return (
+        f"/api/reports/{quote(report_slug, safe=_PICTURE_SLUG_SAFE_CHARACTERS)}"
+        f"/pictures/{picture.sha256}"
+    )
+
+
+def _get_table_row_html(row: list[str], cell_tag: str) -> str:
+    cells = "".join(f"<{cell_tag}>{escape(cell)}</{cell_tag}>" for cell in row)
+    return f"<tr>{cells}</tr>"
+
+
+def _get_table_html(table: TypedTableData) -> str:
+    sections = []
+    if table.header_rows:
+        header_rows = "".join(
+            _get_table_row_html(row, "th") for row in table.header_rows
+        )
+        sections.append(f"<thead>{header_rows}</thead>")
+    body_rows = "".join(_get_table_row_html(row, "td") for row in table.body_rows)
+    sections.append(f"<tbody>{body_rows}</tbody>")
+    return f"<table>{''.join(sections)}</table>"
+
+
+def _get_typed_table_html(table: TypedTableData, kind: PictureKind) -> list[str]:
+    caption = [f"<p>{escape(table.caption)}</p>"] if table.caption != "" else []
+    if kind == PictureKind.DIVISION_LIST:
+        names = "".join(f"<li>{escape(row[0])}</li>" for row in table.body_rows)
+        return [*caption, f"<ul>{names}</ul>"]
+    if kind == PictureKind.TEXT:
+        return [f"<p>{escape(row[0])}</p>" for row in table.body_rows]
+    notes = [f"<p>{escape(note)}</p>" for note in table.notes]
+    return [*caption, _get_table_html(table), *notes]
+
+
+def _get_picture_html(report_slug: str, picture: ReportPictureData) -> list[str]:
+    address = escape(_get_picture_address(report_slug, picture))
+    if picture.typed_copy is None:
+        return [f'<img src="{address}" alt="{_PICTURE_ALT_TEXT}">']
+    heading = (
+        [f"<p>{escape(picture.typed_copy.heading)}</p>"]
+        if (picture.typed_copy.heading != "")
+        else []
+    )
+    return [
+        *heading,
+        *[
+            block
+            for table in picture.typed_copy.tables
+            for block in _get_typed_table_html(table, picture.kind)
+        ],
+        f'<p><a href="{address}">source</a></p>',
+    ]
+
+
+def _get_paragraphs_with_pictures_html(
+    report: GetReportResponse, paragraphs: list[str]
+) -> list[str]:
+    placed_ordinals = {_BEFORE_FIRST_PARAGRAPH_ORDINAL} | {
+        speech.ordinal for speech in report.speeches
+    }
+    pictures_by_ordinal: dict[Optional[int], list[str]] = {}
+    for picture in report.pictures:
+        key = (
+            picture.follows_ordinal
+            if picture.follows_ordinal in placed_ordinals
+            else None
+        )
+        pictures_by_ordinal.setdefault(key, []).extend(
+            _get_picture_html(report.report_slug, picture)
+        )
+    blocks = list(pictures_by_ordinal.get(_BEFORE_FIRST_PARAGRAPH_ORDINAL, []))
+    for speech, paragraph in zip(report.speeches, paragraphs):
+        blocks.append(paragraph)
+        blocks.extend(pictures_by_ordinal.get(speech.ordinal, []))
+    return [*blocks, *pictures_by_ordinal.get(None, [])]
+
+
 def _get_report_html(
     report: GetReportResponse, column_range: ReportColumnRangeData
 ) -> str:
@@ -447,7 +542,7 @@ def _get_report_html(
             f'<p>Source: <a href="{escape(report.official_record_url)}">'
             f"{_SOURCE_NAME}, {escape(get_sitting_date_label(report.sitting_date))}"
             f"</a>. {_NOT_OFFICIAL_NOTE}</p>",
-            *paragraphs,
+            *_get_paragraphs_with_pictures_html(report, paragraphs),
             "</main>",
         ]
     )
