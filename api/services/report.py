@@ -406,20 +406,23 @@ def _get_division_note_data(
     return division_notes
 
 
-# NOTE: a link whose %23 became # reaches the server as the part before it, and one whose % was encoded again reaches it with a literal %23. Two or more matches stay unanswered, and a listed report's forms are never answered, so a redirect cannot reveal a hidden address.
-def get_report_slug_of_old_address(
-    requested_slug: str, session: Session
-) -> Optional[str]:
+def _get_old_address_reports(requested_slug: str, session: Session) -> list[Report]:
     if _ENCODED_FRAGMENT_SEPARATOR in requested_slug:
-        reports = CRUDReport(session).get_all_by_report_ids(
+        return CRUDReport(session).get_all_by_report_ids(
             get_report_id_candidates(
                 requested_slug.replace(_ENCODED_FRAGMENT_SEPARATOR, _FRAGMENT_SEPARATOR)
             )
         )
-    else:
-        reports = CRUDReport(session).get_all_by_report_id_prefix(
-            requested_slug + _FRAGMENT_SEPARATOR, _OLD_ADDRESS_MATCH_LIMIT
-        )
+    return CRUDReport(session).get_all_by_report_id_prefix(
+        requested_slug + _FRAGMENT_SEPARATOR, _OLD_ADDRESS_MATCH_LIMIT
+    )
+
+
+# NOTE: a link whose %23 became # reaches the server as the part before it, and one whose % was encoded again reaches it with a literal %23. Two or more matches stay unanswered, and a listed report's forms are never answered, so a redirect cannot reveal a hidden address.
+def get_report_slug_of_old_address(
+    requested_slug: str, session: Session
+) -> Optional[str]:
+    reports = _get_old_address_reports(requested_slug, session)
     if len(reports) != _ONLY_MATCH_COUNT:
         return None
     if is_report_id_taken_down(reports[0].report_id):

@@ -609,7 +609,10 @@ def _get_sitting_report_item_html(
         [] if report.subtitle == _NO_SUBTITLE else [escape(report.subtitle)]
     )
     type_line = _get_sitting_report_type_line_html(
-        report, report_slug_to_people[report.report_slug]
+        report,
+        report_slug_to_people.get(
+            report.report_slug, SittingReportPeopleData(askers=[], first_speaker=None)
+        ),
     )
     return f"<li>{'<br>'.join([report_link, *subtitle_lines, type_line])}</li>"
 
