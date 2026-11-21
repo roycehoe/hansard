@@ -84,6 +84,16 @@ GRANT SELECT (id, sitting_date, printed_label, printed_parliament, file_url, arc
 
 Check it as `hansard_api` with `SELECT count(*) FROM division_vote;` and `SELECT id, status FROM minutes LIMIT 1;`, which return rows, and `SELECT extracted_text FROM minutes LIMIT 1;`, which fails. The scraper's refresh role has its own grants on the same tables; they are in the scraper's `docs/refresh.md`.
 
+## Report pictures
+
+`GET /reports/{report_slug}` sends each report's inline pictures with their typed copies, and `GET /reports/{report_slug}/pictures/{sha256}` serves a picture's bytes. Both read `report_picture`, which the scraper's migration `79cd2ef32c09` creates and `scripts/apply_report_pictures.py` fills. The API reads every column it declares, the bytes included, so the table takes a whole-table grant. This one ran on 21 November 2026, as the owner role, after the migration and the first load, so it is in place:
+
+```sql
+GRANT SELECT ON report_picture TO hansard_api;
+```
+
+Every report page reads `report_picture`, so a database without this grant fails every report page once the API sends pictures. Check it as `hansard_api` with `SELECT count(*) FROM report_picture;`, which returns a row (974 on 21 November 2026), and `UPDATE report_picture SET kind = kind WHERE false;`, which fails with "cannot execute UPDATE in a read-only transaction".
+
 ## Check the role
 
 Connect as `hansard_api` and run:
