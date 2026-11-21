@@ -664,13 +664,13 @@ def _get_about_corrections_html(contact_email: Optional[str]) -> str:
         f"{_get_link_html(_ABOUT_CORRECTIONS_LOG_URL, _ABOUT_CORRECTIONS_LOG_LINK_TEXT)}"
         f"{escape(_ABOUT_CORRECTIONS_LOG_SUFFIX)}"
     )
-    if not contact_email:
+    if contact_email is None:
         return f"<p>{corrections_log}</p>"
     return f"<p>{escape(_ABOUT_REPORT_AN_ERROR_SENTENCE)}{corrections_log}</p>"
 
 
 def _get_about_closing_html(contact_email: Optional[str]) -> str:
-    if not contact_email:
+    if contact_email is None:
         return f"<p>{escape(_ABOUT_CLOSING_PREFIX)}.</p>"
     return (
         f"<p>{escape(_ABOUT_CLOSING_PREFIX)}{escape(_ABOUT_CLOSING_EMAIL_PREFIX)}"
@@ -724,7 +724,7 @@ def _get_coverage_summary_lines(coverage: GetCoverageResponse) -> list[str]:
 
 
 def _get_coverage_report_an_error_lines(contact_email: Optional[str]) -> list[str]:
-    if not contact_email:
+    if contact_email is None:
         return []
     return [
         f"<p>{escape(_COVERAGE_REPORT_AN_ERROR_PREFIX)}"
