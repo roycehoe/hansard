@@ -23,10 +23,13 @@ from exceptions.search import (
     SearchTooManyAlternativesException,
 )
 from exceptions.sitting import SittingNotFoundException
+from schemas.coverage import GetCoverageResponse
 from schemas.parliament import ParliamentData
 from schemas.person import (
     GetPersonReportsResponse,
     GetPersonResponse,
+    MembershipData,
+    PersonData,
     PersonMembershipData,
     PersonReportData,
 )
@@ -45,6 +48,7 @@ from schemas.sitting import (
     SittingReportData,
     SittingReportPeopleData,
 )
+from services import coverage as coverage_service
 from services import parliament as parliament_service
 from services import person as person_service
 from services import report as report_service
@@ -73,6 +77,54 @@ _SITTINGS_PATH = "/sittings"
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
 _SITTING_TITLE_PREFIX = "Sitting of"
 _PEOPLE_PATH = "/people"
+_ABOUT_PATH = "/about"
+_ABOUT_TITLE = "About Open Hansard"
+_ABOUT_INTRODUCTION = (
+    "Open Hansard is an unofficial, English-only archive of debates in Singapore's "
+    "Legislative Assembly and Parliament since 22 April 1955. The archive copies text "
+    "from Parliament's Official Report, splits each report where a new speaker begins, "
+    "and links speeches to a person when it can identify who spoke."
+)
+_ABOUT_OFFICIAL_REPORT_NOTE = (
+    "The copy can differ from the Official Report. When quoting or citing a debate, "
+    "use Parliament's Official Report."
+)
+_ABOUT_REPORT_AN_ERROR_SENTENCE = (
+    'You can report incorrect text or a speech credited to the wrong person through "Report an error" '
+    "on a paragraph. This opens an email with the link filled in. "
+)
+_SOURCE_CODE_URL = "https://github.com/roycehoe/hansard"
+_ABOUT_CORRECTIONS_LOG_URL = f"{_SOURCE_CODE_URL}/blob/master/docs/corrections.md"
+_ABOUT_CORRECTIONS_LOG_LINK_TEXT = "corrections log"
+_ABOUT_CORRECTIONS_LOG_PREFIX = "The "
+_ABOUT_CORRECTIONS_LOG_SUFFIX = (
+    " lists what changed and when. The archive keeps mistakes in the Official Report "
+    "as Parliament printed them."
+)
+_ORIENTATION_CHINESE = "本站是新加坡国会辩论（1955年起）的非官方存档，只有英文版。内容取自国会网站上的 Official Report，可能与原文有出入。引用前应先核对 Official Report。"
+_ORIENTATION_MALAY = "Laman ini ialah arkib tidak rasmi perbahasan Parlimen Singapura sejak 1955. Laman ini hanya dalam bahasa Inggeris. Teks disalin daripada Official Report di laman web Parlimen dan mungkin berbeza daripadanya. Semak Official Report sebelum memetik teks ini."
+_ORIENTATION_TAMIL = "இந்தத் தளம் 1955 முதல் சிங்கப்பூர் நாடாளுமன்ற விவாதங்களின் அதிகாரப்பூர்வமற்ற காப்பகம். தளம் ஆங்கிலத்தில் மட்டுமே உள்ளது. உரை நாடாளுமன்ற இணையதளத்தில் உள்ள Official Report-இலிருந்து நகலெடுக்கப்பட்டது, அதிலிருந்து வேறுபடலாம். மேற்கோள் காட்டுவதற்கு முன் Official Report-ஐச் சரிபார்க்கவும்."
+_OFFICIAL_RECORD_SEARCH_URL = "https://sprs.parl.gov.sg/search/"
+_SECURITY_POLICY_URL = f"{_SOURCE_CODE_URL}/blob/master/SECURITY.md"
+_ABOUT_CLOSING_PREFIX = "I'm Royce, and I run the site on my own"
+_ABOUT_CLOSING_EMAIL_PREFIX = "; you can email me at "
+_COVERAGE_PATH = "/about/coverage"
+_COVERAGE_TITLE = "What the archive covers"
+_COVERAGE_INTRODUCTION_PREFIX = (
+    "This is an unofficial, English-only archive of Singapore's parliamentary debates "
+    "since 1955. "
+)
+_COVERAGE_TEXT_PREFIX = "The archive copies text from the Parliament of Singapore's "
+_COVERAGE_TEXT_SUFFIX = (
+    ". The copy can differ, so check the Official Report before quoting."
+)
+_COVERAGE_METHODS_SUFFIX = (
+    " explains how far to trust the text, and lists the full counts and known gaps."
+)
+_COVERAGE_REPORT_AN_ERROR_PREFIX = "To report an error, email "
+_PEOPLE_TITLE = "People"
+_LATEST_MEMBERSHIP_PARLIAMENT_NUMBER = 15
+_SITTING_MEMBER_MARK = " (Sitting MP)"
 _PEOPLE_LINK_TEXT = "Members of Parliament"
 _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
 _MEMBERSHIPS_HEADING = "Memberships"
@@ -565,6 +617,169 @@ def _get_sitting_html(
     )
 
 
+def _get_link_html(href: str, text: str) -> str:
+    return f'<a href="{escape(href)}">{escape(text)}</a>'
+
+
+def _get_link_item_html(href: str, text: str) -> str:
+    return f"<li>{_get_link_html(href, text)}</li>"
+
+
+def _get_email_link_html(contact_email: str) -> str:
+    return _get_link_html(f"mailto:{contact_email}", contact_email)
+
+
+def _get_orientation_lines() -> list[str]:
+    return [
+        f'<p lang="zh">{escape(_ORIENTATION_CHINESE)}</p>',
+        f'<p lang="ms">{escape(_ORIENTATION_MALAY)}</p>',
+        f'<p lang="ta">{escape(_ORIENTATION_TAMIL)}</p>',
+    ]
+
+
+def _get_about_corrections_html(contact_email: Optional[str]) -> str:
+    corrections_log = (
+        f"{escape(_ABOUT_CORRECTIONS_LOG_PREFIX)}"
+        f"{_get_link_html(_ABOUT_CORRECTIONS_LOG_URL, _ABOUT_CORRECTIONS_LOG_LINK_TEXT)}"
+        f"{escape(_ABOUT_CORRECTIONS_LOG_SUFFIX)}"
+    )
+    if not contact_email:
+        return f"<p>{corrections_log}</p>"
+    return f"<p>{escape(_ABOUT_REPORT_AN_ERROR_SENTENCE)}{corrections_log}</p>"
+
+
+def _get_about_closing_html(contact_email: Optional[str]) -> str:
+    if not contact_email:
+        return f"<p>{escape(_ABOUT_CLOSING_PREFIX)}.</p>"
+    return (
+        f"<p>{escape(_ABOUT_CLOSING_PREFIX)}{escape(_ABOUT_CLOSING_EMAIL_PREFIX)}"
+        f"{_get_email_link_html(contact_email)}.</p>"
+    )
+
+
+def _get_about_html(contact_email: Optional[str]) -> str:
+    return _LINE_SEPARATOR.join(
+        [
+            _PAGE_TEXT_START,
+            f"<h1>{escape(_ABOUT_TITLE)}</h1>",
+            f"<p>{escape(_ABOUT_INTRODUCTION)}</p>",
+            f"<p>{escape(_ABOUT_OFFICIAL_REPORT_NOTE)}</p>",
+            _get_about_corrections_html(contact_email),
+            *_get_orientation_lines(),
+            "<h2>Parliament</h2>",
+            "<ul>",
+            _get_link_item_html("/about/how-parliament-works", "How Parliament works"),
+            _get_link_item_html(_OFFICIAL_RECORD_SEARCH_URL, "Official Report"),
+            "</ul>",
+            "<h2>The archive</h2>",
+            "<ul>",
+            _get_link_item_html(_COVERAGE_PATH, "Coverage"),
+            _get_link_item_html("/about/coverage/methods", "Methods"),
+            "</ul>",
+            "<h2>The site</h2>",
+            "<ul>",
+            _get_link_item_html("/about/policies", "Policies"),
+            _get_link_item_html("/about/policies#privacy", "Privacy"),
+            _get_link_item_html("/about/palette", "Palette"),
+            _get_link_item_html(_SOURCE_CODE_URL, "GitHub"),
+            _get_link_item_html(_SECURITY_POLICY_URL, "Security"),
+            "</ul>",
+            _get_about_closing_html(contact_email),
+            "</main>",
+        ]
+    )
+
+
+def _get_coverage_summary_lines(coverage: GetCoverageResponse) -> list[str]:
+    if coverage.first_sitting_date is None or coverage.last_sitting_date is None:
+        return []
+    return [
+        "<p>The archive covers the Legislative Assembly and Parliament from "
+        f"{escape(get_sitting_date_label(coverage.first_sitting_date))} to "
+        f"{escape(get_sitting_date_label(coverage.last_sitting_date))}, with "
+        f"{coverage.report_count:,} reports from {coverage.sitting_count:,} sittings, "
+        f"{coverage.speech_count:,} paragraphs and {coverage.person_count:,} people.</p>"
+    ]
+
+
+def _get_coverage_report_an_error_lines(contact_email: Optional[str]) -> list[str]:
+    if not contact_email:
+        return []
+    return [
+        f"<p>{escape(_COVERAGE_REPORT_AN_ERROR_PREFIX)}"
+        f"{_get_email_link_html(contact_email)}.</p>"
+    ]
+
+
+def _get_coverage_html(
+    coverage: GetCoverageResponse, contact_email: Optional[str]
+) -> str:
+    return _LINE_SEPARATOR.join(
+        [
+            _PAGE_TEXT_START,
+            f"<h1>{escape(_COVERAGE_TITLE)}</h1>",
+            f"<p>{escape(_COVERAGE_INTRODUCTION_PREFIX)}"
+            f"{_get_link_html(_SEARCH_PATH, 'Search the debates')} or "
+            f"{_get_link_html(_PEOPLE_PATH, 'look up a person')} to read what they said.</p>",
+            *_get_coverage_summary_lines(coverage),
+            f"<p>{escape(_COVERAGE_TEXT_PREFIX)}"
+            f"{_get_link_html(_OFFICIAL_RECORD_SEARCH_URL, 'Official Report')}"
+            f"{escape(_COVERAGE_TEXT_SUFFIX)}</p>",
+            f"<p>{_get_link_html('/about/coverage/methods', 'Data quality and methods')}"
+            f"{escape(_COVERAGE_METHODS_SUFFIX)}</p>",
+            *_get_orientation_lines(),
+            *_get_coverage_report_an_error_lines(contact_email),
+            "</main>",
+        ]
+    )
+
+
+def _get_person_membership_text(membership: MembershipData) -> str:
+    constituencies = "".join(
+        f"{_CONSTITUENCY_SEPARATOR}{constituency}"
+        for constituency in membership.constituencies
+    )
+    return (
+        f"{_get_parliament_label(membership.parliament_number)}"
+        f"{constituencies}{_CONSTITUENCY_SEPARATOR}{membership.party}"
+    )
+
+
+def _is_sitting_member(person: PersonData) -> bool:
+    return any(
+        membership.parliament_number == _LATEST_MEMBERSHIP_PARLIAMENT_NUMBER
+        and membership.is_member
+        for membership in person.memberships
+    )
+
+
+def _get_people_item_html(person: PersonData) -> str:
+    link = (
+        f'<a href="{_PEOPLE_PATH}/{person.person_id}-{escape(person.person_slug)}">'
+        f"{escape(person.canonical_name)}</a>"
+    )
+    mark = _SITTING_MEMBER_MARK if _is_sitting_member(person) else ""
+    memberships = "; ".join(
+        _get_person_membership_text(membership) for membership in person.memberships
+    )
+    return f"<li>{link}{mark}<br>{escape(memberships)}</li>"
+
+
+def _get_people_html(persons: list[PersonData]) -> str:
+    noun = "person" if len(persons) == 1 else "people"
+    return _LINE_SEPARATOR.join(
+        [
+            _PAGE_TEXT_START,
+            f"<h1>{_PEOPLE_TITLE}</h1>",
+            f"<p>{len(persons):,} {noun}</p>",
+            "<ul>",
+            *[_get_people_item_html(person) for person in persons],
+            "</ul>",
+            "</main>",
+        ]
+    )
+
+
 def _get_membership_row_html(membership: PersonMembershipData) -> str:
     parliament_label = _get_parliament_label(membership.parliament_number)
     member_label = (
@@ -1006,6 +1221,31 @@ def _get_person_page_text_html(person_id: int) -> str:
         return _NO_PAGE_TEXT
 
 
+def _get_about_page_text_html() -> str:
+    return _get_about_html(settings.contact_email)
+
+
+def _get_coverage_page_text_html() -> str:
+    try:
+        with Session(engine) as session, Session(engine) as refresh_run_session:
+            return _get_coverage_html(
+                coverage_service.get_coverage(session, refresh_run_session),
+                settings.contact_email,
+            )
+    except SQLAlchemyError:
+        return _NO_PAGE_TEXT
+
+
+def _get_people_page_text_html() -> str:
+    try:
+        with Session(engine) as session:
+            return _get_people_html(
+                person_service.get_all_persons(None, None, None, session).persons
+            )
+    except SQLAlchemyError:
+        return _NO_PAGE_TEXT
+
+
 # NOTE: the app asks only for title matches without text while a person is chosen, so the page text asks for the same
 def _get_is_text_available_filter(person_id: Optional[int]) -> Optional[bool]:
     if person_id is None:
@@ -1118,6 +1358,12 @@ def get_page_text_html(
 ) -> str:
     if path == _HOME_PATH:
         return _get_home_page_text_html(preview.title, preview.description)
+    if path == _ABOUT_PATH:
+        return _get_about_page_text_html()
+    if path == _COVERAGE_PATH:
+        return _get_coverage_page_text_html()
+    if path == _PEOPLE_PATH:
+        return _get_people_page_text_html()
     if path == _SITTINGS_PATH:
         return _get_parliament_sittings_page_text_html(
             preview.title, query_params.get(_PARLIAMENT_PARAMETER)

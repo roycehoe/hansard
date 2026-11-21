@@ -81,6 +81,9 @@ services:
       - key: VITE_CONTACT_EMAIL
         scope: BUILD_TIME
         value: contact@openhansard.sg
+      - key: CONTACT_EMAIL
+        scope: RUN_TIME
+        value: contact@openhansard.sg
       - key: VITE_RESEARCHERS_FORM_URL
         scope: BUILD_TIME
         value: ""
