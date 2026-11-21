@@ -273,6 +273,7 @@ def test_a_report_that_cannot_be_shown_leaves_the_root_empty(
         ("/reports/bill-1", preview_service.get_default_preview()),
         ("/people/1-tan", preview_service.get_not_found_preview()),
         ("/sittings/2020-01-01", preview_service.get_not_found_preview()),
+        ("/acts/MDA1973", preview_service.get_not_found_preview()),
         ("/search", preview_service.get_default_preview()),
         ("/researchers", preview_service.get_default_preview()),
     ],

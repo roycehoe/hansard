@@ -1,5 +1,6 @@
 import json
 import re
+from dataclasses import dataclass
 from datetime import date
 from html import escape
 from typing import Mapping, Optional
@@ -10,7 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session
 
 from database.engine import engine, search_engine
-from enums import ColumnNote, ReportType, SearchSort
+from enums import ActHistoryEntryKind, BillStage, ColumnNote, ReportType, SearchSort
 from exceptions.act import ActNotFoundException
 from exceptions.person import PersonNotFoundException
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
@@ -23,6 +24,7 @@ from exceptions.search import (
     SearchTooManyAlternativesException,
 )
 from exceptions.sitting import SittingNotFoundException
+from schemas.act import ActEntryData, ActEntryReportData, GetActResponse
 from schemas.coverage import GetCoverageResponse
 from schemas.parliament import ParliamentData
 from schemas.person import (
@@ -48,6 +50,7 @@ from schemas.sitting import (
     SittingReportData,
     SittingReportPeopleData,
 )
+from services import act as act_service
 from services import coverage as coverage_service
 from services import parliament as parliament_service
 from services import person as person_service
@@ -55,6 +58,7 @@ from services import report as report_service
 from services import search as search_service
 from services import sitting as sitting_service
 from settings import settings
+from utils.law_name import get_law_name
 from utils.search_query import is_operator_word_in_query, is_query_only_excluded_words
 from utils.sitting_date import get_sitting_date_label
 from validators.search import (
@@ -127,6 +131,20 @@ _LATEST_MEMBERSHIP_PARLIAMENT_NUMBER = 15
 _SITTING_MEMBER_MARK = " (Sitting MP)"
 _PEOPLE_LINK_TEXT = "Members of Parliament"
 _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
+_ACT_PATH = re.compile(r"^/acts/([^/]+)$")
+_ACT_SOURCE_NAME = "Singapore Statutes Online"
+_ACT_SEARCH_LINK_TEXT = "Search the debates on this Act"
+_NO_ACT_HISTORY_NOTE = "No history is listed for this Act."
+_FIRST_READING_LABEL = "First reading"
+_SECOND_READING_LABEL = "Second reading"
+_THIRD_READING_LABEL = "Third reading"
+_SECOND_READING_CONTINUED_LABEL = "Second reading continued"
+_DEBATE_LABEL = "Debate"
+_IN_FORCE_LABEL = "In force"
+_BACKDATED_LABEL = "backdated"
+_ORIGINAL_LABEL = "Original"
+_NO_ACT_EVENT_DATE = ""
+_NO_ACT_EVENT_LABEL = ""
 _MEMBERSHIPS_HEADING = "Memberships"
 _MEMBERSHIPS_HEADER_ROW_HTML = (
     "<tr><th>Parliament</th><th>Party</th><th>Constituencies</th></tr>"
@@ -859,6 +877,241 @@ def _get_person_html(
     )
 
 
+@dataclass(frozen=True)
+class _ActEvent:
+    entry: ActEntryData
+    report: Optional[ActEntryReportData]
+    label: str
+    sort_date: str
+    is_newest_reading: bool
+
+
+def _get_act_entry_reports_oldest_first(
+    entry: ActEntryData,
+) -> list[ActEntryReportData]:
+    if entry.bill is None:
+        return []
+    return sorted(entry.bill.reports, key=lambda report: report.sitting_date)
+
+
+def _get_act_reading_label(
+    report: ActEntryReportData, earlier_reports: list[ActEntryReportData]
+) -> str:
+    earlier_stages = {stage for earlier in earlier_reports for stage in earlier.stages}
+    is_continued = (
+        BillStage.SECOND_READING_ORDER in earlier_stages
+        and BillStage.SECOND_READING_AGREED not in earlier_stages
+    )
+    unnamed_label = _SECOND_READING_CONTINUED_LABEL if is_continued else _DEBATE_LABEL
+    second_reading_label = (
+        _SECOND_READING_CONTINUED_LABEL if is_continued else _SECOND_READING_LABEL
+    )
+    labels = []
+    if BillStage.FIRST_READING in report.stages:
+        labels.append(_FIRST_READING_LABEL)
+    if BillStage.SECOND_READING_ORDER in report.stages:
+        labels.append(_SECOND_READING_LABEL)
+    elif BillStage.SECOND_READING_AGREED in report.stages:
+        labels.append(second_reading_label)
+    if BillStage.THIRD_READING in report.stages:
+        labels.append(_THIRD_READING_LABEL)
+    if labels == []:
+        return unnamed_label
+    return ", ".join(labels)
+
+
+def _get_act_entry_date_text(entries_up_to_entry: list[ActEntryData]) -> str:
+    for entry in reversed(entries_up_to_entry):
+        if entry.commencement_date is not None:
+            return entry.commencement_date.isoformat()
+    return _NO_ACT_EVENT_DATE
+
+
+def _get_act_entry_events(entry: ActEntryData, entry_date_text: str) -> list[_ActEvent]:
+    reports = _get_act_entry_reports_oldest_first(entry)
+    return [
+        *[
+            _ActEvent(
+                entry=entry,
+                report=report,
+                label=_get_act_reading_label(report, reports[:index]),
+                sort_date=report.sitting_date.isoformat(),
+                is_newest_reading=index == len(reports) - 1,
+            )
+            for index, report in enumerate(reports)
+        ],
+        _ActEvent(
+            entry=entry,
+            report=None,
+            label=_NO_ACT_EVENT_LABEL,
+            sort_date=entry_date_text,
+            is_newest_reading=False,
+        ),
+    ]
+
+
+def _get_act_event_sort_date(event: _ActEvent) -> str:
+    return event.sort_date
+
+
+# NOTE: the order of getActEventsNewestFirst in app/src/lib/actTimeline.ts. Reversing the record order and sorting by date, newest first, keeps a later entry above an earlier one on one date, because the sort is stable
+def _get_act_events_newest_first(entries: list[ActEntryData]) -> list[_ActEvent]:
+    ordered_entries = sorted(entries, key=lambda entry: entry.ordinal)
+    events_in_record_order = [
+        event
+        for index, entry in enumerate(ordered_entries)
+        for event in _get_act_entry_events(
+            entry, _get_act_entry_date_text(ordered_entries[: index + 1])
+        )
+    ]
+    return sorted(
+        reversed(events_in_record_order), key=_get_act_event_sort_date, reverse=True
+    )
+
+
+def _is_original_kind(kind: ActHistoryEntryKind) -> bool:
+    return (
+        kind == ActHistoryEntryKind.ACT
+        or kind == ActHistoryEntryKind.ORDINANCE
+        or kind == ActHistoryEntryKind.OTHER
+    )
+
+
+# NOTE: the earliest law that carries the Act's own name, as findOriginalEntryOrdinal in app/src/lib/actTimeline.ts finds it
+def _get_original_act_ordinal(
+    act_title: str, events_newest_first: list[_ActEvent]
+) -> Optional[int]:
+    act_name = get_law_name(act_title)
+    named_ordinals = [
+        event.entry.ordinal
+        for event in events_newest_first
+        if event.report is None
+        and _is_original_kind(event.entry.kind)
+        and get_law_name(event.entry.printed_title) == act_name
+    ]
+    if named_ordinals == []:
+        return None
+    return named_ordinals[-1]
+
+
+# NOTE: the record prints the In force date; "backdated" is our reading beside it (ADR 0006), worked out as isEntryBackdated in app/src/lib/actTimeline.ts does
+def _is_act_entry_backdated(entry: ActEntryData) -> bool:
+    reports = _get_act_entry_reports_oldest_first(entry)
+    if entry.commencement_date is None or reports == []:
+        return False
+    return entry.commencement_date < reports[0].sitting_date
+
+
+def _get_act_date_html(event_date: date) -> str:
+    return (
+        f'<time datetime="{escape(event_date.isoformat())}">'
+        f"{escape(get_sitting_date_label(event_date))}</time>"
+    )
+
+
+def _get_other_act_count_text(act_count: int) -> str:
+    other_act_count = act_count - 1
+    noun = "Act" if other_act_count == 1 else "Acts"
+    return f"Also changed {other_act_count:,} other {noun}"
+
+
+def _get_other_act_count_html(event: _ActEvent) -> str:
+    if (
+        not event.is_newest_reading
+        or event.entry.bill is None
+        or event.entry.bill.act_count < 2
+    ):
+        return ""
+    return f" ({escape(_get_other_act_count_text(event.entry.bill.act_count))})"
+
+
+def _get_act_reading_item_html(event: _ActEvent, report: ActEntryReportData) -> str:
+    return (
+        f'<li><a href="/reports/{escape(quote(report.report_slug, safe=""))}">'
+        f"{_get_act_date_html(report.sitting_date)}</a>, "
+        f"{escape(event.label)}: {escape(report.title)}"
+        f"{_get_other_act_count_html(event)}</li>"
+    )
+
+
+def _get_act_legislation_text(entry: ActEntryData, act_title: str) -> str:
+    if entry.kind == ActHistoryEntryKind.REVISED_EDITION:
+        if entry.printed_title == act_title:
+            return entry.printed_law_number
+        return f"{entry.printed_law_number}: {entry.printed_title}"
+    if (
+        entry.kind == ActHistoryEntryKind.SUBSIDIARY_LEGISLATION
+        or entry.kind == ActHistoryEntryKind.OTHER
+    ):
+        return f"{entry.printed_law_number}: {entry.printed_title}"
+    if entry.commencement_date is None:
+        return entry.printed_title
+    if _is_act_entry_backdated(entry):
+        return f"{_IN_FORCE_LABEL}, {_BACKDATED_LABEL}: {entry.printed_title}"
+    return f"{_IN_FORCE_LABEL}: {entry.printed_title}"
+
+
+def _get_act_legislation_item_html(
+    entry: ActEntryData, act_title: str, is_original: bool
+) -> str:
+    original_html = f" ({_ORIGINAL_LABEL})" if is_original else ""
+    text_html = f"{escape(_get_act_legislation_text(entry, act_title))}{original_html}"
+    if entry.commencement_date is None:
+        return f"<li>{text_html}</li>"
+    return f"<li>{_get_act_date_html(entry.commencement_date)}, {text_html}</li>"
+
+
+def _get_act_event_item_html(
+    event: _ActEvent, act_title: str, original_ordinal: Optional[int]
+) -> str:
+    if event.report is not None:
+        return _get_act_reading_item_html(event, event.report)
+    return _get_act_legislation_item_html(
+        event.entry, act_title, event.entry.ordinal == original_ordinal
+    )
+
+
+def _has_act_reports(entries: list[ActEntryData]) -> bool:
+    return any(entry.bill is not None and entry.bill.reports != [] for entry in entries)
+
+
+def _get_act_event_lines(act: GetActResponse) -> list[str]:
+    if act.entries == []:
+        return [f"<p>{escape(_NO_ACT_HISTORY_NOTE)}</p>"]
+    events = _get_act_events_newest_first(act.entries)
+    original_ordinal = _get_original_act_ordinal(act.title, events)
+    return [
+        "<ol>",
+        *[
+            _get_act_event_item_html(event, act.title, original_ordinal)
+            for event in events
+        ],
+        "</ol>",
+    ]
+
+
+def _get_act_search_lines(act: GetActResponse) -> list[str]:
+    if not _has_act_reports(act.entries):
+        return []
+    search_query = urlencode({_ACT_PARAMETER: act.sso_code})
+    return [
+        f"<p>{_get_link_html(f'{_SEARCH_PATH}?{search_query}', _ACT_SEARCH_LINK_TEXT)}</p>"
+    ]
+
+
+def _get_act_html(act: GetActResponse) -> str:
+    return _LINE_SEPARATOR.join(
+        [
+            _PAGE_TEXT_START,
+            f"<h1>{escape(act.title)}</h1>",
+            f"<p>Source: {_get_link_html(act.sso_url, _ACT_SOURCE_NAME)}</p>",
+            *_get_act_search_lines(act),
+            *_get_act_event_lines(act),
+            "</main>",
+        ]
+    )
+
+
 def _is_query_without_search_words(query: str) -> bool:
     return query == "" or is_query_only_excluded_words(query)
 
@@ -1221,6 +1474,16 @@ def _get_person_page_text_html(person_id: int) -> str:
         return _NO_PAGE_TEXT
 
 
+def _get_act_page_text_html(sso_code: str) -> str:
+    try:
+        with Session(engine) as session:
+            return _get_act_html(act_service.get_act(sso_code, session))
+    except ActNotFoundException:
+        return _NO_PAGE_TEXT
+    except SQLAlchemyError:
+        return _NO_PAGE_TEXT
+
+
 def _get_about_page_text_html() -> str:
     return _get_about_html(settings.contact_email)
 
@@ -1380,6 +1643,9 @@ def get_page_text_html(
     person_match = _PERSON_PATH.match(path)
     if person_match is not None and preview.is_found:
         return _get_person_page_text_html(int(person_match.group(1)))
+    act_match = _ACT_PATH.match(path)
+    if act_match is not None and preview.is_found:
+        return _get_act_page_text_html(act_match.group(1))
     return _NO_PAGE_TEXT
 
 
