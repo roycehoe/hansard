@@ -1,3 +1,6 @@
+from typing import Optional
+from urllib.parse import quote
+
 from fastapi import status
 from starlette.responses import RedirectResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
@@ -13,6 +16,9 @@ _HOW_PARLIAMENT_WORKS_PATH = "/how-parliament-works"
 _COVERAGE_PATH = "/coverage"
 _METHODS_PATH = "/coverage/methods"
 _PALETTE_PATH = "/palette"
+_API_PATH_PREFIX = "/api/"
+_OTHER_HOST_PREFIX = "//"
+_ROOT_PATH_WITHOUT_SLASH = ""
 
 
 def _is_page_moved_under_about(page_path: str) -> bool:
@@ -24,13 +30,31 @@ def _is_page_moved_under_about(page_path: str) -> bool:
     )
 
 
-def _get_moved_page_url(page_path: str, query_string: bytes) -> str:
-    moved_page_path = _ABOUT_PATH + page_path
-    if not query_string:
-        return moved_page_path
+# NOTE: the page text and the page preview match a path without its trailing slash, so /people/ served readers without JavaScript an empty page. A path starting with // would make the redirect leave the site, and the API keeps its own slash handling
+def _should_drop_trailing_slash(path: str, page_path: str) -> bool:
     return (
-        moved_page_path + _QUERY_SEPARATOR + query_string.decode(_QUERY_STRING_ENCODING)
+        page_path != path
+        and page_path != _ROOT_PATH_WITHOUT_SLASH
+        and not page_path.startswith(_OTHER_HOST_PREFIX)
+        and not path.startswith(_API_PATH_PREFIX)
     )
+
+
+def _get_url_with_query_string(page_path: str, query_string: bytes) -> str:
+    if not query_string:
+        return page_path
+    return page_path + _QUERY_SEPARATOR + query_string.decode(_QUERY_STRING_ENCODING)
+
+
+def _get_redirect_url(path: str, query_string: bytes) -> Optional[str]:
+    page_path = path.rstrip(_URL_SEPARATOR)
+    if _is_page_moved_under_about(page_path):
+        return _get_url_with_query_string(_ABOUT_PATH + page_path, query_string)
+    if _should_drop_trailing_slash(path, page_path):
+        return _get_url_with_query_string(
+            quote(page_path, safe=_URL_SEPARATOR), query_string
+        )
+    return None
 
 
 class PageRedirectMiddleware:
@@ -41,12 +65,11 @@ class PageRedirectMiddleware:
         if scope["type"] != _HTTP_SCOPE_TYPE:
             await self.app(scope, receive, send)
             return
-        page_path = scope[_PATH_KEY].rstrip(_URL_SEPARATOR)
-        if not _is_page_moved_under_about(page_path):
+        redirect_url = _get_redirect_url(scope[_PATH_KEY], scope[_QUERY_STRING_KEY])
+        if redirect_url is None:
             await self.app(scope, receive, send)
             return
         response = RedirectResponse(
-            _get_moved_page_url(page_path, scope[_QUERY_STRING_KEY]),
-            status_code=status.HTTP_301_MOVED_PERMANENTLY,
+            redirect_url, status_code=status.HTTP_301_MOVED_PERMANENTLY
         )
         await response(scope, receive, send)
