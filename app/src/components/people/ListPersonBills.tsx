@@ -1,3 +1,4 @@
+import { BadgeBudgetDebate } from '@/components/people/BadgeBudgetDebate'
 import type { MemberTimelineBill } from '@/lib/memberTimeline'
 import {
   formatPersonBillDates,
@@ -25,12 +26,10 @@ export function ListPersonBills({ bills }: ListPersonBillsProps) {
           >
             {bill.title}
           </Link>
-          <span className="text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-sm">
+          <span className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
             <span>{formatPersonBillDates(bill.reports)}</span>
             <span>{formatPersonBillParagraphCount(bill)}</span>
-            {isEveryPersonBillReportBudgetDebate(bill) && (
-              <span>Budget debate</span>
-            )}
+            {isEveryPersonBillReportBudgetDebate(bill) && <BadgeBudgetDebate />}
           </span>
         </li>
       ))}

@@ -422,11 +422,32 @@ export const COLOURS = [
     derivation: 'L 0.66',
   },
   {
+    name: 'gold-lace-30',
+    hex: '#3c2a0d',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.30, C 0.05',
+  },
+  {
+    name: 'gold-lace-42',
+    hex: '#634717',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.42',
+  },
+  {
     name: 'gold-lace-50',
     hex: '#7b5e2f',
     source: 'speaker-gown',
     derivedFrom: 'gold-lace',
     derivation: 'L 0.50',
+  },
+  {
+    name: 'gold-lace-94',
+    hex: '#fbe8ce',
+    source: 'speaker-gown',
+    derivedFrom: 'gold-lace',
+    derivation: 'L 0.94, C 0.04',
   },
   {
     name: 'crest-red-43',
@@ -824,6 +845,24 @@ export const TOKENS: readonly Token[] = [
     group: 'borders',
     light: 'lawn',
     dark: 'lawn-sunlit',
+  },
+  {
+    name: 'budget',
+    group: 'surfaces',
+    light: 'gold-lace-94',
+    dark: 'gold-lace-30',
+  },
+  {
+    name: 'budget-foreground',
+    group: 'text',
+    light: 'gold-lace-42',
+    dark: 'crest-gold',
+  },
+  {
+    name: 'budget-border',
+    group: 'borders',
+    light: 'gold-lace-50',
+    dark: 'gold-lace',
   },
   {
     name: 'border',

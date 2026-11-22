@@ -55,6 +55,7 @@ const PAIRS: Pair[] = [
   ...pairs('highlight-foreground', ['highlight'], TEXT_MINIMUM),
   ...pairs('tag-foreground', ['tag'], TEXT_MINIMUM),
   ...pairs('status-foreground', ['status'], TEXT_MINIMUM),
+  ...pairs('budget-foreground', ['budget'], TEXT_MINIMUM),
   ...pairs(
     'band-foreground',
     ['band', 'band-hover', 'band-active'],
@@ -82,6 +83,7 @@ const PAIRS: Pair[] = [
   // Borders and focus rings
   ...pairs('border', SURFACES, UI_MINIMUM),
   ...pairs('status-border', ['status', ...SURFACES], UI_MINIMUM),
+  ...pairs('budget-border', ['budget', ...SURFACES], UI_MINIMUM),
   ...pairs('input', [...SURFACES, 'muted', 'secondary'], UI_MINIMUM),
   ...pairs('ring', SURFACES, UI_MINIMUM),
   ...pairs('primary-border', SURFACES, UI_MINIMUM),

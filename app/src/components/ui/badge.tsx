@@ -21,6 +21,7 @@ const badgeVariants = cva(
         info: 'bg-info text-info-foreground',
         tag: 'bg-tag text-tag-foreground',
         status: 'border-status-border bg-status text-status-foreground',
+        budget: 'border-budget-border bg-budget text-budget-foreground',
         'tag-quiet': 'border-input bg-secondary text-secondary-foreground',
       },
     },

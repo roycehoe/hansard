@@ -113,11 +113,14 @@ Roles: surface (a background something sits on), text, accent (brand colour and 
 | status | surface (chip) | #e5f0d3 | #293214 | lawn-94 / lawn-30 | derived from S13 (v1) / derived from S13 (v1) |
 | status-foreground | text | #425511 | #a5b961 | lawn-42 / lawn-sunlit-75 | derived from S13 (v1) / derived from S14 (v1) |
 | status-border | border (chip) | #596d2c | #7a8c34 | lawn / lawn-sunlit | S13 (v1) / S14 (v1) |
+| budget | surface (chip) | #fbe8ce | #3c2a0d | gold-lace-94 / gold-lace-30 | derived from S6 (v1) / derived from S6 (v1) |
+| budget-foreground | text | #634717 | #d8a459 | gold-lace-42 / crest-gold | derived from S6 (v1) / S19 (v1) |
+| budget-border | border (chip) | #7b5e2f | #a68758 | gold-lace-50 / gold-lace | derived from S6 (v1) / S6 (v1) |
 | border | border | #9d6e56 | #8f6753 | table-timber-58 / table-timber-55 | derived from C5 / derived from C5 |
 | input | border | #9d6e56 | #a57c67 | table-timber-58 / table-timber-62 | derived from C5 / derived from C5 |
 | ring | border (focus) | #a06f1e | #ba873b | crest-gold-58 / crest-gold-66 | derived from S19 (v1) / derived from S19 (v1) |
 
-The light theme sets near-black panelling text on the floor carpet's cream, with white cards and white cards. Pale timber makes the panels, hover surfaces and lines. Links and buttons are the mahogany panelling, with links in its pale `panelling-80` step in dark. Opened links are the orchid lilac and the focus ring a dark step of the crest gold. The panelling is also the header band and the tags, and a pale green chip marks a status such as Sitting MP. The dark theme sets cream carpet text on a background derived from the panelling. The states, the opened-link lilac, the focus ring and white keep their v1 sources.
+The light theme sets near-black panelling text on the floor carpet's cream, with white cards and white cards. Pale timber makes the panels, hover surfaces and lines. Links and buttons are the mahogany panelling, with links in its pale `panelling-80` step in dark. Opened links are the orchid lilac and the focus ring a dark step of the crest gold. The panelling is also the header band and the tags, and a pale green chip marks a status such as Sitting MP. A pale gold chip marks a Bill whose debate was a Budget debate. The dark theme sets cream carpet text on a background derived from the panelling. The states, the opened-link lilac, the focus ring and white keep their v1 sources.
 
 ## Derived colours
 
@@ -150,6 +153,9 @@ Each derived colour keeps its parent's OKLCH hue. L is OKLCH lightness (0 to 1),
 | lawn-30 | #293214 | S13 (v1) lawn | L 0.30, C 0.05 | status (dark) |
 | lawn-42 | #425511 | S13 (v1) lawn | L 0.42, C 0.094 | status-foreground (light) |
 | lawn-94 | #e5f0d3 | S13 (v1) lawn | L 0.94, C 0.04 | status (light) |
+| gold-lace-30 | #3c2a0d | S6 (v1) gold-lace | L 0.30, C 0.05 | budget (dark) |
+| gold-lace-42 | #634717 | S6 (v1) gold-lace | L 0.42 | budget-foreground (light) |
+| gold-lace-94 | #fbe8ce | S6 (v1) gold-lace | L 0.94, C 0.04 | budget (light) |
 | orchid-lilac-44 | #6b3884 | S20 (v1) orchid-lilac | L 0.44, C 0.13 | visited (light) |
 | orchid-lilac-80 | #dca4f9 | S20 (v1) orchid-lilac | L 0.80, C 0.13 | visited (dark) |
 | crest-gold-58 | #a06f1e | S19 (v1) crest-gold | L 0.58 | ring (light) |
@@ -163,13 +169,14 @@ Why the steps:
 - The default button rests on `panelling-shade`, hovers on `panelling-mid` and presses on `panelling`, the sampled panelling in both themes. On the dark page the resting fill is 1.36:1, so the button carries a `primary-rest-border` edge of `panelling-80`.
 - `panelling-80` is the header band's control border in light, and the button edge and the link colour in dark. The band, its hover and pressed steps and the tags use the sampled panelling (`panelling`, `panelling-mid`, `panelling-shade`) and the dark panelling steps.
 - `lawn-94`, `lawn-42` and `lawn-30` are the status chip's pale fill, its light text and its dark fill. Its edge and dark text reuse `lawn`, `lawn-sunlit` and `lawn-sunlit-75`.
+- `gold-lace-94`, `gold-lace-42` and `gold-lace-30` are the Budget debate chip, built like the status chip at the same lightness steps. Its light edge reuses `gold-lace-50`, and its dark edge and text reuse `gold-lace` and `crest-gold`.
 - `orchid-lilac-44` and `-80` are opened links, 7.4:1 on the light page and 9.3:1 on the dark one. Against an unopened mahogany link the ratio is 1.06:1 in light and 1.03:1 in dark, so hue alone tells the two apart, as on most of the web.
 - `crest-gold-58` and `-66` are the focus mark, drawn as a control's edge, a link's underline or the outline. Crest gold is 2.0:1 on the light page, so the light step is dark enough to clear 3:1 on every fill a ring can sit on, the hover fill lowest at 3.02:1. The dark step is 5.74:1 on the page.
 - `table-timber-83` and `-43` are the search highlight, behind body text at 9.7:1 in light and 6.7:1 in dark.
 
 ## Contrast
 
-Minimums: 4.5:1 for text (WCAG 2.2 AA, 1.4.3); 3:1 for the borders of controls (`border`, `input`), focus rings and the band and status edges (1.4.11). `separator` and `overlay` have no minimum: WCAG 2.2 AA sets no ratio for decorative lines, and the overlay is a scrim. The checker only requires that both exist in both themes. Output of `pnpm contrast` from `app/`, unedited:
+Minimums: 4.5:1 for text (WCAG 2.2 AA, 1.4.3); 3:1 for the borders of controls (`border`, `input`), focus rings and the band, status and budget edges (1.4.11). `separator` and `overlay` have no minimum: WCAG 2.2 AA sets no ratio for decorative lines, and the overlay is a scrim. The checker only requires that both exist in both themes. Output of `pnpm contrast` from `app/`, unedited:
 
 ```
 light
@@ -180,6 +187,8 @@ pass  13.35  foreground on muted  (#281c19 on #f7e3da, min 4.5)
 pass  12.19  foreground on secondary  (#281c19 on #f3d8ca, min 4.5)
 pass  16.53  card-foreground on card  (#281c19 on #ffffff, min 4.5)
 pass  16.53  popover-foreground on popover  (#281c19 on #ffffff, min 4.5)
+pass  11.38  popover-foreground on accent  (#281c19 on #efd0c1, min 4.5)
+pass  13.35  popover-foreground on muted  (#281c19 on #f7e3da, min 4.5)
 pass   8.81  primary-foreground on primary  (#ffffff on #6d3e31, min 4.5)
 pass  13.36  primary-foreground on primary-rest  (#ffffff on #4a251b, min 4.5)
 pass  11.19  primary-foreground on primary-hover  (#ffffff on #5b2f24, min 4.5)
@@ -197,6 +206,7 @@ pass   9.23  info-foreground on info  (#ffffff on #0c4a7a, min 4.5)
 pass   9.65  highlight-foreground on highlight  (#281c19 on #e1bfae, min 4.5)
 pass   8.81  tag-foreground on tag  (#ffffff on #6d3e31, min 4.5)
 pass   6.99  status-foreground on status  (#425511 on #e5f0d3, min 4.5)
+pass   7.17  budget-foreground on budget  (#634717 on #fbe8ce, min 4.5)
 pass   8.81  band-foreground on band  (#ffffff on #6d3e31, min 4.5)
 pass  11.19  band-foreground on band-hover  (#ffffff on #5b2f24, min 4.5)
 pass  13.36  band-foreground on band-active  (#ffffff on #4a251b, min 4.5)
@@ -215,6 +225,7 @@ pass   6.07  link on accent  (#6d3e31 on #efd0c1, min 4.5)
 pass   7.42  visited on background  (#6b3884 on #f8f2dc, min 4.5)
 pass   8.32  visited on card  (#6b3884 on #ffffff, min 4.5)
 pass   6.72  visited on muted  (#6b3884 on #f7e3da, min 4.5)
+pass   8.32  visited on popover  (#6b3884 on #ffffff, min 4.5)
 pass   5.25  destructive on background  (#c8102e on #f8f2dc, min 4.5)
 pass   5.88  destructive on card  (#c8102e on #ffffff, min 4.5)
 pass   5.13  success on background  (#596d2c on #f8f2dc, min 4.5)
@@ -228,6 +239,9 @@ pass   4.38  border on card  (#9d6e56 on #ffffff, min 3)
 pass   4.86  status-border on status  (#596d2c on #e5f0d3, min 3)
 pass   5.13  status-border on background  (#596d2c on #f8f2dc, min 3)
 pass   5.76  status-border on card  (#596d2c on #ffffff, min 3)
+pass   5.03  budget-border on budget  (#7b5e2f on #fbe8ce, min 3)
+pass   5.37  budget-border on background  (#7b5e2f on #f8f2dc, min 3)
+pass   6.03  budget-border on card  (#7b5e2f on #ffffff, min 3)
 pass   3.90  input on background  (#9d6e56 on #f8f2dc, min 3)
 pass   4.38  input on card  (#9d6e56 on #ffffff, min 3)
 pass   3.53  input on muted  (#9d6e56 on #f7e3da, min 3)
@@ -249,6 +263,8 @@ pass  12.00  foreground on muted  (#eee8d2 on #38231d, min 4.5)
 pass  10.88  foreground on secondary  (#eee8d2 on #422922, min 4.5)
 pass  13.22  card-foreground on card  (#eee8d2 on #301b16, min 4.5)
 pass  13.22  popover-foreground on popover  (#eee8d2 on #301b16, min 4.5)
+pass  10.15  popover-foreground on accent  (#eee8d2 on #4a2d1e, min 4.5)
+pass  12.00  popover-foreground on muted  (#eee8d2 on #38231d, min 4.5)
 pass   7.18  primary-foreground on primary  (#eee8d2 on #6d3e31, min 4.5)
 pass  10.89  primary-foreground on primary-rest  (#eee8d2 on #4a251b, min 4.5)
 pass   9.12  primary-foreground on primary-hover  (#eee8d2 on #5b2f24, min 4.5)
@@ -266,6 +282,7 @@ pass   8.21  info-foreground on info  (#22110c on #8bb2d9, min 4.5)
 pass   6.69  highlight-foreground on highlight  (#eee8d2 on #674837, min 4.5)
 pass   7.18  tag-foreground on tag  (#eee8d2 on #6d3e31, min 4.5)
 pass   6.22  status-foreground on status  (#a5b961 on #293214, min 4.5)
+pass   6.13  budget-foreground on budget  (#d8a459 on #3c2a0d, min 4.5)
 pass  13.22  band-foreground on band  (#eee8d2 on #301b16, min 4.5)
 pass  10.88  band-foreground on band-hover  (#eee8d2 on #422922, min 4.5)
 pass   9.37  band-foreground on band-active  (#eee8d2 on #4d332c, min 4.5)
@@ -284,6 +301,7 @@ pass   6.54  link on accent  (#e1b1a3 on #4a2d1e, min 4.5)
 pass   9.29  visited on background  (#dca4f9 on #22110c, min 4.5)
 pass   8.29  visited on card  (#dca4f9 on #301b16, min 4.5)
 pass   7.52  visited on muted  (#dca4f9 on #38231d, min 4.5)
+pass   8.29  visited on popover  (#dca4f9 on #301b16, min 4.5)
 pass   5.86  destructive on background  (#ef6666 on #22110c, min 4.5)
 pass   5.23  destructive on card  (#ef6666 on #301b16, min 4.5)
 pass   8.42  success on background  (#a5b961 on #22110c, min 4.5)
@@ -297,6 +315,9 @@ pass   3.27  border on card  (#8f6753 on #301b16, min 3)
 pass   3.61  status-border on status  (#7a8c34 on #293214, min 3)
 pass   4.88  status-border on background  (#7a8c34 on #22110c, min 3)
 pass   4.35  status-border on card  (#7a8c34 on #301b16, min 3)
+pass   4.07  budget-border on budget  (#a68758 on #3c2a0d, min 3)
+pass   5.40  budget-border on background  (#a68758 on #22110c, min 3)
+pass   4.81  budget-border on card  (#a68758 on #301b16, min 3)
 pass   4.92  input on background  (#a57c67 on #22110c, min 3)
 pass   4.39  input on card  (#a57c67 on #301b16, min 3)
 pass   3.98  input on muted  (#a57c67 on #38231d, min 3)

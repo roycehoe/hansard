@@ -41,7 +41,10 @@
   --crest-gold: #d8a459;
   --crest-gold-58: #a06f1e;
   --crest-gold-66: #ba873b;
+  --gold-lace-30: #3c2a0d;
+  --gold-lace-42: #634717;
   --gold-lace-50: #7b5e2f;
+  --gold-lace-94: #fbe8ce;
   --crest-red-43: #97061f;
   --crest-red-48: #b00826;
   --crest-red-68: #ef6666;
@@ -104,6 +107,9 @@
   --status: var(--lawn-94);
   --status-foreground: var(--lawn-42);
   --status-border: var(--lawn);
+  --budget: var(--gold-lace-94);
+  --budget-foreground: var(--gold-lace-42);
+  --budget-border: var(--gold-lace-50);
   --border: var(--table-timber-58);
   --input: var(--table-timber-58);
   --ring: var(--crest-gold-58);
@@ -160,6 +166,9 @@
   --status: var(--lawn-30);
   --status-foreground: var(--lawn-sunlit-75);
   --status-border: var(--lawn-sunlit);
+  --budget: var(--gold-lace-30);
+  --budget-foreground: var(--crest-gold);
+  --budget-border: var(--gold-lace);
   --border: var(--table-timber-55);
   --input: var(--table-timber-62);
   --ring: var(--crest-gold-66);

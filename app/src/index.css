@@ -115,6 +115,9 @@
   --color-status: var(--status);
   --color-status-foreground: var(--status-foreground);
   --color-status-border: var(--status-border);
+  --color-budget: var(--budget);
+  --color-budget-foreground: var(--budget-foreground);
+  --color-budget-border: var(--budget-border);
   --color-tag: var(--tag);
   --color-tag-foreground: var(--tag-foreground);
   --color-border: var(--border);
