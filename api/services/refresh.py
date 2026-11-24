@@ -26,15 +26,16 @@ def _get_refresh_response(succeeded_run: Optional[RefreshRun]) -> GetRefreshResp
     )
 
 
-def get_refresh(session: Session) -> GetRefreshResponse:
+def _get_validated_succeeded_run(session: Session) -> Optional[RefreshRun]:
     try:
-        succeeded_run = CRUDRefreshRun(session).get_latest_by_status(
-            RefreshRunStatus.SUCCEEDED
-        )
+        return CRUDRefreshRun(session).get_latest_by_status(RefreshRunStatus.SUCCEEDED)
     except ProgrammingError as error:
         if isinstance(error.orig, UndefinedTable):
-            return _get_empty_refresh_response()
+            return None
         if isinstance(error.orig, InsufficientPrivilege):
-            return _get_empty_refresh_response()
+            return None
         raise
-    return _get_refresh_response(succeeded_run)
+
+
+def get_refresh(session: Session) -> GetRefreshResponse:
+    return _get_refresh_response(_get_validated_succeeded_run(session))
