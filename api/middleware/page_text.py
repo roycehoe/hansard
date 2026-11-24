@@ -679,7 +679,7 @@ def _get_report_type_label(report_type: str) -> str:
         return "Obituary speech"
     if report_type == ReportType.YANG_DI_MESSAGE:
         return "Message from the Yang di-Pertuan Negara"
-    if report_type == ReportType.MISC:
+    if report_type == ReportType.MISCELLANEOUS:
         return "Miscellaneous"
     if report_type == ReportType.ASSENT_TO_BILLS_PASSED:
         return "Assent to Bills passed"

@@ -23,7 +23,7 @@ class ReportType(StrEnum):
     ADMIN_OATHS = "admin-oaths"
     OBITUARY_SPEECH = "obituary-speech"
     YANG_DI_MESSAGE = "yang-di-message"
-    MISC = "misc"
+    MISCELLANEOUS = "misc"
     ASSENT_TO_BILLS_PASSED = "atbp"
 
 
