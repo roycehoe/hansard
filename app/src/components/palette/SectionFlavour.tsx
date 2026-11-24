@@ -16,7 +16,7 @@ export function SectionFlavour({ flavour, title }: SectionFlavourProps) {
       aria-labelledby={headingId}
       className={cn(
         flavour,
-        'bg-background text-foreground border-separator space-y-8 rounded-xl border p-4 sm:p-6'
+        'bg-background text-foreground border-separator space-y-8 rounded-lg border p-4 sm:p-6'
       )}
     >
       <h2

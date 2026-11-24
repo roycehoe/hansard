@@ -7,7 +7,7 @@ export function SectionSourceColours() {
   return (
     <section
       aria-labelledby={headingId}
-      className="border-separator space-y-4 rounded-xl border p-4 sm:p-6"
+      className="border-separator space-y-4 rounded-lg border p-4 sm:p-6"
     >
       <h2
         id={headingId}
