@@ -56,7 +56,7 @@ function buildParliament(parliamentNumber: number): ParliamentData {
   }
 }
 
-const persons = [
+const PERSONS = [
   buildPerson(1, 'Lee Kuan Yew', [
     buildMembership(0, ['Tanjong Pagar']),
     buildMembership(8, ['Tanjong Pagar']),
@@ -79,7 +79,7 @@ describe('foldConstituencyName', () => {
 
 describe('filterPersonsByMembership', () => {
   function getNames(filters: Partial<MembershipFilters>): string[] {
-    return filterPersonsByMembership(persons, {
+    return filterPersonsByMembership(PERSONS, {
       ...NO_FILTERS,
       ...filters,
     }).map((person) => person.canonical_name)
@@ -113,10 +113,10 @@ describe('filterPersonsByMembership', () => {
 })
 
 describe('filterConstituenciesByMembership', () => {
-  const constituencies = getConstituencies(persons)
+  const constituencies = getConstituencies(PERSONS)
 
   function getNames(filters: Partial<MembershipFilters>): string[] {
-    return filterConstituenciesByMembership(constituencies, persons, {
+    return filterConstituenciesByMembership(constituencies, PERSONS, {
       ...NO_FILTERS,
       ...filters,
     }).map((constituency) => constituency.name)
@@ -149,7 +149,7 @@ describe('filterParliamentsByMembership', () => {
   const parliaments = [0, 8, 15].map(buildParliament)
 
   function getNumbers(filters: Partial<MembershipFilters>): number[] {
-    return filterParliamentsByMembership(parliaments, persons, {
+    return filterParliamentsByMembership(parliaments, PERSONS, {
       ...NO_FILTERS,
       ...filters,
     }).map((parliament) => parliament.parliament_number)
