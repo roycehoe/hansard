@@ -68,7 +68,7 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
     ),
     ErrorCode.SEARCH_BUSY: ErrorSpec(
         status.HTTP_429_TOO_MANY_REQUESTS,
-        "Search is busy. Try again in a moment.",
+        "Search is busy.",
     ),
     ErrorCode.SEARCH_EXCLUDED_WORDS_ONLY: ErrorSpec(
         status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -82,7 +82,7 @@ ERRORS: Final[Mapping[ErrorCode, ErrorSpec]] = {
         status.HTTP_404_NOT_FOUND, "Constituency not found."
     ),
     ErrorCode.SEAT_CONSTITUENCY_NOT_FOUND: ErrorSpec(
-        status.HTTP_404_NOT_FOUND, "Constituency not found."
+        status.HTTP_404_NOT_FOUND, "Seat constituency not found."
     ),
     ErrorCode.ENDPOINT_NOT_FOUND: ErrorSpec(
         status.HTTP_404_NOT_FOUND, "Endpoint not found."

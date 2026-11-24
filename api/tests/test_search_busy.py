@@ -24,7 +24,7 @@ def test_search_answers_429_while_every_slot_is_held(
     assert response.json() == {
         "detail": {
             "error_code": "search.busy",
-            "message": "Search is busy. Try again in a moment.",
+            "message": "Search is busy.",
         }
     }
     assert "cache-control" not in response.headers
