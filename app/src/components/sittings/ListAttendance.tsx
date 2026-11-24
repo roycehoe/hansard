@@ -4,7 +4,7 @@ import {
   PopoverDefinition,
 } from '@/components/layout/PopoverDefinition'
 import { HoverCardPerson } from '@/components/people/HoverCardPerson'
-import { ABSENCE_DEFINITION } from '@/constants/constants'
+import { ABSENCE_DEFINITION, NUMBER_LOCALE } from '@/constants/constants'
 import { buildPersonSlug } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
@@ -38,7 +38,7 @@ function ListAttendanceGroup({
   return (
     <section aria-labelledby={headingId} className="space-y-2">
       <h3 id={headingId} className="font-serif text-lg lg:text-xl">
-        {renderHeading()} ({members.length})
+        {renderHeading()} ({members.length.toLocaleString(NUMBER_LOCALE)})
       </h3>
       {members.length > 0 && (
         <ul>

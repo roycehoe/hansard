@@ -4,7 +4,7 @@ import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
 import { TextMatchedNameSpelling } from '@/components/people/TextMatchedNameSpelling'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
-import { LINK_CLASS_NAME } from '@/constants/constants'
+import { LINK_CLASS_NAME, NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipParliaments, getMembershipParties } from '@/lib/format'
 import { getPersonNameMatches } from '@/lib/personName'
 import {
@@ -104,7 +104,8 @@ export function ListPersonMatches({
       {matches.length > PERSON_MATCHES_MAX_LISTED ? (
         <p>
           <Link to="/people" search={peopleSearch} className={LINK_CLASS_NAME}>
-            {matches.length} people match {words}. See them all
+            {matches.length.toLocaleString(NUMBER_LOCALE)} people match {words}.
+            See them all
           </Link>
         </p>
       ) : (
