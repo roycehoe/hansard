@@ -842,6 +842,8 @@ A filter or sort control applies as soon as its value changes, with no Apply but
 
 Always use a defined variant and size from `button.tsx`. Never use `className` to override button colours, dimensions, or spacing — if the right variant or size doesn't exist, add it to `button.tsx`.
 
+`button.tsx` also holds two variants and three sizes with a few callers each. Variant `field` is an outlined, normal-weight button whose content spreads to both ends (`justify-between`), for the person and constituency filters in the search form (`PopoverPersonFilter`). Variant `inverse` is a transparent button with a band border and band text, for controls on the dark header band (`SheetSiteMenu`, `PopoverAppearance`). Size `touch` is 36px high and 44px on a coarse pointer, for a button with a label and a small icon (`ButtonJumpToTop`). Size `icon-line` is a 28px square whose hit area extends 8px past its edge, for a button set in a line of text (the speech actions button in `PopoverSpeechActions`). Size `full-row` is a 44px high, full-width, left-aligned row, for the items of a menu (`PopoverSpeechActions`).
+
 ### Naming New Variants and Sizes
 
 When adding a new variant or size to `button.tsx`:
@@ -864,6 +866,8 @@ The disabled state is handled globally in the base class — do not override it 
 Recorded exception: `default` rests on `primary-rest`, a step darker than `primary`, so its hover and pressed fills get lighter rather than darker. `primary` stays the fill of checked controls such as the radio and the switch.
 
 Recorded exception: `outline`, `ghost`, `quiet` and `quiet-toggle` have no fill of their own, so they use the shared `accent` surface for hover (`hover:bg-accent hover:text-accent-foreground`) and `secondary-active` for pressed. `quiet` is a ghost button with muted text for small actions repeated on every item in a list, such as the per-speech copy buttons. `quiet-toggle` is `quiet` that keeps its hover fill while its popover is open, for the paragraph menu button on phones. `link` has no background in any state; its hover is the underline only.
+
+Recorded exception: `field` uses the shared `accent` surface for hover and `secondary-active` for pressed, as `outline` does. `inverse` sits on the header band, so it uses the band tokens: `band-hover` for hover and `band-active` for pressed.
 
 ---
 
