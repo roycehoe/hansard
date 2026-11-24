@@ -663,7 +663,7 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 
 *Ruled directly, 2026-09-17, choosing against the stated recommendation. Not delegated.*
 
-## R47 — `crud/` is a Table Data Gateway; a name is a claim, and a recurring field group is a record · 2026-09-17 · corrects R42's compliance table
+## R47 — `crud/` is a Table Data Gateway; a name is a claim, and a recurring field group is a record · 2026-09-17 · corrects R42's compliance table · lookup clause narrowed by **R50**
 
 **Ruling, in five clauses.** They are one decision. Splitting them across rulings is how a rule ends up stated in one document and missing from another.
 
@@ -706,6 +706,16 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 **What it does not allow.** A bound or a limit in a test helper that is not an asserted value, such as a page size a fake enforces, still takes a name. Production code gets no carve-out.
 
 *Ruled by delegation, 2026-11-24, in the style sweep of that date. Reversible as such.*
+
+## R50 — The `get_*_filtered` lookups in `crud/` keep their table names · 2026-11-24 · narrows R47's lookup clause
+
+**Ruling.** The `get_*_filtered` methods in `crud/` and their `filters` lists follow `crud/CLAUDE.md`: one catch-all filtered lookup per table, named for the table, taking each filter as an `Optional` parameter and building a `filters` list. Every other lookup still names every filter it applies and takes its values as parameters, as R47 says.
+
+**Why.** R47 kept R30's clause that "a lookup names every filter it applies", and `crud/CLAUDE.md`, a derived document, prescribes the opposite shape for a lookup with several optional filters. The two documents flagged each other until one gave way. Measured on 2026-11-24: 18 `get_*_filtered` methods (`crud/speech.py` 9, `crud/report.py` 4, `crud/division.py` 2, `crud/minutes.py` 2, `crud/membership.py` 1) and 5 `filters = []` builders in the same five files. Renaming the 18 would touch every search query for a name that lists up to nine filters.
+
+**What it does not allow.** A lookup with one or two fixed filters still names them. `crud/membership.py` `get_never_member_person_count` fixes `is_member` in place and is accepted under this ruling as the one filtered lookup that does; the same pattern at `get_count_by_is_member` took its flag as a parameter in the sweep.
+
+*Ruled directly, 2026-11-24, hansard inbox round 65.*
 
 ---
 
