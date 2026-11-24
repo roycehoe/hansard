@@ -3,7 +3,7 @@
 Personal coding idioms for this codebase. Follow these when writing or reviewing code.
 This document only contains things a contributor would get wrong without being told — not standard React/TypeScript conventions, and not patterns already covered in `CLAUDE.md`.
 
-**Automated enforcement:** ESLint via `pnpm lint`. Everything else is code-review only.
+**Automated enforcement:** ESLint via `pnpm lint`. `eslint.config.js` enforces `import type`, `interface` over `type`, no `console`, no raw `fetch` outside `api/client.ts`, `cn()` for conditional classes, no `select` or `invalidateQueries` in the hooks, a type parameter on `useState`, named storage keys and named timeouts. Everything else is code-review only.
 
 **Rule strength:** All rules are hard requirements unless marked **Preference**.
 
