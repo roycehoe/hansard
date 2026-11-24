@@ -228,7 +228,6 @@ _SEARCH_PAGE_SIZE = 20
 _PAGE_PARAMETER = "page"
 _TAB_PARAMETER = "tab"
 _TITLES_TAB = "titles"
-_CONSTITUENCY_PARAMETER = "constituency"
 _ACT_PARAMETER = "act"
 _HIGHLIGHT_PARAMETER = "hl"
 _SNIPPET_MARK_START = "<mark>"
@@ -1697,14 +1696,14 @@ def _get_search_page_text_html(title: str, query_parameters: Mapping[str, str]) 
     except SearchTooManyAlternativesException:
         return _get_search_note_html(title, _SEARCH_TOO_MANY_ALTERNATIVES_NOTE)
     except SearchConstituencyNotFoundException:
-        constituency = query_parameters.get(_CONSTITUENCY_PARAMETER, "").strip()
+        constituency = parameters.constituency
         return _get_search_note_html(
             title,
             f"No constituency called {constituency}. "
             f"{_SEARCH_CONSTITUENCY_NOT_FOUND_NOTE}",
         )
     except ActNotFoundException:
-        act_sso_code = query_parameters.get(_ACT_PARAMETER, "").strip()
+        act_sso_code = parameters.act_sso_code
         return _get_search_note_html(
             title, f"{_SEARCH_ACT_NOT_FOUND_NOTE_PREFIX} {act_sso_code}."
         )
