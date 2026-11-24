@@ -29,7 +29,7 @@ uv run basedpyright
 
 Dependencies: `fastapi[standard]`, `sqlmodel`, `pydantic-settings`, `psycopg` (v3).
 
-Ruff config is `[tool.ruff.lint]` in `pyproject.toml`: import order and unused names (`I`, `F`), annotations (`ANN`, with `ANN204` ignored so `__init__` keeps no return type), `RET504`–`RET508`, `BLE001`, `PLR2004` (ignored under `tests/`), `T201`, `T203`, `DTZ003` and `DTZ005`. `../STYLE.md` says why each is on. `ruff format` is the formatter and is enforced.
+Ruff config is `[tool.ruff.lint]` in `pyproject.toml`: import order and unused names (`I`, `F`), annotations (`ANN`, with `ANN204` ignored so `__init__` keeps no return type), `RET504`–`RET508`, `BLE001`, `PLR2004` (ignored under `tests/`), `T201`, `T203`, `DTZ003` and `DTZ005`. `../STYLE.md` says why each is on. `ruff format` is the formatter and is enforced. `uv run python scripts/check_style.py` runs in CI too and checks five `STYLE.md` rules ruff has no rule for (comments, list constants, `except` names, exception tuples, nested `def`s).
 
 **Tests.** `api/tests/` holds the pytest suite. Run it from `api/`:
 
