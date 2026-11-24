@@ -15,18 +15,18 @@ from sqlalchemy import (
 from sqlalchemy.orm import aliased, defer
 from sqlmodel import Session, col, select
 
-from crud.text_search import (
-    HEADLINE_OPTIONS,
-    get_headline,
-    get_match_filter,
-    get_match_tsquery,
-)
 from database.office_title_ministry import OfficeTitleMinistry
 from database.report import Report
 from database.report_participant import ReportParticipant
 from database.report_put_to import ReportPutTo
 from database.speech import Speech
 from enums import ParticipantRole, ReportType, SearchSort
+from utils.text_search import (
+    HEADLINE_OPTIONS,
+    get_headline,
+    get_match_filter,
+    get_match_tsquery,
+)
 
 _ONE_DAY = timedelta(days=1)
 _NO_DURATION = timedelta(0)

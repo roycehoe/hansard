@@ -1,8 +1,8 @@
 from sqlalchemy import literal
 from sqlmodel import Session, col, select
 
-from crud.location_name import get_folded_location_name
 from database.seat_holding import SeatHolding
+from utils.location_name import get_folded_location_name
 
 
 class CRUDSeatHolding:

@@ -5,8 +5,14 @@ from sqlalchemy import ColumnElement, Date, Float, Select, func, literal, or_
 from sqlalchemy.orm import aliased, defer
 from sqlmodel import Session, col, select
 
-from crud.location_name import get_folded_location_name
-from crud.text_search import (
+from database.attendance import Attendance
+from database.report import Report
+from database.sitting import Sitting
+from database.speech import Speech
+from enums import ReportType, SearchSort, SpeechKind
+from utils.location_name import get_folded_location_name
+from utils.search_query import is_hyphenated_word_in_query, is_quoted_or_query
+from utils.text_search import (
     HEADLINE_OPTIONS,
     HIGHLIGHT_ALL_OPTIONS,
     TEXT_SEARCH_CONFIGURATION,
@@ -15,12 +21,6 @@ from crud.text_search import (
     get_match_filter,
     get_rank_tsquery,
 )
-from database.attendance import Attendance
-from database.report import Report
-from database.sitting import Sitting
-from database.speech import Speech
-from enums import ReportType, SearchSort, SpeechKind
-from utils.search_query import is_hyphenated_word_in_query, is_quoted_or_query
 
 _ONE_DAY = timedelta(days=1)
 _BEFORE_FIRST_SITTING = datetime(1900, 1, 1)

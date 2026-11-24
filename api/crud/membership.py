@@ -3,10 +3,10 @@ from typing import Optional
 from sqlalchemy import func, literal
 from sqlmodel import Session, col, select
 
-from crud.location_name import get_folded_location_name
 from database.attendance import Attendance
 from database.speaker import Speaker
 from utils.like_pattern import escape_like_pattern
+from utils.location_name import get_folded_location_name
 
 
 class CRUDMembership:
