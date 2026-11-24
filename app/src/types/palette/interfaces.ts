@@ -1,10 +1,5 @@
 import type { ColourFormat } from '@/constants/palette/enums'
-import type {
-  Colour,
-  PhotoSource,
-  ReferenceSource,
-  SpecSource,
-} from '@/palette/palette'
+import type { Colour } from '@/palette/palette'
 
 export interface PaletteRow {
   colour: Colour
@@ -19,20 +14,4 @@ export interface PaletteGroup {
 export interface ColourValue {
   format: ColourFormat
   value: string
-}
-
-export interface NoticeSourcePhotoProps {
-  source: PhotoSource
-  note?: string
-  sampleBox?: string
-}
-
-export interface NoticeSourceSpecProps {
-  source: SpecSource
-}
-
-export interface NoticeSourceReferenceProps {
-  source: ReferenceSource
-  note?: string
-  sampleBox?: string
 }

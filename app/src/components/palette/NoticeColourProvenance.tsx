@@ -1,14 +1,31 @@
 import { THUMBNAIL_PATH } from '@/constants/palette/constants'
-import type { Colour, Source } from '@/palette/palette'
-import { SOURCES } from '@/palette/palette'
 import type {
-  NoticeSourcePhotoProps,
-  NoticeSourceReferenceProps,
-  NoticeSourceSpecProps,
-} from '@/types/palette/interfaces'
+  Colour,
+  PhotoSource,
+  ReferenceSource,
+  Source,
+  SpecSource,
+} from '@/palette/palette'
+import { SOURCES } from '@/palette/palette'
 
 interface NoticeColourProvenanceProps {
   colour: Colour
+}
+
+interface NoticeSourcePhotoProps {
+  source: PhotoSource
+  note?: string
+  sampleBox?: string
+}
+
+interface NoticeSourceSpecProps {
+  source: SpecSource
+}
+
+interface NoticeSourceReferenceProps {
+  source: ReferenceSource
+  note?: string
+  sampleBox?: string
 }
 
 const LINK_CLASSES =
