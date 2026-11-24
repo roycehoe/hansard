@@ -25,7 +25,7 @@ export function ButtonCopyColourValue({
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="quiet"
       size="sm"
       aria-label={`Copy ${colourName} ${format} ${value}`}
       onClick={copyValue}

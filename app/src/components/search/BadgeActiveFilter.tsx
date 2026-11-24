@@ -28,7 +28,7 @@ export function BadgeActiveFilter<Key extends string>({
       {label}
       <Button
         ref={registerRemoveButton}
-        variant="ghost"
+        variant="quiet"
         size="icon-xs"
         aria-label={`Remove filter: ${label}`}
         onClick={removeFilter}
