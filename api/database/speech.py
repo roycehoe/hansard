@@ -28,6 +28,6 @@ class Speech(SQLModel, table=True):
         sa_type=ENUM(ColumnNote, name="columnnote", create_type=False),
     )
     column_suggested: Optional[int] = None
-    report_id: Optional[int] = None
     report_type: str
+    report_id: Optional[int] = None
     speaker_id: Optional[int] = None

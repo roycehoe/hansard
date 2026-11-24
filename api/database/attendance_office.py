@@ -13,6 +13,7 @@ class AttendanceOffice(SQLModel, table=True):
     id: int = Field(primary_key=True)
     office_printed: str
     entry_line_printed: str
+    attendance_id: int
     source: AttendanceOfficeSource = Field(
         sa_type=ENUM(
             AttendanceOfficeSource, name="attendanceofficesource", create_type=False
@@ -21,4 +22,3 @@ class AttendanceOffice(SQLModel, table=True):
     extracted_at: datetime = Field(
         sa_column=Column(DateTime(timezone=True), nullable=False)
     )
-    attendance_id: int
