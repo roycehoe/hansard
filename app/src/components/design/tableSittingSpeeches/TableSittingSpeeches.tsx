@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 import type { ReactTable, SortDirection } from '@tanstack/react-table'
 import { ArrowDown, ArrowUp, ArrowUpDown, type LucideIcon } from 'lucide-react'
 
@@ -47,11 +48,19 @@ export function TableSittingSpeeches({
               const sorted = header.column.getIsSorted() || 'none'
               const SortIcon = SORT_ICONS[sorted]
               return (
-                <TableHead key={header.id} aria-sort={SORT_LABELS[sorted]}>
+                <TableHead
+                  key={header.id}
+                  aria-sort={SORT_LABELS[sorted]}
+                  className={cn(
+                    header.column.columnDef.meta?.isNumber && 'text-right'
+                  )}
+                >
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-3"
+                    className={cn(
+                      header.column.columnDef.meta?.isNumber ? '-mr-3' : '-ml-3'
+                    )}
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <table.FlexRender header={header} />
@@ -80,7 +89,13 @@ export function TableSittingSpeeches({
               className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
             >
               {row.getAllCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell
+                  key={cell.id}
+                  className={cn(
+                    cell.column.columnDef.meta?.isNumber &&
+                      'text-right tabular-nums'
+                  )}
+                >
                   <table.FlexRender cell={cell} />
                 </TableCell>
               ))}

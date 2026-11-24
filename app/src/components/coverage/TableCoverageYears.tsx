@@ -85,7 +85,7 @@ export function TableCoverageYears({
             >
               <TableHead
                 scope="row"
-                className="text-foreground align-top whitespace-normal"
+                className="text-foreground align-top whitespace-normal tabular-nums"
               >
                 {year.year}
                 {yearNote !== null && (

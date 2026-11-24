@@ -3,6 +3,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
 import {
   createColumnHelper,
@@ -24,12 +25,17 @@ export interface SittingSpeech {
   speechCount: number
 }
 
+export interface SittingSpeechColumnMeta {
+  isNumber: boolean
+}
+
 export const features = tableFeatures({
   rowSortingFeature,
   rowPaginationFeature,
   sortedRowModel: createSortedRowModel(),
   paginatedRowModel: createPaginatedRowModel(),
   sortFns: { alphanumeric: sortFn_alphanumeric, text: sortFn_text },
+  columnMeta: {} as SittingSpeechColumnMeta,
 })
 
 const columnHelper = createColumnHelper<typeof features, SittingSpeech>()
@@ -39,7 +45,10 @@ export const columns = columnHelper.columns([
     header: 'Sitting date',
     cell: (sittingDate) => formatSittingDate(sittingDate.getValue()),
   }),
-  columnHelper.accessor('parliament', { header: 'Parliament' }),
+  columnHelper.accessor('parliament', {
+    header: 'Parliament',
+    meta: { isNumber: true },
+  }),
   columnHelper.accessor('title', {
     header: 'Report title',
     cell: (title) => (
@@ -62,5 +71,9 @@ export const columns = columnHelper.columns([
     ),
   }),
   columnHelper.accessor('speaker', { header: 'Person' }),
-  columnHelper.accessor('speechCount', { header: 'Paragraphs' }),
+  columnHelper.accessor('speechCount', {
+    header: 'Paragraphs',
+    meta: { isNumber: true },
+    cell: (speechCount) => speechCount.getValue().toLocaleString(NUMBER_LOCALE),
+  }),
 ])
