@@ -433,7 +433,7 @@ A vague word such as `graph` leaves the maintainer asking what it refers to. Nam
 
 *Ruled 2026-09-15 under explicit delegation. Reversible by a higher-numbered ruling.*
 
-## R32 — A pure function lives in `utils/`, and takes the values it reads rather than the object · 2026-09-15
+## R32 — A pure function lives in `utils/`, and takes the values it reads rather than the object · 2026-09-15 · part one narrowed by **R53**
 
 **Ruling, in two parts.**
 
@@ -732,6 +732,16 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 **Why.** Renaming a wire name means changing the API, the site's TypeScript and the contract test together, and a reader sees nothing for it. Measured on 2026-11-24: `has_next_page: bool` in 7 response schemas, `archive_timestamp: Optional[str]` in `schemas/minutes.py`, `report_type: str` in 9 schemas, `person_name: Optional[str]` in 2, and 8 enums whose values are lowercase because they travel in URLs and JSON (`ReportType` mirrors Parliament's own vocabulary; `SearchSort`, `PersonReportFilter`, `SpeechLinkStatus`, `PreviewType`, `ReportLinkRelation`, `MinistryQuestionRelation` are query or response values; `SearchEndpoint` holds paths). The audit called the enum values database values. They are wire values, and all 25 enums behind a Postgres enum column are already uppercase, as R37 requires.
 
 **What it does not allow.** A new field or enum chooses its name under the rules as written; this ruling keeps what the contract already carries. A value a column persists is still UPPER_SNAKE (R37).
+
+*Ruled directly, 2026-11-24, hansard inbox round 65.*
+
+## R53 — A module's private pure helpers stay beside it · 2026-11-24 · narrows R32 part one
+
+**Ruling.** A pure function that more than one module calls lives in `utils/`. A module's private pure helpers stay beside it, under the leading underscore. The rest of R32 stands: a function is never defined inside another function, and a function takes the values it reads, the object only at three or more arguments.
+
+**Why.** R32 part one said every pure function belongs in `utils/`. Measured on 2026-11-24: 134 pure helpers sit beside the one module that calls them (34 in `services/`, about 100 in `middleware/page_text.py` and its neighbours) against 96 in `utils/`. Following the rule would move most of the code that writes the pages crawlers read into a folder nobody would look in for it. The seven helpers that took a whole row to read one field were fixed either way, under R32 part two.
+
+**What it does not allow.** A helper two modules both need, copied into each; it moves to `utils/`. A private helper that opens a session or does I/O is not a pure helper and this ruling says nothing about it.
 
 *Ruled directly, 2026-11-24, hansard inbox round 65.*
 

@@ -107,7 +107,7 @@ The layer table below is the full design.
 | `crud/` | Database reads through SQLModel sessions. Class-based, one class per table. | Business logic, HTTP calls, writes |
 | `schemas/` | Pydantic request and response models. | Database access, logic |
 | `exceptions/` | Custom exception hierarchy. `base.py` defines the base types. | Exceptions that take arguments |
-| `utils/` | Pure functions with no side effects. Any layer may import from here. | Database access, HTTP calls, importing from layers above |
+| `utils/` | Pure functions with no side effects that more than one module calls; a module's private pure helpers stay beside it (R53). Any layer may import from here. | Database access, HTTP calls, importing from layers above |
 | `validators/` | Input validation called from routers or services. | Session use, I/O |
 | `middleware/` | Request-path middleware registered in `main.py`, and concerns that compose calls across gateways or services. | Single-service logic |
 | `gateway/` | Thin wrappers around one external service each. | Interpreting failures, business logic |
