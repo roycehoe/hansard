@@ -296,6 +296,7 @@ _SCHEMA_NAME_AND_INTERFACE_KEY = (
 _SCHEMAS_WITHOUT_FRONTEND_INTERFACE = (
     "GetAllPartiesResponse",
     "GetSearchCountsResponse",
+    "HealthResponse",
     "SearchCountData",
 )
 
