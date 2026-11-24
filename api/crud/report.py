@@ -436,11 +436,9 @@ class CRUDReport:
         statement = (
             select(func.count())
             .select_from(Report)
-            .where(
-                Report.report_type == report_type,
-                Report.sitting_date >= min_sitting_date,
-                not_(_get_is_text_available()),
-            )
+            .where(Report.report_type == report_type)
+            .where(Report.sitting_date >= min_sitting_date)
+            .where(not_(_get_is_text_available()))
         )
         return self.session.exec(statement).one()
 

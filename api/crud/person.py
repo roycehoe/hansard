@@ -14,7 +14,8 @@ class CRUDPerson:
         return self.session.get(Person, person_id)
 
     def get_all(self) -> list[Person]:
-        return list(self.session.exec(select(Person)).all())
+        statement = select(Person)
+        return list(self.session.exec(statement).all())
 
     def get_by_ids(self, person_ids: list[int]) -> list[Person]:
         statement = select(Person).where(Person.id.in_(person_ids))

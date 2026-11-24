@@ -97,8 +97,10 @@ class CRUDMembership:
         return self.session.exec(statement).one()
 
     def get_never_member_person_count(self) -> int:
-        member_person_ids = select(Speaker.person_id).where(
-            col(Speaker.is_member).is_(True), col(Speaker.person_id).is_not(None)
+        member_person_ids = (
+            select(Speaker.person_id)
+            .where(col(Speaker.is_member).is_(True))
+            .where(col(Speaker.person_id).is_not(None))
         )
         statement = (
             select(func.count(func.distinct(Speaker.person_id)))
