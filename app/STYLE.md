@@ -544,7 +544,7 @@ The `TriangleAlert` + `text-destructive` treatment above is for **inline** error
 
 ## Error Notices
 
-When a page-level query fails with no data to show (`isLoadingError`), render a dedicated `Notice{Error}{Feature}` component — never inline the fallback JSX in the page/`Index` component, and never reuse the inline [Error Display](#error-display) treatment for a full-page state. The error notice is a sibling to the feature's empty-state notice (e.g. `NoticeErrorSpeeches` next to `NoticeEmptySpeeches`) and shares its centred layout, so the error and empty states sit identically in the page.
+When a page-level query fails with no data to show (`isLoadingError`), render a dedicated `Notice{Error}{Feature}` component — never inline the fallback JSX in the page/`Index` component, and never reuse the inline [Error Display](#error-display) treatment for a full-page state. The error notice is a sibling to the feature's empty-state notice (e.g. `NoticeErrorSpeeches` next to `NoticeEmptySpeeches`) and shares its centred layout, so the error and empty states sit identically in the page. Most error notices are thin wrappers over `components/layout/NoticeError.tsx`, which builds the layout below and takes `title`, `description`, `onRetry` and `isRetrying`.
 
 The page component owns the query and branches on its flags — the notice only renders and reports intent back up:
 
@@ -564,46 +564,52 @@ if (isLoadingError) {
 
 **Retry is the primary action.** A failed fetch is usually transient, so the notice must let the user recover in place rather than only navigating away. Expose retry via an `onRetry: () => void` prop wired to the query's `refetch`, and an `isRetrying: boolean` prop wired to `isRefetching` — the notice never calls the API hook itself, exactly as a form receives mutation state from its parent.
 
-The one exception is a failure that a retry would repeat. A search stopped at the API's time limit times out again on the same words and filters, so `NoticeErrorSearchTimedOut` has no retry button, its body names the filters that narrow the search, and `shouldRetryQuery` in `main.tsx` does not retry it.
+The one exception is a failure that a retry would repeat. A search stopped at the API's time limit times out again on the same words and filters, so `NoticeErrorSearchTimedOut` has no retry button, its body names the filters that narrow the search, and `shouldRetryQuery` in `main.tsx` does not retry it. A notice whose retry would fail the same way and that needs no escape has no actions row, as `NoticeErrorSearchExcludedWordsOnly` and `NoticeErrorSearchTooManyAlternatives`. It takes no props, and its body says what to change.
 
 The anatomy is fixed:
 
 - **Container** — centred column, owning its own vertical rhythm: `flex w-full flex-col items-center justify-center gap-12 py-24`. Never wrap the notice in an `h-[100vh]` / `h-screen` shell — `py-24` is the standard, matching the empty-state notice.
 - **Icon** — `TriangleAlert` at `size={40}` in `text-destructive`. Red is reserved for the icon; it is the only red element.
-- **Headline** — one short line, `text-base font-semibold text-foreground`. States what failed, not how (e.g. "Couldn't load the speeches").
+- **Headline** — an `h2`, one short line, `text-base font-semibold text-foreground`. States what failed, not how (e.g. "Couldn't load the speeches").
 - **Body** — muted supporting copy, `max-w-100 text-sm text-muted-foreground`. Explains the failure and suggests trying again.
-- **Actions** — a row with the secondary escape as `variant="outline"` (e.g. "Back to home") and retry as the primary `variant="default"`. The retry button follows [Button Pending State](#button-pending-state) — disabled while `isRetrying`, `Spinner` + progressive label ("Retrying…").
+- **Actions** — a row that wraps and is centred (`flex flex-row flex-wrap items-center justify-center gap-4`). The secondary escape is a `Link` to `/` inside `<Button variant="outline" asChild>` ("Back to home"), so it is a real link, not a click handler. Retry is the primary `variant="default"`. The retry button follows [Button Pending State](#button-pending-state) — disabled while `isRetrying`, `Spinner` + progressive label ("Retrying…").
 
 When the failure carries detail worth showing, read it from the `ApiError` thrown by `@/api/client` (`error.status`, `error.body`) rather than from the raw error object. The notice itself still receives only `onRetry` and `isRetrying`.
 
 ```tsx
-interface NoticeErrorSpeechesProps {
+interface NoticeErrorProps {
+  title: string
+  description: string
   onRetry: () => void
   isRetrying: boolean
 }
 
-export function NoticeErrorSpeeches({
+export function NoticeError({
+  title,
+  description,
   onRetry,
   isRetrying,
-}: NoticeErrorSpeechesProps) {
-  const navigate = useNavigate()
-
+}: NoticeErrorProps) {
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-12 py-24">
+    <div
+      role="alert"
+      className="flex w-full flex-col items-center justify-center gap-12 py-24"
+    >
       <div className="flex flex-col items-center justify-center gap-3 text-center">
-        <TriangleAlert size={40} className="text-destructive" />
-        <p className="text-foreground text-base font-semibold">
-          Couldn't load the speeches
-        </p>
-        <p className="text-muted-foreground max-w-100 text-sm">
-          Try again in a moment.
-        </p>
+        <TriangleAlert
+          size={40}
+          aria-hidden="true"
+          className="text-destructive"
+        />
+        <h2 className="text-foreground text-base font-semibold">{title}</h2>
+        <p className="text-muted-foreground max-w-100 text-sm">{description}</p>
       </div>
-
-      <div className="flex flex-row items-center gap-4">
-        <Button variant="outline" onClick={() => navigate({ to: '/' })}>
-          <ChevronLeft className="h-4 w-4" />
-          Back to home
+      <div className="flex flex-row flex-wrap items-center justify-center gap-4">
+        <Button variant="outline" asChild>
+          <Link to="/">
+            <ChevronLeft />
+            Back to home
+          </Link>
         </Button>
         <Button variant="default" disabled={isRetrying} onClick={onRetry}>
           {isRetrying ? (
@@ -613,7 +619,7 @@ export function NoticeErrorSpeeches({
             </>
           ) : (
             <>
-              <RotateCw className="h-4 w-4" />
+              <RotateCw />
               Try again
             </>
           )}
