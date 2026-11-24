@@ -47,7 +47,7 @@ def test_a_query_parameter_cannot_turn_the_report_links_endpoint_on(
     assert response.status_code == ERRORS[ErrorCode.ENDPOINT_NOT_FOUND].status_code
 
 
-def _build_report(
+def _get_report(
     slug: str,
     report_type: ReportType = ReportType.ORAL_ANSWER,
     sitting_date: datetime = _SITTING_DATE,
@@ -65,7 +65,7 @@ def _build_report(
     )
 
 
-def _build_report_link(
+def _get_report_link(
     source_slug: str,
     target_slug: str,
     link_type: ReportLinkType,
@@ -134,13 +134,13 @@ def _get_links(viewed_slug: str = _VIEWED_SLUG) -> list:
 def test_a_correction_report_corrects_the_report_it_prints_a_link_to(
     monkeypatch: pytest.MonkeyPatch, correction_type: ReportType
 ) -> None:
-    correction = _build_report(_VIEWED_SLUG, correction_type)
-    original = _build_report(_OTHER_SLUG)
+    correction = _get_report(_VIEWED_SLUG, correction_type)
+    original = _get_report(_OTHER_SLUG)
     _stub_reads(
         monkeypatch,
         [correction, original],
         [
-            _build_report_link(
+            _get_report_link(
                 _VIEWED_SLUG, _OTHER_SLUG, ReportLinkType.CORRECTION, _VIEWED_CITATION
             )
         ],
@@ -159,13 +159,13 @@ def test_a_correction_report_corrects_the_report_it_prints_a_link_to(
 def test_the_corrected_report_sees_the_correction_that_links_to_it(
     monkeypatch: pytest.MonkeyPatch, correction_type: ReportType
 ) -> None:
-    original = _build_report(_VIEWED_SLUG)
-    correction = _build_report(_OTHER_SLUG, correction_type)
+    original = _get_report(_VIEWED_SLUG)
+    correction = _get_report(_OTHER_SLUG, correction_type)
     _stub_reads(
         monkeypatch,
         [original, correction],
         [
-            _build_report_link(
+            _get_report_link(
                 _OTHER_SLUG, _VIEWED_SLUG, ReportLinkType.CORRECTION, _OTHER_CITATION
             )
         ],
@@ -181,13 +181,13 @@ def test_the_corrected_report_sees_the_correction_that_links_to_it(
 def test_an_original_that_prints_a_link_to_its_correction_sees_corrected_by(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    original = _build_report(_VIEWED_SLUG)
-    correction = _build_report(_OTHER_SLUG, ReportType.CLARIFICATION)
+    original = _get_report(_VIEWED_SLUG)
+    correction = _get_report(_OTHER_SLUG, ReportType.CLARIFICATION)
     _stub_reads(
         monkeypatch,
         [original, correction],
         [
-            _build_report_link(
+            _get_report_link(
                 _VIEWED_SLUG, _OTHER_SLUG, ReportLinkType.CORRECTION, _VIEWED_CITATION
             )
         ],
@@ -203,16 +203,16 @@ def test_an_original_that_prints_a_link_to_its_correction_sees_corrected_by(
 def test_a_correction_printed_both_ways_returns_once_with_the_viewed_reports_citation(
     monkeypatch: pytest.MonkeyPatch, viewed_slug: str
 ) -> None:
-    correction = _build_report(_VIEWED_SLUG, ReportType.CLARIFICATION)
-    original = _build_report(_OTHER_SLUG)
+    correction = _get_report(_VIEWED_SLUG, ReportType.CLARIFICATION)
+    original = _get_report(_OTHER_SLUG)
     _stub_reads(
         monkeypatch,
         [correction, original],
         [
-            _build_report_link(
+            _get_report_link(
                 _VIEWED_SLUG, _OTHER_SLUG, ReportLinkType.CORRECTION, _VIEWED_CITATION
             ),
-            _build_report_link(
+            _get_report_link(
                 _OTHER_SLUG, _VIEWED_SLUG, ReportLinkType.CORRECTION, _OTHER_CITATION
             ),
         ],
@@ -234,12 +234,12 @@ def test_a_correction_printed_both_ways_returns_once_with_the_viewed_reports_cit
 def test_a_reply_or_continuation_shows_only_on_the_report_that_prints_it(
     monkeypatch: pytest.MonkeyPatch, link_type: ReportLinkType
 ) -> None:
-    printing_report = _build_report(_VIEWED_SLUG)
-    linked_report = _build_report(_OTHER_SLUG)
+    printing_report = _get_report(_VIEWED_SLUG)
+    linked_report = _get_report(_OTHER_SLUG)
     _stub_reads(
         monkeypatch,
         [printing_report, linked_report],
-        [_build_report_link(_VIEWED_SLUG, _OTHER_SLUG, link_type, _VIEWED_CITATION)],
+        [_get_report_link(_VIEWED_SLUG, _OTHER_SLUG, link_type, _VIEWED_CITATION)],
     )
     expected_relation = {
         ReportLinkType.REPLY: ReportLinkRelation.REFERS_TO,
@@ -259,8 +259,8 @@ def test_a_link_to_a_taken_down_report_is_dropped(
 ) -> None:
     _stub_reads(
         monkeypatch,
-        [_build_report(_VIEWED_SLUG), _build_report(_OTHER_SLUG)],
-        [_build_report_link(_VIEWED_SLUG, _OTHER_SLUG, link_type, _VIEWED_CITATION)],
+        [_get_report(_VIEWED_SLUG), _get_report(_OTHER_SLUG)],
+        [_get_report_link(_VIEWED_SLUG, _OTHER_SLUG, link_type, _VIEWED_CITATION)],
     )
     monkeypatch.setattr(takedown, "_TAKEN_DOWN_REPORT_SLUGS", [_OTHER_SLUG])
 
@@ -273,11 +273,11 @@ def test_a_correction_from_a_taken_down_report_is_dropped(
     _stub_reads(
         monkeypatch,
         [
-            _build_report(_VIEWED_SLUG),
-            _build_report(_OTHER_SLUG, ReportType.CLARIFICATION),
+            _get_report(_VIEWED_SLUG),
+            _get_report(_OTHER_SLUG, ReportType.CLARIFICATION),
         ],
         [
-            _build_report_link(
+            _get_report_link(
                 _OTHER_SLUG, _VIEWED_SLUG, ReportLinkType.CORRECTION, _OTHER_CITATION
             )
         ],
@@ -291,17 +291,17 @@ def test_links_come_in_sitting_date_order_then_slug_order(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     reports = [
-        _build_report(_VIEWED_SLUG),
-        _build_report("c-late", sitting_date=datetime(1990, 1, 1)),
-        _build_report("b-early", sitting_date=datetime(1980, 1, 1)),
-        _build_report("b-same-day"),
-        _build_report("a-same-day"),
+        _get_report(_VIEWED_SLUG),
+        _get_report("c-late", sitting_date=datetime(1990, 1, 1)),
+        _get_report("b-early", sitting_date=datetime(1980, 1, 1)),
+        _get_report("b-same-day"),
+        _get_report("a-same-day"),
     ]
     _stub_reads(
         monkeypatch,
         reports,
         [
-            _build_report_link(
+            _get_report_link(
                 _VIEWED_SLUG, report.report_id.rstrip("#"), ReportLinkType.REPLY, "x"
             )
             for report in reports[1:]
@@ -319,6 +319,6 @@ def test_links_come_in_sitting_date_order_then_slug_order(
 def test_a_report_with_no_links_gives_an_empty_list(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    _stub_reads(monkeypatch, [_build_report(_VIEWED_SLUG)], [])
+    _stub_reads(monkeypatch, [_get_report(_VIEWED_SLUG)], [])
 
     assert _get_links() == []

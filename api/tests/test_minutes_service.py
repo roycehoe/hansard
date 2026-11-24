@@ -13,7 +13,7 @@ _DATE_FROM = date(2020, 1, 1)
 _DATE_TO = date(2020, 12, 31)
 
 
-def _build_minutes(minutes_id: int) -> Minutes:
+def _get_minutes(minutes_id: int) -> Minutes:
     return Minutes(
         id=minutes_id,
         sitting_date=date(2020, 1, minutes_id),
@@ -28,7 +28,7 @@ def _build_minutes(minutes_id: int) -> Minutes:
 
 class _World:
     def __init__(self, monkeypatch: pytest.MonkeyPatch):
-        self.minutes_rows = [_build_minutes(3), _build_minutes(2), _build_minutes(1)]
+        self.minutes_rows = [_get_minutes(3), _get_minutes(2), _get_minutes(1)]
         self.filtered_calls: list[dict[str, Any]] = []
         self.count_calls: list[tuple[Any, ...]] = []
         world = self

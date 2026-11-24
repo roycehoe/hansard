@@ -10,7 +10,7 @@ from schemas.report import ReferencedReportData
 from services import report as report_service
 
 
-def _build_report(report_id: str) -> Report:
+def _get_report(report_id: str) -> Report:
     return Report(
         id=1,
         volume_number=1,
@@ -25,7 +25,7 @@ def _build_report(report_id: str) -> Report:
 
 
 def test_a_neighbour_inside_the_sitting_gives_its_link() -> None:
-    reports = [_build_report("oral-answer-1"), _build_report("oral-answer-2")]
+    reports = [_get_report("oral-answer-1"), _get_report("oral-answer-2")]
 
     assert report_service._get_sitting_neighbour_data(
         reports, 1
@@ -38,7 +38,7 @@ def test_a_neighbour_inside_the_sitting_gives_its_link() -> None:
 def test_a_neighbour_past_either_end_of_the_sitting_gives_no_link(
     neighbour_index: int,
 ) -> None:
-    reports = [_build_report("oral-answer-1"), _build_report("oral-answer-2")]
+    reports = [_get_report("oral-answer-1"), _get_report("oral-answer-2")]
 
     assert report_service._get_sitting_neighbour_data(reports, neighbour_index) is None
 
@@ -47,9 +47,9 @@ def test_a_taken_down_report_is_not_a_neighbour(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     reports = [
-        _build_report("oral-answer-1"),
-        _build_report("oral-answer-2"),
-        _build_report("oral-answer-3"),
+        _get_report("oral-answer-1"),
+        _get_report("oral-answer-2"),
+        _get_report("oral-answer-3"),
     ]
     monkeypatch.setattr(
         CRUDReport, "get_all_by_sitting_date", lambda self, sitting_date: reports

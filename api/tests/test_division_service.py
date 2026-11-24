@@ -36,7 +36,7 @@ _TAKEN_DOWN_REPORT_ROW_ID = 22
 _UNKNOWN_DIVISION_ID = 99
 
 
-def _build_report(row_id: int, report_key: str) -> Report:
+def _get_report(row_id: int, report_key: str) -> Report:
     return Report(
         id=row_id,
         volume_number=1,
@@ -50,7 +50,7 @@ def _build_report(row_id: int, report_key: str) -> Report:
     )
 
 
-def _build_division(
+def _get_division(
     division_id: int, sprs_report_id: Optional[str], sitting_date: date
 ) -> Division:
     return Division(
@@ -78,13 +78,13 @@ def _build_division(
 class _World:
     def __init__(self, monkeypatch: pytest.MonkeyPatch):
         self.reports = {
-            "visible": _build_report(11, "visible"),
-            "hidden": _build_report(_TAKEN_DOWN_REPORT_ROW_ID, "hidden"),
+            "visible": _get_report(11, "visible"),
+            "hidden": _get_report(_TAKEN_DOWN_REPORT_ROW_ID, "hidden"),
         }
         self.divisions = [
-            _build_division(_VISIBLE_DIVISION_ID, "visible#", date(2020, 3, 1)),
-            _build_division(_TAKEN_DOWN_DIVISION_ID, "hidden#", date(2020, 2, 1)),
-            _build_division(_MINUTES_ONLY_DIVISION_ID, None, date(2020, 1, 1)),
+            _get_division(_VISIBLE_DIVISION_ID, "visible#", date(2020, 3, 1)),
+            _get_division(_TAKEN_DOWN_DIVISION_ID, "hidden#", date(2020, 2, 1)),
+            _get_division(_MINUTES_ONLY_DIVISION_ID, None, date(2020, 1, 1)),
         ]
         self.votes = [
             DivisionVote(
@@ -214,7 +214,7 @@ class _World:
                 pass
 
             def get_all_by_division_id(self, division_id: int) -> list[DivisionVote]:
-                return [v for v in world.votes if v.division_id == division_id]
+                return [vote for vote in world.votes if vote.division_id == division_id]
 
         class _FakePartyCount:
             def __init__(self, session: Session):
@@ -223,7 +223,11 @@ class _World:
             def get_all_by_division_id(
                 self, division_id: int
             ) -> list[DivisionPartyCount]:
-                return [p for p in world.party_counts if p.division_id == division_id]
+                return [
+                    party_count
+                    for party_count in world.party_counts
+                    if party_count.division_id == division_id
+                ]
 
         class _FakeMinutesDivision:
             def __init__(self, session: Session):
@@ -231,7 +235,9 @@ class _World:
 
             def get_all_by_division_id(self, division_id: int) -> list[MinutesDivision]:
                 return [
-                    m for m in [world.minutes_division] if m.division_id == division_id
+                    minutes_division
+                    for minutes_division in [world.minutes_division]
+                    if minutes_division.division_id == division_id
                 ]
 
         class _FakeMinutes:

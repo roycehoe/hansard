@@ -43,7 +43,7 @@ _FIRST_READING_TEXT = "first reading printed text"
 _SECOND_READING_TEXT = "second reading printed text"
 
 
-def _build_report(row_id: int, report_key: str, sitting_date: datetime) -> Report:
+def _get_report(row_id: int, report_key: str, sitting_date: datetime) -> Report:
     return Report(
         id=row_id,
         volume_number=1,
@@ -57,7 +57,7 @@ def _build_report(row_id: int, report_key: str, sitting_date: datetime) -> Repor
     )
 
 
-def _build_speaker_row(
+def _get_speaker_row(
     row_id: int, speaker_id: int, report_key: str, speech_count: int
 ) -> BillReportSpeaker:
     return BillReportSpeaker(
@@ -72,11 +72,11 @@ def _build_speaker_row(
 class _World:
     def __init__(self, monkeypatch: pytest.MonkeyPatch):
         self.report_key_to_report = {
-            "r1": _build_report(1, "r1", datetime(2020, 1, 1)),
-            "r2": _build_report(2, "r2", datetime(2020, 2, 1)),
-            "r3": _build_report(3, "r3", datetime(2020, 3, 1)),
-            "r4": _build_report(4, "r4", datetime(2019, 12, 1)),
-            "r5": _build_report(5, "r5", datetime(2020, 5, 1)),
+            "r1": _get_report(1, "r1", datetime(2020, 1, 1)),
+            "r2": _get_report(2, "r2", datetime(2020, 2, 1)),
+            "r3": _get_report(3, "r3", datetime(2020, 3, 1)),
+            "r4": _get_report(4, "r4", datetime(2019, 12, 1)),
+            "r5": _get_report(5, "r5", datetime(2020, 5, 1)),
         }
         self.bill_reports = [
             BillReport(
@@ -99,10 +99,10 @@ class _World:
             ),
         ]
         self.speaker_rows = [
-            _build_speaker_row(1, _MEMBER_A_ID, "r1", 2),
-            _build_speaker_row(2, _MEMBER_A_ID, "r5", 7),
-            _build_speaker_row(3, _MEMBER_B_ID, "r2", 3),
-            _build_speaker_row(4, _MEMBER_B_ID, "r4", 5),
+            _get_speaker_row(1, _MEMBER_A_ID, "r1", 2),
+            _get_speaker_row(2, _MEMBER_A_ID, "r5", 7),
+            _get_speaker_row(3, _MEMBER_B_ID, "r2", 3),
+            _get_speaker_row(4, _MEMBER_B_ID, "r4", 5),
         ]
         self.stage_lines = [
             BillStageLine(
