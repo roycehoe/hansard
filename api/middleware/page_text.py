@@ -1692,6 +1692,9 @@ def _get_title_search_html(
 def _get_search_page_text_html(title: str, query_parameters: Mapping[str, str]) -> str:
     try:
         parameters = _SearchPageParameters.model_validate(dict(query_parameters))
+    except ValidationError:
+        return _get_search_note_html(title, _SEARCH_FAILED_NOTE)
+    try:
         if _should_search_titles(query_parameters.get(_TAB_PARAMETER), parameters):
             return _get_title_search_html(title, query_parameters, parameters)
         validate_can_search_speeches(
@@ -1725,8 +1728,6 @@ def _get_search_page_text_html(title: str, query_parameters: Mapping[str, str]) 
                     session,
                 ),
             )
-    except ValidationError:
-        return _get_search_note_html(title, _SEARCH_FAILED_NOTE)
     except SearchFilterRequiredException:
         return _NO_PAGE_TEXT
     except SearchExcludedWordsOnlyException:

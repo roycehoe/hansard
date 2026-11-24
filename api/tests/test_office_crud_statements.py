@@ -2,7 +2,7 @@ from typing import Any, Callable, cast
 
 import pytest
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql.expression import Executable
+from sqlalchemy.sql.expression import ClauseElement
 from sqlmodel import Session
 
 from crud.report import CRUDReport
@@ -26,9 +26,9 @@ class _Result:
 
 class _RecordingSession:
     def __init__(self):
-        self.statements: list[Executable] = []
+        self.statements: list[ClauseElement] = []
 
-    def exec(self, statement: Executable) -> _Result:
+    def exec(self, statement: ClauseElement) -> _Result:
         self.statements.append(statement)
         return _Result()
 
