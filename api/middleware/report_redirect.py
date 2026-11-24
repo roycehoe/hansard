@@ -29,10 +29,10 @@ def get_old_report_address_url(path: str, query: str) -> Optional[str]:
     report_match = _REPORT_PATH.match(path.rstrip(URL_SEPARATOR))
     if report_match is None:
         return None
-    report_slug = _get_report_slug_of_old_address(report_match.group(1))
-    if report_slug is None:
+    report_slug_of_old_address = _get_report_slug_of_old_address(report_match.group(1))
+    if report_slug_of_old_address is None:
         return None
-    report_path = f"/reports/{quote(report_slug, safe='')}"
+    report_path = f"/reports/{quote(report_slug_of_old_address, safe='')}"
     if query == _NO_QUERY:
         return report_path
     return report_path + QUERY_SEPARATOR + query

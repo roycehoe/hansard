@@ -191,6 +191,6 @@ def get_coverage(session: Session, refresh_run_session: Session) -> GetCoverageR
     cached_coverage = _cached_coverage
     if cached_coverage is not None:
         return cached_coverage
-    coverage = _get_uncached_coverage(session, refresh_run_session)
-    _cached_coverage = coverage
-    return coverage
+    uncached_coverage = _get_uncached_coverage(session, refresh_run_session)
+    _cached_coverage = uncached_coverage
+    return uncached_coverage

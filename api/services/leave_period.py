@@ -117,11 +117,13 @@ def get_latest_sitting_leave_periods(
     latest_sitting_leaves = []
     for printing in printings:
         leave_period = leave_period_id_to_leave_period[printing.leave_period_id]
-        person = _get_printing_person(printing, membership_id_to_person)
+        printing_person = _get_printing_person(printing, membership_id_to_person)
         latest_sitting_leaves.append(
             LatestSittingLeaveData(
-                person_id=None if person is None else person.id,
-                person_name=None if person is None else person.canonical_name,
+                person_id=None if printing_person is None else printing_person.id,
+                person_name=None
+                if printing_person is None
+                else printing_person.canonical_name,
                 name=leave_period.name,
                 start_date=leave_period.start_date,
                 end_date=leave_period.end_date,

@@ -160,15 +160,17 @@ def _get_newest_first_date_ranges(
 ) -> list[_DateRange]:
     if parliament_number is not None:
         return [_DateRange(date_from, date_to)]
-    first_sitting_date = _get_latest_parliament_first_sitting_date(date_to, session)
-    if first_sitting_date is None:
+    latest_parliament_first_sitting_date = _get_latest_parliament_first_sitting_date(
+        date_to, session
+    )
+    if latest_parliament_first_sitting_date is None:
         return [_DateRange(date_from, date_to)]
-    if date_from is not None and first_sitting_date <= date_from:
+    if date_from is not None and latest_parliament_first_sitting_date <= date_from:
         return [_DateRange(date_from, date_to)]
     # NOTE: the latest Parliament the search reaches, then everything older in one step, because walking each older Parliament on its own cost up to 54 statements and 218 ms for a word last common before 1965, against 5 statements and 35 ms
     return [
-        _DateRange(first_sitting_date, date_to),
-        _DateRange(date_from, first_sitting_date - ONE_DAY),
+        _DateRange(latest_parliament_first_sitting_date, date_to),
+        _DateRange(date_from, latest_parliament_first_sitting_date - ONE_DAY),
     ]
 
 
@@ -588,7 +590,7 @@ def search_speeches(
             )
             if not is_report_id_taken_down(report.report_id)
         }
-        report_id_to_match_count = _get_report_id_to_speech_match_count(
+        report_id_to_speech_match_count = _get_report_id_to_speech_match_count(
             query,
             parliament_number,
             date_from,
@@ -616,7 +618,7 @@ def search_speeches(
                 report_id_to_report[speech.report_id],
                 membership_id_to_person.get(speech.speaker_id),
                 speech_id_to_snippet.get(speech.id, ""),
-                report_id_to_match_count[speech.report_id],
+                report_id_to_speech_match_count[speech.report_id],
             )
             for speech in page_speeches
             if speech.report_id in report_id_to_report

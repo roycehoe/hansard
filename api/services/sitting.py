@@ -194,17 +194,17 @@ def get_sitting_report_people(
     membership_id_to_person = get_membership_id_to_person(membership_ids, session)
     report_id_to_askers: dict[int, list[SittingPersonData]] = {}
     for asker in askers:
-        person = _get_matched_person(asker.speaker_id, membership_id_to_person)
-        if person is not None:
+        matched_person = _get_matched_person(asker.speaker_id, membership_id_to_person)
+        if matched_person is not None:
             report_id_to_askers.setdefault(asker.report_id, []).append(
-                _get_sitting_person_data(person)
+                _get_sitting_person_data(matched_person)
             )
     report_id_to_first_speaker: dict[int, SittingPersonData] = {}
     for speech in first_speeches:
-        person = _get_matched_person(speech.speaker_id, membership_id_to_person)
-        if person is not None and speech.report_id is not None:
+        matched_person = _get_matched_person(speech.speaker_id, membership_id_to_person)
+        if matched_person is not None and speech.report_id is not None:
             report_id_to_first_speaker[speech.report_id] = _get_sitting_person_data(
-                person
+                matched_person
             )
     return {
         get_report_slug(report.report_id): SittingReportPeopleData(

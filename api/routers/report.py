@@ -50,9 +50,9 @@ def get_report_picture(
     sha256: str = Path(pattern=_SHA256_PATTERN),
     session: Session = Depends(get_session),
 ) -> Response:
-    picture = report_service.get_report_picture(report_slug, sha256, session)
+    report_picture = report_service.get_report_picture(report_slug, sha256, session)
     return Response(
-        picture.picture_bytes,
-        media_type=picture.media_type,
+        report_picture.picture_bytes,
+        media_type=report_picture.media_type,
         headers={_CACHE_CONTROL_HEADER: _IMMUTABLE_CACHE_CONTROL},
     )

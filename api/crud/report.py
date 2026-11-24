@@ -485,8 +485,8 @@ class CRUDReport:
         limit: int,
         offset: int,
     ) -> list[Report]:
-        tsquery = get_match_tsquery(query)
-        filters = _get_title_query_filters(
+        match_tsquery = get_match_tsquery(query)
+        title_query_filters = _get_title_query_filters(
             query,
             parliament_number,
             date_from,
@@ -499,9 +499,9 @@ class CRUDReport:
             statement = (
                 select(Report)
                 .options(defer(Report.markdown_content))
-                .where(*filters)
+                .where(*title_query_filters)
                 .order_by(
-                    func.ts_rank(Report.title_tsv, tsquery).desc(),
+                    func.ts_rank(Report.title_tsv, match_tsquery).desc(),
                     Report.sitting_date.desc(),
                     Report.id,
                 )
@@ -514,7 +514,7 @@ class CRUDReport:
         # NOTE: WITH TIES keeps every match on the cut-off date, so ranking sees all of them and the page equals ordering every match
         first_matching_reports = (
             select(*_COLUMNS_WITHOUT_MARKDOWN_CONTENT)
-            .where(*filters)
+            .where(*title_query_filters)
             .order_by(_get_sitting_date_ordering(sort, unindexed_sitting_date))
             .fetch(limit + offset, with_ties=True)
             .subquery()
@@ -525,7 +525,7 @@ class CRUDReport:
             .options(defer(first_matching_report.markdown_content))
             .order_by(
                 _get_sitting_date_ordering(sort, first_matching_report.sitting_date),
-                func.ts_rank(first_matching_report.title_tsv, tsquery).desc(),
+                func.ts_rank(first_matching_report.title_tsv, match_tsquery).desc(),
                 first_matching_report.id,
             )
             .limit(limit)

@@ -312,13 +312,13 @@ class CRUDSpeech:
         limit: int,
         offset: int,
     ) -> list[Speech]:
-        tsquery = get_rank_tsquery(query)
+        rank_tsquery = get_rank_tsquery(query)
         is_date_index_ordered = (
             sort != SearchSort.RELEVANCE
             and membership_ids is None
             and report_ids is None
         )
-        filters = _get_query_filters(
+        query_filters = _get_query_filters(
             query,
             parliament_number,
             date_from,
@@ -332,7 +332,9 @@ class CRUDSpeech:
         )
         # NOTE: only a date-index order gets the Parliament's date range, because the rum index reads a range but not a Parliament, and the range made a relevance search read 25 times the buffers
         if parliament_number is not None and is_date_index_ordered:
-            filters.extend(_get_parliament_sitting_date_filters(parliament_number))
+            query_filters.extend(
+                _get_parliament_sitting_date_filters(parliament_number)
+            )
         # NOTE: a report type with a hyphenated word is ranked after filtering too, because Postgres reads the word as a phrase and the rum index returns a phrase's matches in an order that disagrees with their <=> distance, so without it the page would depend on the plan; other punctuation that Postgres also reads as a phrase (a comma in a number such as "5,000", an en dash, U+2011, "o'clock", "3.30pm") is not covered, and those pages keep the plan's order
         # NOTE: a quoted OR search is always ranked after filtering, because otherwise Postgres can scan the rum index with the whole query as its condition and the ranking query as its order, and for a quoted OR search rum 1.3.15 drops rows from that scan: "prime minister" OR "deputy prime minister" lost one from page 1
         is_ranked_after_filtering = (
@@ -342,16 +344,16 @@ class CRUDSpeech:
             or is_quoted_or_query(query)
             or (report_type is not None and is_hyphenated_word_in_query(query))
         )
-        ordering = _get_speech_ordering(
-            sort, tsquery, is_ranked_after_filtering, is_date_index_ordered
+        speech_ordering = _get_speech_ordering(
+            sort, rank_tsquery, is_ranked_after_filtering, is_date_index_ordered
         )
         statement = (
             _get_with_report_required(
                 select(Speech),
                 parliament_number is not None,
             )
-            .where(*filters)
-            .order_by(*ordering)
+            .where(*query_filters)
+            .order_by(*speech_ordering)
             .limit(limit)
             .offset(offset)
         )
@@ -454,7 +456,7 @@ class CRUDSpeech:
         report_ids: Optional[list[int]],
         limit: int,
     ) -> int:
-        filters = _get_query_filters(
+        query_filters = _get_query_filters(
             query,
             parliament_number,
             date_from,
@@ -468,13 +470,15 @@ class CRUDSpeech:
         )
         # NOTE: the count reads the Parliament's date range too, so the rum index on transcript_tsv and sitting_date reads only that span instead of every match
         if parliament_number is not None:
-            filters.extend(_get_parliament_sitting_date_filters(parliament_number))
+            query_filters.extend(
+                _get_parliament_sitting_date_filters(parliament_number)
+            )
         matching_ids = (
             _get_with_report_required(
                 select(Speech.id),
                 parliament_number is not None,
             )
-            .where(*filters)
+            .where(*query_filters)
             .limit(limit)
         )
         statement = select(func.count()).select_from(matching_ids.subquery())

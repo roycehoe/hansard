@@ -432,12 +432,12 @@ def _get_old_address_reports(requested_slug: str, session: Session) -> list[Repo
 def get_report_slug_of_old_address(
     requested_slug: str, session: Session
 ) -> Optional[str]:
-    reports = _get_old_address_reports(requested_slug, session)
-    if len(reports) != _ONLY_MATCH_COUNT:
+    old_address_reports = _get_old_address_reports(requested_slug, session)
+    if len(old_address_reports) != _ONLY_MATCH_COUNT:
         return None
-    if is_report_id_taken_down(reports[0].report_id):
+    if is_report_id_taken_down(old_address_reports[0].report_id):
         return None
-    return get_report_slug(reports[0].report_id)
+    return get_report_slug(old_address_reports[0].report_id)
 
 
 def _get_report_picture_data(picture: ReportPicture) -> ReportPictureData:
@@ -567,9 +567,9 @@ def get_report_matched_words(
 ) -> GetReportMatchedWordsResponse:
     with hold_search_slot(SearchEndpoint.MATCHED_WORDS):
         report = _get_validated_report(report_slug, session)
-        groups = get_search_query_groups(words)
-        quoted_words = set(get_quoted_words_to_mark(groups))
-        stemmed_websearch_query = get_stemmed_websearch_query(groups)
+        search_query_groups = get_search_query_groups(words)
+        quoted_words = set(get_quoted_words_to_mark(search_query_groups))
+        stemmed_websearch_query = get_stemmed_websearch_query(search_query_groups)
         if stemmed_websearch_query == "":
             return GetReportMatchedWordsResponse(words=sorted(quoted_words))
         marked_transcripts = CRUDSpeech(

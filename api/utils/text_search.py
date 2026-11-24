@@ -60,17 +60,19 @@ def _get_group_tsquery(group: SearchQueryGroup) -> ColumnElement:
 
 
 def get_match_tsquery(query: str) -> ColumnElement:
-    groups = get_search_query_groups(query)
+    search_query_groups = get_search_query_groups(query)
     # NOTE: the query is rebuilt from the parsed groups, so that the match and the rank read it the way the parser does: Postgres reads "housing or -other" as housing OR NOT other, which matches nearly every row, and "a - b" as a without b
-    if groups == () and not is_quote_in_query(query):
+    if search_query_groups == () and not is_quote_in_query(query):
         return func.websearch_to_tsquery(TEXT_SEARCH_CONFIGURATION, query)
-    if all(term.split_words == () for group in groups for term in group.terms):
+    if all(
+        term.split_words == () for group in search_query_groups for term in group.terms
+    ):
         return func.websearch_to_tsquery(
-            TEXT_SEARCH_CONFIGURATION, get_websearch_query(groups)
+            TEXT_SEARCH_CONFIGURATION, get_websearch_query(search_query_groups)
         )
     return reduce(
         lambda left, right: left.op("||")(right),
-        [_get_group_tsquery(group) for group in groups],
+        [_get_group_tsquery(group) for group in search_query_groups],
     )
 
 
@@ -123,16 +125,21 @@ def get_match_filter(
     match = tsv_column.op("@@")(get_match_tsquery(query))
     if not is_quote_in_query(query):
         return match
-    groups = get_search_query_groups(query)
+    search_query_groups = get_search_query_groups(query)
     # NOTE: with one group the group's full-text match is the outer match, and repeating it makes Postgres count its rows twice when it estimates them
-    if len(groups) == 1:
-        return and_(match, *_get_exact_form_filters(groups[0], text_column))
+    if len(search_query_groups) == 1:
+        return and_(
+            match, *_get_exact_form_filters(search_query_groups[0], text_column)
+        )
     # NOTE: the full-text match narrows the rows through the index; each OR group is then checked again, its quoted words as exact forms, because the index only knows stems
     return and_(
         match,
         or_(
             false(),
-            *[_get_group_match(group, tsv_column, text_column) for group in groups],
+            *[
+                _get_group_match(group, tsv_column, text_column)
+                for group in search_query_groups
+            ],
         ),
     )
 
@@ -154,8 +161,8 @@ def _get_excluded_term_match(
 def get_excluded_words_filters(
     query: str, tsv_column: ColumnElement, text_column: ColumnElement
 ) -> list[ColumnElement]:
-    groups = get_excluded_term_groups(query)
-    if groups == ():
+    excluded_term_groups = get_excluded_term_groups(query)
+    if excluded_term_groups == ():
         return []
     return [
         or_(
@@ -166,15 +173,18 @@ def get_excluded_words_filters(
                         for term in group.terms
                     ]
                 )
-                for group in groups
+                for group in excluded_term_groups
             ]
         )
     ]
 
 
 def get_headline(query: str, text_column: ColumnElement, options: str) -> ColumnElement:
-    groups = get_search_query_groups(query)
-    if not is_quote_in_query(query) or get_quoted_websearch_query(groups) == "":
+    search_query_groups = get_search_query_groups(query)
+    if (
+        not is_quote_in_query(query)
+        or get_quoted_websearch_query(search_query_groups) == ""
+    ):
         return func.ts_headline(
             TEXT_SEARCH_CONFIGURATION, text_column, get_match_tsquery(query), options
         )
@@ -183,11 +193,11 @@ def get_headline(query: str, text_column: ColumnElement, options: str) -> Column
         text_column,
         func.websearch_to_tsquery(
             EXACT_TEXT_SEARCH_CONFIGURATION,
-            get_words_to_mark_websearch_query(groups),
+            get_words_to_mark_websearch_query(search_query_groups),
         ),
         options,
     )
-    stemmed_websearch_query = get_stemmed_websearch_query(groups)
+    stemmed_websearch_query = get_stemmed_websearch_query(search_query_groups)
     if stemmed_websearch_query == "":
         return exact_headline
     return func.ts_headline(

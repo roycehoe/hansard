@@ -78,8 +78,8 @@ def get_speech_embed(
             get_notice_embed_html(_REPORT_REMOVED_TITLE, _REPORT_REMOVED_DESCRIPTION),
             error.status_code,
         )
-    speech = _get_linked_speech(report, speech_ordinal)
-    if speech is None:
+    linked_speech = _get_linked_speech(report, speech_ordinal)
+    if linked_speech is None:
         return SpeechEmbed(
             get_notice_embed_html(
                 _PARAGRAPH_NOT_FOUND_TITLE, _PARAGRAPH_NOT_FOUND_DESCRIPTION
@@ -91,10 +91,10 @@ def get_speech_embed(
             report.title,
             report.sitting_date,
             report.report_slug,
-            speech.ordinal,
-            speech.anchor,
-            speech.speaker_label,
-            speech.transcript,
+            linked_speech.ordinal,
+            linked_speech.anchor,
+            linked_speech.speaker_label,
+            linked_speech.transcript,
         ),
         status.HTTP_200_OK,
     )

@@ -154,10 +154,10 @@ def _get_fixed_page_title(path: str) -> Optional[str]:
 
 
 def _get_fixed_preview(path: str) -> PreviewData:
-    title = _get_fixed_page_title(path)
-    if title is not None:
+    fixed_page_title = _get_fixed_page_title(path)
+    if fixed_page_title is not None:
         return PreviewData(
-            title=title,
+            title=fixed_page_title,
             description=_DEFAULT_DESCRIPTION,
             preview_type=PreviewType.WEBSITE,
             path=path,
@@ -242,10 +242,10 @@ def _get_report_description(
         or first_speech.speaker is None
         or first_speech.speaker == _EMPTY_LABEL
     ):
-        speaker_names = _get_ranked_speaker_names(report_id, session)
-        if not speaker_names:
+        ranked_speaker_names = _get_ranked_speaker_names(report_id, session)
+        if not ranked_speaker_names:
             return f"From the sitting of {sitting_date_label}."
-        return _get_speakers_sentence(speaker_names)
+        return _get_speakers_sentence(ranked_speaker_names)
     return get_paragraph_quote(first_speech.speaker, first_speech.transcript)
 
 
@@ -303,10 +303,10 @@ def _get_report_preview_description(
 ) -> str:
     if not stage_lines:
         return _get_report_description(report_id, sitting_date_label, session)
-    bill_description = _get_bill_report_description(report_id, session)
-    if bill_description is None:
+    bill_report_description = _get_bill_report_description(report_id, session)
+    if bill_report_description is None:
         return _get_report_description(report_id, sitting_date_label, session)
-    return bill_description
+    return bill_report_description
 
 
 # NOTE: a part on the first reading is no debate, so a resumed line with no printed date takes the latest earlier sitting of a part with no first reading
@@ -338,10 +338,10 @@ def _get_report_part_description(
     session: Session,
 ) -> str:
     if report_part == BillReportPart.MINISTERS_REPLY:
-        reply_description = _get_bill_report_description(report.id, session)
-        if reply_description is not None:
-            return reply_description
-    description = _get_report_preview_description(
+        bill_report_description = _get_bill_report_description(report.id, session)
+        if bill_report_description is not None:
+            return bill_report_description
+    report_preview_description = _get_report_preview_description(
         report.id, sitting_date_label, stage_lines, session
     )
     if report_part == BillReportPart.SECOND_AND_THIRD_READING:
@@ -350,22 +350,22 @@ def _get_report_part_description(
             for stage_line in stage_lines
             if stage_line.stage == BillStage.THIRD_READING
         ][-1]
-        return f"{description}{_SENTENCE_SEPARATOR}{get_transcript_quote(third_reading_line.printed_text)}"
+        return f"{report_preview_description}{_SENTENCE_SEPARATOR}{get_transcript_quote(third_reading_line.printed_text)}"
     if report_part != BillReportPart.SECOND_READING_DEBATE_RESUMED:
-        return description
+        return report_preview_description
     if report_bill is None:
-        return description
+        return report_preview_description
     opening_speech = CRUDSpeech(session).get_first_by_report_id(report.id)
     if opening_speech is None:
-        return description
+        return report_preview_description
     resumed_from = get_resumed_from_label(
         opening_speech.transcript,
         _get_earlier_second_reading_date(report, report_bill),
         report.sitting_date.year,
     )
     if resumed_from is None:
-        return description
-    return f"{_DEBATE_RESUMED_FROM} {resumed_from}.{_SENTENCE_SEPARATOR}{description}"
+        return report_preview_description
+    return f"{_DEBATE_RESUMED_FROM} {resumed_from}.{_SENTENCE_SEPARATOR}{report_preview_description}"
 
 
 # NOTE: the record can print a Bill's stage lines in a report it titles as something else, such as the Adjournment to a Later Day Motion of 16 November 1960, so only a report whose title names a Bill takes the stage
@@ -379,7 +379,7 @@ def _get_report_stage_lines(report: Report, session: Session) -> list[BillStageL
 
 def _get_report_preview(report: Report, session: Session) -> PreviewData:
     sitting_date_label = get_sitting_date_label(report.sitting_date.date())
-    stage_lines = _get_report_stage_lines(report, session)
+    report_stage_lines = _get_report_stage_lines(report, session)
     report_bill = get_report_bill(report, session)
     report_part = (
         None
@@ -387,9 +387,16 @@ def _get_report_preview(report: Report, session: Session) -> PreviewData:
         else get_report_bill_part(report, report_bill, session)
     )
     return PreviewData(
-        title=_get_report_title(report, sitting_date_label, stage_lines, report_part),
+        title=_get_report_title(
+            report, sitting_date_label, report_stage_lines, report_part
+        ),
         description=_get_report_part_description(
-            report, sitting_date_label, stage_lines, report_part, report_bill, session
+            report,
+            sitting_date_label,
+            report_stage_lines,
+            report_part,
+            report_bill,
+            session,
         ),
         preview_type=PreviewType.ARTICLE,
         path=_get_report_path(report),
@@ -561,12 +568,14 @@ def _get_uncached_preview(
 ) -> PreviewData:
     report_match = _REPORT_PATH.match(path)
     if report_match is not None:
-        report = _get_report_by_slug(report_match.group(1), session)
-        if report is None:
+        report_by_slug = _get_report_by_slug(report_match.group(1), session)
+        if report_by_slug is None:
             return get_not_found_preview()
         if speech_ordinal is None or speech_anchor == _EMPTY_ANCHOR:
-            return _get_report_preview(report, session)
-        return _get_speech_preview(report, speech_ordinal, speech_anchor, session)
+            return _get_report_preview(report_by_slug, session)
+        return _get_speech_preview(
+            report_by_slug, speech_ordinal, speech_anchor, session
+        )
     person_match = _PERSON_PATH.match(path)
     if person_match is not None:
         return _get_person_preview(int(person_match.group(1)), session)

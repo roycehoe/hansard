@@ -58,6 +58,6 @@ def get_all_parliaments(session: Session) -> GetAllParliamentsResponse:
     cached_all_parliaments = _cached_all_parliaments
     if cached_all_parliaments is not None:
         return cached_all_parliaments
-    all_parliaments = _get_uncached_all_parliaments(session)
-    _cached_all_parliaments = all_parliaments
-    return all_parliaments
+    uncached_all_parliaments = _get_uncached_all_parliaments(session)
+    _cached_all_parliaments = uncached_all_parliaments
+    return uncached_all_parliaments

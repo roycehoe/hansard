@@ -133,12 +133,13 @@ class FrontendFiles(StaticFiles):
             query_params.get(_SPEECH_ANCHOR_PARAMETER),
         )
         if not preview.is_found:
-            redirect_url = await run_in_threadpool(
+            old_report_address_url = await run_in_threadpool(
                 get_old_report_address_url, scope[_PATH_KEY], request.url.query
             )
-            if redirect_url is not None:
+            if old_report_address_url is not None:
                 return RedirectResponse(
-                    redirect_url, status_code=status.HTTP_301_MOVED_PERMANENTLY
+                    old_report_address_url,
+                    status_code=status.HTTP_301_MOVED_PERMANENTLY,
                 )
         page_text_html = await run_in_threadpool(
             get_page_text_html,
