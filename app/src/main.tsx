@@ -76,12 +76,12 @@ function countResolvedNavigation(event: RouterEvents['onResolved']): void {
 function moveFocusAfterNavigation(event: RouterEvents['onResolved']): void {
   if (event.fromLocation === undefined) return
   const { toLocation } = event
-  const shouldMove = shouldMoveFocusToPageHeading({
+  const canMoveFocus = shouldMoveFocusToPageHeading({
     pathChanged: event.pathChanged,
     hash: toLocation.hash,
     searchParams: toLocation.search,
   })
-  if (shouldMove) requestAnimationFrame(moveFocusToPageHeading)
+  if (canMoveFocus) requestAnimationFrame(moveFocusToPageHeading)
 }
 
 loadAnalytics()

@@ -64,8 +64,8 @@ export function PopoverPersonFilter({
     return chosenPerson.data?.canonical_name ?? ''
   }
 
-  function changeOpen(nextIsOpen: boolean) {
-    setIsOpen(nextIsOpen)
+  function changeOpen(isNextOpen: boolean) {
+    setIsOpen(isNextOpen)
     setTypedName('')
   }
 

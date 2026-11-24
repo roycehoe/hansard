@@ -64,8 +64,8 @@ export function PopoverConstituencyFilter({
   const emptyLine =
     persons.isSuccess && matches.length === 0 ? `${noMatchesLine}.` : null
 
-  function changeOpen(nextIsOpen: boolean) {
-    setIsOpen(nextIsOpen)
+  function changeOpen(isNextOpen: boolean) {
+    setIsOpen(isNextOpen)
     setTypedName('')
   }
 
