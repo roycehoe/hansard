@@ -2,7 +2,7 @@
 
 Personal coding idioms for this codebase — only the things a reader would get wrong without being told. Follow them when writing or reviewing code.
 
-**The authority behind this file is `api/STYLE-RULINGS.md`** — the append-only log of numbered rulings (R1–R54). Most were ruled directly; R20–R25, R30–R35/R37 and R49 were ruled by delegation and are reversible as such. Where this file and a ruling disagree, the ruling governs and this file is what needs fixing. A new convention is recorded there first, then propagated here in the same commit.
+**The authority behind this file is `api/STYLE-RULINGS.md`** — the append-only log of numbered rulings (R1–R55). Most were ruled directly; R20–R25, R30–R35/R37 and R49 were ruled by delegation and are reversible as such. Where this file and a ruling disagree, the ruling governs and this file is what needs fixing. A new convention is recorded there first, then propagated here in the same commit.
 
 **Enforcement.** `ruff` owns import order and unused names (`I`, `F`) and the seven rules this guide once queued: annotation presence (`ANN`, with `ANN204` ignored because it would reverse the `__init__` carve-out), `else` after an exit (`RET505`–`508`), the bare variable before a `return` (`RET504`), blind `except` (`BLE001`), magic-number comparisons (`PLR2004`, ignored under `tests/` because a test's expected value has a subject and a place to change it, R49), `print()` (`T201`/`T203`), naive `datetime` (`DTZ003`/`DTZ005`). Everything else below is enforced by review. `ruff format` is the formatter and is enforced; run it before every commit.
 
@@ -73,7 +73,7 @@ When naming the variable that holds a call's result, strip only `get_` from the 
   ```
 
 - `expected` — **No hedge words in a name** (`_if_needed`, `_maybe_`). A hedge describes optional behaviour, which belongs in the logic, not the name.
-- `expected` — **Validators come in exactly two shapes.** `get_validated_*` returns the validated object or raises — use it when the caller needs the object. `validate_can_*` returns `None` and raises — use it for an authorization gate the caller only needs to know passed. Never return `True`/`False` from either: a boolean forces the caller to branch, raising makes the failure path unambiguous.
+- `expected` — **Validators come in exactly two shapes.** `get_validated_*` returns the validated object or raises — use it when the caller needs the object. `validate_can_*` returns `None` and raises — use it for an authorization gate the caller only needs to know passed. Never return `True`/`False` from either: a boolean forces the caller to branch, raising makes the failure path unambiguous. One recorded exception (R55): `_get_speech_ordinal` in `middleware/embed.py` checks the paragraph number where it uses it and answers `None`, because a bad number is no paragraph, not an error.
 
   ```python
   def get_validated_speaker(speaker: Optional[Speaker]) -> Speaker:

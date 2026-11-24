@@ -755,6 +755,16 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 
 *Ruled directly, 2026-11-24, hansard inbox round 65.*
 
+## R55 — The embed page checks its paragraph number where it uses it · 2026-11-24 · one recorded exception to the validator shapes
+
+**Ruling.** `_get_speech_ordinal` in `middleware/embed.py` keeps its checks (`isdecimal()` and two length limits) and answers `None` for a value `GET /reports/{report_slug}` would refuse, so the frame shows no paragraph. It is the one check on outside input that lives outside `validators/` and returns a value instead of raising.
+
+**Why.** The two validator shapes both raise, and the guide bans a bool return. A bad paragraph number on the embed page is no paragraph, not an error, so a validator would need a new exception type that no response ever reports. `int()` is out because it accepts `"+5"` and `" 5"`. The sweep tried a bool validator and reverted it against the shape rule; this ruling records the exception instead.
+
+**What it does not allow.** A second such check anywhere. New validation on outside input goes in `validators/` as `get_validated_*` or `validate_can_*`.
+
+*Ruled directly, 2026-11-24, hansard inbox round 65.*
+
 ---
 
 # Open — awaiting a ruling
