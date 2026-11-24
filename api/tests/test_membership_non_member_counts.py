@@ -44,5 +44,5 @@ def test_non_member_counts_separate_rows_from_never_member_persons(
 
     membership = CRUDMembership(session)
 
-    assert membership.get_non_member_count() == 3
+    assert membership.get_count_by_is_member(False) == 3
     assert membership.get_never_member_person_count() == 1

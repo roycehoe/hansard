@@ -85,11 +85,11 @@ class CRUDMembership:
         statement = select(func.count()).select_from(Speaker)
         return self.session.exec(statement).one()
 
-    def get_non_member_count(self) -> int:
+    def get_count_by_is_member(self, is_member: bool) -> int:
         statement = (
             select(func.count())
             .select_from(Speaker)
-            .where(col(Speaker.is_member).is_(False))
+            .where(col(Speaker.is_member).is_(is_member))
         )
         return self.session.exec(statement).one()
 
@@ -97,8 +97,9 @@ class CRUDMembership:
         member_person_ids = select(Speaker.person_id).where(
             col(Speaker.is_member).is_(True), col(Speaker.person_id).is_not(None)
         )
-        statement = select(func.count(func.distinct(Speaker.person_id))).where(
-            col(Speaker.is_member).is_(False),
-            col(Speaker.person_id).not_in(member_person_ids),
+        statement = (
+            select(func.count(func.distinct(Speaker.person_id)))
+            .where(col(Speaker.is_member).is_(False))
+            .where(col(Speaker.person_id).not_in(member_person_ids))
         )
         return self.session.exec(statement).one()
