@@ -31,6 +31,7 @@ from routers import (
 from settings import settings
 
 _OPENAPI_URL = "/openapi.json"
+_ANY_METHOD_OR_HEADER = ("*",)
 GZIP_COMPRESSION_LEVEL = 4
 
 app = FastAPI(
@@ -46,8 +47,8 @@ app.add_middleware(ResponseCacheMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.allowed_cors_origin],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=_ANY_METHOD_OR_HEADER,
+    allow_headers=_ANY_METHOD_OR_HEADER,
 )
 
 app.add_middleware(RequestLogMiddleware)

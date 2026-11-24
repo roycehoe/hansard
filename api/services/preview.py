@@ -26,7 +26,13 @@ from schemas.preview import PreviewData
 from utils.bill_opening_line import get_resumed_from_label
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
-from utils.site_address import URL_SEPARATOR
+from utils.site_address import (
+    ACT_PATH_PREFIX,
+    PERSON_PATH_PREFIX,
+    REPORT_PATH_PREFIX,
+    SITTING_PATH_PREFIX,
+    URL_SEPARATOR,
+)
 from utils.sitting_date import get_sitting_date_label
 from utils.speaker_label import is_chair_speaker_label
 from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
@@ -52,6 +58,7 @@ _LEGISLATIVE_ASSEMBLY_LABEL = "Legislative Assembly"
 _SEAT_SEPARATOR = ", "
 _NAME_SEPARATOR = ", "
 _SENTENCE_SEPARATOR = " "
+_LAST_NAME_SEPARATOR = " and "
 _DEBATE_RESUMED_FROM = "Debate resumed from"
 _LISTED_SPEAKER_COUNT = 3
 _LISTED_REPORT_COUNT = 3
@@ -189,13 +196,13 @@ def _get_report_by_slug(report_slug: str, session: Session) -> Optional[Report]:
 
 
 def _get_report_path(report_id: str) -> str:
-    return f"/reports/{quote(get_report_slug(report_id), safe='')}"
+    return f"{REPORT_PATH_PREFIX}{quote(get_report_slug(report_id), safe='')}"
 
 
 def _get_names_label(names: list[str]) -> str:
     if len(names) == 1:
         return names[0]
-    return f"{_NAME_SEPARATOR.join(names[:-1])} and {names[-1]}"
+    return f"{_NAME_SEPARATOR.join(names[:-1])}{_LAST_NAME_SEPARATOR}{names[-1]}"
 
 
 def _get_ranked_speaker_names(report_id: int, session: Session) -> list[str]:
@@ -490,8 +497,8 @@ def _get_person_description(person_id: int, person_name: str, session: Session) 
     )
     seat_labels = _get_seat_labels(memberships[-1], session)
     if not seat_labels:
-        return " ".join([lead_sentence, report_sentence])
-    return " ".join(
+        return _SENTENCE_SEPARATOR.join([lead_sentence, report_sentence])
+    return _SENTENCE_SEPARATOR.join(
         [lead_sentence, report_sentence, f"{_SEAT_SEPARATOR.join(seat_labels)}."]
     )
 
@@ -504,7 +511,7 @@ def _get_person_preview(person_id: int, session: Session) -> PreviewData:
         title=f"{person.canonical_name}, {_PERSON_TITLE_SUFFIX}",
         description=_get_person_description(person.id, person.canonical_name, session),
         preview_type=PreviewType.WEBSITE,
-        path=f"/people/{person.id}-{get_person_slug(person.canonical_name)}",
+        path=f"{PERSON_PATH_PREFIX}{person.id}-{get_person_slug(person.canonical_name)}",
         is_found=True,
         report_title=_EMPTY_LABEL,
         person_name=person.canonical_name,
@@ -540,7 +547,7 @@ def _get_sitting_preview(sitting_date: date, session: Session) -> PreviewData:
         title=f"Sitting of {get_sitting_date_label(sitting_date)}",
         description=_get_sitting_description(reports),
         preview_type=PreviewType.WEBSITE,
-        path=f"/sittings/{sitting_date.isoformat()}",
+        path=f"{SITTING_PATH_PREFIX}{sitting_date.isoformat()}",
         is_found=True,
         report_title=_EMPTY_LABEL,
         person_name=_EMPTY_LABEL,
@@ -556,7 +563,7 @@ def _get_act_preview(sso_code: str, session: Session) -> PreviewData:
         title=f"{act.title}, {_ACT_TITLE_SUFFIX}",
         description=_DEFAULT_DESCRIPTION,
         preview_type=PreviewType.WEBSITE,
-        path=f"/acts/{quote(act.sso_code, safe='')}",
+        path=f"{ACT_PATH_PREFIX}{quote(act.sso_code, safe='')}",
         is_found=True,
         report_title=_EMPTY_LABEL,
         person_name=_EMPTY_LABEL,

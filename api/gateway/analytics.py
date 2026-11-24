@@ -2,6 +2,8 @@ import secrets
 
 import httpx
 
+from utils.site_address import URL_SEPARATOR
+
 _COUNT_PATH = "/api/v0/count"
 _COUNT_TIMEOUT_SECONDS = 5
 _SESSION_BYTES = 16
@@ -18,7 +20,7 @@ async def send_analytics_event(
     }
     async with httpx.AsyncClient(timeout=_COUNT_TIMEOUT_SECONDS) as client:
         response = await client.post(
-            site_url.rstrip("/") + _COUNT_PATH,
+            site_url.rstrip(URL_SEPARATOR) + _COUNT_PATH,
             headers={"Authorization": f"Bearer {api_token}"},
             json={"no_sessions": True, "filter": [], "hits": [hit]},
         )

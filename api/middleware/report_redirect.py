@@ -7,7 +7,12 @@ from sqlmodel import Session
 
 from database.engine import engine
 from services import report as report_service
-from utils.site_address import QUERY_SEPARATOR, URL_SEPARATOR
+from utils.site_address import (
+    NO_SAFE_CHARACTERS,
+    QUERY_SEPARATOR,
+    REPORT_PATH_PREFIX,
+    URL_SEPARATOR,
+)
 
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
 _NO_QUERY = ""
@@ -32,7 +37,7 @@ def get_old_report_address_url(path: str, query: str) -> Optional[str]:
     report_slug_of_old_address = _get_report_slug_of_old_address(report_match.group(1))
     if report_slug_of_old_address is None:
         return None
-    report_path = f"/reports/{quote(report_slug_of_old_address, safe='')}"
+    report_path = f"{REPORT_PATH_PREFIX}{quote(report_slug_of_old_address, safe=NO_SAFE_CHARACTERS)}"
     if query == _NO_QUERY:
         return report_path
     return report_path + QUERY_SEPARATOR + query

@@ -1,2 +1,14 @@
+_ESCAPE_CHARACTER = "\\"
+_ESCAPED_ESCAPE_CHARACTER = "\\\\"
+_PERCENT_WILDCARD = "%"
+_ESCAPED_PERCENT_WILDCARD = "\\%"
+_UNDERSCORE_WILDCARD = "_"
+_ESCAPED_UNDERSCORE_WILDCARD = "\\_"
+
+
 def escape_like_pattern(text: str) -> str:
-    return text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return (
+        text.replace(_ESCAPE_CHARACTER, _ESCAPED_ESCAPE_CHARACTER)
+        .replace(_PERCENT_WILDCARD, _ESCAPED_PERCENT_WILDCARD)
+        .replace(_UNDERSCORE_WILDCARD, _ESCAPED_UNDERSCORE_WILDCARD)
+    )

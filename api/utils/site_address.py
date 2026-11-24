@@ -1,3 +1,8 @@
 SITE_NAME = "Open Hansard"
 URL_SEPARATOR = "/"
 QUERY_SEPARATOR = "?"
+REPORT_PATH_PREFIX = "/reports/"
+SITTING_PATH_PREFIX = "/sittings/"
+PERSON_PATH_PREFIX = "/people/"
+ACT_PATH_PREFIX = "/acts/"
+NO_SAFE_CHARACTERS = ""

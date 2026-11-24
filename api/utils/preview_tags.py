@@ -5,7 +5,13 @@ from html import escape
 from typing import Any, Optional
 from urllib.parse import quote
 
-from utils.site_address import QUERY_SEPARATOR, SITE_NAME, URL_SEPARATOR
+from utils.site_address import (
+    QUERY_SEPARATOR,
+    REPORT_PATH_PREFIX,
+    SITE_NAME,
+    SITTING_PATH_PREFIX,
+    URL_SEPARATOR,
+)
 from utils.sitting_date import get_sitting_date_label
 
 _TITLE_SEPARATOR = " · "
@@ -81,7 +87,7 @@ def _get_report_structured_data(
                         "@type": _LIST_ITEM_TYPE,
                         "position": 2,
                         "name": get_sitting_date_label(sitting_date),
-                        "item": f"{origin}/sittings/{sitting_date.isoformat()}",
+                        "item": f"{origin}{SITTING_PATH_PREFIX}{sitting_date.isoformat()}",
                     },
                     {
                         "@type": _LIST_ITEM_TYPE,
@@ -133,7 +139,7 @@ def get_report_data_preload_html(page_path: str) -> str:
     if report_match is None:
         return _NO_PRELOAD
     report_slug = quote(report_match.group(1), safe=_URI_COMPONENT_SAFE_CHARACTERS)
-    href = f"{_API_PATH_PREFIX}/reports/{report_slug}"
+    href = f"{_API_PATH_PREFIX}{REPORT_PATH_PREFIX}{report_slug}"
     return f'<link rel="preload" href="{escape(href)}" as="fetch" crossorigin="anonymous" />'
 
 

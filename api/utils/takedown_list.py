@@ -6,6 +6,7 @@ from utils.site_address import QUERY_SEPARATOR
 
 _ENTRY_SEPARATOR = ","
 _PATH_SEPARATOR = "/"
+_NO_ENTRY = ""
 _REPORT_SLUG_PATTERN = re.compile(r"[A-Za-z0-9#._-]+")
 
 
@@ -36,5 +37,5 @@ def get_taken_down_report_slugs(takedown_report_slugs: str) -> frozenset[str]:
         for entry_number, takedown_list_entry in enumerate(
             takedown_report_slugs.split(_ENTRY_SEPARATOR), start=1
         )
-        if takedown_list_entry.strip() != ""
+        if takedown_list_entry.strip() != _NO_ENTRY
     )

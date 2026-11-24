@@ -6,7 +6,7 @@ from itertools import accumulate
 from typing import Optional
 from urllib.parse import quote, urlencode
 
-from utils.site_address import SITE_NAME
+from utils.site_address import NO_SAFE_CHARACTERS, REPORT_PATH_PREFIX, SITE_NAME
 from utils.sitting_date import get_sitting_date_label
 
 _MAX_QUOTE_LENGTH = 900
@@ -21,6 +21,8 @@ _ITALIC_TAG_NAME = "em"
 _NOT_FOUND_INDEX = -1
 _NO_SPEAKER_LABEL = ""
 _NO_ANCHOR = ""
+_NO_MARKUP = ""
+_NO_SPEAKER_LABEL_HTML = ""
 _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
 _NEW_TAB_LABEL = " (opens in a new tab)"
@@ -77,7 +79,7 @@ def _get_transcript_parts(transcript: str) -> list[_TranscriptPart]:
     return [
         _get_transcript_part(markup_part)
         for markup_part in _INLINE_MARKUP.split(transcript)
-        if markup_part != ""
+        if markup_part != _NO_MARKUP
     ]
 
 
@@ -120,7 +122,7 @@ def _get_quote_html(transcript: str) -> str:
 
 
 def _get_speech_path(report_slug: str, ordinal: int, anchor: str) -> str:
-    report_path = f"/reports/{quote(report_slug, safe='')}"
+    report_path = f"{REPORT_PATH_PREFIX}{quote(report_slug, safe=NO_SAFE_CHARACTERS)}"
     if anchor == _NO_ANCHOR:
         return f"{report_path}#s{ordinal}"
     query = urlencode(
@@ -141,7 +143,7 @@ def _get_embed_document_html(title: str, body_html: str) -> str:
 
 def _get_speaker_label_html(speaker_label: str) -> str:
     if speaker_label == _NO_SPEAKER_LABEL:
-        return ""
+        return _NO_SPEAKER_LABEL_HTML
     return f"<strong>{escape(speaker_label)}</strong>: "
 
 

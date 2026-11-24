@@ -75,7 +75,12 @@ from services import sitting as sitting_service
 from settings import settings
 from utils.law_name import get_law_name
 from utils.search_query import is_operator_word_in_query, is_query_only_excluded_words
-from utils.site_address import URL_SEPARATOR
+from utils.site_address import (
+    NO_SAFE_CHARACTERS,
+    REPORT_PATH_PREFIX,
+    SITTING_PATH_PREFIX,
+    URL_SEPARATOR,
+)
 from utils.sitting_date import get_sitting_date_label
 from validators.request_limits import (
     EARLIEST_SEARCH_DATE,
@@ -96,6 +101,9 @@ _NO_PAGE_TEXT = ""
 _NO_ROOT_ELEMENT = ""
 _NO_SPEAKER_LABEL = ""
 _NO_SUBTITLE = ""
+_NO_CAPTION = ""
+_NO_HEADING = ""
+_NO_QUERY = ""
 _ROOT_ELEMENT = '<div id="root"></div>'
 # NOTE: nothing here reads the attribute. app/src/index.css hides the element once the inline script in app/index.html marks the page as running JavaScript, so a browser shows only React's page while a reader without JavaScript still gets this text
 _PAGE_TEXT_START = "<main data-page-text>"
@@ -143,6 +151,23 @@ _SECURITY_POLICY_URL = f"{_SOURCE_CODE_URL}/blob/master/SECURITY.md"
 _ABOUT_CLOSING_PREFIX = "I'm Royce, and I run the site on my own"
 _ABOUT_CLOSING_EMAIL_PREFIX = "; you can email me at "
 _COVERAGE_PATH = "/about/coverage"
+_COVERAGE_LABEL = "Coverage"
+_HOW_PARLIAMENT_WORKS_PATH = "/about/how-parliament-works"
+_HOW_PARLIAMENT_WORKS_LABEL = "How Parliament works"
+_OFFICIAL_REPORT_LABEL = "Official Report"
+_METHODS_PATH = "/about/coverage/methods"
+_METHODS_LABEL = "Methods"
+_METHODS_LINK_TEXT = "Data quality and methods"
+_POLICIES_PATH = "/about/policies"
+_POLICIES_LABEL = "Policies"
+_PRIVACY_PATH = "/about/policies#privacy"
+_PRIVACY_LABEL = "Privacy"
+_PALETTE_PATH = "/about/palette"
+_PALETTE_LABEL = "Palette"
+_GITHUB_LABEL = "GitHub"
+_SECURITY_LABEL = "Security"
+_SEARCH_DEBATES_LINK_TEXT = "Search the debates"
+_LOOK_UP_PERSON_LINK_TEXT = "look up a person"
 _COVERAGE_TITLE = "What the archive covers"
 _COVERAGE_INTRODUCTION_PREFIX = (
     "This is an unofficial, English-only archive of Singapore's parliamentary debates "
@@ -246,6 +271,10 @@ _TITLE_MATCH_NOUN = "title match"
 _TITLE_MATCHES_NOUN = "title matches"
 _REPORT_NOUN = "report"
 _REPORTS_NOUN = "reports"
+_PERSON_NOUN = "person"
+_PEOPLE_NOUN = "people"
+_ACT_NOUN = "Act"
+_ACTS_NOUN = "Acts"
 _MORE_THAN_PREFIX = "more than"
 _NO_SPEECH_MATCHES_NOTE = (
     "No speech matches. All search terms must appear in the same paragraph. "
@@ -283,6 +312,7 @@ _SEARCH_EXCLUDED_WORDS_ONLY_NOTE = (
     "A minus sign excludes a word. Add a word to search for, "
     "or choose a person or constituency."
 )
+_SEARCH_CONSTITUENCY_NOT_FOUND_NOTE_PREFIX = "No constituency called"
 _SEARCH_CONSTITUENCY_NOT_FOUND_NOTE = (
     "Check the spelling. A constituency can be listed under another name "
     "after its boundaries change."
@@ -456,7 +486,9 @@ def _get_table_html(table: TypedTableData) -> str:
 
 
 def _get_typed_table_html(table: TypedTableData, kind: PictureKind) -> list[str]:
-    caption = [f"<p>{escape(table.caption)}</p>"] if table.caption != "" else []
+    caption = (
+        [f"<p>{escape(table.caption)}</p>"] if table.caption != _NO_CAPTION else []
+    )
     if kind == PictureKind.DIVISION_LIST:
         names = "".join(f"<li>{escape(row[0])}</li>" for row in table.body_rows)
         return [*caption, f"<ul>{names}</ul>"]
@@ -475,7 +507,7 @@ def _get_picture_html(report_slug: str, picture: ReportPictureData) -> list[str]
         return [f'<img src="{address}" alt="{_PICTURE_ALT_TEXT}">']
     heading = (
         [f"<p>{escape(picture.typed_copy.heading)}</p>"]
-        if (picture.typed_copy.heading != "")
+        if (picture.typed_copy.heading != _NO_HEADING)
         else []
     )
     return [
@@ -554,7 +586,7 @@ def _get_parliament_label(parliament_number: int) -> str:
 
 def _get_sitting_item_html(sitting: SittingData) -> str:
     return (
-        f'<li><a href="/sittings/{escape(sitting.sitting_date.isoformat())}">'
+        f'<li><a href="{SITTING_PATH_PREFIX}{escape(sitting.sitting_date.isoformat())}">'
         f"{escape(get_sitting_date_label(sitting.sitting_date))}</a></li>"
     )
 
@@ -704,7 +736,7 @@ def _get_sitting_report_item_html(
     report_slug_to_people: dict[str, SittingReportPeopleData],
 ) -> str:
     report_link = (
-        f'<a href="/reports/{escape(quote(report.report_slug, safe=""))}">'
+        f'<a href="{REPORT_PATH_PREFIX}{escape(quote(report.report_slug, safe=NO_SAFE_CHARACTERS))}">'
         f"{escape(report.title)}</a>"
     )
     subtitle_lines = (
@@ -793,21 +825,23 @@ def _get_about_html(contact_email: Optional[str]) -> str:
             *_get_orientation_lines(),
             "<h2>Parliament</h2>",
             "<ul>",
-            _get_link_item_html("/about/how-parliament-works", "How Parliament works"),
-            _get_link_item_html(_OFFICIAL_RECORD_SEARCH_URL, "Official Report"),
+            _get_link_item_html(
+                _HOW_PARLIAMENT_WORKS_PATH, _HOW_PARLIAMENT_WORKS_LABEL
+            ),
+            _get_link_item_html(_OFFICIAL_RECORD_SEARCH_URL, _OFFICIAL_REPORT_LABEL),
             "</ul>",
             "<h2>The archive</h2>",
             "<ul>",
-            _get_link_item_html(_COVERAGE_PATH, "Coverage"),
-            _get_link_item_html("/about/coverage/methods", "Methods"),
+            _get_link_item_html(_COVERAGE_PATH, _COVERAGE_LABEL),
+            _get_link_item_html(_METHODS_PATH, _METHODS_LABEL),
             "</ul>",
             "<h2>The site</h2>",
             "<ul>",
-            _get_link_item_html("/about/policies", "Policies"),
-            _get_link_item_html("/about/policies#privacy", "Privacy"),
-            _get_link_item_html("/about/palette", "Palette"),
-            _get_link_item_html(_SOURCE_CODE_URL, "GitHub"),
-            _get_link_item_html(_SECURITY_POLICY_URL, "Security"),
+            _get_link_item_html(_POLICIES_PATH, _POLICIES_LABEL),
+            _get_link_item_html(_PRIVACY_PATH, _PRIVACY_LABEL),
+            _get_link_item_html(_PALETTE_PATH, _PALETTE_LABEL),
+            _get_link_item_html(_SOURCE_CODE_URL, _GITHUB_LABEL),
+            _get_link_item_html(_SECURITY_POLICY_URL, _SECURITY_LABEL),
             "</ul>",
             _get_about_closing_html(contact_email),
             "</main>",
@@ -844,13 +878,13 @@ def _get_coverage_html(
             _PAGE_TEXT_START,
             f"<h1>{escape(_COVERAGE_TITLE)}</h1>",
             f"<p>{escape(_COVERAGE_INTRODUCTION_PREFIX)}"
-            f"{_get_link_html(_SEARCH_PATH, 'Search the debates')} or "
-            f"{_get_link_html(_PEOPLE_PATH, 'look up a person')} to read what they said.</p>",
+            f"{_get_link_html(_SEARCH_PATH, _SEARCH_DEBATES_LINK_TEXT)} or "
+            f"{_get_link_html(_PEOPLE_PATH, _LOOK_UP_PERSON_LINK_TEXT)} to read what they said.</p>",
             *_get_coverage_summary_lines(coverage),
             f"<p>{escape(_COVERAGE_TEXT_PREFIX)}"
-            f"{_get_link_html(_OFFICIAL_RECORD_SEARCH_URL, 'Official Report')}"
+            f"{_get_link_html(_OFFICIAL_RECORD_SEARCH_URL, _OFFICIAL_REPORT_LABEL)}"
             f"{escape(_COVERAGE_TEXT_SUFFIX)}</p>",
-            f"<p>{_get_link_html('/about/coverage/methods', 'Data quality and methods')}"
+            f"<p>{_get_link_html(_METHODS_PATH, _METHODS_LINK_TEXT)}"
             f"{escape(_COVERAGE_METHODS_SUFFIX)}</p>",
             *_get_orientation_lines(),
             *_get_coverage_report_an_error_lines(contact_email),
@@ -891,7 +925,7 @@ def _get_people_item_html(person: PersonData) -> str:
 
 
 def _get_people_html(persons: list[PersonData]) -> str:
-    noun = "person" if len(persons) == 1 else "people"
+    noun = _PERSON_NOUN if len(persons) == 1 else _PEOPLE_NOUN
     return _LINE_SEPARATOR.join(
         [
             _PAGE_TEXT_START,
@@ -921,7 +955,7 @@ def _get_membership_row_html(membership: PersonMembershipData) -> str:
 
 def _get_person_report_item_html(report: PersonReportData) -> str:
     return (
-        f'<li><a href="/reports/{escape(quote(report.report_slug, safe=""))}">'
+        f'<li><a href="{REPORT_PATH_PREFIX}{escape(quote(report.report_slug, safe=NO_SAFE_CHARACTERS))}">'
         f"{escape(report.title)}</a>, "
         f'<time datetime="{escape(report.sitting_date.isoformat())}">'
         f"{escape(get_sitting_date_label(report.sitting_date))}</time>, "
@@ -1119,7 +1153,7 @@ def _get_act_date_html(event_date: date) -> str:
 
 def _get_other_act_count_text(act_count: int) -> str:
     other_act_count = act_count - 1
-    noun = "Act" if other_act_count == 1 else "Acts"
+    noun = _ACT_NOUN if other_act_count == 1 else _ACTS_NOUN
     return f"Also changed {other_act_count:,} other {noun}"
 
 
@@ -1135,7 +1169,7 @@ def _get_other_act_count_html(event: _ActEvent) -> str:
 
 def _get_act_reading_item_html(event: _ActEvent, report: ActEntryReportData) -> str:
     return (
-        f'<li><a href="/reports/{escape(quote(report.report_slug, safe=""))}">'
+        f'<li><a href="{REPORT_PATH_PREFIX}{escape(quote(report.report_slug, safe=NO_SAFE_CHARACTERS))}">'
         f"{_get_act_date_html(report.sitting_date)}</a>, "
         f"{escape(event.label)}: {escape(report.title)}"
         f"{_get_other_act_count_html(event)}</li>"
@@ -1221,7 +1255,7 @@ def _get_act_html(act: GetActResponse) -> str:
 
 
 def _is_query_without_search_words(query: str) -> bool:
-    return query == "" or is_query_only_excluded_words(query)
+    return query == _NO_QUERY or is_query_only_excluded_words(query)
 
 
 # NOTE: the API sorts by relevance by default, but the app asks for newest first unless the address names a sort, and without words it offers only newest or oldest first
@@ -1246,7 +1280,7 @@ def _get_app_search_value(value: str) -> str:
 
 
 def _get_highlighted_report_url(report_slug: str, query: str) -> str:
-    report_path = f"/reports/{quote(report_slug, safe='')}"
+    report_path = f"{REPORT_PATH_PREFIX}{quote(report_slug, safe=NO_SAFE_CHARACTERS)}"
     if _is_query_without_search_words(query):
         return report_path
     highlight_query = urlencode({_HIGHLIGHT_PARAMETER: _get_app_search_value(query)})
@@ -1703,7 +1737,7 @@ def _get_search_page_text_html(title: str, query_parameters: Mapping[str, str]) 
         constituency = parameters.constituency
         return _get_search_note_html(
             title,
-            f"No constituency called {constituency}. "
+            f"{_SEARCH_CONSTITUENCY_NOT_FOUND_NOTE_PREFIX} {constituency}. "
             f"{_SEARCH_CONSTITUENCY_NOT_FOUND_NOTE}",
         )
     except ActNotFoundException:

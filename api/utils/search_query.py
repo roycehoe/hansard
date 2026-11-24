@@ -7,8 +7,10 @@ _QUOTE = '"'
 _CURLY_QUOTES = re.compile(r"[“”]")
 _OR_OPERATOR = "OR"
 _NOT_OPERATOR = "NOT"
+_AND_OPERATOR = "AND"
+_BUT_OPERATOR = "BUT"
 # NOTE: AND and BUT change nothing, because every word must appear anyway; they are operators so that "AND NOT x" and "BUT NOT x" leave x out
-_OPERATOR_WORDS = frozenset((_OR_OPERATOR, "AND", _NOT_OPERATOR, "BUT"))
+_OPERATOR_WORDS = frozenset((_OR_OPERATOR, _AND_OPERATOR, _NOT_OPERATOR, _BUT_OPERATOR))
 _EXCLUDING_SYMBOL = "%"
 # NOTE: the legal databases' same-paragraph and same-sentence connectors; every search already matches within one paragraph, and none can narrow to a sentence
 _SAME_PARAGRAPH_CONNECTOR = re.compile(r"&|w?/[ps]", re.IGNORECASE)

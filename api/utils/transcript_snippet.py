@@ -14,8 +14,8 @@ _ELLIPSIS = "…"
 def get_transcript_snippet(transcript: str) -> str:
     words = transcript.split()
     if len(words) <= _MAX_SNIPPET_WORDS:
-        return " ".join(words)
-    return " ".join(words[:_MAX_SNIPPET_WORDS]) + "…"
+        return _WORD_SEPARATOR.join(words)
+    return _WORD_SEPARATOR.join(words[:_MAX_SNIPPET_WORDS]) + _ELLIPSIS
 
 
 def get_transcript_quote(transcript: str) -> str:

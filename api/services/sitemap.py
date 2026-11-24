@@ -13,7 +13,13 @@ from middleware.takedown import get_taken_down_report_id_candidates
 from settings import settings
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
-from utils.site_address import URL_SEPARATOR
+from utils.site_address import (
+    ACT_PATH_PREFIX,
+    PERSON_PATH_PREFIX,
+    REPORT_PATH_PREFIX,
+    SITTING_PATH_PREFIX,
+    URL_SEPARATOR,
+)
 from utils.sitemap_xml import SitemapUrl, get_sitemap_index_xml, get_urlset_xml
 
 SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
@@ -71,25 +77,27 @@ def _get_kind_to_sitemap_urls(
         ],
         _SitemapKind.SITTINGS: [
             SitemapUrl(
-                f"{site_origin}/sittings/{sitting_date.date().isoformat()}",
+                f"{site_origin}{SITTING_PATH_PREFIX}{sitting_date.date().isoformat()}",
                 sitting_date.date(),
             )
             for sitting_date in sitting_dates
         ],
         _SitemapKind.PEOPLE: [
             SitemapUrl(
-                f"{site_origin}/people/{person.id}-{get_person_slug(person.canonical_name)}",
+                f"{site_origin}{PERSON_PATH_PREFIX}{person.id}-{get_person_slug(person.canonical_name)}",
                 None,
             )
             for person in persons
         ],
         _SitemapKind.ACTS: [
-            SitemapUrl(f"{site_origin}/acts/{quote(act.sso_code, safe='')}", None)
+            SitemapUrl(
+                f"{site_origin}{ACT_PATH_PREFIX}{quote(act.sso_code, safe='')}", None
+            )
             for act in acts
         ],
         _SitemapKind.REPORTS: [
             SitemapUrl(
-                f"{site_origin}/reports/{quote(get_report_slug(report.report_id), safe='')}",
+                f"{site_origin}{REPORT_PATH_PREFIX}{quote(get_report_slug(report.report_id), safe='')}",
                 max(report.sitting_date.date(), _REPORT_PAGES_LAST_REWRITTEN_DATE),
             )
             for report in reports
@@ -154,7 +162,7 @@ def get_robots_txt() -> str:
             [
                 *_ROBOTS_TXT_LINES,
                 "",
-                f"Sitemap: {settings.site_url.rstrip(URL_SEPARATOR)}/sitemap.xml",
+                f"Sitemap: {settings.site_url.rstrip(URL_SEPARATOR)}/{SITEMAP_INDEX_FILE_NAME}",
             ]
         )
         + "\n"

@@ -1,4 +1,5 @@
 _REPORT_ID_SUFFIX = "#"
+_DOUBLE_REPORT_ID_SUFFIX = _REPORT_ID_SUFFIX * 2
 
 
 def get_report_slug(report_id: str) -> str:
@@ -37,7 +38,7 @@ def get_report_id_candidates(report_slug: str) -> list[str]:
     kept_report_slug = _get_kept_report_slug(report_slug)
     return [
         kept_report_slug + _REPORT_ID_SUFFIX,
-        kept_report_slug + _REPORT_ID_SUFFIX * 2,
+        kept_report_slug + _DOUBLE_REPORT_ID_SUFFIX,
     ]
 
 
