@@ -68,3 +68,7 @@ export const DOCUMENT_TITLE_SEPARATOR = ' · '
 
 export const PAGE_TITLE_CLASS_NAME =
   'font-serif text-2xl font-semibold break-words outline-hidden lg:text-3xl'
+
+export const FIRST_PAGE = 1
+
+export const SEARCH_STALE_TIME = 5 * 60 * 1000

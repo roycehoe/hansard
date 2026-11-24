@@ -8,8 +8,7 @@ import {
   THIRD_READING_TITLE_LABEL,
 } from '@/constants/bills/constants'
 import { BillReportPart, BillStage } from '@/constants/bills/enums'
-
-const LEADING_THE_PATTERN = /^the\s+/i
+import { LEADING_THE_PATTERN } from '@/lib/utils'
 const BILL_WORD_PATTERN = /\bbill\b/i
 
 function getStageTitleLabel(stage: BillStage): string {

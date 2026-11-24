@@ -3,6 +3,7 @@ import type {
   GetSearchSpeechesRequest,
   GetSearchSpeechesResponse,
 } from '@/api/search/getSearchSpeeches'
+import { SEARCH_STALE_TIME } from '@/constants/constants'
 import { buildQueryString } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 
@@ -11,8 +12,6 @@ export interface GetSearchSpeechesByReportRequest extends GetSearchSpeechesReque
 }
 
 const REPORT_MATCHES_PAGE_SIZE = 100
-
-const SEARCH_STALE_TIME = 5 * 60 * 1000
 
 async function getSearchSpeechesByReportResponse(
   request: GetSearchSpeechesByReportRequest

@@ -1,5 +1,6 @@
 import { apiGet } from '@/api/client'
 import type { BillReportRole } from '@/constants/bills/enums'
+import { FIRST_PAGE } from '@/constants/constants'
 import { buildQueryString } from '@/lib/utils'
 import { useInfiniteQuery } from '@tanstack/react-query'
 
@@ -36,8 +37,6 @@ export interface GetPersonBillsResponse {
   has_next_page: boolean
   total_count: number
 }
-
-const FIRST_PAGE = 1
 
 const PAGE_SIZE = 100
 

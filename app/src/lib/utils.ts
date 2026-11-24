@@ -8,6 +8,7 @@ import {
   FILTER_ALL,
   HTTP_GATEWAY_TIMEOUT,
   HTTP_SERVICE_UNAVAILABLE,
+  NUMBER_LOCALE,
 } from '@/constants/constants'
 import {
   CONSTITUENCY_SUFFIX_WORDS,
@@ -113,6 +114,45 @@ export function splitIntoWords(text: string): string[] {
     .toLowerCase()
     .split(WORD_SEPARATOR)
     .filter((word) => word !== '')
+}
+
+export function formatCount(
+  count: number,
+  singular: string,
+  plural: string
+): string {
+  return `${count.toLocaleString(NUMBER_LOCALE)} ${count === 1 ? singular : plural}`
+}
+
+export function sortBySittingDateOldestFirst<
+  T extends { sitting_date: string },
+>(reports: T[]): T[] {
+  return [...reports].sort((a, b) =>
+    a.sitting_date.localeCompare(b.sitting_date)
+  )
+}
+
+export function splitQueryIntoWords(query: string): string[] {
+  return query.split(/\s+/).filter((word) => word !== '')
+}
+
+export const LEADING_THE_PATTERN = /^the\s+/i
+
+export const YEAR_PATTERN = /^\d{4}$/
+
+export const QUOTE = '"'
+
+export function createListenerStore() {
+  const listeners = new Set<() => void>()
+  return {
+    subscribe(listener: () => void) {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
+    },
+    notify() {
+      listeners.forEach((listener) => listener())
+    },
+  }
 }
 
 export function isEveryWordMatched(

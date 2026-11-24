@@ -1,4 +1,5 @@
 import { apiGet } from '@/api/client'
+import { FIRST_PAGE, SEARCH_STALE_TIME } from '@/constants/constants'
 import type { ReportType } from '@/constants/reports/enums'
 import type { SearchSort } from '@/constants/search/enums'
 import { buildQueryString } from '@/lib/utils'
@@ -32,10 +33,6 @@ export interface GetSearchReportsResponse {
   total_count: number
   is_total_capped: boolean
 }
-
-const FIRST_PAGE = 1
-
-const SEARCH_STALE_TIME = 5 * 60 * 1000
 
 async function getSearchReportsResponse(
   request: GetSearchReportsRequest,

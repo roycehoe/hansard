@@ -5,8 +5,8 @@ import type {
 } from '@/api/people/getPersonBills'
 import type { PersonPrintedRangesMembershipData } from '@/api/people/getPersonPrintedRanges'
 import { BillReportRole } from '@/constants/bills/enums'
-import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
+import { formatCount } from '@/lib/utils'
 
 export interface MemberTimelineBill {
   bill: PersonBillData
@@ -89,7 +89,7 @@ export function getPrintedRangeSittingDates(range: PrintedRangeData): string[] {
 }
 
 export function formatPrintedRangeSittingCount(sittingCount: number): string {
-  return `${sittingCount.toLocaleString(NUMBER_LOCALE)} ${sittingCount === 1 ? 'sitting' : 'sittings'}`
+  return formatCount(sittingCount, 'sitting', 'sittings')
 }
 
 export function formatPersonBillDates(reports: PersonBillReportData[]): string {
@@ -103,7 +103,7 @@ export function formatPersonBillDates(reports: PersonBillReportData[]): string {
 export function formatPersonBillParagraphCount(bill: PersonBillData): string {
   const paragraphCount =
     bill.reading_speech_count + bill.budget_debate_speech_count
-  return `${paragraphCount.toLocaleString(NUMBER_LOCALE)} ${paragraphCount === 1 ? 'paragraph' : 'paragraphs'}`
+  return formatCount(paragraphCount, 'paragraph', 'paragraphs')
 }
 
 export function isEveryPersonBillReportBudgetDebate(

@@ -1,8 +1,8 @@
 import { HIGHLIGHT_STOP_WORDS } from '@/constants/reports/constants'
 import { getSearchQueryTerms } from '@/lib/searchQuery'
+import { QUOTE } from '@/lib/utils'
 
 const MIN_HIGHLIGHT_TERM_LENGTH = 2
-const QUOTE = '"'
 const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/g
 const WORD_CHARACTER = '[\\p{L}\\p{N}_]'
 

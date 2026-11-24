@@ -1,4 +1,5 @@
 import { apiGet } from '@/api/client'
+import { FIRST_PAGE } from '@/constants/constants'
 import type { PersonReportFilter } from '@/constants/people/enums'
 import type { ReportType } from '@/constants/reports/enums'
 import { buildQueryString } from '@/lib/utils'
@@ -28,8 +29,6 @@ export interface GetPersonReportsResponse {
   total_count: number
   questions_asked_count: number
 }
-
-const FIRST_PAGE = 1
 
 async function getPersonReportsResponse(
   request: GetPersonReportsRequest,

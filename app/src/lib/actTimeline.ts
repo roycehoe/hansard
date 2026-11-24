@@ -9,13 +9,16 @@ import {
   THIRD_READING_LABEL,
 } from '@/constants/bills/constants'
 import { ActHistoryEntryKind, BillStage } from '@/constants/bills/enums'
-import { NUMBER_LOCALE } from '@/constants/constants'
+import {
+  formatCount,
+  LEADING_THE_PATTERN,
+  sortBySittingDateOldestFirst,
+} from '@/lib/utils'
 
 const CHAPTER_PATTERN = /\(chapter [^)]*\)/gi
 const PUNCTUATION_PATTERN = /[,.]/g
 const WHITESPACE_PATTERN = /\s+/g
 const TRAILING_YEAR_PATTERN = /\s+(of\s+)?\d{4}$/i
-const LEADING_THE_PATTERN = /^the\s+/i
 const ORDINANCE_PATTERN = /\bordinance\b/gi
 
 const ORIGINAL_KINDS = new Set<ActHistoryEntryKind>([
@@ -40,16 +43,10 @@ function getReports(entry: ActEntryData): ActEntryReportData[] {
   return entry.bill?.reports ?? []
 }
 
-function sortReportsOldestFirst(
-  reports: ActEntryReportData[]
-): ActEntryReportData[] {
-  return [...reports].sort((a, b) =>
-    a.sitting_date.localeCompare(b.sitting_date)
-  )
-}
-
 function getFirstReportDate(entry: ActEntryData): string | null {
-  return sortReportsOldestFirst(getReports(entry))[0]?.sitting_date ?? null
+  return (
+    sortBySittingDateOldestFirst(getReports(entry))[0]?.sitting_date ?? null
+  )
 }
 
 export function normaliseLawName(title: string): string {
@@ -109,7 +106,7 @@ export function isEntryBackdated(entry: ActEntryData): boolean {
 }
 
 function getEntryEventsOldestFirst(entry: ActEntryData): ActEvent[] {
-  const reports = sortReportsOldestFirst(getReports(entry))
+  const reports = sortBySittingDateOldestFirst(getReports(entry))
   const labels = getReportLabels(reports)
   const readings = reports.map((report, index): ActEvent => ({
     kind: ActEventKind.READING,
@@ -202,5 +199,5 @@ export function findOriginalEntryOrdinal(
 export function formatOtherActCount(actCount: number): string | null {
   const otherActCount = actCount - 1
   if (otherActCount < 1) return null
-  return `Also changed ${otherActCount.toLocaleString(NUMBER_LOCALE)} other ${otherActCount === 1 ? 'Act' : 'Acts'}`
+  return `Also changed ${formatCount(otherActCount, 'other Act', 'other Acts')}`
 }

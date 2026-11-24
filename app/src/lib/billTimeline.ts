@@ -4,8 +4,8 @@ import type {
   ReportBillData,
   ReportBillReportData,
 } from '@/api/reports/getReport'
-import { NUMBER_LOCALE } from '@/constants/constants'
 import { getReportLabels, normaliseLawName } from '@/lib/actTimeline'
+import { formatCount, sortBySittingDateOldestFirst } from '@/lib/utils'
 
 export interface TimelineReading {
   reportSlug: string
@@ -70,9 +70,7 @@ export function isTimelineShown(bill: ReportBillData): boolean {
 export function getBillTimelineReadings(
   reports: ReportBillReportData[]
 ): TimelineReading[] {
-  const reportsOldestFirst = [...reports].sort((a, b) =>
-    a.sitting_date.localeCompare(b.sitting_date)
-  )
+  const reportsOldestFirst = sortBySittingDateOldestFirst(reports)
   const labels = getReportLabels(reportsOldestFirst)
   return reportsOldestFirst.map((report, index) => ({
     reportSlug: report.report_slug,
@@ -92,7 +90,7 @@ export function getTimelineOtherActs(
 }
 
 export function formatChangedActCount(actCount: number): string {
-  return `Changed ${actCount.toLocaleString(NUMBER_LOCALE)} ${actCount === 1 ? 'Act' : 'Acts'}`
+  return `Changed ${formatCount(actCount, 'Act', 'Acts')}`
 }
 
 // NOTE: the Act's entry for this Bill is its first entry whose Bill has a reading on this Bill's reports, so the rail can print the date the record gives it in force.

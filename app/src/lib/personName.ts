@@ -1,5 +1,6 @@
 import type { PersonData } from '@/api/people/getAllPersons'
 import { PersonNameSpellingKind } from '@/constants/people/enums'
+import { splitQueryIntoWords } from '@/lib/utils'
 import type { PersonNameSpellingData } from '@/types/people/interfaces'
 
 const NON_WORD_RUN = /[^\p{L}\p{N}]+/gu
@@ -134,7 +135,7 @@ export function getNamedPerson(
   query: string,
   persons: PersonData[]
 ): { person: PersonData; otherWords: string } | undefined {
-  const typedWords = query.split(/\s+/).filter((word) => word !== '')
+  const typedWords = splitQueryIntoWords(query)
   const firstWordAfterTitles = typedWords.findIndex(
     (word) => !PERSON_TITLE_WORDS.has(getSpacedName(word))
   )

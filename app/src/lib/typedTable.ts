@@ -1,4 +1,5 @@
 import { splitSuperscripts } from '@/lib/typedSuperscript'
+import { YEAR_PATTERN } from '@/lib/utils'
 
 export interface MergedHeaderCell {
   text: string
@@ -54,7 +55,6 @@ export function mergeHeaderRows(headerRows: string[][]): MergedHeader {
 }
 
 const NUMBER_PATTERN = /^[-+−–(]?(?:S?\$)?\d[\d,]*(?:\.\d+)?%?\)?$/
-const YEAR_PATTERN = /^\d{4}$/
 const PLACEHOLDER_PATTERN = /^(?:-|–|—|nil|n\.?a\.?)$/i
 
 function stripSuperscripts(text: string): string {

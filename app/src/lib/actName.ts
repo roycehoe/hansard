@@ -1,4 +1,5 @@
 import type { ActSummaryData } from '@/api/acts/getAllActs'
+import { splitQueryIntoWords } from '@/lib/utils'
 
 const QUOTE_PATTERN = /["“”]/g
 const PUNCTUATION_PATTERN = /[^\p{L}\p{N}]/gu
@@ -50,7 +51,7 @@ export function getNamedAct(
   query: string,
   acts: ActSummaryData[]
 ): { act: ActSummaryData; typedName: string; otherWords: string } | undefined {
-  const typedWords = query.split(/\s+/).filter((word) => word !== '')
+  const typedWords = splitQueryIntoWords(query)
   const matchWords = typedWords.map(getMatchWord)
   const [longestMatch] = acts
     .flatMap((act) => {

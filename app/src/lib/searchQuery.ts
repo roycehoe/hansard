@@ -2,10 +2,10 @@ import {
   FIRST_SITTING_DATE,
   SEARCH_DATE_OUT_OF_RANGE_ERROR,
 } from '@/constants/search/constants'
+import { QUOTE, splitQueryIntoWords, YEAR_PATTERN } from '@/lib/utils'
 
 const SEARCH_TOKEN_PATTERN = /(-?)"([^"]*)"?|[^\s"]+/g
 const CURLY_QUOTES = /[“”]/g
-const QUOTE = '"'
 const WORD_CHARACTER = /[\p{L}\p{N}]/u
 const WORD_EDGE = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu
 const LETTER = /\p{L}/gu
@@ -31,7 +31,6 @@ const SECTION_WORD = 'section'
 const PLURAL_SECTION_WORD = 'sections'
 const ARTICLE_WORD = 'article'
 const CLAUSE_WORD = 'clause'
-const YEAR_PATTERN = /^\d{4}$/
 const FIRST_SITTING_YEAR = Number(FIRST_SITTING_DATE.slice(0, 4))
 const MONTH_NAMES = new Set([
   'january',
@@ -229,7 +228,7 @@ export function getTrailingYear(
   query: string,
   currentYear: number
 ): { otherWords: string; year: string } | undefined {
-  const words = query.split(/\s+/).filter((word) => word !== '')
+  const words = splitQueryIntoWords(query)
   if (words.length < 2 || hasSearchOperator(query)) return undefined
   const otherWords = words.slice(0, -1)
   const year = words[words.length - 1]

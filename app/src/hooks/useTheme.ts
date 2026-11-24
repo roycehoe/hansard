@@ -4,11 +4,12 @@ import {
   THEME_STORAGE_KEY,
 } from '@/constants/appearance/constants'
 import { ColourChoice } from '@/constants/appearance/enums'
+import { createListenerStore } from '@/lib/utils'
 import { useSyncExternalStore } from 'react'
 
 export type Theme = 'light' | 'dark'
 
-const listeners = new Set<() => void>()
+const themeStore = createListenerStore()
 
 function readStoredColourChoice(): ColourChoice {
   try {
@@ -30,11 +31,6 @@ function readTheme(): Theme {
 
 function readColourChoice(): ColourChoice {
   return colourChoice
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
 }
 
 function storeColourChoice(choice: ColourChoice) {
@@ -67,21 +63,25 @@ export function setColourChoice(choice: ColourChoice) {
       matchMedia(DARK_SCHEME_MEDIA_QUERY).matches)
   toggleDarkClassWithoutTransitions(isDark)
   storeColourChoice(choice)
-  listeners.forEach((listener) => listener())
+  themeStore.notify()
 }
 
 if (typeof matchMedia === 'function') {
   matchMedia(DARK_SCHEME_MEDIA_QUERY).addEventListener('change', (event) => {
     if (colourChoice !== ColourChoice.AUTOMATIC) return
     toggleDarkClassWithoutTransitions(event.matches)
-    listeners.forEach((listener) => listener())
+    themeStore.notify()
   })
 }
 
 export function useTheme() {
-  const theme = useSyncExternalStore(subscribe, readTheme, (): Theme => 'light')
+  const theme = useSyncExternalStore(
+    themeStore.subscribe,
+    readTheme,
+    (): Theme => 'light'
+  )
   const currentColourChoice = useSyncExternalStore(
-    subscribe,
+    themeStore.subscribe,
     readColourChoice,
     () => ColourChoice.AUTOMATIC
   )

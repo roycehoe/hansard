@@ -4,6 +4,7 @@ import {
   ContentWidth,
   TextSize,
 } from '@/constants/appearance/enums'
+import { createListenerStore } from '@/lib/utils'
 import { useSyncExternalStore } from 'react'
 
 export interface Appearance {
@@ -18,7 +19,7 @@ const DEFAULT_APPEARANCE: Appearance = {
   columnNumbers: ColumnNumbers.HIDE,
 }
 
-const listeners = new Set<() => void>()
+const appearanceStore = createListenerStore()
 
 function pickOption<T extends string>(
   options: T[],
@@ -61,11 +62,6 @@ function readAppearance(): Appearance {
   return appearance
 }
 
-function subscribe(listener: () => void) {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
-}
-
 function applyAppearance(next: Appearance) {
   const { dataset } = document.documentElement
   dataset.textSize = next.textSize
@@ -81,12 +77,12 @@ export function changeAppearance(change: Partial<Appearance>) {
   } catch {
     /* storage unavailable: the attributes on <html> still apply */
   }
-  listeners.forEach((listener) => listener())
+  appearanceStore.notify()
 }
 
 export function useAppearance() {
   const current = useSyncExternalStore(
-    subscribe,
+    appearanceStore.subscribe,
     readAppearance,
     () => DEFAULT_APPEARANCE
   )
