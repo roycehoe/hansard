@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 _PUBLIC_MODE_ON = "true"
 
 
-def _get_is_public_mode(public_mode: object) -> bool:
+def _is_public_mode(public_mode: object) -> bool:
     return str(public_mode).strip().lower() == _PUBLIC_MODE_ON
 
 
@@ -27,7 +27,7 @@ class AppSettings(BaseSettings):
     @field_validator("is_public_mode", mode="before")
     @classmethod
     def parse_is_public_mode(cls, public_mode: object) -> bool:
-        return _get_is_public_mode(public_mode)
+        return _is_public_mode(public_mode)
 
 
 class WebsiteSettings(BaseSettings):
@@ -42,7 +42,7 @@ class WebsiteSettings(BaseSettings):
     @field_validator("is_public_mode", mode="before")
     @classmethod
     def parse_is_public_mode(cls, public_mode: object) -> bool:
-        return _get_is_public_mode(public_mode)
+        return _is_public_mode(public_mode)
 
     @model_validator(mode="after")
     def validate_basic_auth_credentials(self) -> Self:

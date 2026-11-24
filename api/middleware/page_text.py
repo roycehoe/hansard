@@ -1183,7 +1183,7 @@ def _get_act_event_item_html(
     )
 
 
-def _has_act_reports(entries: list[ActEntryData]) -> bool:
+def _is_act_with_reports(entries: list[ActEntryData]) -> bool:
     return any(entry.bill is not None and entry.bill.reports != [] for entry in entries)
 
 
@@ -1203,7 +1203,7 @@ def _get_act_event_lines(act: GetActResponse) -> list[str]:
 
 
 def _get_act_search_lines(act: GetActResponse) -> list[str]:
-    if not _has_act_reports(act.entries):
+    if not _is_act_with_reports(act.entries):
         return []
     search_query = urlencode({_ACT_PARAMETER: act.sso_code})
     return [
