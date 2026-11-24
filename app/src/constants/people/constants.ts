@@ -13,6 +13,9 @@ export const MEMBER_TIMELINE_HEADING = 'Offices and Bills'
 export const MEMBERSHIP_CONTINUED_NOTE =
   'This membership continued into Parliament 1, where it appears in the Memberships table.'
 
+export const BILL_DEFINITION =
+  'A Bill the member spoke on, at one of its readings or in the Budget debate. Speaking from the chair does not count.'
+
 export const OFFICE_DATES_DEFINITION =
   'The first and last sittings whose attendance list prints this office beside the name. They are not the dates of appointment or of leaving office.'
 

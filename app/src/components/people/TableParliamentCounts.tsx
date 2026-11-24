@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/table'
 import {
   ABSENCE_DEFINITION,
-  BILL_DEFINITION,
   NUMBER_LOCALE,
   QUESTION_DEFINITION,
 } from '@/constants/constants'
+import { BILL_DEFINITION } from '@/constants/people/constants'
 import { formatParliament } from '@/lib/format'
 
 const NUMBER_HEAD_CLASS_NAME = 'text-right whitespace-normal sm:pl-8'

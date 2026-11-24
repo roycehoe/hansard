@@ -14,10 +14,11 @@ import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailabl
 import { SectionReportHeader } from '@/components/reports/SectionReportHeader'
 import { SkeletonReport } from '@/components/reports/SkeletonReport'
 import { TextReportProblem } from '@/components/reports/TextReportProblem'
-import { HTTP_GONE, REPORT_RECORD_NAME } from '@/constants/constants'
 import {
+  HTTP_GONE,
   REFERENCED_WRITTEN_ANSWER_LABEL,
   REFERENCING_ORAL_ANSWER_LABEL,
+  REPORT_RECORD_NAME,
   SPEECH_ANCHOR_MAX_LENGTH,
 } from '@/constants/reports/constants'
 import { SEARCH_WORDS_MAX_LENGTH } from '@/constants/search/constants'

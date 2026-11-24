@@ -120,6 +120,10 @@ export const REPORT_TYPE_GROUPS: {
   },
 ]
 
+export const HTTP_GONE = 410
+
+export const REPORT_RECORD_NAME = 'Singapore Hansard'
+
 export const TEXTLESS_ASSENT_FIRST_SITTING = '2012-09-10'
 
 export const REPORT_TYPES_LINK_LABEL = 'What the types mean'

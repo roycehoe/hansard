@@ -1,7 +1,5 @@
 import { SCRAPER_SOURCE_CODE_URL, SOURCE_CODE_URL } from '@/constants/constants'
 
-export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
-
 export const METHODS_LAST_REVISED = '2026-11-21'
 
 export const METHODS_TERMS_SECTION_ID = 'terms'

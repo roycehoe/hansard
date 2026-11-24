@@ -20,8 +20,6 @@ export const HTTP_NO_CONTENT = 204
 
 export const HTTP_NOT_FOUND = 404
 
-export const HTTP_GONE = 410
-
 export const HTTP_SERVER_ERROR_MIN = 500
 
 export const HTTP_SERVICE_UNAVAILABLE = 503
@@ -58,9 +56,6 @@ export const REVISED_EDITION_DEFINITION =
 export const QUESTION_DEFINITION =
   'A question a member asks a minister, either aloud at Question Time, the part of a sitting set aside for questions, or in writing. Ministers answer questions, and the Speaker and Deputy Speakers run the sitting, so members in those roles ask few or none.'
 
-export const BILL_DEFINITION =
-  'A Bill the member spoke on, at one of its readings or in the Budget debate. Speaking from the chair does not count.'
-
 export const DEFAULT_QUERY_RETRY_COUNT = 3
 
 export const SEARCH_BUSY_RETRY_COUNT = 1
@@ -68,7 +63,6 @@ export const SEARCH_BUSY_RETRY_COUNT = 1
 export const SITE_NAME = 'Open Hansard'
 export const HOME_DOCUMENT_TITLE =
   'Open Hansard: search Singapore Parliament debates since 1955'
-export const REPORT_RECORD_NAME = 'Singapore Hansard'
 
 export const DOCUMENT_TITLE_SEPARATOR = ' · '
 
@@ -78,6 +72,8 @@ export const PAGE_TITLE_CLASS_NAME =
 export const FIRST_PAGE = 1
 
 export const SEARCH_STALE_TIME = 5 * 60 * 1000
+
+export const COVERAGE_STALE_TIME_MILLISECONDS = 60 * 60 * 1000
 
 export const LINK_CLASS_NAME =
   'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
