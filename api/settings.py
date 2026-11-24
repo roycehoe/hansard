@@ -16,6 +16,7 @@ class AppSettings(BaseSettings):
 
     database_url: str
     takedown_report_slugs: str = ""
+    allowed_cors_origin: str = "http://localhost:5173"
     site_url: Optional[str] = None
     contact_email: Optional[str] = None
     goatcounter_site_url: Optional[str] = None

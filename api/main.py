@@ -45,7 +45,7 @@ app.add_middleware(ResponseCacheMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[settings.allowed_cors_origin],
     allow_methods=["*"],
     allow_headers=["*"],
 )
