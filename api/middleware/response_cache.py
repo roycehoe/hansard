@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from time import monotonic
-from typing import Optional
+from typing import Any, Optional
 from urllib.parse import parse_qsl
 
 from fastapi import status
@@ -75,7 +75,7 @@ def _get_path_pattern(path_template: str) -> re.Pattern[str]:
     )
 
 
-def _get_declared_routes(openapi_schema: dict) -> list[_DeclaredRoute]:
+def _get_declared_routes(openapi_schema: dict[str, Any]) -> list[_DeclaredRoute]:
     return [
         _DeclaredRoute(
             _get_path_pattern(path_template),

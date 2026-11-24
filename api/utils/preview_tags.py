@@ -2,7 +2,7 @@ import json
 import re
 from datetime import date
 from html import escape
-from typing import Optional
+from typing import Any, Optional
 from urllib.parse import quote
 
 from utils.site_address import QUERY_SEPARATOR, SITE_NAME, URL_SEPARATOR
@@ -44,7 +44,7 @@ def _get_page_title(title: str) -> str:
     return f"{title}{_TITLE_SEPARATOR}{SITE_NAME}"
 
 
-def _get_structured_data_script_html(structured_data: dict) -> str:
+def _get_structured_data_script_html(structured_data: dict[str, Any]) -> str:
     structured_data_json = json.dumps(structured_data).replace(
         _SCRIPT_TAG_OPENER, _ESCAPED_SCRIPT_TAG_OPENER
     )
@@ -53,7 +53,7 @@ def _get_structured_data_script_html(structured_data: dict) -> str:
 
 def _get_report_structured_data(
     origin: str, path: str, report_title: str, sitting_date: date
-) -> dict:
+) -> dict[str, Any]:
     return {
         "@context": _SCHEMA_CONTEXT,
         "@graph": [
