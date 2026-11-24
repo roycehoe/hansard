@@ -6,6 +6,7 @@ from threading import Thread
 from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
 
+from main import GZIP_COMPRESSION_LEVEL
 from main import app as api_app
 from middleware.basic_auth import BasicAuthMiddleware
 from middleware.cache_fill import (
@@ -17,8 +18,6 @@ from middleware.security_headers import SecurityHeadersMiddleware
 from middleware.takedown import TakedownMiddleware
 from routers import embed, sitemap
 from settings import WebsiteSettings
-
-_GZIP_COMPRESSION_LEVEL = 4
 
 website_settings = WebsiteSettings()
 
@@ -56,7 +55,7 @@ if not website_settings.is_public_mode:
         password=website_settings.basic_auth_password,
     )
 
-app.add_middleware(GZipMiddleware, compresslevel=_GZIP_COMPRESSION_LEVEL)
+app.add_middleware(GZipMiddleware, compresslevel=GZIP_COMPRESSION_LEVEL)
 
 app.add_middleware(SecurityHeadersMiddleware)
 

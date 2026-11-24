@@ -1,4 +1,4 @@
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time
 from typing import Optional
 
 from sqlalchemy import ColumnElement, Date, Float, Select, func, literal, or_
@@ -12,6 +12,7 @@ from database.speech import Speech
 from enums import ReportType, SearchSort, SpeechKind
 from utils.location_name import get_folded_location_name
 from utils.search_query import is_hyphenated_word_in_query, is_quoted_or_query
+from utils.sitting_date import ONE_DAY, SITTING_DATE_FORMAT
 from utils.text_search import (
     HEADLINE_OPTIONS,
     HIGHLIGHT_ALL_OPTIONS,
@@ -22,10 +23,8 @@ from utils.text_search import (
     get_rank_tsquery,
 )
 
-_ONE_DAY = timedelta(days=1)
 _BEFORE_FIRST_SITTING = datetime(1900, 1, 1)
 _AFTER_LAST_SITTING = datetime(2100, 1, 1)
-_SITTING_DATE_FORMAT = "DD-MM-YYYY"
 _NO_SPEAKER_LABEL = ""
 
 
@@ -43,7 +42,7 @@ def _get_report_filters(
     if date_from is not None:
         filters.append(Report.sitting_date >= date_from)
     if date_to is not None:
-        filters.append(Report.sitting_date < date_to + _ONE_DAY)
+        filters.append(Report.sitting_date < date_to + ONE_DAY)
     if report_type is not None:
         filters.append(Report.report_type == report_type)
     if excluded_report_ids:
@@ -89,7 +88,7 @@ def _get_location_name_filters(
 ) -> list[ColumnElement]:
     if location_name is None:
         return []
-    sitting_date = func.to_date(Sitting.sitting_date, _SITTING_DATE_FORMAT, type_=Date)
+    sitting_date = func.to_date(Sitting.sitting_date, SITTING_DATE_FORMAT, type_=Date)
     span_filters = [
         get_folded_location_name(Attendance.location_name)
         == get_folded_location_name(literal(location_name))
@@ -116,7 +115,7 @@ def _get_location_name_filters(
         .where(Speech.sitting_date >= membership_spans_at_location.c.first_sitting_date)
         .where(
             Speech.sitting_date
-            < membership_spans_at_location.c.last_sitting_date + _ONE_DAY
+            < membership_spans_at_location.c.last_sitting_date + ONE_DAY
         )
         .exists()
     ]
@@ -161,7 +160,7 @@ def _get_query_filters(
     if date_from is not None:
         filters.append(Speech.sitting_date >= _get_midnight(date_from))
     if date_to is not None:
-        filters.append(Speech.sitting_date < _get_midnight(date_to + _ONE_DAY))
+        filters.append(Speech.sitting_date < _get_midnight(date_to + ONE_DAY))
     if report_type is not None:
         filters.append(Speech.report_type == report_type)
     if membership_ids is not None:

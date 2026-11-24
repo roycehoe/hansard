@@ -5,17 +5,15 @@ from html import escape
 from typing import Optional
 from urllib.parse import quote
 
+from utils.site_address import QUERY_SEPARATOR, SITE_NAME, URL_SEPARATOR
 from utils.sitting_date import get_sitting_date_label
 
-_SITE_NAME = "Open Hansard"
 _TITLE_SEPARATOR = " · "
 _TWITTER_CARD = "summary"
 _TAG_SEPARATOR = "\n    "
 _PREVIEW_TAGS_START = "<!--preview-tags-->"
 _PREVIEW_TAGS_END = "<!--/preview-tags-->"
 _NO_MARKER = ""
-_QUERY_SEPARATOR = "?"
-_URL_SEPARATOR = "/"
 _HOME_PATH = "/"
 _NO_STRUCTURED_DATA = ""
 _SCHEMA_CONTEXT = "https://schema.org"
@@ -41,9 +39,9 @@ _URI_COMPONENT_SAFE_CHARACTERS = "!*'()"
 
 
 def _get_page_title(title: str) -> str:
-    if title.startswith(_SITE_NAME):
+    if title.startswith(SITE_NAME):
         return title
-    return f"{title}{_TITLE_SEPARATOR}{_SITE_NAME}"
+    return f"{title}{_TITLE_SEPARATOR}{SITE_NAME}"
 
 
 def _get_structured_data_script_html(structured_data: dict) -> str:
@@ -63,10 +61,10 @@ def _get_report_structured_data(
                 "@type": _ARTICLE_TYPE,
                 "headline": report_title,
                 "datePublished": sitting_date.isoformat(),
-                "url": f"{origin}{path.partition(_QUERY_SEPARATOR)[0]}",
+                "url": f"{origin}{path.partition(QUERY_SEPARATOR)[0]}",
                 "publisher": {
                     "@type": _ORGANIZATION_TYPE,
-                    "name": _SITE_NAME,
+                    "name": SITE_NAME,
                     "url": f"{origin}{_HOME_PATH}",
                 },
             },
@@ -103,7 +101,7 @@ def get_structured_data_html(
     sitting_date: Optional[date],
     person_name: str,
 ) -> str:
-    origin = site_url.rstrip(_URL_SEPARATOR)
+    origin = site_url.rstrip(URL_SEPARATOR)
     if sitting_date is not None:
         return _get_structured_data_script_html(
             _get_report_structured_data(origin, path, report_title, sitting_date)
@@ -113,7 +111,7 @@ def get_structured_data_html(
             {
                 "@context": _SCHEMA_CONTEXT,
                 "@type": _WEBSITE_TYPE,
-                "name": _SITE_NAME,
+                "name": SITE_NAME,
                 "url": f"{origin}{_HOME_PATH}",
             }
         )
@@ -153,7 +151,7 @@ def get_preview_tags_html(
         f'<meta property="og:title" content="{escape(title)}" />',
         f'<meta property="og:description" content="{escape(description)}" />',
         f'<meta property="og:type" content="{escape(preview_type)}" />',
-        f'<meta property="og:site_name" content="{_SITE_NAME}" />',
+        f'<meta property="og:site_name" content="{SITE_NAME}" />',
         f'<meta name="twitter:card" content="{_TWITTER_CARD}" />',
     ]
     url_tags = (
@@ -161,7 +159,7 @@ def get_preview_tags_html(
         if url is None
         else [
             f'<meta property="og:url" content="{escape(url)}" />',
-            f'<link rel="canonical" href="{escape(url.partition(_QUERY_SEPARATOR)[0])}" />',
+            f'<link rel="canonical" href="{escape(url.partition(QUERY_SEPARATOR)[0])}" />',
         ]
     )
     structured_data_tags = (

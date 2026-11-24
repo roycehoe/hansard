@@ -6,8 +6,7 @@ from sqlmodel import Session, select
 
 from database.attendance import Attendance
 from database.sitting import Sitting
-
-_SITTING_DATE_FORMAT = "DD-MM-YYYY"
+from utils.sitting_date import SITTING_DATE_FORMAT
 
 
 class CRUDSitting:
@@ -36,7 +35,7 @@ class CRUDSitting:
             select(Attendance.sitting_id).distinct().subquery()
         )
         statement = select(
-            func.max(func.to_date(Sitting.sitting_date, _SITTING_DATE_FORMAT))
+            func.max(func.to_date(Sitting.sitting_date, SITTING_DATE_FORMAT))
         ).join(
             sitting_ids_with_attendance,
             sitting_ids_with_attendance.c.sitting_id == Sitting.id,

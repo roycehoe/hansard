@@ -4,8 +4,7 @@ from sqlmodel import Session, select
 from database.attendance import Attendance
 from database.report import Report
 from database.sitting import Sitting
-
-_SITTING_DATE_FORMAT = "DD-MM-YYYY"
+from utils.sitting_date import SITTING_DATE_FORMAT
 
 
 class CRUDAttendance:
@@ -15,7 +14,7 @@ class CRUDAttendance:
     def get_parliament_number_to_count_by_membership_ids_and_is_present(
         self, membership_ids: list[int], is_present: bool
     ) -> dict[int, int]:
-        sitting_date = func.to_date(Sitting.sitting_date, _SITTING_DATE_FORMAT)
+        sitting_date = func.to_date(Sitting.sitting_date, SITTING_DATE_FORMAT)
         # NOTE: equality on the sitting date, not a cast of it, so each sitting probes the report index; every report is dated midnight, and a one-day range's cost estimate set off JIT
         sitting_parliament_numbers = (
             select(Report.parliament_number)

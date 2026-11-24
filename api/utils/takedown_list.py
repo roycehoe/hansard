@@ -2,10 +2,10 @@ import re
 from urllib.parse import unquote
 
 from utils.report_slug import get_normalised_report_slug
+from utils.site_address import QUERY_SEPARATOR
 
 _ENTRY_SEPARATOR = ","
 _PATH_SEPARATOR = "/"
-_QUERY_SEPARATOR = "?"
 _REPORT_SLUG_PATTERN = re.compile(r"[A-Za-z0-9#._-]+")
 
 
@@ -15,7 +15,7 @@ def _get_listed_report_slug(takedown_list_entry: str, entry_number: int) -> str:
         raise ValueError(
             f"TAKEDOWN_REPORT_SLUGS entry {entry_number} holds a path, not a report slug."
         )
-    if _QUERY_SEPARATOR in report_slug:
+    if QUERY_SEPARATOR in report_slug:
         raise ValueError(
             f"TAKEDOWN_REPORT_SLUGS entry {entry_number} holds a query, not a report slug."
         )

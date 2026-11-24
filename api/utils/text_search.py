@@ -2,6 +2,7 @@ from functools import reduce
 
 from sqlalchemy import ColumnElement, and_, false, func, literal_column, not_, or_
 
+from utils.postgres_regexp import CASE_INSENSITIVE_FLAG
 from utils.search_query import (
     SearchQueryGroup,
     SearchQueryTerm,
@@ -22,7 +23,6 @@ TEXT_SEARCH_CONFIGURATION = literal_column("'english'")
 EXACT_TEXT_SEARCH_CONFIGURATION = literal_column("'simple'")
 HEADLINE_OPTIONS = "StartSel=<mark>, StopSel=</mark>, MaxWords=35, MinWords=15"
 HIGHLIGHT_ALL_OPTIONS = "StartSel=<mark>, StopSel=</mark>, HighlightAll=true"
-_CASE_INSENSITIVE = "i"
 _WORD_SEPARATOR = " "
 
 
@@ -90,7 +90,7 @@ def _get_exact_form_filters(
     return [
         *[
             text_column.regexp_match(
-                get_exact_form_pattern(term.words), flags=_CASE_INSENSITIVE
+                get_exact_form_pattern(term.words), flags=CASE_INSENSITIVE_FLAG
             )
             for term in group.terms
             if term.is_quoted and not term.is_excluded
@@ -98,7 +98,7 @@ def _get_exact_form_filters(
         *[
             not_(
                 text_column.regexp_match(
-                    get_exact_form_pattern(term.words), flags=_CASE_INSENSITIVE
+                    get_exact_form_pattern(term.words), flags=CASE_INSENSITIVE_FLAG
                 )
             )
             for term in group.terms
@@ -142,7 +142,7 @@ def _get_excluded_term_match(
 ) -> ColumnElement:
     if term.is_quoted:
         return text_column.regexp_match(
-            get_exact_form_pattern(term.words), flags=_CASE_INSENSITIVE
+            get_exact_form_pattern(term.words), flags=CASE_INSENSITIVE_FLAG
         )
     return tsv_column.op("@@")(
         func.websearch_to_tsquery(

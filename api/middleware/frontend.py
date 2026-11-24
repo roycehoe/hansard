@@ -25,6 +25,7 @@ from utils.preview_tags import (
     get_report_data_preload_html,
     get_structured_data_html,
 )
+from utils.site_address import URL_SEPARATOR
 
 _INDEX_FILE = "index.html"
 _ASSETS_PATH_PREFIX = "assets/"
@@ -39,7 +40,6 @@ _DIRECTORY_INDEX_PATH = "."
 _PATH_KEY = "path"
 _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
-_URL_SEPARATOR = "/"
 _USER_AGENT_HEADER = "user-agent"
 _VARY_HEADER = "Vary"
 _FETCH_DESTINATION_HEADER = "Sec-Fetch-Dest"
@@ -68,7 +68,7 @@ def _get_page_preview(
 def _get_preview_url(site_url: Optional[str], path: str) -> Optional[str]:
     if site_url is None:
         return None
-    return f"{site_url.rstrip(_URL_SEPARATOR)}{path}"
+    return f"{site_url.rstrip(URL_SEPARATOR)}{path}"
 
 
 # NOTE: a report is the only page whose preview carries a sitting date. The page asks for the plain report only while the address has no s or q; with either, the app's request carries a query string whose form depends on how it parses them, and a preload that differs from the request is downloaded for nothing

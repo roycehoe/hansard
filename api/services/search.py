@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 from typing import Optional
 
 from sqlmodel import Session
@@ -31,12 +31,12 @@ from utils.marked_words import get_headline_without_nested_marks
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
 from utils.search_query import is_query_only_excluded_words
+from utils.sitting_date import ONE_DAY
 from utils.speaker_label import CHAIR_SPEAKER_LABEL_PATTERN
 from utils.speech_link import get_speech_anchor
 from utils.transcript_snippet import get_transcript_snippet
 
 _MAX_COUNTED_MATCHES = 1_000
-_ONE_DAY = timedelta(days=1)
 MAX_SEARCH_PAGE = 50
 _CHAIR_WORD_PATTERN = r"(?i)speaker|chairman"
 
@@ -168,7 +168,7 @@ def _get_newest_first_date_ranges(
     # NOTE: the latest Parliament the search reaches, then everything older in one step, because walking each older Parliament on its own cost up to 54 statements and 218 ms for a word last common before 1965, against 5 statements and 35 ms
     return [
         _DateRange(first_sitting_date, date_to),
-        _DateRange(date_from, first_sitting_date - _ONE_DAY),
+        _DateRange(date_from, first_sitting_date - ONE_DAY),
     ]
 
 

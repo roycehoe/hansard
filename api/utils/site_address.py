@@ -1,0 +1,3 @@
+SITE_NAME = "Open Hansard"
+URL_SEPARATOR = "/"
+QUERY_SEPARATOR = "?"

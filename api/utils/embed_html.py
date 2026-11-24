@@ -6,6 +6,7 @@ from itertools import accumulate
 from typing import Optional
 from urllib.parse import quote, urlencode
 
+from utils.site_address import SITE_NAME
 from utils.sitting_date import get_sitting_date_label
 
 _MAX_QUOTE_LENGTH = 900
@@ -22,7 +23,6 @@ _NO_SPEAKER_LABEL = ""
 _NO_ANCHOR = ""
 _SPEECH_ORDINAL_PARAMETER = "s"
 _SPEECH_ANCHOR_PARAMETER = "q"
-_SITE_NAME = "Open Hansard"
 _NEW_TAB_LABEL = " (opens in a new tab)"
 # NOTE: the light theme's foreground, muted foreground, separator and link from app/src/palette.css. The page has no background of its own, so the host page's shows through, and no dark theme, because the host's background stays light when the reader's system is dark. A host frame has the fixed height the copied code set, so in a frame too short for the paragraph the quote scrolls and the source line stays in view
 _EMBED_STYLE = (
@@ -165,15 +165,15 @@ def get_speech_embed_html(
         "</p></blockquote>"
         f'<figcaption><a href="{escape(speech_path)}" target="_blank" '
         f'rel="nofollow noopener">Hansard, {escape(sitting_date_label)}'
-        f'<span class="sr-only">{_NEW_TAB_LABEL}</span></a>, on {_SITE_NAME}.'
+        f'<span class="sr-only">{_NEW_TAB_LABEL}</span></a>, on {SITE_NAME}.'
         "</figcaption></figure>",
     )
 
 
 def get_notice_embed_html(title: str, description: str) -> str:
     return _get_embed_document_html(
-        _SITE_NAME,
+        SITE_NAME,
         '<figure><div class="quote notice">'
         f'<p><strong>{escape(title)}</strong></p><p class="note">{escape(description)}</p>'
-        f"</div><figcaption>{_SITE_NAME}</figcaption></figure>",
+        f"</div><figcaption>{SITE_NAME}</figcaption></figure>",
     )

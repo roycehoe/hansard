@@ -5,12 +5,12 @@ from fastapi import status
 from starlette.responses import RedirectResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
+from utils.site_address import QUERY_SEPARATOR, URL_SEPARATOR
+
 _HTTP_SCOPE_TYPE = "http"
 _PATH_KEY = "path"
 _QUERY_STRING_KEY = "query_string"
 _QUERY_STRING_ENCODING = "latin-1"
-_QUERY_SEPARATOR = "?"
-_URL_SEPARATOR = "/"
 _ABOUT_PATH = "/about"
 _HOW_PARLIAMENT_WORKS_PATH = "/how-parliament-works"
 _COVERAGE_PATH = "/coverage"
@@ -43,16 +43,16 @@ def _should_drop_trailing_slash(path: str, page_path: str) -> bool:
 def _get_url_with_query_string(page_path: str, query_string: bytes) -> str:
     if not query_string:
         return page_path
-    return page_path + _QUERY_SEPARATOR + query_string.decode(_QUERY_STRING_ENCODING)
+    return page_path + QUERY_SEPARATOR + query_string.decode(_QUERY_STRING_ENCODING)
 
 
 def _get_redirect_url(path: str, query_string: bytes) -> Optional[str]:
-    page_path = path.rstrip(_URL_SEPARATOR)
+    page_path = path.rstrip(URL_SEPARATOR)
     if _is_page_moved_under_about(page_path):
         return _get_url_with_query_string(_ABOUT_PATH + page_path, query_string)
     if _should_drop_trailing_slash(path, page_path):
         return _get_url_with_query_string(
-            quote(page_path, safe=_URL_SEPARATOR), query_string
+            quote(page_path, safe=URL_SEPARATOR), query_string
         )
     return None
 

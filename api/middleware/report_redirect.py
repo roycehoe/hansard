@@ -7,10 +7,9 @@ from sqlmodel import Session
 
 from database.engine import engine
 from services import report as report_service
+from utils.site_address import QUERY_SEPARATOR, URL_SEPARATOR
 
 _REPORT_PATH = re.compile(r"^/reports/([^/]+)$")
-_URL_SEPARATOR = "/"
-_QUERY_SEPARATOR = "?"
 _NO_QUERY = ""
 
 
@@ -27,7 +26,7 @@ def _get_report_slug_of_old_address(requested_slug: str) -> Optional[str]:
 
 
 def get_old_report_address_url(path: str, query: str) -> Optional[str]:
-    report_match = _REPORT_PATH.match(path.rstrip(_URL_SEPARATOR))
+    report_match = _REPORT_PATH.match(path.rstrip(URL_SEPARATOR))
     if report_match is None:
         return None
     report_slug = _get_report_slug_of_old_address(report_match.group(1))
@@ -36,4 +35,4 @@ def get_old_report_address_url(path: str, query: str) -> Optional[str]:
     report_path = f"/reports/{quote(report_slug, safe='')}"
     if query == _NO_QUERY:
         return report_path
-    return report_path + _QUERY_SEPARATOR + query
+    return report_path + QUERY_SEPARATOR + query

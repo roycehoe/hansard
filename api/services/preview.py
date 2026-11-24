@@ -26,6 +26,7 @@ from schemas.preview import PreviewData
 from utils.bill_opening_line import get_resumed_from_label
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_id_candidates, get_report_slug
+from utils.site_address import URL_SEPARATOR
 from utils.sitting_date import get_sitting_date_label
 from utils.speaker_label import is_chair_speaker_label
 from utils.speech_link import get_linked_speech_ordinal, get_speech_anchor
@@ -59,7 +60,6 @@ _PERSON_PATH = re.compile(r"^/people/(\d+)(?:-[^/]*)?$")
 _ACT_PATH = re.compile(r"^/acts/([^/]+)$")
 _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
 _HOME_PATH = "/"
-_URL_SEPARATOR = "/"
 _UNTITLED_PAGE_PATHS = ("/design", "/about/palette", "/researchers")
 _COVERAGE_PATH = "/about/coverage"
 _METHODS_PATH = "/about/coverage/methods"
@@ -611,7 +611,7 @@ def get_preview(
     session: Session,
 ) -> PreviewData:
     global _cache_key_to_cached_preview
-    page_path = path.rstrip(_URL_SEPARATOR) or _HOME_PATH
+    page_path = path.rstrip(URL_SEPARATOR) or _HOME_PATH
     if not _is_database_path(page_path):
         return _get_fixed_preview(page_path)
     speech_ordinal = _get_speech_ordinal(speech_ordinal_text)

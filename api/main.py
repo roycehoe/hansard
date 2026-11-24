@@ -31,7 +31,7 @@ from routers import (
 from settings import settings
 
 _OPENAPI_URL = "/openapi.json"
-_GZIP_COMPRESSION_LEVEL = 4
+GZIP_COMPRESSION_LEVEL = 4
 
 app = FastAPI(
     title="Open Hansard API",
@@ -39,7 +39,7 @@ app = FastAPI(
 )
 
 # NOTE: level 4, not the default 9, because a long report then compresses in about 40% of the time for 6 to 9% more bytes
-app.add_middleware(GZipMiddleware, compresslevel=_GZIP_COMPRESSION_LEVEL)
+app.add_middleware(GZipMiddleware, compresslevel=GZIP_COMPRESSION_LEVEL)
 
 app.add_middleware(ResponseCacheMiddleware)
 

@@ -12,11 +12,11 @@ from middleware.takedown import get_taken_down_report_id_candidates
 from settings import settings
 from utils.person_slug import get_person_slug
 from utils.report_slug import get_report_slug
+from utils.site_address import URL_SEPARATOR
 from utils.sitemap_xml import SitemapUrl, get_sitemap_index_xml, get_urlset_xml
 
 SITEMAP_INDEX_FILE_NAME = "sitemap.xml"
 _MAX_URLS_PER_FILE = 20_000
-_URL_SEPARATOR = "/"
 _PAGE_PATHS = (
     "/",
     "/people",
@@ -93,7 +93,7 @@ def _get_kind_to_sitemap_urls(
 
 
 def _get_uncached_file_name_to_xml(site_url: str, session: Session) -> dict[str, str]:
-    site_origin = site_url.rstrip(_URL_SEPARATOR)
+    site_origin = site_url.rstrip(URL_SEPARATOR)
     file_name_to_xml: dict[str, str] = {}
     for kind, sitemap_urls in _get_kind_to_sitemap_urls(site_origin, session).items():
         for file_index, first_url_index in enumerate(
@@ -137,6 +137,6 @@ def get_robots_txt() -> str:
     lines: list[str] = list(_ROBOTS_TXT_LINES)
     if settings.site_url is not None:
         lines.extend(
-            ["", f"Sitemap: {settings.site_url.rstrip(_URL_SEPARATOR)}/sitemap.xml"]
+            ["", f"Sitemap: {settings.site_url.rstrip(URL_SEPARATOR)}/sitemap.xml"]
         )
     return "\n".join(lines) + "\n"

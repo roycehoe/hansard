@@ -6,8 +6,7 @@ from sqlmodel import Session, col, select
 from database.attendance import Attendance
 from database.attendance_office import AttendanceOffice
 from database.sitting import Sitting
-
-_SITTING_DATE_FORMAT = "DD-MM-YYYY"
+from utils.sitting_date import SITTING_DATE_FORMAT
 
 
 class CRUDAttendanceOffice:
@@ -27,7 +26,7 @@ class CRUDAttendanceOffice:
         sitting_date_from: date,
         sitting_date_to: date,
     ) -> dict[date, AttendanceOffice]:
-        sitting_date = func.to_date(Sitting.sitting_date, _SITTING_DATE_FORMAT)
+        sitting_date = func.to_date(Sitting.sitting_date, SITTING_DATE_FORMAT)
         statement = (
             select(sitting_date, AttendanceOffice)
             .join(Attendance, col(Attendance.id) == AttendanceOffice.attendance_id)

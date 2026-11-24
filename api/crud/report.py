@@ -21,6 +21,7 @@ from database.report_participant import ReportParticipant
 from database.report_put_to import ReportPutTo
 from database.speech import Speech
 from enums import ParticipantRole, ReportType, SearchSort
+from utils.sitting_date import ONE_DAY
 from utils.text_search import (
     HEADLINE_OPTIONS,
     get_headline,
@@ -28,7 +29,6 @@ from utils.text_search import (
     get_match_tsquery,
 )
 
-_ONE_DAY = timedelta(days=1)
 _NO_DURATION = timedelta(0)
 _COLUMNS_WITHOUT_MARKDOWN_CONTENT = tuple(
     column
@@ -74,7 +74,7 @@ def _get_report_filters(
     if date_from is not None:
         filters.append(Report.sitting_date >= date_from)
     if date_to is not None:
-        filters.append(Report.sitting_date < date_to + _ONE_DAY)
+        filters.append(Report.sitting_date < date_to + ONE_DAY)
     if report_type is not None:
         filters.append(Report.report_type == report_type)
     if is_text_available is True:
@@ -397,7 +397,7 @@ class CRUDReport:
         statement = select(Report.parliament_number)
         if max_sitting_date is not None:
             statement = statement.where(
-                Report.sitting_date < max_sitting_date + _ONE_DAY
+                Report.sitting_date < max_sitting_date + ONE_DAY
             )
         statement = statement.order_by(col(Report.sitting_date).desc()).limit(1)
         return self.session.exec(statement).first()
