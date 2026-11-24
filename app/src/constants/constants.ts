@@ -95,3 +95,17 @@ export const SMALL_LINK_CLASS_NAME =
 
 export const MARK_CLASS_NAME =
   'bg-highlight text-highlight-foreground rounded-xs px-0.5 font-semibold'
+
+export const LOWEST_PERSON_ID = 1
+
+export const MOUSE_POINTER_TYPE = 'mouse'
+
+export const HOVER_SELECTOR = ':hover'
+
+export const TAB_KEY = 'Tab'
+
+export const ARROW_DOWN_KEY = 'ArrowDown'
+
+export const RANGE_SEPARATOR = ' to '
+
+export const RESEARCHERS_FORM_HEADING_ID = 'form-heading'

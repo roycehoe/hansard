@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { REPORT_TYPE_LABELS } from '@/constants/reports/constants'
 import {
   CLEAR_FILTERS_LABEL,
+  NO_PERSON_ID,
   SEARCH_WORDS_INPUT_ID,
 } from '@/constants/search/constants'
 import { formatParliament, formatSittingDate } from '@/lib/format'
@@ -33,7 +34,9 @@ export function ListActiveFilters({ onClearFilters }: ListActiveFiltersProps) {
   const { parliament, type, from, to, person, constituency, act } = useSearch({
     from: '/search',
   })
-  const { data: personDetail } = useGetPerson({ person_id: person ?? 0 })
+  const { data: personDetail } = useGetPerson({
+    person_id: person ?? NO_PERSON_ID,
+  })
   const { data: actList } = useGetAllActs(act === undefined ? undefined : {})
   const removeButtons = useRef<Map<FilterKey, HTMLButtonElement>>(new Map())
 

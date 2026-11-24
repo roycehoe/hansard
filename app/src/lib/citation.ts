@@ -5,6 +5,7 @@ import {
   SPEECH_SEARCH_PARAM,
 } from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
+import { buildSpeechAnchorId } from '@/lib/utils'
 
 export interface SpeakerAttribution {
   name: string
@@ -164,7 +165,7 @@ export function buildSpeechPermalink(
   anchor: string
 ): string {
   const reportUrl = buildReportPermalink(reportSlug)
-  if (anchor === '') return `${reportUrl}#s${ordinal}`
+  if (anchor === '') return `${reportUrl}#${buildSpeechAnchorId(ordinal)}`
   const searchParams = new URLSearchParams({
     [SPEECH_SEARCH_PARAM]: String(ordinal),
     [QUERY_SEARCH_PARAM]: anchor,

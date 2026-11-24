@@ -30,6 +30,8 @@ import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+const SAVE_DELAY_MILLISECONDS = 800
+
 const BUTTON_VARIANTS = [
   'default',
   'secondary',
@@ -175,7 +177,7 @@ function FormExample() {
       setIsPending(false)
       toast.success(`Saved ${values.name}`)
       reset()
-    }, 800)
+    }, SAVE_DELAY_MILLISECONDS)
   }
 
   function getAcceptedTermsHandler(onChange: (value: boolean) => void) {

@@ -14,7 +14,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Spinner } from '@/components/ui/spinner'
-import { NUMBER_LOCALE } from '@/constants/constants'
+import { ARROW_DOWN_KEY, NUMBER_LOCALE } from '@/constants/constants'
+import { NO_PERSON_ID } from '@/constants/search/constants'
 import { formatMembershipSummary } from '@/lib/format'
 import { filterPersonsByMembership } from '@/lib/membershipFilter'
 import { getPersonNameMatches } from '@/lib/personName'
@@ -40,7 +41,7 @@ export function PopoverPersonFilter({
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [typedName, setTypedName] = useState<string>('')
   const persons = useGetAllPersons({})
-  const chosenPerson = useGetPerson({ person_id: value ?? 0 })
+  const chosenPerson = useGetPerson({ person_id: value ?? NO_PERSON_ID })
   const allPersons = persons.data?.persons ?? []
   const listedPersons = filterPersonsByMembership(allPersons, filters)
   const matches =
@@ -70,7 +71,7 @@ export function PopoverPersonFilter({
   }
 
   function openOnArrowDown(event: KeyboardEvent<HTMLButtonElement>) {
-    if (event.key !== 'ArrowDown') return
+    if (event.key !== ARROW_DOWN_KEY) return
     event.preventDefault()
     changeOpen(true)
   }

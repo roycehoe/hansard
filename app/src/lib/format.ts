@@ -3,6 +3,7 @@ import type { MembershipData } from '@/api/people/getAllPersons'
 import {
   LEGISLATIVE_ASSEMBLY_LABEL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+  RANGE_SEPARATOR,
 } from '@/constants/constants'
 import { DatePrecision } from '@/constants/people/enums'
 import type { PartyAffiliationData } from '@/types/people/interfaces'
@@ -12,7 +13,6 @@ const SITTING_DATE_FORMAT = 'd MMMM yyyy'
 const SITTING_DAY_MONTH_FORMAT = 'd MMMM'
 const MONTH_YEAR_FORMAT = 'MMMM yyyy'
 const ISO_DATE_FORMAT = 'yyyy-MM-dd'
-const RANGE_SEPARATOR = ' to '
 const WWW_PREFIX = /^www\./
 const NAME_LIST_SEPARATOR = ', '
 const NAME_LIST_LAST_SEPARATOR = ' and '

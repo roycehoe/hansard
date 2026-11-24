@@ -28,7 +28,11 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { FILTER_ALL, NUMBER_LOCALE } from '@/constants/constants'
+import {
+  FILTER_ALL,
+  LOWEST_PERSON_ID,
+  NUMBER_LOCALE,
+} from '@/constants/constants'
 import {
   PERSON_ID_TO_HAND_ALIAS_NOTE,
   PERSON_TITLE_SUFFIX,
@@ -205,7 +209,7 @@ export const Route = createFileRoute('/people/$personSlug')({
       )
     }
 
-    if (!(personId >= 1)) return <NoticeNotFoundPerson />
+    if (!(personId >= LOWEST_PERSON_ID)) return <NoticeNotFoundPerson />
     if (person.isLoading) return <SkeletonPerson />
     if (person.isLoadingError && isNotFoundError(person.error)) {
       return <NoticeNotFoundPerson />

@@ -1,4 +1,5 @@
 import type { SpeechLinkData } from '@/api/reports/getReport'
+import { buildSpeechAnchorId } from '@/lib/utils'
 
 export function isLinkedSpeech(
   ordinal: number,
@@ -8,5 +9,5 @@ export function isLinkedSpeech(
   if (speechLink !== null && speechLink.ordinal !== null) {
     return speechLink.ordinal === ordinal
   }
-  return hash === `#s${ordinal}`
+  return hash === `#${buildSpeechAnchorId(ordinal)}`
 }

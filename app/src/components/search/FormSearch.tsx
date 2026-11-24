@@ -25,7 +25,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { FILTER_ALL, PHONE_MEDIA_QUERY } from '@/constants/constants'
+import {
+  FILTER_ALL,
+  LOWEST_PERSON_ID,
+  PHONE_MEDIA_QUERY,
+} from '@/constants/constants'
 import { REPORT_TYPE_DROPDOWN_OPTIONS } from '@/constants/reports/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
@@ -74,7 +78,7 @@ const formSchema = z
       .refine((value) => getSearchDateError(value, getToday()) === undefined, {
         error: SEARCH_DATE_OUT_OF_RANGE_ERROR,
       }),
-    person: z.number().int().min(1).nullable(),
+    person: z.number().int().min(LOWEST_PERSON_ID).nullable(),
     constituency: z.string(),
     sort: z.enum(SearchSort),
   })

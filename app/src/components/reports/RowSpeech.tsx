@@ -20,7 +20,7 @@ import {
   buildInferredCreditSentences,
   getSpeakerLabelSource,
 } from '@/lib/speakerLabel'
-import { buildPersonSlug, cn } from '@/lib/utils'
+import { buildPersonSlug, buildSpeechAnchorId, cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
 interface RowSpeechProps {
@@ -243,7 +243,7 @@ export function RowSpeech({
 
   return (
     <article
-      id={`s${speech.ordinal}`}
+      id={buildSpeechAnchorId(speech.ordinal)}
       tabIndex={-1}
       className={cn(
         'group focus-visible:outline-ring flex scroll-mt-24 flex-col rounded-sm outline-hidden first-of-type:mt-0 focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-solid sm:flex-row sm:gap-2',

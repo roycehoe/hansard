@@ -6,6 +6,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { CONTACT_EMAIL } from '@/constants/constants'
+import { POPOVER_SIDE_OFFSET } from '@/constants/reports/constants'
 import type { SpeechActionContext } from '@/lib/speechActions'
 import { buildSpeechActions } from '@/lib/speechActions'
 import { CodeXml, EllipsisVertical, Flag, Link2, Quote } from 'lucide-react'
@@ -83,7 +84,7 @@ export function PopoverSpeechActions(props: SpeechActionContext) {
         <PopoverTrigger asChild>{dotsButton}</PopoverTrigger>
         <PopoverContent
           align="end"
-          sideOffset={6}
+          sideOffset={POPOVER_SIDE_OFFSET}
           aria-label={actionsLabel}
           className="[&_svg]:text-muted-foreground w-50 p-1"
         >

@@ -3,6 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { HOVER_SELECTOR, MOUSE_POINTER_TYPE } from '@/constants/constants'
 import { INFERRED_CREDIT_CLOSE_DELAY_MS } from '@/constants/reports/constants'
 import type { FocusEvent, MouseEvent, PointerEvent } from 'react'
 import { useEffect, useId, useRef, useState } from 'react'
@@ -42,13 +43,13 @@ export function PopoverInferredCredit({
   }
 
   function openOnMouseEnter(event: PointerEvent<HTMLElement>) {
-    if (event.pointerType !== 'mouse') return
+    if (event.pointerType !== MOUSE_POINTER_TYPE) return
     cancelClose()
     setIsOpen(true)
   }
 
   function closeOnMouseLeave(event: PointerEvent<HTMLElement>) {
-    if (event.pointerType !== 'mouse') return
+    if (event.pointerType !== MOUSE_POINTER_TYPE) return
     closeAfterDelay()
   }
 
@@ -58,7 +59,7 @@ export function PopoverInferredCredit({
   }
 
   function closeOnBlur(event: FocusEvent<HTMLButtonElement>) {
-    if (event.currentTarget.matches(':hover')) return
+    if (event.currentTarget.matches(HOVER_SELECTOR)) return
     setIsOpen(false)
   }
 

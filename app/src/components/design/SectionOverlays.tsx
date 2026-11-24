@@ -66,6 +66,10 @@ import { LinkIcon, SettingsIcon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+const PROMISE_TOAST_DELAY_MILLISECONDS = 1500
+const NEWEST_SORT_VALUE = 'newest'
+const OLDEST_SORT_VALUE = 'oldest'
+
 const SHEET_SIDES = ['top', 'right', 'bottom', 'left'] as const
 
 function showSuccessToast() {
@@ -89,11 +93,16 @@ function showLoadingToast() {
 }
 
 function showPromiseToast() {
-  toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
-    loading: 'Copying citation…',
-    success: 'Citation copied',
-    error: "Couldn't copy the citation",
-  })
+  toast.promise(
+    new Promise((resolve) =>
+      setTimeout(resolve, PROMISE_TOAST_DELAY_MILLISECONDS)
+    ),
+    {
+      loading: 'Copying citation…',
+      success: 'Citation copied',
+      error: "Couldn't copy the citation",
+    }
+  )
 }
 
 function showActionToast() {
@@ -106,7 +115,7 @@ export function SectionOverlays() {
   const [isShowingLineNumbers, setIsShowingLineNumbers] =
     useState<boolean>(true)
   const [isShowingSpeakers, setIsShowingSpeakers] = useState<boolean>(false)
-  const [sortOrder, setSortOrder] = useState<string>('newest')
+  const [sortOrder, setSortOrder] = useState<string>(NEWEST_SORT_VALUE)
 
   return (
     <Section
@@ -234,10 +243,10 @@ export function SectionOverlays() {
               value={sortOrder}
               onValueChange={setSortOrder}
             >
-              <DropdownMenuRadioItem value="newest">
+              <DropdownMenuRadioItem value={NEWEST_SORT_VALUE}>
                 Newest first
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="oldest">
+              <DropdownMenuRadioItem value={OLDEST_SORT_VALUE}>
                 Oldest first
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>

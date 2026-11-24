@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { POPOVER_COLLISION_PADDING } from '@/constants/reports/constants'
 import {
   findBillEntry,
   findTimelineAct,
@@ -61,7 +62,7 @@ export function PopoverTimeline({
       </PopoverTrigger>
       <PopoverContent
         align={align}
-        collisionPadding={16}
+        collisionPadding={POPOVER_COLLISION_PADDING}
         aria-label="Timeline"
         className="relative max-h-[min(36rem,var(--radix-popover-content-available-height))] w-[min(28rem,calc(100vw-2.5rem))] overflow-y-auto p-0"
       >

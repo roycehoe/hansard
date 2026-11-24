@@ -283,3 +283,11 @@ export function getActTitle(
 ): string | undefined {
   return actList?.acts.find((act) => act.sso_code === ssoCode)?.title
 }
+
+export function buildSpeechAnchorId(ordinal: number): string {
+  return `s${ordinal}`
+}
+
+export function getIsoDateYear(isoDate: string): number {
+  return Number(isoDate.slice(0, 4))
+}

@@ -4,6 +4,8 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
+const KEYDOWN_SETTLE_MILLISECONDS = 10
+
 const DOTS_LABEL = 'Actions for paragraph 3'
 const PARAGRAPH_ADDRESS = '/reports/report?s=3&q=s3'
 
@@ -62,7 +64,9 @@ async function pressEscape() {
     document.activeElement?.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
     )
-    await new Promise((resolve) => setTimeout(resolve, 10))
+    await new Promise((resolve) =>
+      setTimeout(resolve, KEYDOWN_SETTLE_MILLISECONDS)
+    )
   })
 }
 

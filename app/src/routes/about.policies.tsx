@@ -18,6 +18,7 @@ import {
   CONTACT_EMAIL,
   OFFICIAL_RECORD_SEARCH_URL,
   REPORT_ERROR_FORM_URL,
+  RESEARCHERS_FORM_HEADING_ID,
   RESEARCHERS_FORM_URL,
   UNDERLINED_LINK_CLASS_NAME,
 } from '@/constants/constants'
@@ -278,7 +279,7 @@ export const Route = createFileRoute('/about/policies')({
               <>
                 {' '}
                 If you need more data, use the{' '}
-                <Link to="/researchers" hash="form-heading">
+                <Link to="/researchers" hash={RESEARCHERS_FORM_HEADING_ID}>
                   researchers&apos; form
                 </Link>{' '}
                 to describe what you need and what it is for.

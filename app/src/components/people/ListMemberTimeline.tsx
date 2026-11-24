@@ -3,7 +3,7 @@ import {
   PopoverDefinition,
 } from '@/components/layout/PopoverDefinition'
 import { ListPersonBills } from '@/components/people/ListPersonBills'
-import { VISITED_LINK_CLASS_NAME } from '@/constants/constants'
+import { RANGE_SEPARATOR, VISITED_LINK_CLASS_NAME } from '@/constants/constants'
 import {
   MEMBERSHIP_CONTINUED_NOTE,
   OFFICE_DATES_DEFINITION,
@@ -61,7 +61,7 @@ export function ListMemberTimeline({ groups }: ListMemberTimelineProps) {
                         {getPrintedRangeSittingDates(printedRange).map(
                           (sittingDate, index) => (
                             <span key={sittingDate}>
-                              {index > 0 && ' to '}
+                              {index > 0 && RANGE_SEPARATOR}
                               <Link
                                 to="/sittings/$sittingDate"
                                 params={{ sittingDate }}

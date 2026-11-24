@@ -139,3 +139,5 @@ export const SEARCH_CONSTITUENCY_NOT_FOUND_ERROR_CODE =
   'search.constituency_not_found'
 
 export const PROXY_ORIGINAL_STATUS_HEADER = 'x-do-orig-status'
+
+export const NO_PERSON_ID = 0

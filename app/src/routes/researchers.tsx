@@ -8,9 +8,14 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { RESEARCHERS_FORM_URL } from '@/constants/constants'
+import {
+  RESEARCHERS_FORM_HEADING_ID,
+  RESEARCHERS_FORM_URL,
+} from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+
+const PAGE_TITLE = 'For researchers'
 
 const SECTION_HEADING_CLASS_NAME =
   'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
@@ -20,12 +25,12 @@ export const Route = createFileRoute('/researchers')({
     if (RESEARCHERS_FORM_URL === '') throw redirect({ to: '/' })
   },
   component: function PageResearchers() {
-    useDocumentTitle('For researchers')
+    useDocumentTitle(PAGE_TITLE)
 
     return (
       <div className="space-y-8">
         <PageHeader
-          title="For researchers"
+          title={PAGE_TITLE}
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -48,7 +53,7 @@ export const Route = createFileRoute('/researchers')({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>For researchers</BreadcrumbPage>
+                  <BreadcrumbPage>{PAGE_TITLE}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -81,8 +86,14 @@ export const Route = createFileRoute('/researchers')({
           </p>
         </section>
 
-        <section aria-labelledby="form-heading" className="space-y-4">
-          <h2 id="form-heading" className={SECTION_HEADING_CLASS_NAME}>
+        <section
+          aria-labelledby={RESEARCHERS_FORM_HEADING_ID}
+          className="space-y-4"
+        >
+          <h2
+            id={RESEARCHERS_FORM_HEADING_ID}
+            className={SECTION_HEADING_CLASS_NAME}
+          >
             Ask for a download
           </h2>
           <p>

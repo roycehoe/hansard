@@ -5,6 +5,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import {
+  HOVER_SELECTOR,
+  MOUSE_POINTER_TYPE,
+  TAB_KEY,
+} from '@/constants/constants'
 import { FIELD_HINT_CLOSE_DELAY_MS } from '@/constants/search/constants'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -60,13 +65,13 @@ export function PopoverFieldHint({
   }
 
   function openOnMouseEnter(event: PointerEvent<HTMLElement>) {
-    if (event.pointerType !== 'mouse') return
+    if (event.pointerType !== MOUSE_POINTER_TYPE) return
     cancelClose()
     setIsOpen(true)
   }
 
   function closeOnMouseLeave(event: PointerEvent<HTMLElement>) {
-    if (event.pointerType !== 'mouse') return
+    if (event.pointerType !== MOUSE_POINTER_TYPE) return
     closeAfterDelay()
   }
 
@@ -80,7 +85,7 @@ export function PopoverFieldHint({
   }
 
   function closeOnBlur(event: FocusEvent<HTMLButtonElement>) {
-    if (event.currentTarget.matches(':hover')) return
+    if (event.currentTarget.matches(HOVER_SELECTOR)) return
     if (contentRef.current?.contains(event.relatedTarget)) return
     setIsOpen(false)
   }
@@ -98,7 +103,7 @@ export function PopoverFieldHint({
   }
 
   function moveFocusIntoHint(event: KeyboardEvent<HTMLButtonElement>) {
-    if (event.key !== 'Tab' || event.shiftKey) return
+    if (event.key !== TAB_KEY || event.shiftKey) return
     const [firstFocusTarget] = getHintFocusTargets()
     if (firstFocusTarget === undefined) return
     event.preventDefault()
@@ -109,7 +114,7 @@ export function PopoverFieldHint({
   // would leave the form. Focus goes back to the button first, and the
   // browser's own Tab then carries on from there to the next field.
   function moveFocusOutOfHint(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key !== 'Tab') return
+    if (event.key !== TAB_KEY) return
     const hintFocusTargets = getHintFocusTargets()
     if (event.shiftKey && document.activeElement === hintFocusTargets[0]) {
       event.preventDefault()

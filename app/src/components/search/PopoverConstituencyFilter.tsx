@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Spinner } from '@/components/ui/spinner'
-import { NUMBER_LOCALE } from '@/constants/constants'
+import { ARROW_DOWN_KEY, NUMBER_LOCALE } from '@/constants/constants'
 import {
   getConstituencies,
   getConstituencyMatches,
@@ -70,7 +70,7 @@ export function PopoverConstituencyFilter({
   }
 
   function openOnArrowDown(event: KeyboardEvent<HTMLButtonElement>) {
-    if (event.key !== 'ArrowDown') return
+    if (event.key !== ARROW_DOWN_KEY) return
     event.preventDefault()
     changeOpen(true)
   }

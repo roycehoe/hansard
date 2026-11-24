@@ -45,6 +45,7 @@ import {
 } from '@/constants/constants'
 import { ReportType } from '@/constants/reports/enums'
 import {
+  NO_PERSON_ID,
   REPORTS_HEADING,
   SEARCH_WORDS_INPUT_ID,
   SEARCH_WORDS_MAX_LENGTH,
@@ -67,6 +68,7 @@ import {
 } from '@/lib/searchQuery'
 import {
   getActTitle,
+  getIsoDateYear,
   getSortWithoutWords,
   isActNotFoundError,
   isSearchBusyError,
@@ -132,7 +134,7 @@ export const Route = createFileRoute('/search')({
     const navigate = useNavigate()
     const { isMatching: isPhone } = useMediaQuery(PHONE_MEDIA_QUERY)
     const parliaments = useGetAllParliaments()
-    const personDetail = useGetPerson({ person_id: person ?? 0 })
+    const personDetail = useGetPerson({ person_id: person ?? NO_PERSON_ID })
     const words = q?.trim() ?? ''
     const hasPerson = person !== undefined
     const hasConstituency = constituency !== undefined
@@ -144,7 +146,7 @@ export const Route = createFileRoute('/search')({
     const today = getToday()
     const trailingYear =
       hasWords && parliament === undefined && !from && !to
-        ? getTrailingYear(words, Number(today.slice(0, 4)))
+        ? getTrailingYear(words, getIsoDateYear(today))
         : undefined
     const canNamePerson = hasWords && !hasPerson && !hasSearchOperator(words)
     const allPersons = useGetAllPersons(canNamePerson ? {} : undefined)

@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
 import { NUMBER_LOCALE, SMALL_LINK_CLASS_NAME } from '@/constants/constants'
 import { VISIBLE_SPEECH_MATCHES_PER_REPORT } from '@/constants/search/constants'
-import { cn } from '@/lib/utils'
+import { buildSpeechAnchorId, cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { RotateCw, TriangleAlert } from 'lucide-react'
 import { useId, useState } from 'react'
@@ -118,7 +118,7 @@ export function ListSpeechMatchesInReport({
               to="/reports/$reportSlug"
               params={{ reportSlug: speech.report_slug }}
               search={{ hl: highlightWords }}
-              hash={`s${speech.ordinal}`}
+              hash={buildSpeechAnchorId(speech.ordinal)}
               hashScrollIntoView={false}
               className={cn(
                 'group block space-y-1 rounded-sm outline-hidden',

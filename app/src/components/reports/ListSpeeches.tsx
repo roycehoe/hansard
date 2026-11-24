@@ -20,6 +20,7 @@ import { isLinkedSpeech } from '@/lib/linkedSpeech'
 import { placePictures } from '@/lib/reportPictures'
 import { scrollAgainWhenFontsLoad } from '@/lib/scrollAgain'
 import { isSameSpeakerAsPrevious } from '@/lib/speakerLabel'
+import { buildSpeechAnchorId } from '@/lib/utils'
 import { Fragment, useEffect } from 'react'
 
 interface ListSpeechesProps {
@@ -30,7 +31,7 @@ interface ListSpeechesProps {
 
 function getScrollTargetId(speechLink: SpeechLinkData | null): string {
   if (speechLink !== null && speechLink.ordinal !== null) {
-    return `s${speechLink.ordinal}`
+    return buildSpeechAnchorId(speechLink.ordinal)
   }
   return window.location.hash.slice(1)
 }
