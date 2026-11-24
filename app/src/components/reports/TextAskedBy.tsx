@@ -1,6 +1,7 @@
 import type { AskerData } from '@/api/reports/getReport'
 import { PopoverReadOutBy } from '@/components/reports/PopoverReadOutBy'
 import { getNameListSeparator } from '@/lib/format'
+import { buildPersonSlug } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
@@ -20,7 +21,9 @@ export function TextAskedBy({ askers }: TextAskedByProps) {
           {getNameListSeparator(askerIndex, askers.length)}
           <Link
             to="/people/$personSlug"
-            params={{ personSlug: `${asker.person_id}-${asker.person_slug}` }}
+            params={{
+              personSlug: buildPersonSlug(asker.person_id, asker.person_slug),
+            }}
             className={LINK_CLASS_NAME}
           >
             {asker.person_name}

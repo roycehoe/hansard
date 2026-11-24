@@ -14,11 +14,7 @@ import { NoticeTextUnavailable } from '@/components/reports/NoticeTextUnavailabl
 import { SectionReportHeader } from '@/components/reports/SectionReportHeader'
 import { SkeletonReport } from '@/components/reports/SkeletonReport'
 import { TextReportProblem } from '@/components/reports/TextReportProblem'
-import {
-  HTTP_GONE,
-  HTTP_NOT_FOUND,
-  REPORT_RECORD_NAME,
-} from '@/constants/constants'
+import { HTTP_GONE, REPORT_RECORD_NAME } from '@/constants/constants'
 import {
   REFERENCED_WRITTEN_ANSWER_LABEL,
   REFERENCING_ORAL_ANSWER_LABEL,
@@ -29,7 +25,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
 import { parseHighlightTerms } from '@/lib/highlight'
 import { formatReportPageTitle } from '@/lib/reportTitle'
-import { isTextPublished } from '@/lib/utils'
+import { isNotFoundError, isTextPublished } from '@/lib/utils'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
@@ -100,11 +96,7 @@ export const Route = createFileRoute('/reports/$reportSlug')({
     }
 
     if (isLoading) return <SkeletonReport />
-    if (
-      isLoadingError &&
-      error instanceof ApiError &&
-      error.status === HTTP_NOT_FOUND
-    ) {
+    if (isLoadingError && isNotFoundError(error)) {
       return <NoticeNotFoundReport />
     }
     // A takedown must hide a report already on screen, so a 410 wins over cached data.

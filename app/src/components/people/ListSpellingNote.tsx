@@ -1,3 +1,4 @@
+import { LinkExternal } from '@/components/layout/LinkExternal'
 import { SPELLING_NOTE_ID } from '@/constants/people/constants'
 import { PersonNameSpellingKind } from '@/constants/people/enums'
 import { splitSpellingNote } from '@/lib/spellingNote'
@@ -26,12 +27,7 @@ function renderSegment({ text, url }: SpellingNoteSegment) {
       </Link>
     )
   }
-  return (
-    <a href={url} className={LINK_CLASS_NAME} target="_blank" rel="noreferrer">
-      {text}
-      <span className="sr-only"> (opens in a new tab)</span>
-    </a>
-  )
+  return <LinkExternal href={url}>{text}</LinkExternal>
 }
 
 interface ListSpellingNoteProps {

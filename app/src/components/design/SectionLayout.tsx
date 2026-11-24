@@ -11,10 +11,9 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
+import { noop } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { SearchX } from 'lucide-react'
-
-function noop() {}
 
 const SAMPLE_BREADCRUMB = (
   <Breadcrumb>

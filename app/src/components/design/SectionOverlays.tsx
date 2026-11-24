@@ -61,6 +61,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { noop } from '@/lib/utils'
 import { LinkIcon, SettingsIcon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -94,8 +95,6 @@ function showPromiseToast() {
     error: "Couldn't copy the citation",
   })
 }
-
-function noop() {}
 
 function showActionToast() {
   toast('Citation copied', {

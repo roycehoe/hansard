@@ -1,3 +1,4 @@
+import { LinkExternal } from '@/components/layout/LinkExternal'
 import { formatSittingDate } from '@/lib/format'
 
 interface TextSourceProps {
@@ -7,9 +8,6 @@ interface TextSourceProps {
 }
 
 const SOURCE_NAME = 'Parliament of Singapore, Official Report'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
 export function TextSource({
   sourceName = SOURCE_NAME,
@@ -27,15 +25,7 @@ export function TextSource({
       {officialRecordUrl === null ? (
         sourceText
       ) : (
-        <a
-          href={officialRecordUrl}
-          target="_blank"
-          rel="noreferrer"
-          className={LINK_CLASS_NAME}
-        >
-          {sourceText}
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
+        <LinkExternal href={officialRecordUrl}>{sourceText}</LinkExternal>
       )}
     </p>
   )

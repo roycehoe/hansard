@@ -5,6 +5,7 @@ import {
 } from '@/components/layout/PopoverDefinition'
 import { HoverCardPerson } from '@/components/people/HoverCardPerson'
 import { ABSENCE_DEFINITION } from '@/constants/constants'
+import { buildPersonSlug } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
 interface ListAttendanceProps {
@@ -51,7 +52,10 @@ function ListAttendanceGroup({
                   <Link
                     to="/people/$personSlug"
                     params={{
-                      personSlug: `${member.person_id}-${member.person_slug}`,
+                      personSlug: buildPersonSlug(
+                        member.person_id,
+                        member.person_slug
+                      ),
                     }}
                     className="text-link focus-visible:decoration-ring underline underline-offset-4 outline-hidden hover:underline focus-visible:underline"
                   >

@@ -7,6 +7,7 @@ import {
   ENDPOINT_NOT_FOUND_ERROR_CODE,
   FILTER_ALL,
   HTTP_GATEWAY_TIMEOUT,
+  HTTP_NOT_FOUND,
   HTTP_SERVICE_UNAVAILABLE,
   NUMBER_LOCALE,
 } from '@/constants/constants'
@@ -47,7 +48,13 @@ export function buildQueryString(
   return queryString === '' ? '' : `?${queryString}`
 }
 
+export function buildPersonSlug(personId: number, personSlug: string): string {
+  return `${personId}-${personSlug}`
+}
+
 const PERSON_SLUG = /^(\d+)(?:-(.*))?$/
+
+export function noop() {}
 
 export function parsePersonSlug(personSlug: string): {
   personId: number
@@ -254,6 +261,10 @@ export function isSearchConstituencyNotFoundError(
 ): boolean {
   if (!(error instanceof ApiError)) return false
   return hasApiErrorCode(error.body, SEARCH_CONSTITUENCY_NOT_FOUND_ERROR_CODE)
+}
+
+export function isNotFoundError(error: Error | null): boolean {
+  return error instanceof ApiError && error.status === HTTP_NOT_FOUND
 }
 
 export function isActNotFoundError(error: Error | null): boolean {

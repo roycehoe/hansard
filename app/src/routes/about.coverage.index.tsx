@@ -1,6 +1,7 @@
 import { useGetCoverage } from '@/api/coverage/getCoverage'
 import { NoticeErrorCoverage } from '@/components/coverage/NoticeErrorCoverage'
 import { SkeletonCoverageSummary } from '@/components/coverage/SkeletonCoverageSummary'
+import { LinkExternal } from '@/components/layout/LinkExternal'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
   Breadcrumb,
@@ -115,15 +116,9 @@ export const Route = createFileRoute('/about/coverage/')({
 
             <p id="about-the-text">
               The archive copies text from the Parliament of Singapore&apos;s{' '}
-              <a
-                href={OFFICIAL_RECORD_SEARCH_URL}
-                className={UNDERLINED_LINK_CLASS_NAME}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <LinkExternal href={OFFICIAL_RECORD_SEARCH_URL}>
                 Official Report
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
+              </LinkExternal>
               . The copy can differ, so check the Official Report before
               quoting.
             </p>

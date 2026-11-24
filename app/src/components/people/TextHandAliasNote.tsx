@@ -1,3 +1,4 @@
+import { LinkExternal } from '@/components/layout/LinkExternal'
 import { formatSittingDate } from '@/lib/format'
 import type { HandAliasNote } from '@/types/people/interfaces'
 import { Link } from '@tanstack/react-router'
@@ -36,15 +37,7 @@ export function TextHandAliasNote({
         {handAliasNote.sources.map((source, index) => (
           <Fragment key={source.url}>
             {index > 0 && SOURCE_SEPARATOR}
-            <a
-              href={source.url}
-              className={LINK_CLASS_NAME}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {source.label}
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
+            <LinkExternal href={source.url}>{source.label}</LinkExternal>
           </Fragment>
         ))}
         .

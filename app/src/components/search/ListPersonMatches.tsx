@@ -7,6 +7,7 @@ import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
 import { formatMembershipParliaments, getMembershipParties } from '@/lib/format'
 import { getPersonNameMatches } from '@/lib/personName'
 import {
+  buildPersonSlug,
   cn,
   getPersonsMembershipToPartyNote,
   isSittingMember,
@@ -120,7 +121,10 @@ export function ListPersonMatches({
                   <Link
                     to="/people/$personSlug"
                     params={{
-                      personSlug: `${person.person_id}-${person.person_slug}`,
+                      personSlug: buildPersonSlug(
+                        person.person_id,
+                        person.person_slug
+                      ),
                     }}
                     className={cn(LINK_CLASS_NAME, 'font-semibold')}
                   >

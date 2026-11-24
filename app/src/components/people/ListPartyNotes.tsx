@@ -1,3 +1,4 @@
+import { LinkExternal } from '@/components/layout/LinkExternal'
 import { ListSpellingNote } from '@/components/people/ListSpellingNote'
 import { formatPartyAffiliationStart, formatSourceUrlHost } from '@/lib/format'
 import { getPartyNoteId } from '@/lib/utils'
@@ -38,15 +39,9 @@ export function ListPartyNotes({
     }
     if (partyAffiliation.source_url !== null) {
       return (
-        <a
-          href={partyAffiliation.source_url}
-          className={LINK_CLASS_NAME}
-          target="_blank"
-          rel="noreferrer"
-        >
+        <LinkExternal href={partyAffiliation.source_url}>
           {formatSourceUrlHost(partyAffiliation.source_url)}
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
+        </LinkExternal>
       )
     }
     return null

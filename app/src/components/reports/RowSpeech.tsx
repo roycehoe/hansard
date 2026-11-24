@@ -20,7 +20,7 @@ import {
   buildInferredCreditSentences,
   getSpeakerLabelSource,
 } from '@/lib/speakerLabel'
-import { cn } from '@/lib/utils'
+import { buildPersonSlug, cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 
 interface RowSpeechProps {
@@ -198,7 +198,7 @@ export function RowSpeech({
           <Link
             to="/people/$personSlug"
             params={{
-              personSlug: `${speech.person_id}-${speech.person_slug}`,
+              personSlug: buildPersonSlug(speech.person_id, speech.person_slug),
             }}
             className="text-link focus-visible:decoration-ring font-semibold outline-hidden hover:underline focus-visible:underline"
           >

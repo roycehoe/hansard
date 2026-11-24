@@ -1,4 +1,3 @@
-import { ApiError } from '@/api/client'
 import { useGetPerson } from '@/api/people/getPerson'
 import { useGetPersonReports } from '@/api/people/getPersonReports'
 import { ButtonCopyLink } from '@/components/layout/ButtonCopyLink'
@@ -29,11 +28,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  FILTER_ALL,
-  HTTP_NOT_FOUND,
-  NUMBER_LOCALE,
-} from '@/constants/constants'
+import { FILTER_ALL, NUMBER_LOCALE } from '@/constants/constants'
 import {
   PERSON_ID_TO_HAND_ALIAS_NOTE,
   PERSON_TITLE_SUFFIX,
@@ -50,7 +45,9 @@ import {
 } from '@/lib/personBills'
 import { formatOtherNames, getNameSpellings } from '@/lib/personName'
 import {
+  buildPersonSlug,
   getMembershipToPartyNote,
+  isNotFoundError,
   isSittingMember,
   parsePersonSlug,
 } from '@/lib/utils'
@@ -210,11 +207,7 @@ export const Route = createFileRoute('/people/$personSlug')({
 
     if (!(personId >= 1)) return <NoticeNotFoundPerson />
     if (person.isLoading) return <SkeletonPerson />
-    if (
-      person.isLoadingError &&
-      person.error instanceof ApiError &&
-      person.error.status === HTTP_NOT_FOUND
-    ) {
+    if (person.isLoadingError && isNotFoundError(person.error)) {
       return <NoticeNotFoundPerson />
     }
     if (person.isLoadingError || !person.data) {
@@ -266,7 +259,7 @@ export const Route = createFileRoute('/people/$personSlug')({
           }
           titleAction={
             <ButtonCopyLink
-              path={`/people/${data.person_id}-${data.person_slug}`}
+              path={`/people/${buildPersonSlug(data.person_id, data.person_slug)}`}
             />
           }
           breadcrumb={

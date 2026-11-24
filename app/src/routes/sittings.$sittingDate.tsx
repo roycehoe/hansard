@@ -1,4 +1,3 @@
-import { ApiError } from '@/api/client'
 import { useGetRefresh } from '@/api/refresh/getRefresh'
 import { useGetSitting } from '@/api/sittings/getSitting'
 import { ButtonCopyLink } from '@/components/layout/ButtonCopyLink'
@@ -18,11 +17,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { HTTP_NOT_FOUND, NUMBER_LOCALE } from '@/constants/constants'
+import { NUMBER_LOCALE } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { getSittingYear } from '@/lib/sittingYears'
-import { cn } from '@/lib/utils'
+import { cn, isNotFoundError } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 const LINK_CLASS_NAME =
@@ -43,11 +42,7 @@ export const Route = createFileRoute('/sittings/$sittingDate')({
     }
 
     if (isLoading) return <SkeletonSitting />
-    if (
-      isLoadingError &&
-      error instanceof ApiError &&
-      error.status === HTTP_NOT_FOUND
-    ) {
+    if (isLoadingError && isNotFoundError(error)) {
       return (
         <NoticeNotFoundSitting
           sittingDate={sittingDate}

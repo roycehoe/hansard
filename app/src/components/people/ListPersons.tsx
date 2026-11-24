@@ -7,7 +7,11 @@ import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
 import { TextHighlighted } from '@/components/reports/TextHighlighted'
 import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatParliament } from '@/lib/format'
-import { getPersonsMembershipToPartyNote, isSittingMember } from '@/lib/utils'
+import {
+  buildPersonSlug,
+  getPersonsMembershipToPartyNote,
+  isSittingMember,
+} from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { Users } from 'lucide-react'
 import { Fragment } from 'react'
@@ -54,7 +58,10 @@ export function ListPersons({
                 <Link
                   to="/people/$personSlug"
                   params={{
-                    personSlug: `${person.person_id}-${person.person_slug}`,
+                    personSlug: buildPersonSlug(
+                      person.person_id,
+                      person.person_slug
+                    ),
                   }}
                   className="text-link focus-visible:decoration-ring font-semibold outline-hidden hover:underline focus-visible:underline"
                 >
