@@ -309,7 +309,7 @@ Functions read as verbs (`validateSearchTermAsync`), not nouns or class names (`
 
 ## General Conventions
 
-- Never write comments or JSDoc — names must be self-documenting. The only exception is a non-obvious business constraint that cannot be expressed in the name.
+- Never write comments or JSDoc — names must be self-documenting. The only exception is a comment that gives a reason the name cannot carry: a non-obvious business constraint, or a technical reason such as a browser quirk, cache timing, or a port that must stay in step with the api (`hooks/useTheme.ts`, `lib/searchQuery.ts`, `api/client.ts`). The comment says why, never what the code does.
 - Always use `import type` for type-only imports — makes the compile-time boundary explicit and keeps module evaluation clean.
 - Never wrap a single element in a fragment — only use fragments when returning multiple siblings with no container element needed.
 - Never leave `console.log` in production code. If an error needs surfacing, display a user-readable message — see [Error Display](#error-display).
