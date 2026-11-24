@@ -725,6 +725,16 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 
 *Ruled directly, 2026-11-24, hansard inbox round 65.*
 
+## R52 — A name or value the site reads keeps its spelling and type · 2026-11-24 · carves the wire out of the naming and type rules
+
+**Ruling.** A field that mirrors a frontend interface, or a value sent over the wire in a URL or a JSON body, keeps the mirrored name and type. The `is_` rule, the enum-casing rule and the reachable-states rule govern everything behind the wire and nothing on it.
+
+**Why.** Renaming a wire name means changing the API, the site's TypeScript and the contract test together, and a reader sees nothing for it. Measured on 2026-11-24: `has_next_page: bool` in 7 response schemas, `archive_timestamp: Optional[str]` in `schemas/minutes.py`, `report_type: str` in 9 schemas, `person_name: Optional[str]` in 2, and 8 enums whose values are lowercase because they travel in URLs and JSON (`ReportType` mirrors Parliament's own vocabulary; `SearchSort`, `PersonReportFilter`, `SpeechLinkStatus`, `PreviewType`, `ReportLinkRelation`, `MinistryQuestionRelation` are query or response values; `SearchEndpoint` holds paths). The audit called the enum values database values. They are wire values, and all 25 enums behind a Postgres enum column are already uppercase, as R37 requires.
+
+**What it does not allow.** A new field or enum chooses its name under the rules as written; this ruling keeps what the contract already carries. A value a column persists is still UPPER_SNAKE (R37).
+
+*Ruled directly, 2026-11-24, hansard inbox round 65.*
+
 ---
 
 # Open — awaiting a ruling
