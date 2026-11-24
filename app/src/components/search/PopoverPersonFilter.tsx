@@ -18,7 +18,7 @@ import { NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipSummary } from '@/lib/format'
 import { filterPersonsByMembership } from '@/lib/membershipFilter'
 import { getPersonNameMatches } from '@/lib/personName'
-import { isSittingMember } from '@/lib/utils'
+import { cn, isSittingMember } from '@/lib/utils'
 import type { MembershipFilters } from '@/types/search/interfaces'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
@@ -97,11 +97,7 @@ export function PopoverPersonFilter({
           className="w-full"
           onKeyDown={openOnArrowDown}
         >
-          <span
-            className={
-              value === undefined ? 'text-muted-foreground' : undefined
-            }
-          >
+          <span className={cn(value === undefined && 'text-muted-foreground')}>
             {getTriggerLabel()}
           </span>
           <ChevronDown aria-hidden="true" className="text-muted-foreground" />

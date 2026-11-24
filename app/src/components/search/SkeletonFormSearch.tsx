@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
 const FILTER_WIDTHS = ['sm:w-56', 'sm:w-56', 'sm:w-44', 'sm:w-44', 'sm:w-56']
 
@@ -16,7 +17,10 @@ export function SkeletonFormSearch() {
       {FILTER_WIDTHS.map((filterWidth, index) => (
         <div
           key={index}
-          className={`hidden w-full flex-col gap-2 min-[32rem]:flex ${filterWidth}`}
+          className={cn(
+            'hidden w-full flex-col gap-2 min-[32rem]:flex',
+            filterWidth
+          )}
         >
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-9 w-full" />

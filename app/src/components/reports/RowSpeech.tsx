@@ -156,7 +156,12 @@ export function RowSpeech({
       if (languageNote !== undefined) {
         return (
           <>
-            <span className={isLinkedTarget ? 'font-semibold' : 'sr-only'}>
+            <span
+              className={cn(
+                isLinkedTarget && 'font-semibold',
+                !isLinkedTarget && 'sr-only'
+              )}
+            >
               {shownSpeakerName}, continued
             </span>
             {languageNote}
@@ -165,7 +170,12 @@ export function RowSpeech({
         )
       }
       return (
-        <span className={isLinkedTarget ? 'font-semibold' : 'sr-only'}>
+        <span
+          className={cn(
+            isLinkedTarget && 'font-semibold',
+            !isLinkedTarget && 'sr-only'
+          )}
+        >
           {shownSpeakerName}, continued:{' '}
         </span>
       )

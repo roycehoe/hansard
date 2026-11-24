@@ -21,6 +21,7 @@ import {
 } from '@/lib/constituency'
 import { formatParliamentRange } from '@/lib/format'
 import { filterConstituenciesByMembership } from '@/lib/membershipFilter'
+import { cn } from '@/lib/utils'
 import type { MembershipFilters } from '@/types/search/interfaces'
 import { ChevronDown, TriangleAlert } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
@@ -96,7 +97,7 @@ export function PopoverConstituencyFilter({
           className="w-full"
           onKeyDown={openOnArrowDown}
         >
-          <span className={value === '' ? 'text-muted-foreground' : undefined}>
+          <span className={cn(value === '' && 'text-muted-foreground')}>
             {value === '' ? 'Any constituency' : value}
           </span>
           <ChevronDown aria-hidden="true" className="text-muted-foreground" />
