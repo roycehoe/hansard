@@ -2,9 +2,10 @@ import json
 import re
 from dataclasses import dataclass
 from datetime import date
+from enum import StrEnum
 from html import escape
-from typing import Mapping, Optional
 from operator import attrgetter
+from typing import Mapping, Optional
 from urllib.parse import quote, urlencode
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -227,7 +228,6 @@ _SEARCH_FORM_HTML = (
 _SEARCH_PAGE_SIZE = 20
 _PAGE_PARAMETER = "page"
 _TAB_PARAMETER = "tab"
-_TITLES_TAB = "titles"
 _ACT_PARAMETER = "act"
 _HIGHLIGHT_PARAMETER = "hl"
 _SNIPPET_MARK_START = "<mark>"
@@ -289,6 +289,10 @@ _SEARCH_CONSTITUENCY_NOT_FOUND_NOTE = (
 )
 _SEARCH_ACT_NOT_FOUND_NOTE_PREFIX = "No Act has the code"
 _SEARCH_FAILED_NOTE = "Couldn't run the search."
+
+
+class _SearchTab(StrEnum):
+    TITLES = "titles"
 
 
 class _SearchPageParameters(BaseModel):
@@ -1323,7 +1327,7 @@ def _is_title_search_offered(parameters: _SearchPageParameters) -> bool:
 def _should_search_titles(
     tab: Optional[str], parameters: _SearchPageParameters
 ) -> bool:
-    return tab == _TITLES_TAB and _is_title_search_offered(parameters)
+    return tab == _SearchTab.TITLES and _is_title_search_offered(parameters)
 
 
 def _get_title_search_lines(
@@ -1338,7 +1342,7 @@ def _get_title_search_lines(
         if is_query_without_search_words
         else _TITLE_MATCHES_LINK_TEXT
     )
-    title_search_url = _get_search_url(query_parameters, _TITLES_TAB, None)
+    title_search_url = _get_search_url(query_parameters, _SearchTab.TITLES, None)
     return [f'<p><a href="{escape(title_search_url)}">{link_text}</a></p>']
 
 
@@ -1480,7 +1484,7 @@ def _get_title_search_results_html(
             "</ol>",
             *_get_next_page_lines(
                 query_parameters,
-                _TITLES_TAB,
+                _SearchTab.TITLES,
                 parameters.page,
                 search_reports_response.has_next_page,
             ),

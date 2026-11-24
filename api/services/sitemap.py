@@ -1,4 +1,5 @@
 from datetime import date
+from enum import StrEnum
 from typing import Optional
 from urllib.parse import quote
 
@@ -47,9 +48,17 @@ _ROBOTS_TXT_LINES = (
 _cached_file_name_to_xml: Optional[dict[str, str]] = None
 
 
+class _SitemapKind(StrEnum):
+    PAGES = "pages"
+    SITTINGS = "sittings"
+    PEOPLE = "people"
+    ACTS = "acts"
+    REPORTS = "reports"
+
+
 def _get_kind_to_sitemap_urls(
     site_origin: str, session: Session
-) -> dict[str, list[SitemapUrl]]:
+) -> dict[_SitemapKind, list[SitemapUrl]]:
     sitting_dates = CRUDReport(session).get_all_sitting_dates()
     persons = CRUDPerson(session).get_all()
     acts = CRUDAct(session).get_all()
@@ -57,28 +66,28 @@ def _get_kind_to_sitemap_urls(
         get_taken_down_report_id_candidates()
     )
     return {
-        "pages": [
+        _SitemapKind.PAGES: [
             SitemapUrl(f"{site_origin}{page_path}", None) for page_path in _PAGE_PATHS
         ],
-        "sittings": [
+        _SitemapKind.SITTINGS: [
             SitemapUrl(
                 f"{site_origin}/sittings/{sitting_date.date().isoformat()}",
                 sitting_date.date(),
             )
             for sitting_date in sitting_dates
         ],
-        "people": [
+        _SitemapKind.PEOPLE: [
             SitemapUrl(
                 f"{site_origin}/people/{person.id}-{get_person_slug(person.canonical_name)}",
                 None,
             )
             for person in persons
         ],
-        "acts": [
+        _SitemapKind.ACTS: [
             SitemapUrl(f"{site_origin}/acts/{quote(act.sso_code, safe='')}", None)
             for act in acts
         ],
-        "reports": [
+        _SitemapKind.REPORTS: [
             SitemapUrl(
                 f"{site_origin}/reports/{quote(get_report_slug(report.report_id), safe='')}",
                 max(report.sitting_date.date(), _REPORT_PAGES_LAST_REWRITTEN_DATE),
