@@ -1,5 +1,4 @@
 import re
-from functools import partial
 from typing import Optional
 
 from utils.markdown_text import strip_markdown
@@ -29,10 +28,6 @@ def get_speech_anchor(text: str) -> str:
     return _ANCHOR_SEPARATOR.join(prefix_words[:_ANCHOR_WORD_COUNT])
 
 
-def _get_ordinal_distance(speech_ordinal: int, ordinal: int) -> int:
-    return abs(ordinal - speech_ordinal)
-
-
 def _is_starting_with_anchor(anchor: Optional[str], speech_anchor: str) -> bool:
     if anchor is None:
         return False
@@ -53,4 +48,4 @@ def get_linked_speech_ordinal(
     )
     if not matching_ordinals:
         return None
-    return min(matching_ordinals, key=partial(_get_ordinal_distance, speech_ordinal))
+    return min(matching_ordinals, key=lambda ordinal: abs(ordinal - speech_ordinal))

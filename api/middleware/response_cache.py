@@ -144,11 +144,6 @@ def _get_cache_with_response(
     }
 
 
-def _store_response(cache_key: _CacheKey, headers: _RawHeaders, body: bytes) -> None:
-    global _cache_key_to_cached_response
-    _cache_key_to_cached_response = _get_cache_with_response(cache_key, headers, body)
-
-
 class _CachingSend:
     def __init__(self, send: Send, cache_key: _CacheKey):
         self.send = send
@@ -157,6 +152,7 @@ class _CachingSend:
         self.body_chunks: list[bytes] = []
 
     async def __call__(self, message: Message) -> None:
+        global _cache_key_to_cached_response
         if (
             message["type"] == _RESPONSE_START_TYPE
             and message["status"] == status.HTTP_200_OK
@@ -172,7 +168,9 @@ class _CachingSend:
         body = b"".join(self.body_chunks)
         if len(body) > _CACHE_MAX_BODY_BYTES:
             return
-        _store_response(self.cache_key, self.headers, body)
+        _cache_key_to_cached_response = _get_cache_with_response(
+            self.cache_key, self.headers, body
+        )
 
 
 class ResponseCacheMiddleware:

@@ -47,10 +47,6 @@ _ROBOTS_TXT_LINES = (
 _cached_file_name_to_xml: Optional[dict[str, str]] = None
 
 
-def _get_file_name(kind: str, file_number: int) -> str:
-    return f"sitemap-{kind}-{file_number}.xml"
-
-
 def _get_kind_to_sitemap_urls(
     site_origin: str, session: Session
 ) -> dict[str, list[SitemapUrl]]:
@@ -99,7 +95,7 @@ def _get_uncached_file_name_to_xml(site_url: str, session: Session) -> dict[str,
         for file_index, first_url_index in enumerate(
             range(0, len(sitemap_urls), _MAX_URLS_PER_FILE)
         ):
-            file_name_to_xml[_get_file_name(kind, file_index + 1)] = get_urlset_xml(
+            file_name_to_xml[f"sitemap-{kind}-{file_index + 1}.xml"] = get_urlset_xml(
                 sitemap_urls[first_url_index : first_url_index + _MAX_URLS_PER_FILE]
             )
     file_name_to_xml[SITEMAP_INDEX_FILE_NAME] = get_sitemap_index_xml(

@@ -6,7 +6,6 @@ from crud.attached_file import CRUDAttachedFile
 from crud.attached_file_pointer import CRUDAttachedFilePointer
 from crud.report import CRUDReport
 from crud.sitting import CRUDSitting
-from database.attached_file import AttachedFile
 from database.attached_file_pointer import AttachedFilePointer
 from database.report import Report
 from database.sitting import Sitting
@@ -46,15 +45,6 @@ def _get_validated_sitting(sitting_date: date, session: Session) -> Sitting:
     return sitting
 
 
-def _get_attached_file_data(attached_file: AttachedFile) -> AttachedFileData:
-    return AttachedFileData(
-        kind=attached_file.kind,
-        printed_title=attached_file.printed_title,
-        file_name=attached_file.file_name,
-        section_type=attached_file.section_type,
-    )
-
-
 def get_report_attached_files(
     report_slug: str, session: Session
 ) -> GetReportAttachedFilesResponse:
@@ -69,8 +59,13 @@ def get_report_attached_files(
             if pointer.attached_file_id is not None
         }
     )
-    attached_file_id_to_attached_file = {
-        attached_file.id: attached_file
+    attached_file_id_to_attached_file_data = {
+        attached_file.id: AttachedFileData(
+            kind=attached_file.kind,
+            printed_title=attached_file.printed_title,
+            file_name=attached_file.file_name,
+            section_type=attached_file.section_type,
+        )
         for attached_file in CRUDAttachedFile(session).get_by_ids(attached_file_ids)
     }
     return GetReportAttachedFilesResponse(
@@ -83,9 +78,9 @@ def get_report_attached_files(
                 file=(
                     None
                     if pointer.attached_file_id is None
-                    else _get_attached_file_data(
-                        attached_file_id_to_attached_file[pointer.attached_file_id]
-                    )
+                    else attached_file_id_to_attached_file_data[
+                        pointer.attached_file_id
+                    ]
                 ),
             )
             for pointer in pointers

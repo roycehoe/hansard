@@ -110,16 +110,6 @@ class FrontendFiles(StaticFiles):
             preview.person_name,
         )
 
-    def _get_preview_tags_html(self, preview: PreviewData, preload_html: str) -> str:
-        return get_preview_tags_html(
-            preview.title,
-            preview.description,
-            preview.preview_type,
-            _get_preview_url(self.site_url, preview.path),
-            self._get_structured_data_html(preview),
-            preload_html,
-        )
-
     async def _get_index_response(self, scope: Scope) -> Response:
         request = Request(scope)
         bot_name = get_preview_bot_name(request.headers.get(_USER_AGENT_HEADER, ""))
@@ -152,8 +142,13 @@ class FrontendFiles(StaticFiles):
             get_index_html_with_page_text(
                 get_index_html_with_preview_tags(
                     self.index_html,
-                    self._get_preview_tags_html(
-                        preview, _get_page_preload_html(scope, preview)
+                    get_preview_tags_html(
+                        preview.title,
+                        preview.description,
+                        preview.preview_type,
+                        _get_preview_url(self.site_url, preview.path),
+                        self._get_structured_data_html(preview),
+                        _get_page_preload_html(scope, preview),
                     ),
                 ),
                 page_text_html,

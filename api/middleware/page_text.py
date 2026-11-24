@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import date
 from html import escape
 from typing import Mapping, Optional
+from operator import attrgetter
 from urllib.parse import quote, urlencode
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -439,13 +440,6 @@ def _get_previous_column_speeches(
     return previous_column_speeches
 
 
-def _get_picture_address(report_slug: str, picture: ReportPictureData) -> str:
-    return (
-        f"/api/reports/{quote(report_slug, safe=_PICTURE_SLUG_SAFE_CHARACTERS)}"
-        f"/pictures/{picture.sha256}"
-    )
-
-
 def _get_table_row_html(row: list[str], cell_tag: str) -> str:
     cells = "".join(f"<{cell_tag}>{escape(cell)}</{cell_tag}>" for cell in row)
     return f"<tr>{cells}</tr>"
@@ -475,7 +469,10 @@ def _get_typed_table_html(table: TypedTableData, kind: PictureKind) -> list[str]
 
 
 def _get_picture_html(report_slug: str, picture: ReportPictureData) -> list[str]:
-    address = escape(_get_picture_address(report_slug, picture))
+    address = escape(
+        f"/api/reports/{quote(report_slug, safe=_PICTURE_SLUG_SAFE_CHARACTERS)}"
+        f"/pictures/{picture.sha256}"
+    )
     if picture.typed_copy is None:
         return [f'<img src="{address}" alt="{_PICTURE_ALT_TEXT}">']
     heading = (
@@ -1064,10 +1061,6 @@ def _get_act_entry_events(entry: ActEntryData, entry_date_text: str) -> list[_Ac
     ]
 
 
-def _get_act_event_sort_date(event: _ActEvent) -> str:
-    return event.sort_date
-
-
 # NOTE: the order of getActEventsNewestFirst in app/src/lib/actTimeline.ts. Reversing the record order and sorting by date, newest first, keeps a later entry above an earlier one on one date, because the sort is stable
 def _get_act_events_newest_first(entries: list[ActEntryData]) -> list[_ActEvent]:
     ordered_entries = sorted(entries, key=lambda entry: entry.ordinal)
@@ -1079,7 +1072,7 @@ def _get_act_events_newest_first(entries: list[ActEntryData]) -> list[_ActEvent]
         )
     ]
     return sorted(
-        reversed(events_in_record_order), key=_get_act_event_sort_date, reverse=True
+        reversed(events_in_record_order), key=attrgetter("sort_date"), reverse=True
     )
 
 
@@ -1601,10 +1594,6 @@ def _get_act_page_text_html(sso_code: str) -> str:
         return _NO_PAGE_TEXT
 
 
-def _get_about_page_text_html() -> str:
-    return _get_about_html(settings.contact_email)
-
-
 def _get_coverage_page_text_html() -> str:
     try:
         with Session(engine) as session, Session(engine) as refresh_run_session:
@@ -1739,7 +1728,7 @@ def get_page_text_html(
     if path == _HOME_PATH:
         return _get_home_page_text_html(preview.title, preview.description)
     if path == _ABOUT_PATH:
-        return _get_about_page_text_html()
+        return _get_about_html(settings.contact_email)
     if path == _COVERAGE_PATH:
         return _get_coverage_page_text_html()
     if path == _PEOPLE_PATH:
