@@ -1,4 +1,4 @@
-import { Example, Section } from '@/components/design/Section'
+import { Section, SectionExample } from '@/components/design/Section'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -114,7 +114,7 @@ export function SectionOverlays() {
       title="Overlays"
       description="Dialogs, sheets, menus, tooltips, popovers and toasts."
     >
-      <Example label="Dialog">
+      <SectionExample label="Dialog">
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline">Open dialog</Button>
@@ -140,9 +140,9 @@ export function SectionOverlays() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </Example>
+      </SectionExample>
 
-      <Example label="Alert dialog">
+      <SectionExample label="Alert dialog">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive">Remove person filter</Button>
@@ -162,9 +162,9 @@ export function SectionOverlays() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </Example>
+      </SectionExample>
 
-      <Example label="Sheet from each side">
+      <SectionExample label="Sheet from each side">
         {SHEET_SIDES.map((side) => (
           <Sheet key={side}>
             <SheetTrigger asChild>
@@ -194,9 +194,9 @@ export function SectionOverlays() {
             </SheetContent>
           </Sheet>
         ))}
-      </Example>
+      </SectionExample>
 
-      <Example label="Dropdown menu">
+      <SectionExample label="Dropdown menu">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">Options</Button>
@@ -245,9 +245,9 @@ export function SectionOverlays() {
             <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </Example>
+      </SectionExample>
 
-      <Example label="Tooltip">
+      <SectionExample label="Tooltip">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="outline">Copy citation</Button>
@@ -262,9 +262,9 @@ export function SectionOverlays() {
           </TooltipTrigger>
           <TooltipContent>Copy link</TooltipContent>
         </Tooltip>
-      </Example>
+      </SectionExample>
 
-      <Example label="Popover">
+      <SectionExample label="Popover">
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="icon" aria-label="Search settings">
@@ -280,9 +280,9 @@ export function SectionOverlays() {
             </PopoverHeader>
           </PopoverContent>
         </Popover>
-      </Example>
+      </SectionExample>
 
-      <Example label="Toasts">
+      <SectionExample label="Toasts">
         <Button variant="outline" onClick={showSuccessToast}>
           Success
         </Button>
@@ -304,7 +304,7 @@ export function SectionOverlays() {
         <Button variant="outline" onClick={showActionToast}>
           With action
         </Button>
-      </Example>
+      </SectionExample>
     </Section>
   )
 }

@@ -1,4 +1,4 @@
-import { Example, Section } from '@/components/design/Section'
+import { Section, SectionExample } from '@/components/design/Section'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { NoticeError } from '@/components/layout/NoticeError'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -44,12 +44,12 @@ export function SectionLayout() {
       title="Layout"
       description="Page header and page-level notices."
     >
-      <Example label="PageHeader, title only">
+      <SectionExample label="PageHeader, title only">
         <div className="w-full">
           <PageHeader title="Sittings" />
         </div>
-      </Example>
-      <Example label="PageHeader with description, breadcrumb and actions">
+      </SectionExample>
+      <SectionExample label="PageHeader with description, breadcrumb and actions">
         <div className="w-full">
           <PageHeader
             title="Sitting of 12 October 1993"
@@ -63,7 +63,7 @@ export function SectionLayout() {
             }
           />
         </div>
-      </Example>
+      </SectionExample>
       <p className="text-muted-foreground text-sm font-medium">
         NoticeEmpty without an action
       </p>

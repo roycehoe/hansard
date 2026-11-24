@@ -1,4 +1,4 @@
-import { Example, Section } from '@/components/design/Section'
+import { Section, SectionExample } from '@/components/design/Section'
 import { TableIndexSittingSpeeches } from '@/components/design/tableSittingSpeeches/TableIndexSittingSpeeches'
 import type { SittingSpeech } from '@/components/design/tableSittingSpeeches/useTableColumnsSittingSpeeches'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -180,20 +180,20 @@ export function SectionData() {
       title="Data"
       description="Tables, pagination, badges, alerts, skeletons and cards."
     >
-      <Example label="Table, sortable with pagination (click a header to sort)">
+      <SectionExample label="Table, sortable with pagination (click a header to sort)">
         <TableIndexSittingSpeeches
           caption="Reports by sitting date, ten per page"
           data={SITTING_SPEECHES}
         />
-      </Example>
-      <Example label="Table, empty">
+      </SectionExample>
+      <SectionExample label="Table, empty">
         <TableIndexSittingSpeeches
           caption="Reports matching the search"
           data={[]}
         />
-      </Example>
+      </SectionExample>
 
-      <Example label="Pagination, many pages with an ellipsis">
+      <SectionExample label="Pagination, many pages with an ellipsis">
         <Pagination>
           <PaginationContent>
             <PaginationItem>
@@ -224,17 +224,17 @@ export function SectionData() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-      </Example>
+      </SectionExample>
 
-      <Example label="Badge, all variants">
+      <SectionExample label="Badge, all variants">
         {BADGE_VARIANTS.map((variant) => (
           <Badge key={variant} variant={variant}>
             {variant}
           </Badge>
         ))}
-      </Example>
+      </SectionExample>
 
-      <Example label="Alert, all variants">
+      <SectionExample label="Alert, all variants">
         <div className="flex w-full flex-col gap-4">
           {ALERTS.map(({ variant, icon: Icon, title, description }) => (
             <Alert key={variant} variant={variant}>
@@ -244,16 +244,16 @@ export function SectionData() {
             </Alert>
           ))}
         </div>
-      </Example>
+      </SectionExample>
 
-      <Example label="Skeleton, text lines">
+      <SectionExample label="Skeleton, text lines">
         <div className="flex w-full max-w-sm flex-col gap-2">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
           <Skeleton className="h-4 w-2/3" />
         </div>
-      </Example>
-      <Example label="Skeleton, avatar circle">
+      </SectionExample>
+      <SectionExample label="Skeleton, avatar circle">
         <div className="flex items-center gap-4">
           <Skeleton className="size-12 rounded-full" />
           <div className="flex flex-col gap-2">
@@ -261,16 +261,16 @@ export function SectionData() {
             <Skeleton className="h-4 w-28" />
           </div>
         </div>
-      </Example>
-      <Example label="Skeleton, card">
+      </SectionExample>
+      <SectionExample label="Skeleton, card">
         <div className="flex w-full max-w-sm flex-col gap-4">
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
         </div>
-      </Example>
+      </SectionExample>
 
-      <Example label="Card, header and content with description">
+      <SectionExample label="Card, header and content with description">
         <Card className="w-full max-w-sm">
           <CardHeader>
             <CardTitle>Committee of Supply</CardTitle>
@@ -282,8 +282,8 @@ export function SectionData() {
             <p className="text-sm">Nine speeches by Chan Chun Sing.</p>
           </CardContent>
         </Card>
-      </Example>
-      <Example label="Card, without description">
+      </SectionExample>
+      <SectionExample label="Card, without description">
         <Card className="w-full max-w-sm">
           <CardHeader>
             <CardTitle>Sitting of 9 January 2024</CardTitle>
@@ -292,8 +292,8 @@ export function SectionData() {
             <p className="text-sm">14 speeches across 3 reports.</p>
           </CardContent>
         </Card>
-      </Example>
-      <Example label="Card, with footer and action button">
+      </SectionExample>
+      <SectionExample label="Card, with footer and action button">
         <Card className="w-full max-w-sm">
           <CardHeader>
             <CardTitle>Debate on President's Address</CardTitle>
@@ -314,7 +314,7 @@ export function SectionData() {
             <Button size="sm">Read report</Button>
           </CardFooter>
         </Card>
-      </Example>
+      </SectionExample>
     </Section>
   )
 }

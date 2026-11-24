@@ -21,12 +21,12 @@ export function Section({ id, title, description, children }: SectionProps) {
   )
 }
 
-interface ExampleProps {
+interface SectionExampleProps {
   label: string
   children: ReactNode
 }
 
-export function Example({ label, children }: ExampleProps) {
+export function SectionExample({ label, children }: SectionExampleProps) {
   return (
     <div className="space-y-3">
       <h3 className="text-muted-foreground text-sm font-medium">{label}</h3>

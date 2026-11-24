@@ -1,4 +1,4 @@
-import { Example, Section } from '@/components/design/Section'
+import { Section, SectionExample } from '@/components/design/Section'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -92,13 +92,13 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-interface ExampleButtonRowProps {
+interface ActionBarButtonVariantProps {
   variant: (typeof BUTTON_VARIANTS)[number]
 }
 
-function ExampleButtonRow({ variant }: ExampleButtonRowProps) {
+function ActionBarButtonVariant({ variant }: ActionBarButtonVariantProps) {
   return (
-    <Example label={variant}>
+    <SectionExample label={variant}>
       {BUTTON_TEXT_SIZES.map((size) => (
         <Button key={size} variant={variant} size={size}>
           {size}
@@ -114,11 +114,11 @@ function ExampleButtonRow({ variant }: ExampleButtonRowProps) {
           <ArrowRightIcon />
         </Button>
       ))}
-    </Example>
+    </SectionExample>
   )
 }
 
-function ExampleDatePicker() {
+function FormDatePickerExample() {
   const [date, setDate] = useState<Date | undefined>(new Date(2026, 9, 13))
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
@@ -156,7 +156,7 @@ function ExampleDatePicker() {
   )
 }
 
-function ExampleForm() {
+function FormExample() {
   const [isPending, setIsPending] = useState<boolean>(false)
   const {
     register,
@@ -306,10 +306,10 @@ export function SectionForms() {
       description="Buttons and form controls in every state."
     >
       {BUTTON_VARIANTS.map((variant) => (
-        <ExampleButtonRow key={variant} variant={variant} />
+        <ActionBarButtonVariant key={variant} variant={variant} />
       ))}
 
-      <Example label="Button pending">
+      <SectionExample label="Button pending">
         <Button disabled>
           <Spinner aria-hidden />
           Saving…
@@ -322,17 +322,17 @@ export function SectionForms() {
           <Spinner aria-hidden />
           Deleting…
         </Button>
-      </Example>
+      </SectionExample>
 
-      <Example label="Button disabled">
+      <SectionExample label="Button disabled">
         {BUTTON_VARIANTS.map((variant) => (
           <Button key={variant} variant={variant} disabled>
             {variant}
           </Button>
         ))}
-      </Example>
+      </SectionExample>
 
-      <Example label="Button icon-only">
+      <SectionExample label="Button icon-only">
         <Button size="icon" aria-label="Search">
           <SearchIcon />
         </Button>
@@ -342,9 +342,9 @@ export function SectionForms() {
         <Button size="icon" variant="ghost" aria-label="Next">
           <ArrowRightIcon />
         </Button>
-      </Example>
+      </SectionExample>
 
-      <Example label="Input">
+      <SectionExample label="Input">
         <div className="flex w-64 flex-col gap-2">
           <Label htmlFor="input-default">Default</Label>
           <Input id="input-default" defaultValue="Ministry of Finance" />
@@ -379,9 +379,9 @@ export function SectionForms() {
             <Input id="input-icon" className="pl-8" placeholder="Search" />
           </div>
         </div>
-      </Example>
+      </SectionExample>
 
-      <Example label="Textarea">
+      <SectionExample label="Textarea">
         <div className="flex w-80 max-w-full flex-col gap-2">
           <Label htmlFor="textarea-default">Notes</Label>
           <Textarea id="textarea-default" placeholder="Add a note" />
@@ -390,9 +390,9 @@ export function SectionForms() {
           <Label htmlFor="textarea-disabled">Disabled</Label>
           <Textarea id="textarea-disabled" defaultValue="Locked" disabled />
         </div>
-      </Example>
+      </SectionExample>
 
-      <Example label="Select">
+      <SectionExample label="Select">
         <div className="flex w-64 flex-col gap-2">
           <Label htmlFor="select-grouped">Role</Label>
           <Select>
@@ -424,9 +424,9 @@ export function SectionForms() {
             </SelectContent>
           </Select>
         </div>
-      </Example>
+      </SectionExample>
 
-      <Example label="Checkbox">
+      <SectionExample label="Checkbox">
         <div className="flex items-center gap-2">
           <Checkbox id="checkbox-unchecked" />
           <Label htmlFor="checkbox-unchecked">Unchecked</Label>
@@ -461,9 +461,9 @@ export function SectionForms() {
             </p>
           </div>
         </div>
-      </Example>
+      </SectionExample>
 
-      <Example label="Radio group">
+      <SectionExample label="Radio group">
         <RadioGroup defaultValue={ReportType.ORAL} aria-label="Report type">
           {REPORT_TYPE_OPTIONS.map((type) => (
             <div key={type.value} className="flex items-center gap-2">
@@ -472,9 +472,9 @@ export function SectionForms() {
             </div>
           ))}
         </RadioGroup>
-      </Example>
+      </SectionExample>
 
-      <Example label="Switch">
+      <SectionExample label="Switch">
         <div className="flex items-center gap-2">
           <Switch id="switch-default" />
           <Label htmlFor="switch-default">Show timestamps</Label>
@@ -487,15 +487,15 @@ export function SectionForms() {
           <Switch id="switch-disabled" disabled />
           <Label htmlFor="switch-disabled">Disabled</Label>
         </div>
-      </Example>
+      </SectionExample>
 
-      <Example label="Date picker">
-        <ExampleDatePicker />
-      </Example>
+      <SectionExample label="Date picker">
+        <FormDatePickerExample />
+      </SectionExample>
 
-      <Example label="Form with validation">
-        <ExampleForm />
-      </Example>
+      <SectionExample label="Form with validation">
+        <FormExample />
+      </SectionExample>
     </Section>
   )
 }

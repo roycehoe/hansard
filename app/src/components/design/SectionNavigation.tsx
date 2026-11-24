@@ -1,4 +1,4 @@
-import { Example, Section } from '@/components/design/Section'
+import { Section, SectionExample } from '@/components/design/Section'
 import {
   Accordion,
   AccordionContent,
@@ -44,7 +44,7 @@ export function SectionNavigation() {
       title="Navigation"
       description="Tabs, accordion, breadcrumb and separator."
     >
-      <Example label="Tabs">
+      <SectionExample label="Tabs">
         <Tabs defaultValue="speeches" className="w-full max-w-md">
           <TabsList>
             <TabsTrigger value="speeches">Speeches</TabsTrigger>
@@ -61,9 +61,9 @@ export function SectionNavigation() {
             Papers tabled alongside the sitting.
           </TabsContent>
         </Tabs>
-      </Example>
+      </SectionExample>
 
-      <Example label="Accordion, single">
+      <SectionExample label="Accordion, single">
         <Accordion type="single" collapsible className="w-full max-w-md">
           {FAQ_ITEMS.map(({ value, question, answer }) => (
             <AccordionItem key={value} value={value}>
@@ -72,8 +72,8 @@ export function SectionNavigation() {
             </AccordionItem>
           ))}
         </Accordion>
-      </Example>
-      <Example label="Accordion, multiple">
+      </SectionExample>
+      <SectionExample label="Accordion, multiple">
         <Accordion
           type="multiple"
           defaultValue={['source', 'speakers']}
@@ -86,9 +86,9 @@ export function SectionNavigation() {
             </AccordionItem>
           ))}
         </Accordion>
-      </Example>
+      </SectionExample>
 
-      <Example label="Breadcrumb, three levels">
+      <SectionExample label="Breadcrumb, three levels">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -108,8 +108,8 @@ export function SectionNavigation() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-      </Example>
-      <Example label="Breadcrumb, with an ellipsis">
+      </SectionExample>
+      <SectionExample label="Breadcrumb, with an ellipsis">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -135,16 +135,16 @@ export function SectionNavigation() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-      </Example>
+      </SectionExample>
 
-      <Example label="Separator, horizontal">
+      <SectionExample label="Separator, horizontal">
         <div className="w-full max-w-md space-y-3 text-sm">
           <p>Sittings</p>
           <Separator />
           <p>Speeches</p>
         </div>
-      </Example>
-      <Example label="Separator, vertical">
+      </SectionExample>
+      <SectionExample label="Separator, vertical">
         <div className="flex h-5 items-center gap-4 text-sm">
           <span>Sittings</span>
           <Separator orientation="vertical" />
@@ -152,7 +152,7 @@ export function SectionNavigation() {
           <Separator orientation="vertical" />
           <span>People</span>
         </div>
-      </Example>
+      </SectionExample>
     </Section>
   )
 }
