@@ -283,6 +283,9 @@ Components follow `[Category][Context].tsx`. The category is a prefix that descr
 | `Text`            | A text renderer with inline markup             | `TextTranscript.tsx`                     |
 | `Snippet`         | A short excerpt with matches marked            | `SnippetHighlighted.tsx`                 |
 | `Pagination`      | A shared pager (lives in `components/layout/`) | `PaginationInfiniteScroll.tsx`           |
+| `Tooltip`         | A trigger with its tooltip                     | `TooltipDefinition.tsx`                  |
+| `Fieldset`        | A labelled group of related controls           | `FieldsetAppearanceChoice.tsx`           |
+| `Link`            | A link with the site's shared styling          | `LinkExternal.tsx`                       |
 
 When the category alone is self-explanatory within the folder, the context suffix can be omitted — e.g. `ActionBar.tsx` in a folder that only has one action bar. Add context when disambiguation is needed — e.g. `ActionBarSpeechCopy.tsx` when multiple action bars exist in the same folder.
 
