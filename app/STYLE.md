@@ -1105,7 +1105,7 @@ Run on every diff that touches `app/src`:
 
 ### File Structure
 
-Every table lives in its own folder and is split into exactly four files, each with a single responsibility:
+Every table lives in its own folder and is split into exactly five files, each with a single responsibility:
 
 ```
 tableSittingSpeeches/
