@@ -8,10 +8,10 @@ import {
   TEXT_SIZE_DROPDOWN_OPTIONS,
 } from '@/constants/appearance/constants'
 import {
-  ColourChoice,
+  type ColourChoice,
   ColumnNumbers,
-  ContentWidth,
-  TextSize,
+  type ContentWidth,
+  type TextSize,
 } from '@/constants/appearance/enums'
 import { useAppearance } from '@/hooks/useAppearance'
 import { useTheme } from '@/hooks/useTheme'

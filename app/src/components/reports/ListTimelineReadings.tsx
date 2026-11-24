@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
-// NOTE: the Act page's rail (RowActEvent) at menu size. Each other reading is one link across the row, lit on hover in the muted fill as the home page's rows are, so it never looks like the reading on screen. The reading on screen takes the phone menu's current-page look: an accent row, a semibold date and a marker in the primary colour.
+// NOTE: the Act page's rail (RowActEvent) at menu size.
 export const RAIL_ITEM_CLASS_NAME =
   'before:bg-border relative text-sm [--marker-top:18px] before:pointer-events-none before:absolute before:inset-y-0 before:left-[13px] before:w-px first:before:top-(--marker-top) last:before:bottom-[calc(100%-var(--marker-top))] after:pointer-events-none after:absolute after:top-[calc(var(--marker-top)-4.5px)] after:left-[9px] after:size-[9px] after:rounded-full'
 

@@ -41,8 +41,6 @@ const LIST_LINK_CLASS_NAME = cn(
   'inline-block py-1 any-pointer-coarse:py-2'
 )
 
-// Two columns on the same 3fr/2fr grid as the text above, so the link
-// lists line up with the English and the translations.
 const ABOUT_LINK_COLUMNS = [
   [
     {
