@@ -2,6 +2,7 @@ import {
   DEFINED_TERM_CLASS_NAME,
   PopoverDefinition,
 } from '@/components/layout/PopoverDefinition'
+import { MARK_CLASS_NAME } from '@/constants/constants'
 import {
   LOST_CHARACTER,
   LOST_CHARACTER_DEFINITION,
@@ -29,10 +30,7 @@ function renderLostCharacters(text: string) {
 export function TextHighlighted({ text, pattern }: TextHighlightedProps) {
   return splitByHighlight(text, pattern).map((segment, index) =>
     segment.isMarked ? (
-      <mark
-        key={index}
-        className="bg-highlight text-highlight-foreground rounded-xs px-0.5 font-semibold"
-      >
+      <mark key={index} className={MARK_CLASS_NAME}>
         {segment.text}
       </mark>
     ) : (

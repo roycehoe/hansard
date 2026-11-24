@@ -3,6 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { LINK_CLASS_NAME } from '@/constants/constants'
 import { METHODS_TERMS_SECTION_ID } from '@/constants/coverage/constants'
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
@@ -12,9 +13,6 @@ interface PopoverDefinitionProps {
   definition: string
   termsLinkLabel?: string
 }
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 export const DEFINED_TERM_CLASS_NAME =
   'decoration-muted-foreground underline decoration-dotted underline-offset-4'

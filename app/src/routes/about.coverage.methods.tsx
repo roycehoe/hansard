@@ -21,6 +21,7 @@ import {
   QUESTION_DEFINITION,
   REVISED_EDITION_DEFINITION,
   TEXT_NOT_IN_ARCHIVE_LABEL,
+  UNDERLINED_LINK_CLASS_NAME,
 } from '@/constants/constants'
 import {
   CORRECTIONS_LOG_URL,
@@ -55,9 +56,6 @@ const SUBHEADING_CLASS_NAME = 'pt-4 text-lg font-semibold'
 const SUBSECTION_CLASS_NAME = 'space-y-2'
 
 const GAP_LIST_CLASS_NAME = 'list-disc space-y-2 pl-5'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
 const COUNTS_SKELETON_ROW_COUNT = 10
 
@@ -115,7 +113,7 @@ export const Route = createFileRoute('/about/coverage/methods')({
             <Link
               to="/about/coverage/methods"
               hash={METHODS_ANNEX_SECTION_ID}
-              className={LINK_CLASS_NAME}
+              className={UNDERLINED_LINK_CLASS_NAME}
             >
               full counts and counts by year
             </Link>

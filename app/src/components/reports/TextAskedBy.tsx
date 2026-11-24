@@ -1,5 +1,6 @@
 import type { AskerData } from '@/api/reports/getReport'
 import { PopoverReadOutBy } from '@/components/reports/PopoverReadOutBy'
+import { EMPHASISED_LINK_CLASS_NAME } from '@/constants/constants'
 import { getNameListSeparator } from '@/lib/format'
 import { buildPersonSlug } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
@@ -8,9 +9,6 @@ import { Fragment } from 'react'
 interface TextAskedByProps {
   askers: AskerData[]
 }
-
-const LINK_CLASS_NAME =
-  'text-link font-medium outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 export function TextAskedBy({ askers }: TextAskedByProps) {
   return askers.length === 0 ? null : (
@@ -24,7 +22,7 @@ export function TextAskedBy({ askers }: TextAskedByProps) {
             params={{
               personSlug: buildPersonSlug(asker.person_id, asker.person_slug),
             }}
-            className={LINK_CLASS_NAME}
+            className={EMPHASISED_LINK_CLASS_NAME}
           >
             {asker.person_name}
           </Link>

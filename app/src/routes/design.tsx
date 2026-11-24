@@ -4,6 +4,7 @@ import { SectionLayout } from '@/components/design/SectionLayout'
 import { SectionNavigation } from '@/components/design/SectionNavigation'
 import { SectionOverlays } from '@/components/design/SectionOverlays'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { LINK_CLASS_NAME } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -29,7 +30,7 @@ export const Route = createFileRoute('/design')({
             <a
               key={section.id}
               href={`#${section.id}`}
-              className="text-link focus-visible:decoration-ring outline-hidden hover:underline focus-visible:underline"
+              className={LINK_CLASS_NAME}
             >
               {section.label}
             </a>

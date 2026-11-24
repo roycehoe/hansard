@@ -8,7 +8,7 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { NUMBER_LOCALE } from '@/constants/constants'
+import { LINK_CLASS_NAME, NUMBER_LOCALE } from '@/constants/constants'
 import { formatMembershipParliaments, formatSittingDate } from '@/lib/format'
 import { isSittingMember } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
@@ -17,9 +17,6 @@ import type { ReactNode } from 'react'
 const OPEN_DELAY_MS = 400
 
 const CLOSE_DELAY_MS = 150
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 const SKELETON_VALUE_CLASS_NAME = 'flex h-5 items-center'
 

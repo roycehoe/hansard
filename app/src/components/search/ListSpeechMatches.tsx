@@ -6,6 +6,7 @@ import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { ListSpeechMatchesInReport } from '@/components/search/ListSpeechMatchesInReport'
 import { TextMatchCount } from '@/components/search/TextMatchCount'
+import { VISITED_LINK_CLASS_NAME } from '@/constants/constants'
 import {
   EMPTY_FILTERS_DESCRIPTION,
   EMPTY_SPEECH_OPERATOR_WORDS_DESCRIPTION,
@@ -114,7 +115,7 @@ export function ListSpeechMatches({
                     to="/reports/$reportSlug"
                     params={{ reportSlug: group.reportSlug }}
                     search={{ hl: highlightWords }}
-                    className="text-link visited:text-visited focus-visible:decoration-ring outline-hidden hover:underline focus-visible:underline"
+                    className={VISITED_LINK_CLASS_NAME}
                   >
                     {group.speeches[0].title}
                   </Link>

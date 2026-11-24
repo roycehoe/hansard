@@ -1,3 +1,4 @@
+import { UNDERLINED_LINK_CLASS_NAME } from '@/constants/constants'
 import { Link, useLocation } from '@tanstack/react-router'
 
 interface NoticeHighlightingProps {
@@ -21,7 +22,7 @@ export function NoticeHighlighting({
         params={{ reportSlug }}
         search={(previous) => ({ ...previous, hl: undefined })}
         hash={hash}
-        className="text-link focus-visible:decoration-ring underline underline-offset-4 outline-hidden hover:underline focus-visible:underline"
+        className={UNDERLINED_LINK_CLASS_NAME}
       >
         Clear highlighting
       </Link>

@@ -4,6 +4,7 @@ import { BadgeSittingMember } from '@/components/people/BadgeSittingMember'
 import { ListPartyNotes } from '@/components/people/ListPartyNotes'
 import { TextMatchedNameSpelling } from '@/components/people/TextMatchedNameSpelling'
 import { TextPartyNoteMarker } from '@/components/people/TextPartyNoteMarker'
+import { LINK_CLASS_NAME } from '@/constants/constants'
 import { formatMembershipParliaments, getMembershipParties } from '@/lib/format'
 import { getPersonNameMatches } from '@/lib/personName'
 import {
@@ -22,9 +23,6 @@ const PERSON_MATCHES_MIN_WORDS_LENGTH = 2
 const PERSON_MATCHES_MAX_LISTED = 3
 
 const SEARCH_OPERATOR_PATTERN = /"|\sOR\s|(^|\s)-/
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 function getPersonsMergedById(
   first: PersonData[],

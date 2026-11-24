@@ -1,4 +1,5 @@
 import type { ReferencedReportData } from '@/api/reports/getReport'
+import { VISITED_EMPHASISED_LINK_CLASS_NAME } from '@/constants/constants'
 import {
   BACK_TO_SITTING_LABEL,
   NEXT_REPORT_LABEL,
@@ -20,9 +21,6 @@ interface RowNeighbourProps {
   report: ReferencedReportData | null | undefined
 }
 
-const LINK_CLASS_NAME =
-  'text-link visited:text-visited font-medium outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
-
 function RowNeighbour({ label, sittingDate, report }: RowNeighbourProps) {
   return (
     <li className="min-w-0 text-sm">
@@ -33,7 +31,7 @@ function RowNeighbour({ label, sittingDate, report }: RowNeighbourProps) {
         <Link
           to="/reports/$reportSlug"
           params={{ reportSlug: report.report_slug }}
-          className={LINK_CLASS_NAME}
+          className={VISITED_EMPHASISED_LINK_CLASS_NAME}
         >
           {report.title}
         </Link>
@@ -41,7 +39,7 @@ function RowNeighbour({ label, sittingDate, report }: RowNeighbourProps) {
         <Link
           to="/sittings/$sittingDate"
           params={{ sittingDate }}
-          className={LINK_CLASS_NAME}
+          className={VISITED_EMPHASISED_LINK_CLASS_NAME}
         >
           {formatSittingDate(sittingDate)}
         </Link>

@@ -7,15 +7,12 @@ import { SnippetHighlighted } from '@/components/search/SnippetHighlighted'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
-import { NUMBER_LOCALE } from '@/constants/constants'
+import { NUMBER_LOCALE, SMALL_LINK_CLASS_NAME } from '@/constants/constants'
 import { VISIBLE_SPEECH_MATCHES_PER_REPORT } from '@/constants/search/constants'
 import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { RotateCw, TriangleAlert } from 'lucide-react'
 import { useId, useState } from 'react'
-
-const LINK_CLASS_NAME =
-  'text-link text-sm outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 const LOADING_ROW_COUNT = 2
 
@@ -101,7 +98,7 @@ export function ListSpeechMatchesInReport({
           to="/reports/$reportSlug"
           params={{ reportSlug }}
           search={{ hl: highlightWords }}
-          className={LINK_CLASS_NAME}
+          className={SMALL_LINK_CLASS_NAME}
         >
           {unfetchedCount.toLocaleString(NUMBER_LOCALE)} more in the report
         </Link>

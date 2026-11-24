@@ -1,5 +1,6 @@
 import { LinkExternal } from '@/components/layout/LinkExternal'
 import { ListSpellingNote } from '@/components/people/ListSpellingNote'
+import { UNDERLINED_LINK_CLASS_NAME } from '@/constants/constants'
 import { formatPartyAffiliationStart, formatSourceUrlHost } from '@/lib/format'
 import { getPartyNoteId } from '@/lib/utils'
 import type {
@@ -8,9 +9,6 @@ import type {
   PersonNameSpellingData,
 } from '@/types/people/interfaces'
 import { Link } from '@tanstack/react-router'
-
-const LINK_CLASS_NAME =
-  'text-link underline underline-offset-4 outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 interface ListPartyNotesProps {
   notes: PartyNote[]
@@ -31,7 +29,7 @@ export function ListPartyNotes({
         <Link
           to="/reports/$reportSlug"
           params={{ reportSlug: partyAffiliation.source_report.report_slug }}
-          className={LINK_CLASS_NAME}
+          className={UNDERLINED_LINK_CLASS_NAME}
         >
           Hansard
         </Link>

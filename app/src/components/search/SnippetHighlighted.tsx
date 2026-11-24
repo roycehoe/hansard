@@ -1,3 +1,4 @@
+import { MARK_CLASS_NAME } from '@/constants/constants'
 import {
   SNIPPET_MARK_END,
   SNIPPET_MARK_START,
@@ -28,10 +29,7 @@ export function SnippetHighlighted({ snippet }: SnippetHighlightedProps) {
     <p className="text-sm">
       {parseSnippetSegments(snippet).map((segment, index) =>
         segment.isMarked ? (
-          <mark
-            key={index}
-            className="bg-highlight text-highlight-foreground rounded-xs px-0.5 font-semibold"
-          >
+          <mark key={index} className={MARK_CLASS_NAME}>
             {segment.text}
           </mark>
         ) : (

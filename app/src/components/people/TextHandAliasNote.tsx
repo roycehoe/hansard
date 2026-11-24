@@ -1,11 +1,9 @@
 import { LinkExternal } from '@/components/layout/LinkExternal'
+import { UNDERLINED_LINK_CLASS_NAME } from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
 import type { HandAliasNote } from '@/types/people/interfaces'
 import { Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
-
-const LINK_CLASS_NAME =
-  'text-link underline underline-offset-4 outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 const SOURCE_SEPARATOR = '; '
 
@@ -27,7 +25,7 @@ export function TextHandAliasNote({
         <Link
           to="/sittings/$sittingDate"
           params={{ sittingDate: handAliasNote.sittingDate }}
-          className={LINK_CLASS_NAME}
+          className={UNDERLINED_LINK_CLASS_NAME}
         >
           {formatSittingDate(handAliasNote.sittingDate)}
         </Link>{' '}

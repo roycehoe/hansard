@@ -15,20 +15,12 @@ import {
   CONTACT_EMAIL,
   NUMBER_LOCALE,
   OFFICIAL_RECORD_SEARCH_URL,
+  UNDERLINED_LINK_CLASS_NAME,
 } from '@/constants/constants'
 import { ORIENTATION_PARAGRAPHS } from '@/constants/coverage/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatSittingDate } from '@/lib/format'
-import { cn } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
-
-const UNDERLINED_LINK_CLASS_NAME = cn(
-  LINK_CLASS_NAME,
-  'underline underline-offset-4'
-)
 
 export const Route = createFileRoute('/about/coverage/')({
   component: function PageCoverage() {

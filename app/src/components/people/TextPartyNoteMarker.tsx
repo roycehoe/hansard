@@ -1,8 +1,6 @@
+import { LINK_CLASS_NAME } from '@/constants/constants'
 import { getPartyNoteId } from '@/lib/utils'
 import type { PartyNote } from '@/types/people/interfaces'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 interface TextPartyNoteMarkerProps {
   partyNote: PartyNote | undefined

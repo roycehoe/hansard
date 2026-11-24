@@ -1,13 +1,13 @@
-import { NUMBER_LOCALE } from '@/constants/constants'
+import {
+  NUMBER_LOCALE,
+  UNDERLINED_LINK_CLASS_NAME,
+} from '@/constants/constants'
 import {
   SEARCH_WORD_FORMS_NOTE,
   SEARCH_WORDS_INPUT_ID,
 } from '@/constants/search/constants'
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
 function focusSearchWords() {
   document.getElementById(SEARCH_WORDS_INPUT_ID)?.focus()
@@ -63,7 +63,7 @@ export function TextMatchCount({
                 to="/search"
                 search={(previous) => ({ ...previous, q: `"${exactWord}"` })}
                 onClick={focusSearchWords}
-                className={LINK_CLASS_NAME}
+                className={UNDERLINED_LINK_CLASS_NAME}
               >
                 Search for the exact word {exactWord}
               </Link>

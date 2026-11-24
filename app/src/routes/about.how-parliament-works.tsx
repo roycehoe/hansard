@@ -9,6 +9,10 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import {
+  LINK_CLASS_NAME,
+  UNDERLINED_LINK_CLASS_NAME,
+} from '@/constants/constants'
+import {
   HOW_PARLIAMENT_WORKS_LAST_REVISED,
   LEARNING_RESOURCES_URL,
   OFFICIAL_REPORTS_URL,
@@ -20,12 +24,6 @@ import { formatSittingDate } from '@/lib/format'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 const PAGE_TITLE = 'How Parliament works'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
-
-const FOOTNOTE_MARKER_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 const SECTION_HEADING_CLASS_NAME =
   'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
@@ -41,7 +39,7 @@ function renderReportLink(reportSlug: string, text: string) {
     <Link
       to="/reports/$reportSlug"
       params={{ reportSlug }}
-      className={LINK_CLASS_NAME}
+      className={UNDERLINED_LINK_CLASS_NAME}
     >
       {text}
     </Link>
@@ -59,7 +57,7 @@ function renderSpeechLink(
       to="/reports/$reportSlug"
       params={{ reportSlug }}
       search={{ s: ordinal, q: anchor }}
-      className={LINK_CLASS_NAME}
+      className={UNDERLINED_LINK_CLASS_NAME}
     >
       {text}
     </Link>
@@ -81,7 +79,7 @@ function renderFootnoteMarker(footnoteNumber: number) {
         id={getFootnoteMarkerId(footnoteNumber)}
         href={`#${getFootnoteId(footnoteNumber)}`}
         aria-describedby={FOOTNOTES_HEADING_ID}
-        className={FOOTNOTE_MARKER_CLASS_NAME}
+        className={LINK_CLASS_NAME}
       >
         {footnoteNumber}
       </a>
@@ -93,7 +91,7 @@ function renderFootnoteBackLink(footnoteNumber: number) {
   return (
     <a
       href={`#${getFootnoteMarkerId(footnoteNumber)}`}
-      className={LINK_CLASS_NAME}
+      className={UNDERLINED_LINK_CLASS_NAME}
     >
       Back to text
     </a>
@@ -191,7 +189,7 @@ export const Route = createFileRoute('/about/how-parliament-works')({
             <Link
               to="/people"
               search={{ parliament: LATEST_MEMBERSHIP_PARLIAMENT_NUMBER }}
-              className={LINK_CLASS_NAME}
+              className={UNDERLINED_LINK_CLASS_NAME}
             >
               your MP
             </Link>
@@ -243,7 +241,7 @@ export const Route = createFileRoute('/about/how-parliament-works')({
             <Link
               to="/acts/$ssoCode"
               params={{ ssoCode: 'AMA2017' }}
-              className={LINK_CLASS_NAME}
+              className={UNDERLINED_LINK_CLASS_NAME}
             >
               the Active Mobility Act 2017
             </Link>

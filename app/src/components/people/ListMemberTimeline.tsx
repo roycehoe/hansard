@@ -3,6 +3,7 @@ import {
   PopoverDefinition,
 } from '@/components/layout/PopoverDefinition'
 import { ListPersonBills } from '@/components/people/ListPersonBills'
+import { VISITED_LINK_CLASS_NAME } from '@/constants/constants'
 import {
   MEMBERSHIP_CONTINUED_NOTE,
   OFFICE_DATES_DEFINITION,
@@ -25,9 +26,6 @@ const ROW_CLASS_NAME =
 
 const META_CLASS_NAME =
   'text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-sm'
-
-const LINK_CLASS_NAME =
-  'text-link visited:text-visited focus-visible:decoration-ring outline-hidden hover:underline focus-visible:underline'
 
 const PART_LABEL_CLASS_NAME = 'text-muted-foreground text-sm'
 
@@ -67,7 +65,7 @@ export function ListMemberTimeline({ groups }: ListMemberTimelineProps) {
                               <Link
                                 to="/sittings/$sittingDate"
                                 params={{ sittingDate }}
-                                className={LINK_CLASS_NAME}
+                                className={VISITED_LINK_CLASS_NAME}
                               >
                                 {formatSittingDate(sittingDate)}
                               </Link>

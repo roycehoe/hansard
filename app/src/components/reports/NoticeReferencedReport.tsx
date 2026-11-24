@@ -1,13 +1,11 @@
 import type { ReferencedReportData } from '@/api/reports/getReport'
+import { VISITED_EMPHASISED_LINK_CLASS_NAME } from '@/constants/constants'
 import { Link } from '@tanstack/react-router'
 
 interface NoticeReferencedReportProps {
   label: string
   report: ReferencedReportData
 }
-
-const LINK_CLASS_NAME =
-  'text-link visited:text-visited font-medium outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 export function NoticeReferencedReport({
   label,
@@ -19,7 +17,7 @@ export function NoticeReferencedReport({
       <Link
         to="/reports/$reportSlug"
         params={{ reportSlug: report.report_slug }}
-        className={LINK_CLASS_NAME}
+        className={VISITED_EMPHASISED_LINK_CLASS_NAME}
       >
         {report.title}
       </Link>

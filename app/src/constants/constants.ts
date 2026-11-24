@@ -78,3 +78,24 @@ export const PAGE_TITLE_CLASS_NAME =
 export const FIRST_PAGE = 1
 
 export const SEARCH_STALE_TIME = 5 * 60 * 1000
+
+export const LINK_CLASS_NAME =
+  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
+
+export const UNDERLINED_LINK_CLASS_NAME =
+  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
+
+export const EMPHASISED_LINK_CLASS_NAME =
+  'text-link font-medium outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
+
+export const VISITED_LINK_CLASS_NAME =
+  'text-link visited:text-visited outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
+
+export const VISITED_EMPHASISED_LINK_CLASS_NAME =
+  'text-link visited:text-visited font-medium outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
+
+export const SMALL_LINK_CLASS_NAME =
+  'text-link text-sm outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
+
+export const MARK_CLASS_NAME =
+  'bg-highlight text-highlight-foreground rounded-xs px-0.5 font-semibold'

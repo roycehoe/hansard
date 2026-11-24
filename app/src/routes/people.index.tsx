@@ -18,6 +18,7 @@ import {
 import {
   FILTER_ALL,
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+  LINK_CLASS_NAME,
 } from '@/constants/constants'
 import {
   CONSTITUENCY_SUFFIX_WORDS,
@@ -210,7 +211,7 @@ export const Route = createFileRoute('/people/')({
               <Link
                 to="/people"
                 search={{ party, constituency, name }}
-                className="text-link focus-visible:decoration-ring outline-hidden hover:underline focus-visible:underline"
+                className={LINK_CLASS_NAME}
               >
                 Show all Parliaments
               </Link>

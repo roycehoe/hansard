@@ -1,10 +1,8 @@
 import { AnalyticsEvent } from '@/constants/analytics/enums'
+import { UNDERLINED_LINK_CLASS_NAME } from '@/constants/constants'
 import { SEARCH_WORDS_INPUT_ID } from '@/constants/search/constants'
 import { countEvent } from '@/lib/analytics'
 import { Link } from '@tanstack/react-router'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
 
 function followNoteLink() {
   countEvent(AnalyticsEvent.SEARCH_NOTE_LINK)
@@ -42,7 +40,7 @@ export function TextSearchNote({
           to="/search"
           search={(previous) => ({ ...previous, ...linkSearch })}
           onClick={followNoteLink}
-          className={LINK_CLASS_NAME}
+          className={UNDERLINED_LINK_CLASS_NAME}
         >
           {linkLabel}
         </Link>
@@ -51,7 +49,7 @@ export function TextSearchNote({
           to="/acts/$ssoCode"
           params={{ ssoCode: linkActCode }}
           onClick={followNoteActLink}
-          className={LINK_CLASS_NAME}
+          className={UNDERLINED_LINK_CLASS_NAME}
         >
           {linkLabel}
         </Link>

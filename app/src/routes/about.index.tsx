@@ -14,6 +14,7 @@ import {
 } from '@/constants/about/constants'
 import {
   CONTACT_EMAIL,
+  LINK_CLASS_NAME,
   OFFICIAL_RECORD_SEARCH_URL,
   SECURITY_POLICY_URL,
   SITE_NAME,
@@ -29,9 +30,6 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowUpRight } from 'lucide-react'
 
 const PAGE_TITLE = 'About'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 const PROSE_LINK_CLASS_NAME = cn(
   LINK_CLASS_NAME,

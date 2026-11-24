@@ -1,4 +1,5 @@
 import { LinkExternal } from '@/components/layout/LinkExternal'
+import { UNDERLINED_LINK_CLASS_NAME } from '@/constants/constants'
 import { SPELLING_NOTE_ID } from '@/constants/people/constants'
 import { PersonNameSpellingKind } from '@/constants/people/enums'
 import { splitSpellingNote } from '@/lib/spellingNote'
@@ -9,9 +10,6 @@ import type {
 import { Link } from '@tanstack/react-router'
 import { Fragment } from 'react'
 
-const LINK_CLASS_NAME =
-  'text-link underline underline-offset-4 outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
-
 const REPORT_PATH_PREFIX = '/reports/'
 
 function renderSegment({ text, url }: SpellingNoteSegment) {
@@ -21,7 +19,7 @@ function renderSegment({ text, url }: SpellingNoteSegment) {
       <Link
         to="/reports/$reportSlug"
         params={{ reportSlug: url.slice(REPORT_PATH_PREFIX.length) }}
-        className={LINK_CLASS_NAME}
+        className={UNDERLINED_LINK_CLASS_NAME}
       >
         {text}
       </Link>

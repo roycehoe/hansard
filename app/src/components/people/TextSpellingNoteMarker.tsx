@@ -1,10 +1,8 @@
+import { LINK_CLASS_NAME } from '@/constants/constants'
 import {
   SPELLING_NOTE_ID,
   SPELLING_NOTE_NUMBER,
 } from '@/constants/people/constants'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 export function TextSpellingNoteMarker() {
   return (

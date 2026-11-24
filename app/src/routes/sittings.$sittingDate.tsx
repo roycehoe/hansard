@@ -17,15 +17,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { NUMBER_LOCALE } from '@/constants/constants'
+import { LINK_CLASS_NAME, NUMBER_LOCALE } from '@/constants/constants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { formatParliament, formatSittingDate } from '@/lib/format'
 import { getSittingYear } from '@/lib/sittingYears'
 import { cn, isNotFoundError } from '@/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
-
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 export const Route = createFileRoute('/sittings/$sittingDate')({
   component: function PageSitting() {

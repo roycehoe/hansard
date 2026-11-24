@@ -1,12 +1,12 @@
-import { CONTACT_EMAIL } from '@/constants/constants'
+import {
+  CONTACT_EMAIL,
+  UNDERLINED_LINK_CLASS_NAME,
+} from '@/constants/constants'
 import { buildErrorEmailHref } from '@/lib/utils'
 
 interface TextReportProblemProps {
   title: string
 }
-
-const LINK_CLASS_NAME =
-  'text-link underline underline-offset-4 outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 function buildReportProblemHref(title: string): string {
   return buildErrorEmailHref(
@@ -18,7 +18,10 @@ function buildReportProblemHref(title: string): string {
 export function TextReportProblem({ title }: TextReportProblemProps) {
   return CONTACT_EMAIL ? (
     <p className="text-sm">
-      <a href={buildReportProblemHref(title)} className={LINK_CLASS_NAME}>
+      <a
+        href={buildReportProblemHref(title)}
+        className={UNDERLINED_LINK_CLASS_NAME}
+      >
         Report an error
       </a>
     </p>

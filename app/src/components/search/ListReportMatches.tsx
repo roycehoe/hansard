@@ -2,7 +2,10 @@ import type { ReportMatchData } from '@/api/search/getSearchReports'
 import { NoticeEmpty } from '@/components/layout/NoticeEmpty'
 import { BadgeReportType } from '@/components/reports/BadgeReportType'
 import { TextMatchCount } from '@/components/search/TextMatchCount'
-import { TEXT_NOT_IN_ARCHIVE_LABEL } from '@/constants/constants'
+import {
+  TEXT_NOT_IN_ARCHIVE_LABEL,
+  VISITED_LINK_CLASS_NAME,
+} from '@/constants/constants'
 import {
   EMPTY_FILTERS_DESCRIPTION,
   EMPTY_TITLE_OPERATOR_WORDS_DESCRIPTION,
@@ -79,7 +82,7 @@ export function ListReportMatches({
                     to="/reports/$reportSlug"
                     params={{ reportSlug: result.report_slug }}
                     search={{ hl: highlightWords }}
-                    className="text-link visited:text-visited focus-visible:decoration-ring outline-hidden hover:underline focus-visible:underline"
+                    className={VISITED_LINK_CLASS_NAME}
                   >
                     {result.title}
                   </Link>

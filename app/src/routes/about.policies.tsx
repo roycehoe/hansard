@@ -19,6 +19,7 @@ import {
   OFFICIAL_RECORD_SEARCH_URL,
   REPORT_ERROR_FORM_URL,
   RESEARCHERS_FORM_URL,
+  UNDERLINED_LINK_CLASS_NAME,
 } from '@/constants/constants'
 import {
   CORRECTIONS_LOG_URL,
@@ -33,9 +34,6 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 
 const PAGE_TITLE = 'Policies'
 
-const LINK_CLASS_NAME =
-  'text-link outline-hidden hover:underline underline underline-offset-4 focus-visible:underline focus-visible:decoration-ring'
-
 const SECTION_HEADING_CLASS_NAME =
   'border-separator border-b pb-1 font-serif text-xl lg:text-2xl'
 
@@ -43,7 +41,7 @@ const LIST_CLASS_NAME = 'list-disc space-y-2 pl-5'
 
 function renderContactEmailLink() {
   return (
-    <a href={`mailto:${CONTACT_EMAIL}`} className={LINK_CLASS_NAME}>
+    <a href={`mailto:${CONTACT_EMAIL}`} className={UNDERLINED_LINK_CLASS_NAME}>
       {CONTACT_EMAIL}
     </a>
   )
@@ -150,7 +148,7 @@ export const Route = createFileRoute('/about/policies')({
             <Link
               to="/about/coverage/methods"
               hash={METHODS_ATTRIBUTION_HEADING_ID}
-              className={LINK_CLASS_NAME}
+              className={UNDERLINED_LINK_CLASS_NAME}
             >
               Data quality and methods
             </Link>
