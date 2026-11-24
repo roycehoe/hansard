@@ -75,7 +75,7 @@ Do not build nested `and_()` chains.
 
 ## Method Naming Conventions
 
-Read-method names are built from the columns they filter on, never from the concept the caller has in mind, `get_count_by_report_id_and_membership_id`, not `get_opening_speech_count_by_report_id`. The tables below are the shapes that vocabulary comes in.
+A read-method name lists every filter the method applies (`../STYLE-RULINGS.md` R47), `get_count_by_report_id_and_membership_id`, not `get_opening_speech_count_by_report_id`. The tables below are the shapes that vocabulary comes in.
 
 ### Read methods
 
