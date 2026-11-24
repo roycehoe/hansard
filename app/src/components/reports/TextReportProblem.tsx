@@ -16,13 +16,11 @@ function buildReportProblemHref(title: string): string {
 }
 
 export function TextReportProblem({ title }: TextReportProblemProps) {
-  if (!CONTACT_EMAIL) return null
-
-  return (
+  return CONTACT_EMAIL ? (
     <p className="text-sm">
       <a href={buildReportProblemHref(title)} className={LINK_CLASS_NAME}>
         Report an error
       </a>
     </p>
-  )
+  ) : null
 }

@@ -25,11 +25,12 @@ function ListAttendanceGroup({
   definition,
 }: ListAttendanceGroupProps) {
   function renderHeading() {
-    if (!definition) return heading
-    return (
+    return definition ? (
       <PopoverDefinition definition={definition}>
         <span className={DEFINED_TERM_CLASS_NAME}>{heading}</span>
       </PopoverDefinition>
+    ) : (
+      heading
     )
   }
 

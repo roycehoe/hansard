@@ -44,8 +44,9 @@ export function groupSittingsByYear(sittings: SittingData[]): SittingYear[] {
 }
 
 export function formatSittingRunLabel(run: SittingRun): string {
-  if (run.sessionNumber === null) return `Volume ${run.volumeNumber}`
-  return `Session ${run.sessionNumber}, Volume ${run.volumeNumber}`
+  return run.sessionNumber === null
+    ? `Volume ${run.volumeNumber}`
+    : `Session ${run.sessionNumber}, Volume ${run.volumeNumber}`
 }
 
 export function pickActiveYear(

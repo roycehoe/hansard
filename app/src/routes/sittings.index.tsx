@@ -44,8 +44,7 @@ export const Route = createFileRoute('/sittings/')({
     }
 
     function renderSkeleton() {
-      if (isChosen) return <SkeletonSittingsGrouped />
-      return <SkeletonParliaments />
+      return isChosen ? <SkeletonSittingsGrouped /> : <SkeletonParliaments />
     }
 
     function renderBody() {

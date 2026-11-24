@@ -12,9 +12,7 @@ const LINK_CLASS_NAME =
   'text-link font-medium outline-hidden hover:underline focus-visible:underline focus-visible:decoration-ring'
 
 export function TextAskedBy({ askers }: TextAskedByProps) {
-  if (askers.length === 0) return null
-
-  return (
+  return askers.length === 0 ? null : (
     <p className="text-muted-foreground text-sm">
       Asked by{' '}
       {askers.map((asker, askerIndex) => (

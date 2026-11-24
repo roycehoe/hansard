@@ -293,15 +293,14 @@ export const Route = createFileRoute('/search')({
     }
 
     function renderSortControl() {
-      if (!isPhone) return undefined
-      return (
+      return isPhone ? (
         <FormSearchSort
           value={resultSort}
           hasWords={hasWords}
           onChange={changeSort}
           className="w-44"
         />
-      )
+      ) : undefined
     }
 
     function renderSearchNote() {
@@ -517,23 +516,7 @@ export const Route = createFileRoute('/search')({
     }
 
     function renderResults() {
-      if (!canSearchReports) {
-        return (
-          <section
-            aria-labelledby="speech-matches-heading"
-            className="space-y-4"
-          >
-            <h2
-              id="speech-matches-heading"
-              className="font-serif text-xl lg:text-2xl"
-            >
-              {speechesHeading}
-            </h2>
-            {renderSpeeches()}
-          </section>
-        )
-      }
-      return (
+      return canSearchReports ? (
         <Tabs
           value={tab ?? SearchTab.SPEECHES}
           onValueChange={changeTab}
@@ -558,6 +541,16 @@ export const Route = createFileRoute('/search')({
             {renderReports()}
           </TabsContent>
         </Tabs>
+      ) : (
+        <section aria-labelledby="speech-matches-heading" className="space-y-4">
+          <h2
+            id="speech-matches-heading"
+            className="font-serif text-xl lg:text-2xl"
+          >
+            {speechesHeading}
+          </h2>
+          {renderSpeeches()}
+        </section>
       )
     }
 

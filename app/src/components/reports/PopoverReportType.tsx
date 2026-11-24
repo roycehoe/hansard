@@ -22,13 +22,14 @@ export function PopoverReportType({ reportType }: PopoverReportTypeProps) {
       className={cn(definition && DEFINED_TERM_CLASS_NAME)}
     />
   )
-  if (!definition) return badge
-  return (
+  return definition ? (
     <PopoverDefinition
       definition={definition}
       termsLinkLabel={REPORT_TYPES_LINK_LABEL}
     >
       {badge}
     </PopoverDefinition>
+  ) : (
+    badge
   )
 }

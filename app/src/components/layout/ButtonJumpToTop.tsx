@@ -30,8 +30,7 @@ export function ButtonJumpToTop() {
     moveFocusToPageHeading()
   }
 
-  if (!isVisible) return null
-  return (
+  return isVisible ? (
     <Button
       type="button"
       variant="outline"
@@ -46,5 +45,5 @@ export function ButtonJumpToTop() {
       <ArrowUp />
       Top
     </Button>
-  )
+  ) : null
 }

@@ -201,8 +201,7 @@ export const Route = createFileRoute('/people/$personSlug')({
     }
 
     function renderTabCount(count: number | undefined) {
-      if (count === undefined) return null
-      return (
+      return count === undefined ? null : (
         <span className="text-muted-foreground tabular-nums">
           {count.toLocaleString(NUMBER_LOCALE)}
         </span>

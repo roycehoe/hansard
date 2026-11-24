@@ -13,10 +13,9 @@ function getSittingNotFoundDescription(
   sittingDate: string,
   latestSittingDate: string | null
 ): string {
-  if (latestSittingDate !== null && sittingDate > latestSittingDate) {
-    return `The archive holds sittings up to ${formatSittingDate(latestSittingDate)}.`
-  }
-  return 'No sitting on this date is in the archive.'
+  return latestSittingDate !== null && sittingDate > latestSittingDate
+    ? `The archive holds sittings up to ${formatSittingDate(latestSittingDate)}.`
+    : 'No sitting on this date is in the archive.'
 }
 
 export function NoticeNotFoundSitting({
