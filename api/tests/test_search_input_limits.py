@@ -3,8 +3,8 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 _SEARCH_PATHS = ("/search/speeches", "/search/reports")
-_OVERFLOWING_INTEGER = 99999999999
-_HUGE_INTEGER = 99999999999999999999
+_OVERFLOWING_INTEGER = 99_999_999_999
+_HUGE_INTEGER = 99_999_999_999_999_999_999
 _NUL_BYTE = "\x00"
 
 

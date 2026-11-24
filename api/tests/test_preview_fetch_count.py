@@ -93,7 +93,7 @@ def test_a_path_that_is_no_site_route_or_too_long_is_counted_as_other(
 ) -> None:
     requests = _use_goatcounter(monkeypatch)
 
-    _count_fetches("Slack", ["/" + "a" * 8000, "/reports/" + "a" * 300, "/nope", "/"])
+    _count_fetches("Slack", ["/" + "a" * 8_000, "/reports/" + "a" * 300, "/nope", "/"])
 
     assert [hit["path"] for hit in _get_hits(requests)] == [
         "preview-fetch/other",

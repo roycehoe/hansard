@@ -9,10 +9,10 @@ from crud.bill_report import CRUDBillReport
 from crud.bill_report_speaker import CRUDBillReportSpeaker
 from crud.bill_stage_line import CRUDBillStageLine
 
-_EXCLUDED_REPORT_IDS = [7, 8]
-_SPRS_REPORT_IDS = ["x"]
-_MEMBERSHIP_IDS = [1]
-_BILL_IDS = [1]
+_EXCLUDED_REPORT_IDS = (7, 8)
+_SPRS_REPORT_IDS = ("x",)
+_MEMBERSHIP_IDS = (1,)
+_BILL_IDS = (1,)
 _REPORT_ID_NOT_IN = "report.id NOT IN (7, 8)"
 _BILL_REPORT_REPORT_ID_NOT_IN = "billreport.report_id NOT IN (7, 8)"
 
@@ -45,11 +45,13 @@ def _get_compiled_statement(call: Callable[[Session], object]) -> str:
     )
 
 
-_REPORT_DERIVED_CALLS = [
+_REPORT_DERIVED_CALLS = (
     pytest.param(
         lambda session: CRUDBillReport(
             session
-        ).get_all_by_bill_ids_excluding_report_ids(_BILL_IDS, _EXCLUDED_REPORT_IDS),
+        ).get_all_by_bill_ids_excluding_report_ids(
+            list(_BILL_IDS), list(_EXCLUDED_REPORT_IDS)
+        ),
         _BILL_REPORT_REPORT_ID_NOT_IN,
         id="bill report by bill ids",
     ),
@@ -57,7 +59,7 @@ _REPORT_DERIVED_CALLS = [
         lambda session: CRUDBillReport(
             session
         ).get_all_by_sprs_report_ids_excluding_report_ids(
-            _SPRS_REPORT_IDS, _EXCLUDED_REPORT_IDS
+            list(_SPRS_REPORT_IDS), list(_EXCLUDED_REPORT_IDS)
         ),
         _REPORT_ID_NOT_IN,
         id="bill report by sprs report ids",
@@ -66,7 +68,7 @@ _REPORT_DERIVED_CALLS = [
         lambda session: CRUDBillReportSpeaker(
             session
         ).get_all_by_membership_ids_excluding_report_ids(
-            _MEMBERSHIP_IDS, _EXCLUDED_REPORT_IDS
+            list(_MEMBERSHIP_IDS), list(_EXCLUDED_REPORT_IDS)
         ),
         _REPORT_ID_NOT_IN,
         id="member row by membership ids",
@@ -75,7 +77,7 @@ _REPORT_DERIVED_CALLS = [
         lambda session: CRUDBillReportSpeaker(
             session
         ).get_all_by_sprs_report_ids_excluding_report_ids(
-            _SPRS_REPORT_IDS, _EXCLUDED_REPORT_IDS
+            list(_SPRS_REPORT_IDS), list(_EXCLUDED_REPORT_IDS)
         ),
         _REPORT_ID_NOT_IN,
         id="member row by sprs report ids",
@@ -84,12 +86,12 @@ _REPORT_DERIVED_CALLS = [
         lambda session: CRUDBillStageLine(
             session
         ).get_all_by_sprs_report_ids_excluding_report_ids(
-            _SPRS_REPORT_IDS, _EXCLUDED_REPORT_IDS
+            list(_SPRS_REPORT_IDS), list(_EXCLUDED_REPORT_IDS)
         ),
         _REPORT_ID_NOT_IN,
         id="stage line by sprs report ids",
     ),
-]
+)
 
 
 @pytest.mark.parametrize("call, expected_clause", _REPORT_DERIVED_CALLS)
@@ -104,7 +106,7 @@ def test_a_stage_line_read_orders_by_report_then_ordinal_then_stage() -> None:
         lambda session: CRUDBillStageLine(
             session
         ).get_all_by_sprs_report_ids_excluding_report_ids(
-            _SPRS_REPORT_IDS, _EXCLUDED_REPORT_IDS
+            list(_SPRS_REPORT_IDS), list(_EXCLUDED_REPORT_IDS)
         )
     )
 

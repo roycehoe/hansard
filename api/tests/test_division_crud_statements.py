@@ -13,7 +13,7 @@ from crud.minutes import CRUDMinutes
 from crud.minutes_division import CRUDMinutesDivision
 from enums import MinutesStatus
 
-_EXCLUDED_REPORT_IDS = [7, 8]
+_EXCLUDED_REPORT_IDS = (7, 8)
 _DATE_FROM = date(2020, 1, 1)
 _DATE_TO = date(2021, 12, 31)
 
@@ -83,7 +83,7 @@ def test_a_division_read_keeps_a_division_with_no_report_when_reports_are_taken_
     None
 ):
     compiled_statement = _get_division_page_statement(
-        excluded_report_ids=_EXCLUDED_REPORT_IDS
+        excluded_report_ids=list(_EXCLUDED_REPORT_IDS)
     )
 
     assert "report.id IS NULL OR (report.id NOT IN (7, 8))" in compiled_statement
@@ -96,7 +96,7 @@ def test_a_division_read_keeps_a_division_with_no_report_when_reports_are_taken_
 def test_a_division_count_leaves_out_taken_down_reports_in_sql() -> None:
     assert (
         "report.id IS NULL OR (report.id NOT IN (7, 8))"
-        in _get_division_count_statement(_EXCLUDED_REPORT_IDS)
+        in _get_division_count_statement(list(_EXCLUDED_REPORT_IDS))
     )
 
 
@@ -143,7 +143,7 @@ def test_the_division_list_adds_no_filter_when_none_is_given() -> None:
 
 
 def test_the_division_count_carries_every_filter_of_the_list() -> None:
-    compiled_statement = _get_division_count_statement(_EXCLUDED_REPORT_IDS)
+    compiled_statement = _get_division_count_statement(list(_EXCLUDED_REPORT_IDS))
 
     assert "division.parliament_number = 1" in compiled_statement
     assert "division.sitting_date >= '2020-01-01'" in compiled_statement
