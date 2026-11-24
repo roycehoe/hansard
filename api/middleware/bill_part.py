@@ -19,6 +19,7 @@ from utils.speaker_label import CHAIR_SPEAKER_LABEL_PATTERN, is_chair_speaker_la
 
 _BILL_WORD = re.compile(r"\bbill\b", re.IGNORECASE)
 _EMPTY_LABEL = ""
+_MIN_RESUMED_READING_REPORT_COUNT = 2
 
 
 @dataclass(frozen=True)
@@ -151,7 +152,7 @@ def get_report_bill_part(
         return None
     if BillStage.SECOND_READING_ORDER in stages:
         return None
-    if len(report_bill.reading_reports) < 2:
+    if len(report_bill.reading_reports) < _MIN_RESUMED_READING_REPORT_COUNT:
         return None
     first_speech = CRUDSpeech(session).get_first_by_report_id(report.id)
     if (

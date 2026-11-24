@@ -198,7 +198,7 @@ def _get_referenced_report_data(
         if sitting_report.report_type == report_type
         and get_whitespace_collapsed_title(sitting_report.title) == collapsed_title
     ]
-    if len(same_title_reports) != 1:
+    if len(same_title_reports) != _ONLY_MATCH_COUNT:
         return None
     return ReferencedReportData(
         report_slug=get_report_slug(same_title_reports[0].report_id),

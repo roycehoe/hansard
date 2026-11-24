@@ -95,6 +95,7 @@ _SITTING_PATH = re.compile(r"^/sittings/(\d{4}-\d{2}-\d{2})$")
 _SITTING_TITLE_PREFIX = "Sitting of"
 _PEOPLE_PATH = "/people"
 _BEFORE_FIRST_PARAGRAPH_ORDINAL = 0
+_MIN_ACT_COUNT_WITH_OTHERS = 2
 _PICTURE_ALT_TEXT = "Picture printed in the record"
 # NOTE: the characters encodeURIComponent leaves alone, so the address matches the one the app builds
 _PICTURE_SLUG_SAFE_CHARACTERS = "-_.!~*'()"
@@ -1128,7 +1129,7 @@ def _get_other_act_count_html(event: _ActEvent) -> str:
     if (
         not event.is_newest_reading
         or event.entry.bill is None
-        or event.entry.bill.act_count < 2
+        or event.entry.bill.act_count < _MIN_ACT_COUNT_WITH_OTHERS
     ):
         return ""
     return f" ({escape(_get_other_act_count_text(event.entry.bill.act_count))})"
