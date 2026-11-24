@@ -3,6 +3,7 @@ from typing import Any, Callable, Optional, cast
 
 import pytest
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.sql.expression import Executable
 from sqlmodel import Session
 
 from crud.division import CRUDDivision
@@ -30,9 +31,9 @@ class _Result:
 
 class _RecordingSession:
     def __init__(self):
-        self.statements: list[Any] = []
+        self.statements: list[Executable] = []
 
-    def exec(self, statement: Any) -> _Result:
+    def exec(self, statement: Executable) -> _Result:
         self.statements.append(statement)
         return _Result()
 

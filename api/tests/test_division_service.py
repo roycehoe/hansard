@@ -194,7 +194,7 @@ class _World:
                 )
                 return world.divisions[offset : offset + limit]
 
-            def get_count_filtered(self, *filters: Any) -> int:
+            def get_count_filtered(self, *filters: object) -> int:
                 world.count_calls.append(filters)
                 return len(world.divisions)
 

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Optional
 
 import pytest
 from sqlmodel import Session
@@ -14,10 +14,17 @@ from database.bill_stage_line import BillStageLine
 from database.person import Person
 from database.report import Report
 from database.speaker import Speaker
-from enums import ActHistoryEntryKind, BillReportRole, BillStage, ReportType
+from enums import (
+    ActHistoryEntryKind,
+    BillReportRole,
+    BillStage,
+    ReportType,
+    SpeechKind,
+)
 from exceptions.report import ReportTakenDownException
 from middleware import bill as bill_middleware
 from middleware import takedown
+from schemas.bill import BillPersonData, GetBillResponse, GetPersonBillsResponse
 from services import act as act_service
 from services import bill as bill_service
 
@@ -152,7 +159,7 @@ class _World:
             def __init__(self, session: Session):
                 pass
 
-            def get_by_report_id(self, report_id: str) -> Any:
+            def get_by_report_id(self, report_id: str) -> Optional[Report]:
                 for report in world.report_key_to_report.values():
                     if report.report_id == report_id:
                         return report
@@ -200,7 +207,7 @@ class _World:
             def __init__(self, session: Session):
                 pass
 
-            def get_by_report_id(self, report_id: int) -> Any:
+            def get_by_report_id(self, report_id: int) -> Optional[BillReport]:
                 for bill_report in world.bill_reports:
                     if bill_report.report_id == report_id:
                         return bill_report
@@ -318,7 +325,7 @@ class _World:
                 pass
 
             def get_all_by_report_ids_and_membership_ids_and_kind(
-                self, report_ids: list[int], membership_ids: list[int], kind: Any
+                self, report_ids: list[int], membership_ids: list[int], kind: SpeechKind
             ) -> list:
                 return []
 
@@ -381,10 +388,10 @@ class _World:
             bill_service, "get_membership_id_to_person", _get_membership_id_to_person
         )
 
-    def get_bill(self, report_key: str) -> Any:
+    def get_bill(self, report_key: str) -> GetBillResponse:
         return bill_service.get_bill(report_key, Session())
 
-    def get_person_bills(self, person_id: int) -> Any:
+    def get_person_bills(self, person_id: int) -> GetPersonBillsResponse:
         return bill_service.get_person_bills(person_id, _PAGE, _PAGE_SIZE, Session())
 
 
@@ -464,7 +471,7 @@ def test_a_member_with_rows_only_in_a_taken_down_report_leaves_the_people(
     assert [person.person_id for person in people] == [_PERSON_B_ID]
 
 
-def _get_member_b(world: _World) -> Any:
+def _get_member_b(world: _World) -> BillPersonData:
     return [
         person
         for person in world.get_bill("r3").people

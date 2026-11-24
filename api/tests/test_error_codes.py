@@ -1,5 +1,4 @@
 import threading
-from typing import Any
 
 import psycopg.errors
 import pytest
@@ -141,7 +140,7 @@ def test_an_unknown_sitemap_file_answers_the_sitemap_not_found_error(
 def test_a_cancelled_statement_answers_the_search_timed_out_error(
     api_client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    def raise_statement_timeout(*_: Any) -> None:
+    def raise_statement_timeout(*_: object) -> None:
         raise sqlalchemy.exc.OperationalError(
             "SELECT 1", {}, psycopg.errors.QueryCanceled(_STATEMENT_TIMEOUT_MESSAGE)
         )

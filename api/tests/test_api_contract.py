@@ -308,7 +308,7 @@ class ContractDifference:
     kind: str
 
 
-def _get_referenced_schema_names(node: Any) -> set[str]:
+def _get_referenced_schema_names(node: object) -> set[str]:
     if isinstance(node, dict):
         reference = node.get("$ref")
         names = (

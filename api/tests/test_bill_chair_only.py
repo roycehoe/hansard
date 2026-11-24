@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Any
 
 import pytest
 from sqlmodel import Session
@@ -11,7 +10,7 @@ from database.person import Person
 from database.report import Report
 from database.speaker import Speaker
 from database.speech import Speech
-from enums import BillReportRole
+from enums import BillReportRole, SpeechKind
 from middleware import bill as bill_middleware
 from middleware.bill import VisibleBill
 from services import bill as bill_service
@@ -85,7 +84,7 @@ def _get_fake_speech_class(speaker_labels: list[str]) -> type:
             pass
 
         def get_all_by_report_ids_and_membership_ids_and_kind(
-            self, report_ids: list[int], membership_ids: list[int], kind: Any
+            self, report_ids: list[int], membership_ids: list[int], kind: SpeechKind
         ) -> list[Speech]:
             return [
                 Speech(  # type: ignore[call-arg]

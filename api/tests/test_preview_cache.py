@@ -1,8 +1,10 @@
-from typing import Any, Optional
+from typing import Optional
 from unittest.mock import MagicMock
 
 import pytest
+from sqlmodel import Session
 
+from database.report import Report
 from services import preview as preview_service
 
 _MISSING_REPORT_PATH = "/reports/no-such-report"
@@ -11,10 +13,10 @@ _MISSING_REPORT_PATH = "/reports/no-such-report"
 class _CountingCRUDReport:
     lookup_count = 0
 
-    def __init__(self, session: Any) -> None:
+    def __init__(self, session: Session):
         pass
 
-    def get_by_report_id(self, report_id: str) -> Optional[Any]:
+    def get_by_report_id(self, report_id: str) -> Optional[Report]:
         _CountingCRUDReport.lookup_count += 1
         return None
 

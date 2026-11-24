@@ -6,6 +6,7 @@ from sqlmodel import Session
 
 from database.minutes import Minutes
 from enums import MinutesFileFormat, MinutesStatus
+from schemas.minutes import GetAllMinutesResponse
 from services import minutes as minutes_service
 
 _DATE_FROM = date(2020, 1, 1)
@@ -55,7 +56,7 @@ class _World:
                 )
                 return world.minutes_rows[offset : offset + limit]
 
-            def get_count_filtered(self, *filters: Any) -> int:
+            def get_count_filtered(self, *filters: object) -> int:
                 world.count_calls.append(filters)
                 return len(world.minutes_rows)
 
@@ -67,7 +68,9 @@ def world(monkeypatch: pytest.MonkeyPatch) -> _World:
     return _World(monkeypatch)
 
 
-def _get_all(page: int, page_size: int, status: Optional[MinutesStatus] = None):
+def _get_all(
+    page: int, page_size: int, status: Optional[MinutesStatus] = None
+) -> GetAllMinutesResponse:
     return minutes_service.get_all_minutes(
         page,
         page_size,
