@@ -717,6 +717,14 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 
 *Ruled directly, 2026-11-24, hansard inbox round 65.*
 
+## R51 — An error message is not in the second person · 2026-11-24 · drops one clause of the error-message rule
+
+**Ruling.** The error-message rule loses "Second person". A message is its `ErrorCode` restated in prose, a sentence fragment with a capital first word and a terminal period, and it never tells the reader how to recover. Two messages never share one string.
+
+**Why.** None of the 19 messages in `exceptions/base.py` was in the second person on 2026-11-24, so the code outvoted the clause (R38). The same review found two messages the rest of the rule forbids: `search.busy` told the caller to try again, and `search.constituency_not_found` and `seat.constituency_not_found` shared "Constituency not found." Both are fixed in the sweep. The site shows its own notices and reads only `error_code`, so only a direct API caller and one test see the strings.
+
+*Ruled directly, 2026-11-24, hansard inbox round 65.*
+
 ---
 
 # Open — awaiting a ruling
