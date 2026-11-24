@@ -92,11 +92,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-function ExampleButtonRow({
-  variant,
-}: {
+interface ExampleButtonRowProps {
   variant: (typeof BUTTON_VARIANTS)[number]
-}) {
+}
+
+function ExampleButtonRow({ variant }: ExampleButtonRowProps) {
   return (
     <Example label={variant}>
       {BUTTON_TEXT_SIZES.map((size) => (
