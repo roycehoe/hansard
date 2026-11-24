@@ -745,6 +745,16 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 
 *Ruled directly, 2026-11-24, hansard inbox round 65.*
 
+## R54 — `middleware/` modules may import each other · 2026-11-24 · carves one layer out of the no-sideways-sharing rule
+
+**Ruling.** A `middleware/` module may import another `middleware/` module. No other layer may import a peer; `gateway/` still shares through `utils/`, and `crud/` through `utils/`.
+
+**Why.** The page-writing code is one concern split into files. Measured on 2026-11-24: `middleware/bill_part.py` imports `middleware.bill`, `middleware.membership` and `middleware.takedown`; `middleware/frontend.py` imports `middleware.page_text` and `middleware.report_redirect`. The fix the rule implies is one very large file or a new layer, with nothing gained for a reader. The two same-layer imports in `crud/` were pure and moved to `utils/` in the same sweep.
+
+**What it does not allow.** A circular import between two `middleware/` modules. A `middleware/` module importing a router, or a service importing `middleware/` for anything but the composed reads the layer exists for.
+
+*Ruled directly, 2026-11-24, hansard inbox round 65.*
+
 ---
 
 # Open — awaiting a ruling
