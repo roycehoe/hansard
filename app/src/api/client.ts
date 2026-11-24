@@ -16,7 +16,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(
+async function sendRequest<T>(
   method: string,
   path: string,
   body?: unknown,
@@ -48,7 +48,7 @@ async function request<T>(
 }
 
 export function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
-  return request<T>('GET', path, undefined, init)
+  return sendRequest<T>('GET', path, undefined, init)
 }
 
 export function apiPost<T>(
@@ -56,7 +56,7 @@ export function apiPost<T>(
   body: unknown,
   init?: RequestInit
 ): Promise<T> {
-  return request<T>('POST', path, body, init)
+  return sendRequest<T>('POST', path, body, init)
 }
 
 export function apiPut<T>(
@@ -64,9 +64,9 @@ export function apiPut<T>(
   body: unknown,
   init?: RequestInit
 ): Promise<T> {
-  return request<T>('PUT', path, body, init)
+  return sendRequest<T>('PUT', path, body, init)
 }
 
 export function apiDelete<T>(path: string, init?: RequestInit): Promise<T> {
-  return request<T>('DELETE', path, undefined, init)
+  return sendRequest<T>('DELETE', path, undefined, init)
 }
