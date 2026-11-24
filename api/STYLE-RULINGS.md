@@ -697,6 +697,16 @@ def _record_search_failure(..., error: AppHttpExceptionBase, session: Session) -
 
 *Ruled directly, 2026-10-30.*
 
+## R49 — `PLR2004` is off under `tests/`; a test's expected value is not a magic number · 2026-11-24 · carves out the magic-number rule for tests
+
+**Ruling.** The seven rules the Enforcement paragraph queued are on in `pyproject.toml`: `ANN` (with `ANN204` ignored, per R13), `RET504`, `RET505`–`RET508`, `BLE001`, `PLR2004`, `T201`, `T203`, `DTZ003` and `DTZ005`. `PLR2004` is ignored under `tests/*` through `per-file-ignores`. Everywhere else a comparison against a fixed number names the number.
+
+**Why.** At the switch-on, `PLR2004` fired 42 times: 2 in `middleware/`, both bounds and both named, and 40 in `tests/`, every one an expected value in an assert (`assert division.ayes == 77`, `assert len(response.bills) == 3`). The magic-number rule (STYLE.md, Types and data) bans a comparison "with no subject and no place to change it". A test's expected value has both: the test name is its subject and the assert is the one place it changes. Naming it (`_EXPECTED_AYES = 77`) moves the value a screen away from the fixture that produces it.
+
+**What it does not allow.** A bound or a limit in a test helper that is not an asserted value, such as a page size a fake enforces, still takes a name. Production code gets no carve-out.
+
+*Ruled by delegation, 2026-11-24, in the style sweep of that date. Reversible as such.*
+
 ---
 
 # Open — awaiting a ruling
