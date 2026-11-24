@@ -2,6 +2,7 @@ import type { ActEntryData } from '@/api/acts/getAct'
 import { useGetAct } from '@/api/acts/getAct'
 import { FormFilterActEvents } from '@/components/acts/FormFilterActEvents'
 import { ListActEvents } from '@/components/acts/ListActEvents'
+import { NoticeEmptyActEvents } from '@/components/acts/NoticeEmptyActEvents'
 import { NoticeErrorAct } from '@/components/acts/NoticeErrorAct'
 import { NoticeNotFoundAct } from '@/components/acts/NoticeNotFoundAct'
 import { SkeletonAct } from '@/components/acts/SkeletonAct'
@@ -136,9 +137,7 @@ export const Route = createFileRoute('/acts/$ssoCode')({
             </div>
           )}
           {data.entries.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              No history is listed for this Act.
-            </p>
+            <NoticeEmptyActEvents />
           ) : (
             <ListActEvents
               events={events.filter((event) => shownKinds.includes(event.kind))}
