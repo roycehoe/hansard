@@ -13,11 +13,12 @@ from settings import settings
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _POLICY_HEADER = "content-security-policy"
-_EXPECTED_HEADERS = {
-    "strict-transport-security": "max-age=31536000",
-    "x-content-type-options": "nosniff",
-    "referrer-policy": "strict-origin-when-cross-origin",
-    "content-security-policy": (
+_EXPECTED_HEADERS = (
+    ("strict-transport-security", "max-age=31536000"),
+    ("x-content-type-options", "nosniff"),
+    ("referrer-policy", "strict-origin-when-cross-origin"),
+    (
+        "content-security-policy",
         "default-src 'self'; "
         "script-src 'self' 'sha256-wLu71OCuXzpZ+ambmNtMhkj/r7ZXfeEDJWbdp87/SlI=' "
         "https://gc.zgo.at; "
@@ -26,9 +27,9 @@ _EXPECTED_HEADERS = {
         "object-src 'none'; "
         "base-uri 'none'; "
         "form-action 'self'; "
-        "frame-ancestors 'none'"
+        "frame-ancestors 'none'",
     ),
-}
+)
 
 
 @pytest.mark.parametrize(
@@ -44,7 +45,7 @@ def test_every_response_carries_the_four_security_headers(
 
     response = website_client.get(path)
 
-    for name, value in _EXPECTED_HEADERS.items():
+    for name, value in _EXPECTED_HEADERS:
         assert response.headers[name] == value
 
 
@@ -52,7 +53,7 @@ def test_a_404_carries_the_four_security_headers(website_client: TestClient) -> 
     response = website_client.get("/api/no-such-route-xyz")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    for name, value in _EXPECTED_HEADERS.items():
+    for name, value in _EXPECTED_HEADERS:
         assert response.headers[name] == value
 
 

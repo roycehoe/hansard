@@ -45,22 +45,6 @@ def _get_insert_statement() -> TextClause:
     )
 
 
-def _get_seed_figures() -> dict[str, object]:
-    return {
-        "measured_at": "2100-01-01T00:30:00+00:00",
-        "groups": [
-            {
-                "group": "Parliaments 0 to 11",
-                "linked_row_count": 90,
-                "named_unlinked_row_count": 10,
-                "row_count": 200,
-                "linked_character_count": 300,
-                "body_character_count": 400,
-            }
-        ],
-    }
-
-
 @pytest.fixture
 def seeded_refresh_run_id() -> Generator[int, None, None]:
     writable_engine = create_engine(settings.database_url)
@@ -77,7 +61,21 @@ def seeded_refresh_run_id() -> Generator[int, None, None]:
                 _get_insert_statement(),
                 {
                     "latest_sitting_date_with_text": date(2026, 10, 14),
-                    "figures": json.dumps(_get_seed_figures()),
+                    "figures": json.dumps(
+                        {
+                            "measured_at": "2100-01-01T00:30:00+00:00",
+                            "groups": [
+                                {
+                                    "group": "Parliaments 0 to 11",
+                                    "linked_row_count": 90,
+                                    "named_unlinked_row_count": 10,
+                                    "row_count": 200,
+                                    "linked_character_count": 300,
+                                    "body_character_count": 400,
+                                }
+                            ],
+                        }
+                    ),
                     "started_at": datetime(2100, 1, 1, tzinfo=timezone.utc),
                     "finished_at": datetime(2100, 1, 1, 1, tzinfo=timezone.utc),
                     "status": RefreshRunStatus.SUCCEEDED,

@@ -423,12 +423,6 @@ def _get_sitting_preview() -> PreviewData:
     )
 
 
-def _get_sitting_person(person_id: int, person_name: str) -> SittingPersonData:
-    return SittingPersonData(
-        person_id=person_id, person_slug="grace-fu", person_name=person_name
-    )
-
-
 def _get_sitting_report(
     report_slug: str, title: str, subtitle: str
 ) -> SittingReportData:
@@ -466,7 +460,10 @@ def test_a_sitting_page_links_each_report_of_the_sitting(
     ) -> dict[str, SittingReportPeopleData]:
         return {
             "bill-1": SittingReportPeopleData(
-                askers=[], first_speaker=_get_sitting_person(1, "Grace <Fu>")
+                askers=[],
+                first_speaker=SittingPersonData(
+                    person_id=1, person_slug="grace-fu", person_name="Grace <Fu>"
+                ),
             ),
             "00069110-ZZ_1#id004-budget": SittingReportPeopleData(
                 askers=[], first_speaker=None
