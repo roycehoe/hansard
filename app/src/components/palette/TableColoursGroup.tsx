@@ -46,7 +46,10 @@ export function TableColoursGroup({
       </TableHeader>
       <TableBody>
         {group.rows.map((row) => (
-          <TableRow key={row.colour.name}>
+          <TableRow
+            key={row.colour.name}
+            className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
+          >
             <TableCell>
               <SwatchColour colour={row.colour} />
             </TableCell>

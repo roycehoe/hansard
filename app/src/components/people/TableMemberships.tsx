@@ -49,6 +49,7 @@ export function TableMemberships({
           {memberships.map((membership) => (
             <TableRow
               key={`${membership.parliament_number}-${membership.party}`}
+              className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
             >
               <TableCell className="whitespace-normal">
                 {formatParliament(membership.parliament_number)}

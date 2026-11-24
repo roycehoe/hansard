@@ -70,7 +70,10 @@ export function TableParliamentCounts({
       </TableHeader>
       <TableBody>
         {parliamentCounts.map((count) => (
-          <TableRow key={count.parliament_number}>
+          <TableRow
+            key={count.parliament_number}
+            className="border-separator bg-background h-12 border-b py-4 last:border-b-0"
+          >
             <TableCell className="whitespace-normal">
               {formatParliament(count.parliament_number)}
             </TableCell>
