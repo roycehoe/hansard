@@ -22,12 +22,14 @@ export function NoticeErrorSearchTimedOut() {
           then try again.
         </p>
       </div>
-      <Button variant="outline" asChild>
-        <Link to="/">
-          <ChevronLeft />
-          Back to home
-        </Link>
-      </Button>
+      <div className="flex flex-row flex-wrap items-center justify-center gap-4">
+        <Button variant="outline" asChild>
+          <Link to="/">
+            <ChevronLeft />
+            Back to home
+          </Link>
+        </Button>
+      </div>
     </div>
   )
 }
