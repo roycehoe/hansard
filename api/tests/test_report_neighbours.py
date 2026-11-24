@@ -56,7 +56,7 @@ def test_a_taken_down_report_is_not_a_neighbour(
     )
     monkeypatch.setattr(
         report_service,
-        "is_report_id_taken_down",
+        "is_report_slug_taken_down",
         lambda report_id: report_id == "oral-answer-2",
     )
 

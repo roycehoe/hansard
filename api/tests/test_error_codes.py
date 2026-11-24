@@ -11,7 +11,7 @@ from database.engine import engine
 from database.report import Report
 from exceptions.base import ERRORS, ErrorCode
 from middleware import search_slot, takedown
-from middleware.takedown import is_report_id_taken_down
+from middleware.takedown import is_report_slug_taken_down
 from services import report as report_service
 from services import sitemap as sitemap_service
 from settings import settings
@@ -41,7 +41,7 @@ def report_slug() -> str:
         next(
             report_id
             for report_id in report_ids
-            if not is_report_id_taken_down(report_id)
+            if not is_report_slug_taken_down(report_id)
         )
     )
 

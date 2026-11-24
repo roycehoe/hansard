@@ -11,7 +11,7 @@ from database.engine import engine
 from database.report import Report
 from enums import SearchSort
 from middleware import response_cache, takedown
-from middleware.takedown import is_report_id_taken_down
+from middleware.takedown import is_report_slug_taken_down
 from utils.report_slug import get_normalised_report_slug, get_report_slug
 
 pytestmark = pytest.mark.database
@@ -30,7 +30,7 @@ def report_slug() -> str:
         next(
             report_id
             for report_id in report_ids
-            if not is_report_id_taken_down(report_id)
+            if not is_report_slug_taken_down(report_id)
         )
     )
 

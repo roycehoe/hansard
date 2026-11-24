@@ -21,7 +21,7 @@ from database.speech import Speech
 from enums import BillReportPart, BillStage, PreviewType
 from middleware.bill_part import ReportBill, get_report_bill, get_report_bill_part
 from middleware.membership import get_membership_id_to_person
-from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
+from middleware.takedown import get_taken_down_report_ids, is_report_slug_taken_down
 from schemas.preview import PreviewData
 from utils.bill_opening_line import get_resumed_from_label
 from utils.person_slug import get_person_slug
@@ -522,7 +522,7 @@ def _get_reports_sentence(reports: list[Report]) -> str:
 
 def _get_sitting_description(reports: list[Report]) -> str:
     shown_reports = [
-        report for report in reports if not is_report_id_taken_down(report.report_id)
+        report for report in reports if not is_report_slug_taken_down(report.report_id)
     ]
     if not shown_reports:
         return _DEFAULT_DESCRIPTION

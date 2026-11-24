@@ -13,7 +13,7 @@ from database.division import Division
 from database.report import Report
 from exceptions.division import DivisionNotFoundException
 from exceptions.report import ReportTakenDownException
-from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
+from middleware.takedown import get_taken_down_report_ids, is_report_slug_taken_down
 from schemas.division import (
     DivisionData,
     DivisionMinutesData,
@@ -29,7 +29,7 @@ def _get_validated_division(division_id: int, session: Session) -> Division:
     division = CRUDDivision(session).get(division_id)
     if division is None:
         raise DivisionNotFoundException
-    if division.sprs_report_id is not None and is_report_id_taken_down(
+    if division.sprs_report_id is not None and is_report_slug_taken_down(
         division.sprs_report_id
     ):
         raise ReportTakenDownException

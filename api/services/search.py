@@ -19,7 +19,7 @@ from exceptions.search import SearchConstituencyNotFoundException
 from middleware.bill import get_bill_id_to_visible_bill
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
-from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
+from middleware.takedown import get_taken_down_report_ids, is_report_slug_taken_down
 from schemas.search import (
     ReportMatchData,
     SearchReportsResponse,
@@ -91,7 +91,7 @@ def _get_validated_report(report_slug: str, session: Session) -> Report:
         report = CRUDReport(session).get_by_report_id(report_id)
         if report is None:
             continue
-        if is_report_id_taken_down(report.report_id):
+        if is_report_slug_taken_down(report.report_id):
             raise ReportTakenDownException
         return report
     raise ReportNotFoundException
@@ -588,7 +588,7 @@ def search_speeches(
                     }
                 )
             )
-            if not is_report_id_taken_down(report.report_id)
+            if not is_report_slug_taken_down(report.report_id)
         }
         report_id_to_speech_match_count = _get_report_id_to_speech_match_count(
             query,
@@ -677,7 +677,7 @@ def search_reports(
         page_reports = [
             report
             for report in reports[:page_size]
-            if not is_report_id_taken_down(report.report_id)
+            if not is_report_slug_taken_down(report.report_id)
         ]
         report_ids = [report.id for report in page_reports]
         if query.strip() == "":

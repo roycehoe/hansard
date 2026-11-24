@@ -25,7 +25,7 @@ from middleware.bill import (
     get_sprs_report_id_to_role,
 )
 from middleware.membership import get_membership_id_to_person
-from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
+from middleware.takedown import get_taken_down_report_ids, is_report_slug_taken_down
 from schemas.bill import (
     BillActData,
     BillPersonData,
@@ -52,7 +52,7 @@ def _get_validated_report(report_slug: str, session: Session) -> Report:
         report = CRUDReport(session).get_by_report_id(report_id)
         if report is None:
             continue
-        if is_report_id_taken_down(report.report_id):
+        if is_report_slug_taken_down(report.report_id):
             raise ReportTakenDownException
         return report
     raise BillNotFoundException

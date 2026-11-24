@@ -25,10 +25,6 @@ def is_report_slug_taken_down(report_slug: str) -> bool:
     )
 
 
-def is_report_id_taken_down(report_id: str) -> bool:
-    return is_report_slug_taken_down(report_id)
-
-
 def get_taken_down_report_id_candidates() -> list[str]:
     return sorted(
         report_id

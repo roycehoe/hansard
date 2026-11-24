@@ -15,7 +15,7 @@ from database.report import Report
 from database.speaker import Speaker
 from enums import PersonReportFilter
 from exceptions.person import PersonNotFoundException
-from middleware.takedown import get_taken_down_report_ids, is_report_id_taken_down
+from middleware.takedown import get_taken_down_report_ids, is_report_slug_taken_down
 from schemas.person import (
     GetAllPartiesResponse,
     GetAllPersonsResponse,
@@ -76,7 +76,7 @@ def _get_membership_id_to_party_affiliations(
     report_id_to_report = {
         report.id: report
         for report in CRUDReport(session).get_by_ids(source_report_ids)
-        if not is_report_id_taken_down(report.report_id)
+        if not is_report_slug_taken_down(report.report_id)
     }
     membership_id_to_party_affiliations: dict[int, list[PartyAffiliationData]] = {}
     for party_affiliation in party_affiliations:

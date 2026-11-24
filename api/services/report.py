@@ -34,7 +34,7 @@ from exceptions.report import (
 from middleware.bill_part import get_report_bill, get_report_bill_part
 from middleware.membership import get_membership_id_to_person
 from middleware.search_slot import hold_search_slot
-from middleware.takedown import is_report_id_taken_down
+from middleware.takedown import is_report_slug_taken_down
 from schemas.report import (
     AskerData,
     GetReportMatchedWordsResponse,
@@ -78,7 +78,7 @@ def _get_validated_report(report_slug: str, session: Session) -> Report:
         report = CRUDReport(session).get_by_report_id(report_id)
         if report is None:
             continue
-        if is_report_id_taken_down(report.report_id):
+        if is_report_slug_taken_down(report.report_id):
             raise ReportTakenDownException
         return report
     raise ReportNotFoundException
@@ -222,7 +222,7 @@ def _get_sitting_reports(report: Report, session: Session) -> list[Report]:
         for sitting_report in CRUDReport(session).get_all_by_sitting_date(
             report.sitting_date
         )
-        if not is_report_id_taken_down(sitting_report.report_id)
+        if not is_report_slug_taken_down(sitting_report.report_id)
     ]
 
 
@@ -304,7 +304,7 @@ def get_report_links(report_slug: str, session: Session) -> GetReportLinksRespon
     report_links = [
         report_link
         for report_link in _get_viewed_report_links(report.report_id, session)
-        if not is_report_id_taken_down(
+        if not is_report_slug_taken_down(
             _get_other_report_id(report_link, report.report_id)
         )
     ]
@@ -436,7 +436,7 @@ def get_report_slug_of_old_address(
     old_address_reports = _get_old_address_reports(requested_slug, session)
     if len(old_address_reports) != _ONLY_MATCH_COUNT:
         return None
-    if is_report_id_taken_down(old_address_reports[0].report_id):
+    if is_report_slug_taken_down(old_address_reports[0].report_id):
         return None
     return get_report_slug(old_address_reports[0].report_id)
 

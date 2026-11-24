@@ -11,7 +11,7 @@ from database.report import Report
 from database.sitting import Sitting
 from exceptions.report import ReportNotFoundException, ReportTakenDownException
 from exceptions.sitting import SittingNotFoundException
-from middleware.takedown import is_report_id_taken_down
+from middleware.takedown import is_report_slug_taken_down
 from schemas.attached_file import (
     AttachedFileData,
     AttachedFilePointerData,
@@ -30,7 +30,7 @@ def _get_validated_report(report_slug: str, session: Session) -> Report:
         report = CRUDReport(session).get_by_report_id(report_id)
         if report is None:
             continue
-        if is_report_id_taken_down(report.report_id):
+        if is_report_slug_taken_down(report.report_id):
             raise ReportTakenDownException
         return report
     raise ReportNotFoundException
@@ -119,7 +119,7 @@ def get_sitting_attached_files(
     report_and_pointers_to_show = [
         (report, pointer)
         for report in reports
-        if not is_report_id_taken_down(report.report_id)
+        if not is_report_slug_taken_down(report.report_id)
         for pointer in report_id_to_pointers[report.report_id]
     ]
     attached_file_ids_with_pointers = {

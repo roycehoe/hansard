@@ -98,5 +98,5 @@ def test_a_listed_slug_in_another_case_hides_the_page_and_the_report_id(
     assert client.get("/reports/written-answer-11589").status_code == (
         status.HTTP_410_GONE
     )
-    assert takedown.is_report_id_taken_down("written-answer-11589#")
-    assert not takedown.is_report_id_taken_down("written-answer-11590#")
+    assert takedown.is_report_slug_taken_down("written-answer-11589#")
+    assert not takedown.is_report_slug_taken_down("written-answer-11590#")
