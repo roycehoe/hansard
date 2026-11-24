@@ -23,7 +23,26 @@ package = false
 extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
-select = ["I", "F"]
+select = [
+    "I",
+    "F",
+    "ANN",
+    "RET504",
+    "RET505",
+    "RET506",
+    "RET507",
+    "RET508",
+    "BLE001",
+    "PLR2004",
+    "T201",
+    "T203",
+    "DTZ003",
+    "DTZ005",
+]
+ignore = ["ANN204"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PLR2004"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
