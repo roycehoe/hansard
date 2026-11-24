@@ -73,7 +73,17 @@ from services import sitting as sitting_service
 from settings import settings
 from utils.law_name import get_law_name
 from utils.search_query import is_operator_word_in_query, is_query_only_excluded_words
+from utils.site_address import URL_SEPARATOR
 from utils.sitting_date import get_sitting_date_label
+from validators.request_limits import (
+    EARLIEST_SEARCH_DATE,
+    LATEST_SEARCH_DATE,
+    MAX_ACT_SSO_CODE_LENGTH,
+    MAX_CONSTITUENCY_LENGTH,
+    MAX_INTEGER_COLUMN_VALUE,
+    MAX_SEARCH_QUERY_LENGTH,
+    NO_NUL_BYTE_PATTERN,
+)
 from validators.search import (
     MAX_SEARCH_QUERY_GROUP_COUNT,
     validate_can_search_reports,
@@ -203,7 +213,6 @@ _SPEAKER_NAMED_IN_COLUMN_BEFORE_NOTE = (
 _PRINTED_WITH_L_FOR_1_NOTE = (
     "The record prints this column number with a letter l in place of a 1."
 )
-_URL_SEPARATOR = "/"
 _NAME_LIST_SEPARATOR = ", "
 _NAME_LIST_LAST_SEPARATOR = " and "
 _PARLIAMENT_PARAMETER = "parliament"
@@ -215,13 +224,6 @@ _SEARCH_FORM_HTML = (
     "</form>"
 )
 _SEARCH_PAGE_SIZE = 20
-_MAX_SEARCH_QUERY_LENGTH = 256
-_MAX_CONSTITUENCY_LENGTH = 100
-_MAX_ACT_SSO_CODE_LENGTH = 32
-_EARLIEST_SEARCH_DATE = date(1900, 1, 1)
-_LATEST_SEARCH_DATE = date(2100, 12, 31)
-_MAX_INTEGER_COLUMN_VALUE = 2_147_483_647
-_NO_NUL_BYTE_PATTERN = r"^[^\x00]*$"
 _PAGE_PARAMETER = "page"
 _TAB_PARAMETER = "tab"
 _TITLES_TAB = "titles"
@@ -296,33 +298,33 @@ class _SearchPageParameters(BaseModel):
     query: str = Field(
         default="",
         alias="q",
-        max_length=_MAX_SEARCH_QUERY_LENGTH,
-        pattern=_NO_NUL_BYTE_PATTERN,
+        max_length=MAX_SEARCH_QUERY_LENGTH,
+        pattern=NO_NUL_BYTE_PATTERN,
     )
     parliament_number: Optional[int] = Field(
-        default=None, alias="parliament", ge=0, le=_MAX_INTEGER_COLUMN_VALUE
+        default=None, alias="parliament", ge=0, le=MAX_INTEGER_COLUMN_VALUE
     )
     date_from: Optional[date] = Field(
-        default=None, alias="from", ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
+        default=None, alias="from", ge=EARLIEST_SEARCH_DATE, le=LATEST_SEARCH_DATE
     )
     date_to: Optional[date] = Field(
-        default=None, alias="to", ge=_EARLIEST_SEARCH_DATE, le=_LATEST_SEARCH_DATE
+        default=None, alias="to", ge=EARLIEST_SEARCH_DATE, le=LATEST_SEARCH_DATE
     )
     report_type: Optional[ReportType] = Field(default=None, alias="type")
     person_id: Optional[int] = Field(
-        default=None, alias="person", ge=1, le=_MAX_INTEGER_COLUMN_VALUE
+        default=None, alias="person", ge=1, le=MAX_INTEGER_COLUMN_VALUE
     )
     constituency: Optional[str] = Field(
         default=None,
         min_length=1,
-        max_length=_MAX_CONSTITUENCY_LENGTH,
-        pattern=_NO_NUL_BYTE_PATTERN,
+        max_length=MAX_CONSTITUENCY_LENGTH,
+        pattern=NO_NUL_BYTE_PATTERN,
     )
     act_sso_code: Optional[str] = Field(
         default=None,
         alias="act",
-        max_length=_MAX_ACT_SSO_CODE_LENGTH,
-        pattern=_NO_NUL_BYTE_PATTERN,
+        max_length=MAX_ACT_SSO_CODE_LENGTH,
+        pattern=NO_NUL_BYTE_PATTERN,
     )
     sort: Optional[SearchSort] = None
     page: int = Field(default=1, ge=1, le=search_service.MAX_SEARCH_PAGE)
@@ -565,7 +567,7 @@ def _get_sitting_item_html(sitting: SittingData) -> str:
 def _get_search_example_url(site_url: Optional[str]) -> str:
     if site_url is None:
         return _SEARCH_EXAMPLE_PATH
-    return f"{site_url.rstrip(_URL_SEPARATOR)}{_SEARCH_EXAMPLE_PATH}"
+    return f"{site_url.rstrip(URL_SEPARATOR)}{_SEARCH_EXAMPLE_PATH}"
 
 
 def _get_home_html(

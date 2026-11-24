@@ -9,9 +9,8 @@ from schemas.attached_file import (
     GetSittingAttachedFilesResponse,
 )
 from services import attached_file as attached_file_service
+from validators.request_limits import NO_NUL_BYTE_PATTERN
 from validators.unreleased_endpoint import validate_can_read_unreleased_endpoint
-
-_NO_NUL_BYTE_PATTERN = r"^[^\x00]*$"
 
 router = APIRouter(
     tags=["attached-files"],
@@ -21,7 +20,7 @@ router = APIRouter(
 
 @router.get("/reports/{report_slug}/attached-files", status_code=200)
 def get_report_attached_files(
-    report_slug: str = Path(pattern=_NO_NUL_BYTE_PATTERN),
+    report_slug: str = Path(pattern=NO_NUL_BYTE_PATTERN),
     session: Session = Depends(get_session),
 ) -> GetReportAttachedFilesResponse:
     return attached_file_service.get_report_attached_files(report_slug, session)

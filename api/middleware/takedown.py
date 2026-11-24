@@ -10,6 +10,7 @@ from starlette.types import ASGIApp
 from crud.report import CRUDReport
 from settings import settings
 from utils.report_slug import get_normalised_report_slug, get_report_id_candidates
+from utils.site_address import URL_SEPARATOR
 from utils.takedown_list import get_taken_down_report_slugs
 
 # NOTE: read at import so a malformed list stops startup instead of showing a listed report.
@@ -46,7 +47,6 @@ def get_taken_down_report_ids(session: Session) -> list[int]:
 _INDEX_FILE = "index.html"
 _PATH_KEY = "path"
 _REPORT_PATH_PREFIX = "reports/"
-_URL_SEPARATOR = "/"
 
 
 def _get_page_report_slug(frontend_path_slug: str) -> str:
@@ -59,16 +59,12 @@ def _get_page_report_slug(frontend_path_slug: str) -> str:
 
 def _is_report_page_taken_down(request_path: str) -> bool:
     # NOTE: normalised as StaticFiles.get_path does, so every spelling the frontend mount serves is caught.
-    frontend_path = os.path.normpath(os.path.join(*request_path.split(_URL_SEPARATOR)))
+    frontend_path = os.path.normpath(os.path.join(*request_path.split(URL_SEPARATOR)))
     # NOTE: casefolded because the frontend's route matches /Reports/ and a slug in any case
     if not frontend_path.casefold().startswith(_REPORT_PATH_PREFIX):
         return False
     report_slug = _get_page_report_slug(frontend_path[len(_REPORT_PATH_PREFIX) :])
-    folded_report_slug = get_normalised_report_slug(report_slug).casefold()
-    return any(
-        folded_report_slug == taken_down_report_slug.casefold()
-        for taken_down_report_slug in _TAKEN_DOWN_REPORT_SLUGS
-    )
+    return is_report_slug_taken_down(report_slug)
 
 
 class TakedownMiddleware(BaseHTTPMiddleware):

@@ -6,8 +6,7 @@ from sqlmodel import Session
 
 from database.engine import get_session
 from middleware import embed as embed_middleware
-
-_NO_NUL_BYTE_PATTERN = r"^[^\x00]*$"
+from validators.request_limits import NO_NUL_BYTE_PATTERN
 
 router = APIRouter(tags=["embed"])
 
@@ -19,7 +18,7 @@ router = APIRouter(tags=["embed"])
     include_in_schema=False,
 )
 def get_speech_embed(
-    report_slug: str = Path(pattern=_NO_NUL_BYTE_PATTERN),
+    report_slug: str = Path(pattern=NO_NUL_BYTE_PATTERN),
     speech_ordinal_text: Optional[str] = Query(default=None, alias="s"),
     speech_anchor: Optional[str] = Query(default=None, alias="q"),
     session: Session = Depends(get_session),

@@ -11,11 +11,10 @@ from schemas.person import (
     GetPersonResponse,
 )
 from services import person as person_service
+from validators.request_limits import MAX_INTEGER_COLUMN_VALUE, NO_NUL_BYTE_PATTERN
 
 _DEFAULT_PAGE_SIZE = 20
 _MAX_PAGE_SIZE = 100
-_MAX_INTEGER_COLUMN_VALUE = 2_147_483_647
-_NO_NUL_BYTE_PATTERN = r"^[^\x00]*$"
 
 router = APIRouter(prefix="/people", tags=["people"])
 
@@ -23,13 +22,13 @@ router = APIRouter(prefix="/people", tags=["people"])
 @router.get("", status_code=200)
 def get_all_persons(
     parliament_number: Optional[int] = Query(
-        default=None, ge=0, le=_MAX_INTEGER_COLUMN_VALUE
+        default=None, ge=0, le=MAX_INTEGER_COLUMN_VALUE
     ),
     party: Optional[str] = Query(
-        default=None, min_length=1, pattern=_NO_NUL_BYTE_PATTERN
+        default=None, min_length=1, pattern=NO_NUL_BYTE_PATTERN
     ),
     constituency: Optional[str] = Query(
-        default=None, min_length=1, pattern=_NO_NUL_BYTE_PATTERN
+        default=None, min_length=1, pattern=NO_NUL_BYTE_PATTERN
     ),
     session: Session = Depends(get_session),
 ) -> GetAllPersonsResponse:
@@ -40,7 +39,7 @@ def get_all_persons(
 
 @router.get("/{person_id}", status_code=200)
 def get_person(
-    person_id: int = Path(ge=1, le=_MAX_INTEGER_COLUMN_VALUE),
+    person_id: int = Path(ge=1, le=MAX_INTEGER_COLUMN_VALUE),
     session: Session = Depends(get_session),
 ) -> GetPersonResponse:
     return person_service.get_person(person_id, session)
@@ -48,8 +47,8 @@ def get_person(
 
 @router.get("/{person_id}/reports", status_code=200)
 def get_person_reports(
-    person_id: int = Path(ge=1, le=_MAX_INTEGER_COLUMN_VALUE),
-    page: int = Query(default=1, ge=1, le=_MAX_INTEGER_COLUMN_VALUE),
+    person_id: int = Path(ge=1, le=MAX_INTEGER_COLUMN_VALUE),
+    page: int = Query(default=1, ge=1, le=MAX_INTEGER_COLUMN_VALUE),
     page_size: int = Query(default=_DEFAULT_PAGE_SIZE, ge=1, le=_MAX_PAGE_SIZE),
     report_filter: Optional[PersonReportFilter] = Query(default=None, alias="filter"),
     session: Session = Depends(get_session),
