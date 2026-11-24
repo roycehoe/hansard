@@ -492,24 +492,23 @@ def _get_person_printed_ranges_membership_datas(
             first_parliament_printed_range_datas.append(
                 first_parliament_printed_range_data
             )
-    membership_datas = [
+    first_parliament_membership_data = PersonPrintedRangesMembershipData(
+        membership_id=membership.id,
+        parliament_number=membership.parliament_number,
+        is_continued_into_parliament_1=False,
+        ranges=first_parliament_printed_range_datas,
+    )
+    if not assembly_printed_range_datas:
+        return [first_parliament_membership_data]
+    return [
+        first_parliament_membership_data,
         PersonPrintedRangesMembershipData(
             membership_id=membership.id,
-            parliament_number=membership.parliament_number,
-            is_continued_into_parliament_1=False,
-            ranges=first_parliament_printed_range_datas,
-        )
+            parliament_number=_LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+            is_continued_into_parliament_1=True,
+            ranges=assembly_printed_range_datas,
+        ),
     ]
-    if assembly_printed_range_datas:
-        membership_datas.append(
-            PersonPrintedRangesMembershipData(
-                membership_id=membership.id,
-                parliament_number=_LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
-                is_continued_into_parliament_1=True,
-                ranges=assembly_printed_range_datas,
-            )
-        )
-    return membership_datas
 
 
 def get_person_printed_ranges(

@@ -485,14 +485,15 @@ def _get_person_description(person_id: int, person_name: str, session: Session) 
     if report_count == 0:
         return lead_sentence
     word = _REPORT_WORD if report_count == 1 else _REPORTS_WORD
-    sentences = [
-        lead_sentence,
-        f"{report_count:,} {word}, {_get_parliament_range_label(memberships)}.",
-    ]
+    report_sentence = (
+        f"{report_count:,} {word}, {_get_parliament_range_label(memberships)}."
+    )
     seat_labels = _get_seat_labels(memberships[-1], session)
-    if seat_labels:
-        sentences.append(f"{_SEAT_SEPARATOR.join(seat_labels)}.")
-    return " ".join(sentences)
+    if not seat_labels:
+        return " ".join([lead_sentence, report_sentence])
+    return " ".join(
+        [lead_sentence, report_sentence, f"{_SEAT_SEPARATOR.join(seat_labels)}."]
+    )
 
 
 def _get_person_preview(person_id: int, session: Session) -> PreviewData:

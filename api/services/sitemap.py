@@ -138,9 +138,15 @@ def get_sitemap_file(file_stem: str, session: Session) -> str:
 
 
 def get_robots_txt() -> str:
-    lines: list[str] = list(_ROBOTS_TXT_LINES)
-    if settings.site_url is not None:
-        lines.extend(
-            ["", f"Sitemap: {settings.site_url.rstrip(URL_SEPARATOR)}/sitemap.xml"]
+    if settings.site_url is None:
+        return "\n".join(_ROBOTS_TXT_LINES) + "\n"
+    return (
+        "\n".join(
+            [
+                *_ROBOTS_TXT_LINES,
+                "",
+                f"Sitemap: {settings.site_url.rstrip(URL_SEPARATOR)}/sitemap.xml",
+            ]
         )
-    return "\n".join(lines) + "\n"
+        + "\n"
+    )

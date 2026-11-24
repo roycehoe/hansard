@@ -52,8 +52,11 @@ def _get_cleaned_speaker_label(speaker_label: str) -> str:
     cleaned = _PRESIDING_BRACKET.sub("", cleaned)
     cleaned = _TRAILING_DASH.sub("", cleaned)
     cleaned = _TRAILING_NAME_DOT.sub("", cleaned)
-    if _UPPERCASE_TITLE.match(cleaned) is not None and cleaned.isupper():
-        cleaned = cleaned.title()
+    cleaned = (
+        cleaned.title()
+        if _UPPERCASE_TITLE.match(cleaned) is not None and cleaned.isupper()
+        else cleaned
+    )
     cleaned = _WHITESPACE.sub(" ", cleaned).rstrip(_LABEL_TRAILING_CHARACTERS).strip()
     if cleaned.count(_OPENING_PARENTHESIS) > cleaned.count(_CLOSING_PARENTHESIS):
         cut = cleaned.rfind(_OPENING_PARENTHESIS)
@@ -63,9 +66,7 @@ def _get_cleaned_speaker_label(speaker_label: str) -> str:
             if _TITLED.match(inner) is not None
             else cleaned[:cut].strip()
         )
-    inverted = _INVERTED_NAME.match(cleaned)
-    if inverted is not None:
-        cleaned = f"{inverted.group(2)} {inverted.group(1)}"
+    cleaned = _INVERTED_NAME.sub(r"\2 \1", cleaned)
     doubled = _DOUBLED_LABEL.match(cleaned)
     return doubled.group(1) if doubled is not None else cleaned
 

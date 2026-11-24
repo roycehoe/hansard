@@ -446,15 +446,10 @@ def _get_table_row_html(row: list[str], cell_tag: str) -> str:
 
 
 def _get_table_html(table: TypedTableData) -> str:
-    sections = []
-    if table.header_rows:
-        header_rows = "".join(
-            _get_table_row_html(row, "th") for row in table.header_rows
-        )
-        sections.append(f"<thead>{header_rows}</thead>")
+    header_rows = "".join(_get_table_row_html(row, "th") for row in table.header_rows)
     body_rows = "".join(_get_table_row_html(row, "td") for row in table.body_rows)
-    sections.append(f"<tbody>{body_rows}</tbody>")
-    return f"<table>{''.join(sections)}</table>"
+    head = f"<thead>{header_rows}</thead>" if table.header_rows else ""
+    return f"<table>{head}<tbody>{body_rows}</tbody></table>"
 
 
 def _get_typed_table_html(table: TypedTableData, kind: PictureKind) -> list[str]:
@@ -1017,15 +1012,18 @@ def _get_act_reading_label(
     second_reading_label = (
         _SECOND_READING_CONTINUED_LABEL if is_continued else _SECOND_READING_LABEL
     )
-    labels = []
-    if BillStage.FIRST_READING in report.stages:
-        labels.append(_FIRST_READING_LABEL)
-    if BillStage.SECOND_READING_ORDER in report.stages:
-        labels.append(_SECOND_READING_LABEL)
-    elif BillStage.SECOND_READING_AGREED in report.stages:
-        labels.append(second_reading_label)
-    if BillStage.THIRD_READING in report.stages:
-        labels.append(_THIRD_READING_LABEL)
+    is_second_reading_order = BillStage.SECOND_READING_ORDER in report.stages
+    is_second_reading_agreed = BillStage.SECOND_READING_AGREED in report.stages
+    labelled_conditions = [
+        (BillStage.FIRST_READING in report.stages, _FIRST_READING_LABEL),
+        (is_second_reading_order, _SECOND_READING_LABEL),
+        (
+            not is_second_reading_order and is_second_reading_agreed,
+            second_reading_label,
+        ),
+        (BillStage.THIRD_READING in report.stages, _THIRD_READING_LABEL),
+    ]
+    labels = [label for is_present, label in labelled_conditions if is_present]
     if labels == []:
         return unnamed_label
     return ", ".join(labels)
