@@ -16,6 +16,8 @@ export const RESEARCHERS_FORM_URL =
 
 export const ANALYTICS_URL = import.meta.env.VITE_ANALYTICS_URL ?? ''
 
+export const HTTP_NO_CONTENT = 204
+
 export const HTTP_NOT_FOUND = 404
 
 export const HTTP_GONE = 410
@@ -25,6 +27,10 @@ export const HTTP_SERVER_ERROR_MIN = 500
 export const HTTP_SERVICE_UNAVAILABLE = 503
 
 export const HTTP_GATEWAY_TIMEOUT = 504
+
+export const SPEECH_SEARCH_PARAM = 's'
+
+export const QUERY_SEARCH_PARAM = 'q'
 
 export const ENDPOINT_NOT_FOUND_ERROR_CODE = 'endpoint.not_found'
 

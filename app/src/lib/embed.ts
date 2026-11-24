@@ -1,3 +1,4 @@
+import { QUERY_SEARCH_PARAM, SPEECH_SEARCH_PARAM } from '@/constants/constants'
 import {
   EMBED_CHARACTERS_PER_LINE,
   EMBED_LINE_HEIGHT,
@@ -10,8 +11,10 @@ export function buildEmbedPath(
   ordinal: number,
   anchor: string
 ): string {
-  const searchParams = new URLSearchParams({ s: String(ordinal) })
-  if (anchor !== '') searchParams.set('q', anchor)
+  const searchParams = new URLSearchParams({
+    [SPEECH_SEARCH_PARAM]: String(ordinal),
+  })
+  if (anchor !== '') searchParams.set(QUERY_SEARCH_PARAM, anchor)
   return `/embed/reports/${encodeURIComponent(reportSlug)}?${searchParams.toString()}`
 }
 

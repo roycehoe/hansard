@@ -1,3 +1,5 @@
+import { HTTP_NO_CONTENT } from '@/constants/constants'
+
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
 export class ApiError extends Error {
@@ -41,7 +43,7 @@ async function request<T>(
     throw new ApiError(res.status, parsed, res.headers)
   }
 
-  if (res.status === 204) return undefined as T
+  if (res.status === HTTP_NO_CONTENT) return undefined as T
   return res.json()
 }
 

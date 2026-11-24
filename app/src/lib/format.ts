@@ -11,13 +11,15 @@ import { format, parseISO } from 'date-fns'
 const SITTING_DATE_FORMAT = 'd MMMM yyyy'
 const SITTING_DAY_MONTH_FORMAT = 'd MMMM'
 const MONTH_YEAR_FORMAT = 'MMMM yyyy'
+const ISO_DATE_FORMAT = 'yyyy-MM-dd'
+const RANGE_SEPARATOR = ' to '
 const WWW_PREFIX = /^www\./
 const NAME_LIST_SEPARATOR = ', '
 const NAME_LIST_LAST_SEPARATOR = ' and '
 const MEMBERSHIP_LIST_SEPARATOR = ', '
 
 export function getToday(): string {
-  return format(new Date(), 'yyyy-MM-dd')
+  return format(new Date(), ISO_DATE_FORMAT)
 }
 
 export function formatSittingDate(sittingDate: string): string {
@@ -42,14 +44,16 @@ export function formatParliamentOption(parliament: ParliamentData): string {
   const firstYear = parseISO(parliament.first_sitting_date).getFullYear()
   const lastYear = parseISO(parliament.last_sitting_date).getFullYear()
   const years =
-    firstYear === lastYear ? firstYear : `${firstYear} to ${lastYear}`
+    firstYear === lastYear
+      ? firstYear
+      : `${firstYear}${RANGE_SEPARATOR}${lastYear}`
   return `${formatParliament(parliament.parliament_number)} (${years})`
 }
 
 export function formatParliamentRange(parliamentNumbers: number[]): string {
   const first = formatParliament(Math.min(...parliamentNumbers))
   const last = formatParliament(Math.max(...parliamentNumbers))
-  return first === last ? first : `${first} to ${last}`
+  return first === last ? first : `${first}${RANGE_SEPARATOR}${last}`
 }
 
 export function formatMembershipParliaments(
@@ -87,11 +91,11 @@ function formatParliamentRun(
   const last = run[run.length - 1]
   if (first === last) return formatParliament(first)
   if (first === LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER) {
-    return `${LEGISLATIVE_ASSEMBLY_LABEL} to ${formatParliament(last)}`
+    return `${LEGISLATIVE_ASSEMBLY_LABEL}${RANGE_SEPARATOR}${formatParliament(last)}`
   }
   return isAfterNumberRange
-    ? `${first} to ${last}`
-    : `Parliaments ${first} to ${last}`
+    ? `${first}${RANGE_SEPARATOR}${last}`
+    : `Parliaments ${first}${RANGE_SEPARATOR}${last}`
 }
 
 export function formatParliamentRuns(parliamentNumbers: number[]): string {
@@ -126,7 +130,7 @@ export function formatMembershipSummary(memberships: MembershipData[]): string {
   return [
     formatMembershipParliaments(memberships),
     ...getMembershipParties(memberships),
-  ].join(', ')
+  ].join(MEMBERSHIP_LIST_SEPARATOR)
 }
 
 export function formatPartyAffiliationStart(

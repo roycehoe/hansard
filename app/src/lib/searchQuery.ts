@@ -15,7 +15,14 @@ const QUOTE_CHARACTERS = /["“”]/
 const EXCLUDED_PREFIX = '-'
 const OR_OPERATOR = 'OR'
 const NOT_OPERATOR = 'NOT'
-const OPERATOR_WORDS = new Set([OR_OPERATOR, 'AND', NOT_OPERATOR, 'BUT'])
+const AND_OPERATOR = 'AND'
+const BUT_OPERATOR = 'BUT'
+const OPERATOR_WORDS = new Set([
+  OR_OPERATOR,
+  AND_OPERATOR,
+  NOT_OPERATOR,
+  BUT_OPERATOR,
+])
 const EXCLUDING_SYMBOL = '%'
 const SAME_PARAGRAPH_CONNECTOR = /^(?:&|w?\/[ps])$/i
 const OR_WORD = 'or'

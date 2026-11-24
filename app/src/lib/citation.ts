@@ -1,6 +1,8 @@
 import {
   LEGISLATIVE_ASSEMBLY_PARLIAMENT_NUMBER,
+  QUERY_SEARCH_PARAM,
   SITE_NAME,
+  SPEECH_SEARCH_PARAM,
 } from '@/constants/constants'
 import { formatSittingDate } from '@/lib/format'
 
@@ -163,7 +165,10 @@ export function buildSpeechPermalink(
 ): string {
   const reportUrl = buildReportPermalink(reportSlug)
   if (anchor === '') return `${reportUrl}#s${ordinal}`
-  const searchParams = new URLSearchParams({ s: String(ordinal), q: anchor })
+  const searchParams = new URLSearchParams({
+    [SPEECH_SEARCH_PARAM]: String(ordinal),
+    [QUERY_SEARCH_PARAM]: anchor,
+  })
   return `${reportUrl}?${searchParams.toString()}`
 }
 

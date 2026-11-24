@@ -9,6 +9,8 @@ import { useSyncExternalStore } from 'react'
 
 export type Theme = 'light' | 'dark'
 
+const DARK_CLASS_NAME = 'dark'
+
 const themeStore = createListenerStore()
 
 function readStoredColourChoice(): ColourChoice {
@@ -26,7 +28,9 @@ function readStoredColourChoice(): ColourChoice {
 let colourChoice = readStoredColourChoice()
 
 function readTheme(): Theme {
-  return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+  return document.documentElement.classList.contains(DARK_CLASS_NAME)
+    ? 'dark'
+    : 'light'
 }
 
 function readColourChoice(): ColourChoice {
@@ -49,7 +53,7 @@ function toggleDarkClassWithoutTransitions(isDark: boolean) {
   const style = document.createElement('style')
   style.textContent = NO_TRANSITIONS_CSS
   document.head.appendChild(style)
-  document.documentElement.classList.toggle('dark', isDark)
+  document.documentElement.classList.toggle(DARK_CLASS_NAME, isDark)
   // Forces the new colours to apply while transitions are still off, so every element switches in the same frame.
   document.body.getBoundingClientRect()
   requestAnimationFrame(() => style.remove())
