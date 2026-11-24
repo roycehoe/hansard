@@ -133,6 +133,14 @@ def get_sitemap_xml(file_name: str, session: Session) -> str:
     return xml
 
 
+def get_sitemap_index(session: Session) -> str:
+    return get_sitemap_xml(SITEMAP_INDEX_FILE_NAME, session)
+
+
+def get_sitemap_file(file_stem: str, session: Session) -> str:
+    return get_sitemap_xml(f"sitemap-{file_stem}.xml", session)
+
+
 def get_robots_txt() -> str:
     lines: list[str] = list(_ROBOTS_TXT_LINES)
     if settings.site_url is not None:

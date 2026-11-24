@@ -15,9 +15,7 @@ router = APIRouter(tags=["sitemap"])
 @router.api_route("/sitemap.xml", methods=["GET", "HEAD"], status_code=200)
 def get_sitemap_index(session: Session = Depends(get_session)) -> Response:
     return Response(
-        sitemap_service.get_sitemap_xml(
-            sitemap_service.SITEMAP_INDEX_FILE_NAME, session
-        ),
+        sitemap_service.get_sitemap_index(session),
         media_type=_XML_MEDIA_TYPE,
         headers={_CACHE_CONTROL_HEADER: _CACHE_CONTROL},
     )
@@ -28,7 +26,7 @@ def get_sitemap_file(
     file_stem: str, session: Session = Depends(get_session)
 ) -> Response:
     return Response(
-        sitemap_service.get_sitemap_xml(f"sitemap-{file_stem}.xml", session),
+        sitemap_service.get_sitemap_file(file_stem, session),
         media_type=_XML_MEDIA_TYPE,
         headers={_CACHE_CONTROL_HEADER: _CACHE_CONTROL},
     )
