@@ -32,7 +32,7 @@ _SCRIPT_TAG_OPENER = "<"
 _ESCAPED_SCRIPT_TAG_OPENER = "\\u003c"
 _NO_PRELOAD = ""
 _REPORT_PAGE_PATH = re.compile(r"^/reports/([^/]+)$")
-# NOTE: the site serves the API under /api (website.py), and the Dockerfile builds the frontend with VITE_API_URL=/api, so this is the base that app/src/api/client.ts puts in front of every path
+# NOTE: /api because website.py mounts the API there, and app/src/api/client.ts puts the same base in front of every path
 _API_PATH_PREFIX = "/api"
 # NOTE: the characters encodeURIComponent in app/src/api/reports/getReport.ts leaves as they are, besides letters, digits and "-_.~" which quote already keeps
 _URI_COMPONENT_SAFE_CHARACTERS = "!*'()"

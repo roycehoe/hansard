@@ -78,7 +78,6 @@ def _get_group_data(
         return None
 
 
-# NOTE: bad figures from the scraper count as no figures, so the app falls back to its constants
 def _get_validated_stored_figures(
     figures: Optional[dict[str, object]],
 ) -> Optional[RefreshRunFiguresData]:

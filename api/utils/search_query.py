@@ -60,7 +60,6 @@ class SearchQueryTerm:
     words: tuple[str, ...]
     is_quoted: bool
     is_excluded: bool
-    # the parts of a hyphenated word that the record may print apart; the word itself stays in words
     split_words: tuple[str, ...] = ()
 
 

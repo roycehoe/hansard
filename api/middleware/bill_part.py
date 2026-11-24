@@ -66,7 +66,6 @@ def get_report_bill(report: Report, session: Session) -> Optional[ReportBill]:
     )
 
 
-# NOTE: the Bill's mover is the first Member outside the chair in the part that carries the second reading order, else in its earliest part
 def _get_mover_report(report_bill: ReportBill) -> Report:
     for reading_report in report_bill.reading_reports:
         if any(

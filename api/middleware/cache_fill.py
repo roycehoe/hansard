@@ -32,7 +32,7 @@ def _fill_sitemap_cache() -> None:
         sitemap_service.fill_sitemap_cache(session)
 
 
-# NOTE: one session each, so a failure in one leaves the other's transaction clean. Each fill runs in its own try so a failure does not stop the others, and the first failure is raised after all three have run, so the callers still retry at the next check
+# NOTE: one session each, so a failure in one leaves the other's transaction clean
 def _fill_coverage_parliament_and_sitemap_caches() -> None:
     errors_to_raise: list[Exception] = []
     for fill_cache in (

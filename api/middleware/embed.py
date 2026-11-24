@@ -42,7 +42,6 @@ def _get_speech_ordinal(
     return int(speech_ordinal_text)
 
 
-# NOTE: the report page's own rule: a link with q follows the paragraph to its new ordinal or finds it missing, and a link with only s names the ordinal
 def _get_linked_speech(
     report: GetReportResponse, speech_ordinal: Optional[int]
 ) -> Optional[SpeechData]:
