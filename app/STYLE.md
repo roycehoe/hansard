@@ -36,6 +36,8 @@ One file per endpoint, one exported hook per file. Both follow the same verb-res
 | Query hook    | `use{Verb}{Resource}` | `useGetSittingMetadata`                         |
 | Mutation hook | `use{Verb}{Resource}` | `useDeleteSavedSearch`, `useCreateSavedSearch`  |
 
+A file may hold only the interfaces that mirror an API schema, for the contract test, as `api/acts/getActPeople.ts` does. It then has no hook.
+
 ### File Structure
 
 **Query (GET):**
