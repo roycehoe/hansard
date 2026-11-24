@@ -84,10 +84,10 @@ def _get_validated_person(person_id: int, session: Session) -> Person:
 
 
 def _get_validated_membership(membership_id: int, session: Session) -> Speaker:
-    memberships = CRUDMembership(session).get_by_ids([membership_id])
-    if len(memberships) == 0:
+    membership = CRUDMembership(session).get(membership_id)
+    if membership is None:
         raise OfficeMembershipNotFoundException
-    return memberships[0]
+    return membership
 
 
 def _get_office_printed_to_ministries(

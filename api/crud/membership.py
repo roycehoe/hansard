@@ -13,6 +13,9 @@ class CRUDMembership:
     def __init__(self, session: Session):
         self.session = session
 
+    def get(self, membership_id: int) -> Optional[Speaker]:
+        return self.session.get(Speaker, membership_id)
+
     def get_by_ids(self, membership_ids: list[int]) -> list[Speaker]:
         statement = select(Speaker).where(Speaker.id.in_(membership_ids))
         return list(self.session.exec(statement).all())
