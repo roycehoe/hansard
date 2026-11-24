@@ -502,12 +502,12 @@ def _get_paragraphs_with_pictures_html(
     }
     ordinal_to_pictures: dict[Optional[int], list[str]] = {}
     for picture in report.pictures:
-        key = (
+        follows_ordinal = (
             picture.follows_ordinal
             if picture.follows_ordinal in placed_ordinals
             else None
         )
-        ordinal_to_pictures.setdefault(key, []).extend(
+        ordinal_to_pictures.setdefault(follows_ordinal, []).extend(
             _get_picture_html(report.report_slug, picture)
         )
     blocks = list(ordinal_to_pictures.get(_BEFORE_FIRST_PARAGRAPH_ORDINAL, []))
@@ -646,17 +646,17 @@ def _get_report_type_label(report_type: str) -> str:
         return "Oral answer"
     if report_type == ReportType.WRITTEN_ANSWER:
         return "Written answer"
-    if report_type == ReportType.WRITTEN_ANSWER_NA:
+    if report_type == ReportType.WRITTEN_ANSWER_TO_ORAL_QUESTION:
         return "Written answer to oral question"
     if report_type == ReportType.CLARIFICATION:
         return "Clarification"
     if report_type == ReportType.MOTION:
         return "Motion"
-    if report_type == ReportType.MATTER_ADJ:
+    if report_type == ReportType.ADJOURNMENT_MATTER:
         return "Adjournment matter"
     if report_type == ReportType.BILL:
         return "Bill"
-    if report_type == ReportType.BILL_INTRO:
+    if report_type == ReportType.BILL_INTRODUCTION:
         return "Bill introduction"
     if report_type == ReportType.MINISTERIAL_STATEMENT:
         return "Ministerial statement"
@@ -686,7 +686,7 @@ def _get_report_type_label(report_type: str) -> str:
         return "Message from the Yang di-Pertuan Negara"
     if report_type == ReportType.MISC:
         return "Miscellaneous"
-    if report_type == ReportType.ATBP:
+    if report_type == ReportType.ASSENT_TO_BILLS_PASSED:
         return "Assent to Bills passed"
     return report_type
 
@@ -1009,7 +1009,9 @@ def _get_act_entry_reports_oldest_first(
 def _get_act_reading_label(
     report: ActEntryReportData, earlier_reports: list[ActEntryReportData]
 ) -> str:
-    earlier_stages = {stage for earlier in earlier_reports for stage in earlier.stages}
+    earlier_stages = {
+        stage for earlier_report in earlier_reports for stage in earlier_report.stages
+    }
     is_continued = (
         BillStage.SECOND_READING_ORDER in earlier_stages
         and BillStage.SECOND_READING_AGREED not in earlier_stages
@@ -1303,11 +1305,11 @@ def _get_match_count_html(
 
 
 def _get_search_url(
-    query_params: Mapping[str, str], tab: Optional[str], page: Optional[int]
+    query_parameters: Mapping[str, str], tab: Optional[str], page: Optional[int]
 ) -> str:
     kept_parameters = [
         (name, value)
-        for name, value in query_params.items()
+        for name, value in query_parameters.items()
         if name != _PAGE_PARAMETER and name != _TAB_PARAMETER
     ]
     tab_parameters = [] if tab is None else [(_TAB_PARAMETER, tab)]
@@ -1335,7 +1337,7 @@ def _should_search_titles(
 
 
 def _get_title_search_lines(
-    query_params: Mapping[str, str],
+    query_parameters: Mapping[str, str],
     parameters: _SearchPageParameters,
     is_query_without_search_words: bool,
 ) -> list[str]:
@@ -1346,28 +1348,31 @@ def _get_title_search_lines(
         if is_query_without_search_words
         else _TITLE_MATCHES_LINK_TEXT
     )
-    title_search_url = _get_search_url(query_params, _TITLES_TAB, None)
+    title_search_url = _get_search_url(query_parameters, _TITLES_TAB, None)
     return [f'<p><a href="{escape(title_search_url)}">{link_text}</a></p>']
 
 
 def _get_speech_search_line(
-    query_params: Mapping[str, str], is_query_without_search_words: bool
+    query_parameters: Mapping[str, str], is_query_without_search_words: bool
 ) -> str:
     link_text = (
         _SPEECHES_LINK_TEXT
         if is_query_without_search_words
         else _SPEECH_MATCHES_LINK_TEXT
     )
-    speech_search_url = _get_search_url(query_params, None, None)
+    speech_search_url = _get_search_url(query_parameters, None, None)
     return f'<p><a href="{escape(speech_search_url)}">{link_text}</a></p>'
 
 
 def _get_next_page_lines(
-    query_params: Mapping[str, str], tab: Optional[str], page: int, has_next_page: bool
+    query_parameters: Mapping[str, str],
+    tab: Optional[str],
+    page: int,
+    has_next_page: bool,
 ) -> list[str]:
     if not has_next_page:
         return []
-    next_page_url = _get_search_url(query_params, tab, page + 1)
+    next_page_url = _get_search_url(query_parameters, tab, page + 1)
     return [f'<p><a href="{escape(next_page_url)}">{_NEXT_PAGE_LINK_TEXT}</a></p>']
 
 
@@ -1389,13 +1394,13 @@ def _get_search_note_html(title: str, note: str) -> str:
 
 def _get_search_results_html(
     title: str,
-    query_params: Mapping[str, str],
+    query_parameters: Mapping[str, str],
     parameters: _SearchPageParameters,
     search_speeches_response: SearchSpeechesResponse,
 ) -> str:
     is_query_without_search_words = _is_query_without_search_words(parameters.query)
     title_search_lines = _get_title_search_lines(
-        query_params, parameters, is_query_without_search_words
+        query_parameters, parameters, is_query_without_search_words
     )
     if search_speeches_response.results == []:
         no_results_note = (
@@ -1431,7 +1436,7 @@ def _get_search_results_html(
             ],
             "</ol>",
             *_get_next_page_lines(
-                query_params,
+                query_parameters,
                 None,
                 parameters.page,
                 search_speeches_response.has_next_page,
@@ -1442,13 +1447,13 @@ def _get_search_results_html(
 
 def _get_title_search_results_html(
     title: str,
-    query_params: Mapping[str, str],
+    query_parameters: Mapping[str, str],
     parameters: _SearchPageParameters,
     search_reports_response: SearchReportsResponse,
 ) -> str:
     is_query_without_search_words = _is_query_without_search_words(parameters.query)
     speech_search_line = _get_speech_search_line(
-        query_params, is_query_without_search_words
+        query_parameters, is_query_without_search_words
     )
     if search_reports_response.results == []:
         no_results_note = (
@@ -1484,7 +1489,7 @@ def _get_title_search_results_html(
             ],
             "</ol>",
             *_get_next_page_lines(
-                query_params,
+                query_parameters,
                 _TITLES_TAB,
                 parameters.page,
                 search_reports_response.has_next_page,
@@ -1629,7 +1634,7 @@ def _get_is_text_available_filter(person_id: Optional[int]) -> Optional[bool]:
 
 
 def _get_title_search_html(
-    title: str, query_params: Mapping[str, str], parameters: _SearchPageParameters
+    title: str, query_parameters: Mapping[str, str], parameters: _SearchPageParameters
 ) -> str:
     is_text_available = _get_is_text_available_filter(parameters.person_id)
     validate_can_search_reports(
@@ -1643,7 +1648,7 @@ def _get_title_search_html(
     with Session(search_engine) as session:
         return _get_title_search_results_html(
             title,
-            query_params,
+            query_parameters,
             parameters,
             search_service.search_reports(
                 parameters.query,
@@ -1660,11 +1665,11 @@ def _get_title_search_html(
         )
 
 
-def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> str:
+def _get_search_page_text_html(title: str, query_parameters: Mapping[str, str]) -> str:
     try:
-        parameters = _SearchPageParameters.model_validate(dict(query_params))
-        if _should_search_titles(query_params.get(_TAB_PARAMETER), parameters):
-            return _get_title_search_html(title, query_params, parameters)
+        parameters = _SearchPageParameters.model_validate(dict(query_parameters))
+        if _should_search_titles(query_parameters.get(_TAB_PARAMETER), parameters):
+            return _get_title_search_html(title, query_parameters, parameters)
         validate_can_search_speeches(
             parameters.query,
             parameters.parliament_number,
@@ -1678,7 +1683,7 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
         with Session(search_engine) as session:
             return _get_search_results_html(
                 title,
-                query_params,
+                query_parameters,
                 parameters,
                 search_service.search_speeches(
                     parameters.query,
@@ -1705,14 +1710,14 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
     except SearchTooManyAlternativesException:
         return _get_search_note_html(title, _SEARCH_TOO_MANY_ALTERNATIVES_NOTE)
     except SearchConstituencyNotFoundException:
-        constituency = query_params.get(_CONSTITUENCY_PARAMETER, "").strip()
+        constituency = query_parameters.get(_CONSTITUENCY_PARAMETER, "").strip()
         return _get_search_note_html(
             title,
             f"No constituency called {constituency}. "
             f"{_SEARCH_CONSTITUENCY_NOT_FOUND_NOTE}",
         )
     except ActNotFoundException:
-        act_sso_code = query_params.get(_ACT_PARAMETER, "").strip()
+        act_sso_code = query_parameters.get(_ACT_PARAMETER, "").strip()
         return _get_search_note_html(
             title, f"{_SEARCH_ACT_NOT_FOUND_NOTE_PREFIX} {act_sso_code}."
         )
@@ -1727,7 +1732,7 @@ def _get_search_page_text_html(title: str, query_params: Mapping[str, str]) -> s
 # NOTE: a report is the only page whose preview carries a sitting date, so a report that was not found costs no second lookup
 def get_page_text_html(
     path: str,
-    query_params: Mapping[str, str],
+    query_parameters: Mapping[str, str],
     is_document_request: bool,
     preview: PreviewData,
 ) -> str:
@@ -1741,11 +1746,11 @@ def get_page_text_html(
         return _get_people_page_text_html()
     if path == _SITTINGS_PATH:
         return _get_parliament_sittings_page_text_html(
-            preview.title, query_params.get(_PARLIAMENT_PARAMETER)
+            preview.title, query_parameters.get(_PARLIAMENT_PARAMETER)
         )
     # NOTE: a browser's page load runs the search from React, so writing it here as well would spend a second of the three search slots on every visit
     if path == _SEARCH_PATH and not is_document_request:
-        return _get_search_page_text_html(preview.title, query_params)
+        return _get_search_page_text_html(preview.title, query_parameters)
     report_match = _REPORT_PATH.match(path)
     if report_match is not None and preview.sitting_date is not None:
         return _get_report_page_text_html(report_match.group(1))

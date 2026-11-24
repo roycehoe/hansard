@@ -29,8 +29,8 @@ def get_transcript_quote(transcript: str) -> str:
     ]
     if sentence_ends:
         return plain[: sentence_ends[-1]]
-    words = plain[: _MAX_QUOTE_LENGTH - 1].rsplit(_WORD_SEPARATOR, 1)[0]
-    return words + _ELLIPSIS
+    whole_word_text = plain[: _MAX_QUOTE_LENGTH - 1].rsplit(_WORD_SEPARATOR, 1)[0]
+    return whole_word_text + _ELLIPSIS
 
 
 def get_paragraph_quote(speaker_label: str, transcript: str) -> str:

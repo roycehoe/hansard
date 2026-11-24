@@ -33,7 +33,7 @@ from utils.speaker_label import CHAIR_SPEAKER_LABEL_PATTERN
 _QUESTION_REPORT_TYPES = (
     ReportType.ORAL_ANSWER,
     ReportType.WRITTEN_ANSWER,
-    ReportType.WRITTEN_ANSWER_NA,
+    ReportType.WRITTEN_ANSWER_TO_ORAL_QUESTION,
 )
 _FIRST_SPEAKER_REPORT_TYPES = (ReportType.BILL, ReportType.MOTION)
 

@@ -133,7 +133,7 @@ def _is_parliamentary_question(report_type: str) -> bool:
     return (
         report_type == ReportType.ORAL_ANSWER
         or report_type == ReportType.WRITTEN_ANSWER
-        or report_type == ReportType.WRITTEN_ANSWER_NA
+        or report_type == ReportType.WRITTEN_ANSWER_TO_ORAL_QUESTION
     )
 
 
@@ -517,7 +517,7 @@ def get_report(
         referenced_written_answer=(
             _get_referenced_report_data(
                 report.title,
-                ReportType.WRITTEN_ANSWER_NA,
+                ReportType.WRITTEN_ANSWER_TO_ORAL_QUESTION,
                 sitting_reports,
             )
             if report.report_type == ReportType.ORAL_ANSWER
@@ -529,7 +529,7 @@ def get_report(
                 ReportType.ORAL_ANSWER,
                 sitting_reports,
             )
-            if report.report_type == ReportType.WRITTEN_ANSWER_NA
+            if report.report_type == ReportType.WRITTEN_ANSWER_TO_ORAL_QUESTION
             else None
         ),
         previous_report=_get_sitting_neighbour_data(sitting_reports, report_index - 1),

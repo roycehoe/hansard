@@ -73,11 +73,11 @@ def _get_preview_url(site_url: Optional[str], path: str) -> Optional[str]:
 
 # NOTE: a report is the only page whose preview carries a sitting date. The page asks for the plain report only while the address has no s or q; with either, the app's request carries a query string whose form depends on how it parses them, and a preload that differs from the request is downloaded for nothing
 def _get_page_preload_html(scope: Scope, preview: PreviewData) -> str:
-    query_params = Request(scope).query_params
+    query_parameters = Request(scope).query_params
     if (
         preview.sitting_date is None
-        or _SPEECH_ORDINAL_PARAMETER in query_params
-        or _SPEECH_ANCHOR_PARAMETER in query_params
+        or _SPEECH_ORDINAL_PARAMETER in query_parameters
+        or _SPEECH_ANCHOR_PARAMETER in query_parameters
     ):
         return _NO_PRELOAD
     return get_report_data_preload_html(scope[_PATH_KEY])
@@ -125,12 +125,12 @@ class FrontendFiles(StaticFiles):
         bot_name = get_preview_bot_name(request.headers.get(_USER_AGENT_HEADER, ""))
         if bot_name is not None:
             preview_fetch_service.count_preview_fetch(bot_name, scope[_PATH_KEY])
-        query_params = request.query_params
+        query_parameters = request.query_params
         preview = await run_in_threadpool(
             _get_page_preview,
             scope[_PATH_KEY],
-            query_params.get(_SPEECH_ORDINAL_PARAMETER),
-            query_params.get(_SPEECH_ANCHOR_PARAMETER),
+            query_parameters.get(_SPEECH_ORDINAL_PARAMETER),
+            query_parameters.get(_SPEECH_ANCHOR_PARAMETER),
         )
         if not preview.is_found:
             old_report_address_url = await run_in_threadpool(
@@ -144,7 +144,7 @@ class FrontendFiles(StaticFiles):
         page_text_html = await run_in_threadpool(
             get_page_text_html,
             scope[_PATH_KEY],
-            query_params,
+            query_parameters,
             request.headers.get(_FETCH_DESTINATION_HEADER) == _DOCUMENT_DESTINATION,
             preview,
         )

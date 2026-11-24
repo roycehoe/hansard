@@ -150,7 +150,7 @@ def _get_uncached_coverage(
         no_text_by_design_report_count=CRUDReport(
             session
         ).get_count_without_text_by_report_type_and_min_sitting_date(
-            ReportType.ATBP, _TEXTLESS_ASSENT_FIRST_SITTING
+            ReportType.ASSENT_TO_BILLS_PASSED, _TEXTLESS_ASSENT_FIRST_SITTING
         ),
         speech_count=CRUDSpeech(session).get_count(),
         linked_speech_count=CRUDSpeech(session).get_count_with_membership_id(),

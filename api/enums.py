@@ -4,12 +4,12 @@ from enum import StrEnum
 class ReportType(StrEnum):
     ORAL_ANSWER = "oral-answer"
     WRITTEN_ANSWER = "written-answer"
-    WRITTEN_ANSWER_NA = "written-answer-na"
+    WRITTEN_ANSWER_TO_ORAL_QUESTION = "written-answer-na"
     CLARIFICATION = "clarification"
     MOTION = "motion"
-    MATTER_ADJ = "matter-adj"
+    ADJOURNMENT_MATTER = "matter-adj"
     BILL = "bill"
-    BILL_INTRO = "bill-intro"
+    BILL_INTRODUCTION = "bill-intro"
     MINISTERIAL_STATEMENT = "ministerial-statement"
     WRITTEN_STATEMENT = "written-statement"
     BUDGET = "budget"
@@ -24,7 +24,7 @@ class ReportType(StrEnum):
     OBITUARY_SPEECH = "obituary-speech"
     YANG_DI_MESSAGE = "yang-di-message"
     MISC = "misc"
-    ATBP = "atbp"
+    ASSENT_TO_BILLS_PASSED = "atbp"
 
 
 class SearchSort(StrEnum):
