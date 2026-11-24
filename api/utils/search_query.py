@@ -226,7 +226,7 @@ class _SearchQueryParser:
         if bare_token == _EXCLUDING_SYMBOL:
             self.is_exclusion_pending = not self.is_exclusion_pending
             return
-        if _SAME_PARAGRAPH_CONNECTOR.fullmatch(bare_token):
+        if _SAME_PARAGRAPH_CONNECTOR.fullmatch(bare_token) is not None:
             return
         words = _get_words(bare_token)
         if words != () and words[0].lower() == _OR_WORD:
