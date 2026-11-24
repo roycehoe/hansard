@@ -188,8 +188,8 @@ def _get_report_by_slug(report_slug: str, session: Session) -> Optional[Report]:
     return None
 
 
-def _get_report_path(report: Report) -> str:
-    return f"/reports/{quote(get_report_slug(report.report_id), safe='')}"
+def _get_report_path(report_id: str) -> str:
+    return f"/reports/{quote(get_report_slug(report_id), safe='')}"
 
 
 def _get_names_label(names: list[str]) -> str:
@@ -258,18 +258,18 @@ def _get_stage_title_label(stage: BillStage) -> str:
 
 
 def _get_report_title(
-    report: Report,
+    title: str,
     sitting_date_label: str,
     stage_lines: list[BillStageLine],
     report_part: Optional[BillReportPart],
 ) -> str:
     if report_part == BillReportPart.MINISTERS_REPLY:
-        return f"{_MINISTERS_REPLY_TITLE_LABEL}, {report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
+        return f"{_MINISTERS_REPLY_TITLE_LABEL}, {title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
     if report_part == BillReportPart.SECOND_READING_DEBATE_RESUMED:
-        return f"{_SECOND_READING_DEBATE_RESUMED_TITLE_LABEL}, {report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
+        return f"{_SECOND_READING_DEBATE_RESUMED_TITLE_LABEL}, {title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
     if not stage_lines:
-        return f"{report.title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
-    bill_title = _LEADING_THE.sub(_EMPTY_LABEL, report.title)
+        return f"{title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
+    bill_title = _LEADING_THE.sub(_EMPTY_LABEL, title)
     if report_part == BillReportPart.SECOND_AND_THIRD_READING:
         return f"{_SECOND_AND_THIRD_READING_TITLE_LABEL} of the {bill_title}, {sitting_date_label}, {_REPORT_RECORD_NAME}"
     stage_label = _get_stage_title_label(stage_lines[0].stage)
@@ -311,13 +311,13 @@ def _get_report_preview_description(
 
 # NOTE: a part on the first reading is no debate, so a resumed line with no printed date takes the latest earlier sitting of a part with no first reading
 def _get_earlier_second_reading_date(
-    report: Report, report_bill: ReportBill
+    sitting_date: datetime, report_bill: ReportBill
 ) -> Optional[date]:
     return max(
         (
             reading_report.sitting_date.date()
             for reading_report in report_bill.reading_reports
-            if reading_report.sitting_date.date() < report.sitting_date.date()
+            if reading_report.sitting_date.date() < sitting_date.date()
             and not any(
                 stage_line.stage == BillStage.FIRST_READING
                 for stage_line in report_bill.sprs_report_id_to_stage_lines.get(
@@ -360,7 +360,7 @@ def _get_report_part_description(
         return report_preview_description
     resumed_from = get_resumed_from_label(
         opening_speech.transcript,
-        _get_earlier_second_reading_date(report, report_bill),
+        _get_earlier_second_reading_date(report.sitting_date, report_bill),
         report.sitting_date.year,
     )
     if resumed_from is None:
@@ -388,7 +388,7 @@ def _get_report_preview(report: Report, session: Session) -> PreviewData:
     )
     return PreviewData(
         title=_get_report_title(
-            report, sitting_date_label, report_stage_lines, report_part
+            report.title, sitting_date_label, report_stage_lines, report_part
         ),
         description=_get_report_part_description(
             report,
@@ -399,7 +399,7 @@ def _get_report_preview(report: Report, session: Session) -> PreviewData:
             session,
         ),
         preview_type=PreviewType.ARTICLE,
-        path=_get_report_path(report),
+        path=_get_report_path(report.report_id),
         is_found=True,
         report_title=report.title,
         person_name=_EMPTY_LABEL,
@@ -438,7 +438,7 @@ def _get_speech_preview(
         title=f"{_UNOFFICIAL_TRANSCRIPT}: {_get_speech_title(linked_speech, report)}",
         description=f"{get_transcript_quote(linked_speech.transcript)} {_NOT_OFFICIAL}",
         preview_type=PreviewType.ARTICLE,
-        path=f"{_get_report_path(report)}?{query}",
+        path=f"{_get_report_path(report.report_id)}?{query}",
         is_found=True,
         report_title=report.title,
         person_name=_EMPTY_LABEL,

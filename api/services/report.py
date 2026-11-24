@@ -11,7 +11,6 @@ from crud.report_asker import CRUDReportAsker
 from crud.report_link import CRUDReportLink
 from crud.report_picture import CRUDReportPicture
 from crud.speech import CRUDSpeech
-from database.act_history_entry import ActHistoryEntry
 from database.person import Person
 from database.report import Report
 from database.report_asker import ReportAsker
@@ -261,11 +260,13 @@ def _get_viewed_report_links(report_id: str, session: Session) -> list[ReportLin
 
 
 def _get_report_link_relation(
-    report_link: ReportLink, is_viewed_report_the_source: bool, source_report_type: str
+    link_type: ReportLinkType,
+    is_viewed_report_the_source: bool,
+    source_report_type: str,
 ) -> ReportLinkRelation:
-    if report_link.link_type == ReportLinkType.REPLY:
+    if link_type == ReportLinkType.REPLY:
         return ReportLinkRelation.REFERS_TO
-    if report_link.link_type == ReportLinkType.CONTINUATION:
+    if link_type == ReportLinkType.CONTINUATION:
         return ReportLinkRelation.CONTINUES
     if _is_correction_report(source_report_type) == is_viewed_report_the_source:
         return ReportLinkRelation.CORRECTS
@@ -283,7 +284,7 @@ def _get_report_link_data(
     is_viewed_report_the_source = report_link.source_report_id == report.report_id
     return ReportLinkData(
         relation=_get_report_link_relation(
-            report_link,
+            report_link.link_type,
             is_viewed_report_the_source,
             report.report_type
             if is_viewed_report_the_source
@@ -330,8 +331,8 @@ def get_report_links(report_slug: str, session: Session) -> GetReportLinksRespon
     )
 
 
-def _is_act_made_by_bill(entry: ActHistoryEntry, act_title: str) -> bool:
-    return get_law_name(entry.printed_title) == get_law_name(act_title)
+def _is_act_made_by_bill(printed_title: str, act_title: str) -> bool:
+    return get_law_name(printed_title) == get_law_name(act_title)
 
 
 def _get_report_bill_data(report: Report, session: Session) -> Optional[ReportBillData]:
@@ -364,7 +365,7 @@ def _get_report_bill_data(report: Report, session: Session) -> Optional[ReportBi
                 sso_code=act.sso_code,
                 title=act.title,
                 is_made_by_bill=any(
-                    _is_act_made_by_bill(entry, act.title)
+                    _is_act_made_by_bill(entry.printed_title, act.title)
                     for entry in entries
                     if entry.act_id == act.id
                 ),

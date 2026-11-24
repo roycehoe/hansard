@@ -27,11 +27,11 @@ def _get_validated_person(person_id: int, session: Session) -> Person:
 
 
 def _get_printing_person(
-    printing: LeavePeriodPrinting, membership_id_to_person: dict[int, Person]
+    speaker_id: Optional[int], membership_id_to_person: dict[int, Person]
 ) -> Optional[Person]:
-    if printing.speaker_id is None:
+    if speaker_id is None:
         return None
-    return membership_id_to_person.get(printing.speaker_id)
+    return membership_id_to_person.get(speaker_id)
 
 
 def _get_leave_printing_data(printing: LeavePeriodPrinting) -> LeavePrintingData:
@@ -117,7 +117,9 @@ def get_latest_sitting_leave_periods(
     latest_sitting_leaves = []
     for printing in printings:
         leave_period = leave_period_id_to_leave_period[printing.leave_period_id]
-        printing_person = _get_printing_person(printing, membership_id_to_person)
+        printing_person = _get_printing_person(
+            printing.speaker_id, membership_id_to_person
+        )
         latest_sitting_leaves.append(
             LatestSittingLeaveData(
                 person_id=None if printing_person is None else printing_person.id,
